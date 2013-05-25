@@ -1,3 +1,4 @@
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -9,11 +10,10 @@ namespace dmp_library
 
 struct library_entry 
 {	
-	library_entry(std::string artist, std::string title, std::string album, std::string length)
+	library_entry(std::string artist, std::string title, std::string album)
 	: artist(artist)
 	, title(title)
 	, album(album)
-	, length(length)
 	, id(next_id++)
 	{}
 	
@@ -22,7 +22,6 @@ struct library_entry
 	std::string artist;
 	std::string title;
 	std::string album;
-	std::string length;
 	uint32_t id;
 	
 	friend std::ostream& operator<<(std::ostream& os, library_entry const& le);

@@ -3,6 +3,7 @@
 #include "taglib/fileref.h"
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 
 #include <vector>
 
@@ -13,15 +14,15 @@ uint32_t library_entry::next_id = 0;
 using namespace std;
 using namespace boost;
 
-library_entry build_library_entry(filesystem::path p)
+boost::optional<library_entry> build_library_entry(filesystem::path p)
 {
 	TagLib::FileRef file(p.string().c_str());
 	TagLib::Tag* t = file.tag();
 	if(t) {
-		return library_entry(t->artist().toCString(), t->title().toCString(), t->album().toCString(), "4");
+		return boost::optional<library_entry>(library_entry(t->artist().toCString(), t->title().toCString(), t->album().toCString()));
 	}
 	else {
-		throw std::runtime_error("No tag data found in: " + p.string());
+		return boost::optional<library_entry>();
 	}
 }
 
@@ -31,11 +32,13 @@ vector<library_entry> build_library(filesystem::recursive_directory_iterator it)
 	for(; it != filesystem::recursive_directory_iterator(); ++it)
 	{
 		if(filesystem::is_directory(*it)){
-			std::cout << "scanning: " << (*it) << std::endl;
 			continue;
 		}
 		try {
-			library.emplace_back(build_library_entry(*it));
+			boost::optional<library_entry> entry = build_library_entry(*it);
+			if(entry) {
+				library.emplace_back(entry.get());
+			}
 		} 
 		catch(std::runtime_error const& e) 
 		{
@@ -53,7 +56,12 @@ vector<library_entry> read_path(string path)
 	{
 		if(filesystem::is_regular_file(p))
 		{
-			return {build_library_entry(p)};
+			boost::optional<library_entry> entry = build_library_entry(p);
+			if(entry) {
+				return {entry.get()};
+			} else {
+				return {};
+			}
 		} else if(filesystem::is_directory(p))
 		{
 			return build_library(filesystem::recursive_directory_iterator(p));
@@ -71,7 +79,6 @@ ostream& operator<<(ostream& os, library_entry const& le)
 				<< "\t" << "artist:" << le.artist << std::endl
 				<< "\t" << "title:" << le.title << std::endl
 				<< "\t" << "album:" << le.album << std::endl
-				<< "\t" << "length:" << le.length << std::endl
 				<< "}" << std::endl;
 }
 	
