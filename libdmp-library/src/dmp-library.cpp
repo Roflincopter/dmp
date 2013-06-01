@@ -8,8 +8,6 @@
 #include <vector>
 
 namespace dmp_library {
-
-uint32_t library_entry::next_id = 0;
 	
 using namespace std;
 using namespace boost;
@@ -19,7 +17,7 @@ boost::optional<library_entry> build_library_entry(filesystem::path p)
 	TagLib::FileRef file(p.string().c_str());
 	TagLib::Tag* t = file.tag();
 	if(t) {
-		return boost::optional<library_entry>(library_entry(t->artist().toCString(), t->title().toCString(), t->album().toCString()));
+		return boost::optional<library_entry>(library_entry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true)));
 	}
 	else {
 		return boost::optional<library_entry>();
@@ -70,17 +68,11 @@ vector<library_entry> read_path(string path)
 			throw runtime_error("unsupported file type: " + p.string() + " is neither a single file or a folder.");
 		}
 	}
+	else
+	{
+		throw runtime_error("File/Folder: \"" + path + "\" does not exist.");
+	}
 }
 
-ostream& operator<<(ostream& os, library_entry const& le)
-{
-	return os 	<< "{" << std::endl
-				<< "\t" << "UID:" << le.id << std::endl
-				<< "\t" << "artist:" << le.artist << std::endl
-				<< "\t" << "title:" << le.title << std::endl
-				<< "\t" << "album:" << le.album << std::endl
-				<< "}" << std::endl;
-}
-	
 }
 
