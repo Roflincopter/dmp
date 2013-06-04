@@ -21,7 +21,6 @@ endif(TAGLIB_FOUND)
 find_package(ICU REQUIRED)
 if(ICU_FOUND)
     include_directories(ICU_INCLUDE_DIRS)
-    file(GLOB ICU_LIBRARIES /usr/lib/x86_64-linux-gnu/libicu*.so)
     target_link_libraries(dmp-library ${ICU_LIBRARIES})
 endif(ICU_FOUND)
 
