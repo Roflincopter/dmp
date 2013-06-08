@@ -3,3 +3,6 @@ website: http://taglib.github.io/
 
 This library uses the ICU library with no modifications.
 website: http://site.icu-project.org/
+
+This library uses the Boost libraries "regex" and "spirit" with no modifications.
+website: http://boost.org
