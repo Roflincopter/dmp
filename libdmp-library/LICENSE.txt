@@ -1,2 +1,0 @@
-This library uses the taglib library with no modifications. 
-website: http://taglib.github.io/

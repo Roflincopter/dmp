@@ -1,0 +1,5 @@
+This library uses the taglib library with no modifications. 
+website: http://taglib.github.io/
+
+This library uses the ICU library with no modifications.
+website: http://site.icu-project.org/
