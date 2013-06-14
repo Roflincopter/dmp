@@ -9,6 +9,7 @@
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
 
 using namespace boost;
 using namespace std;
@@ -55,17 +56,30 @@ namespace dmp_library {
 	struct atom_parser : spirit::qi::grammar<Iterator, ast_query_type(), spirit::qi::ascii::space_type>
 	{	
 		qi::rule<Iterator, ast_query_type(), ascii::space_type> query;
-		qi::rule<Iterator, ast_query_type(), ascii::space_type> _not;
-		qi::rule<Iterator, ast_not(), ascii::space_type> _notprime;
+		
 		qi::rule<Iterator, ast_query_type(), ascii::space_type> _or;
 		qi::rule<Iterator, ast_or(), ascii::space_type> _orprime;
+		qi::rule<Iterator, void(), ascii::space_type> _orliteral;
+		
 		qi::rule<Iterator, ast_query_type(), ascii::space_type> _and;
 		qi::rule<Iterator, ast_and(), ascii::space_type> _andprime;
-		qi::rule<Iterator, ast_atom(), ascii::space_type> atom; 
+		qi::rule<Iterator, void(), ascii::space_type> _andliteral;
+		
+		qi::rule<Iterator, ast_query_type(), ascii::space_type> _not;
+		qi::rule<Iterator, ast_not(), ascii::space_type> _notprime;
+		qi::rule<Iterator, void(), ascii::space_type> _notliteral;
+		
 		qi::rule<Iterator, ast_nest(), ascii::space_type> nested;
+		qi::rule<Iterator, void(), ascii::space_type> parenthesis_open;
+		qi::rule<Iterator, void(), ascii::space_type> parenthesis_close;
+		
+		qi::rule<Iterator, ast_atom(), ascii::space_type> atom; 
+		
 		qi::rule<Iterator, string(), ascii::space_type> field;
 		qi::rule<Iterator, string(), ascii::space_type> modifier;
 		qi::rule<Iterator, string(), ascii::space_type> input;
+		qi::rule<Iterator, void(), ascii::space_type> quote;
+		qi::rule<Iterator, void(), ascii::space_type> end_of_query;
 		
 		atom_parser() : atom_parser::base_type(query)
 		{	
@@ -73,24 +87,65 @@ namespace dmp_library {
 			using ascii::char_;
 			using phoenix::at_c;
 			using phoenix::push_back;
+			using phoenix::val;
+			using phoenix::construct;
 			
-			query %= _or | qi::eoi;
+			using qi::on_error;
+			using qi::fail;
+			
+			query.name("query");
+			_or.name("or");
+			_orprime.name("or");
+			_orliteral.name("or literal");
+			
+			_and.name("and");
+			_andprime.name("and");
+			_andliteral.name("and literal");
+			
+			_not.name("not");
+			_notprime.name("not");
+			_notliteral.name("not literal");
+			
+			nested.name("nested query");
+			end_of_query.name("end of query");
+			parenthesis_open.name("open parenthesis");
+			parenthesis_close.name("close parenthesis");
+			atom.name("query atom");
+			field.name("field");
+			modifier.name("modifier");
+			input.name("qouted string");
+			quote.name("qoute");
+			
+			
+			query %= _or | end_of_query;
 			
 			_or  %= _orprime | _and;
 			
-			_orprime %= _and >> qi::lit("or") >> _or;
+			_orprime %= _and >> _orliteral > _or;
+			
+			_orliteral %= "or";
 			
 			_and %= _andprime | _not;
 			
-			_andprime %= _not >> qi::lit("and") >> _and;
+			_andprime %= _not >> _andliteral > _and;
+			
+			_andliteral %= "and";
 			
 			_not %= _notprime | nested | atom;
 			
-			_notprime %= qi::lit("not") >> _not;
+			_notprime %= _notliteral > _not;
 			
-			nested %= (qi::lit("(") >> query >> qi::lit(")") >> -qi::eoi);
+			_notliteral %= "not";
 			
-			atom %= (field >> modifier >> input);
+			nested %= (parenthesis_open > query > parenthesis_close > end_of_query);
+			
+			end_of_query %= qi::eoi;
+			
+			parenthesis_open %= '(';
+			
+			parenthesis_close %= ')';
+			
+			atom %= (field > modifier > input);
 			
 			field %= 
 				(
@@ -105,14 +160,26 @@ namespace dmp_library {
 					|   qi::string("contains")
 				);
 			
-			input %= 
-				    '"'
-				>>  lexeme[+(char_ - '"')] 
-				>>  '"';
+			input %= quote > lexeme[+(char_ - '"')] > quote;
+			
+			quote %= '"';
+				
+			on_error<fail>
+			(
+				query
+				, std::cout
+					<< val("Error! Expecting ")
+					<< qi::_4                               // what failed?
+					<< std::endl
+					<< construct<std::string>(qi::_1, qi::_3)
+					<< val("<here>")
+					<< construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
+					<< std::endl
+			);
 		}
 	};
 	
-	void parse_query(string const& str)
+	shared_ptr<query> parse_query(string const& str)
 	{
 		atom_parser<string::const_iterator> ap;
 		ast_query_type ast;
@@ -124,7 +191,6 @@ namespace dmp_library {
 		cout << endl;
 		
 		to_query_visitor q;
-		apply_visitor(q, ast);
-		
+		return apply_visitor(q, ast);
 	}
 }

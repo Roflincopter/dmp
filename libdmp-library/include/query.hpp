@@ -4,10 +4,12 @@
 
 #include <boost/variant.hpp>
 #include <boost/variant/static_visitor.hpp>
+#include <boost/regex.hpp>
 
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <string>
 
 namespace dmp_library {
 
@@ -158,13 +160,12 @@ struct atom : public query
 	query::modifier modifier;
 	std::string query_string;
 	
-	atom(ast_atom const& ast)
-	: field(to_field(ast.field))
-	, modifier(to_modifier(ast.modifier))
-	, query_string(ast.input)
-	{}
-	
+	atom(ast_atom const& ast);
 	atom(query::field field, query::modifier modifier, std::string query_string);
+	
+	std::string const& get_field_string(query::field const& f, library_entry const& entry);
+	boost::regex const get_regex(query::modifier const& m);
+	
 	std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 

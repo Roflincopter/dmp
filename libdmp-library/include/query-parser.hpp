@@ -6,6 +6,6 @@
 
 namespace dmp_library {
 	
-void parse_query(std::string const& str);
+std::shared_ptr<query> parse_query(std::string const& str);
 	
 }

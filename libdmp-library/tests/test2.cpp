@@ -11,7 +11,10 @@ int main(int argc, char* argv[])
 	auto database = dmp_library::read_path(dir);
 	auto searcher = dmp_library::library_search(database);
 	
-	dmp_library::parse_query("not artist contains \"lolol\"");
+	std::shared_ptr<dmp_library::query> q = dmp_library::parse_query("artist contains \"x\" and not title contains \"x\" or album is \"x\"");
+	searcher.search(q);
+	std::cout << std::endl;
+	
 	/*
 	auto result_vec = searcher.search(q);
 	for(size_t x : result_vec)
