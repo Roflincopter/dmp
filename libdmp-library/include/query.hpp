@@ -79,8 +79,12 @@ struct ast_or {
     friend std::ostream& operator<<(std::ostream& os, ast_or const& _or)
     {
         print_visitor p(os);
-        boost::apply_visitor(p, _or.lh);
         os << " :or: ";
+
+        os << std::endl << "\t";
+        boost::apply_visitor(p, _or.lh);
+
+        os << std::endl << "\t";
         boost::apply_visitor(p, _or.rh);
         return os;
     }
@@ -116,61 +120,71 @@ struct ast_nest {
 };
 
 template <typename T>
-struct rotate_visitor : public boost::static_visitor<bool>
+struct rotate_visitor : public boost::static_visitor<T>
 {
-    T& parent;
+    T const& parent;
 
-    rotate_visitor(T& parent)
+    rotate_visitor(T const& parent)
     :parent(parent)
     {}
 
     template <typename V>
-    bool rotate(std::false_type, V& child)
+    T rotate(std::false_type, V const& x)
     {
-        return false;
+        return parent;
     }
 
-    bool rotate(std::true_type, T& child)
+    T rotate(std::true_type, T const& child)
     {
-        parent.rh = child.lh;
-        child.lh = parent;
-        return true;
+        T new_parent;
+        T new_child;
+
+        new_child.lh = parent.lh;
+        new_child.rh = child.lh;
+        new_parent.lh = new_child;
+        new_parent.rh = child.rh;
+        return new_parent;
     }
 
     template <typename U>
-    bool operator()(U& x)
+    T operator()(U const& x)
     {
         return rotate(std::is_same<T, U>(), x);
     }
 };
 
-struct precedence_visitor : public boost::static_visitor<void>
+struct precedence_visitor : public boost::static_visitor<ast_query_type>
 {
-    void operator()(ast_atom& x)
+    ast_query_type operator()(ast_atom const& x)
     {
-        return;
+        return x;
     }
 
-    void operator()(ast_not& x)
+    ast_query_type operator()(ast_not const& x)
     {
         precedence_visitor precedence;
-        return boost::apply_visitor(precedence, x.negated);
+        ast_not ret;
+        ret.negated = boost::apply_visitor(precedence, x.negated);
+        return ret;
     }
 
-    void operator()(ast_nest& x)
+    ast_query_type operator()(ast_nest const& x)
     {
         precedence_visitor precedence;
-        return boost::apply_visitor(precedence, x.arg);
+        ast_nest ret;
+        ret.arg = boost::apply_visitor(precedence, x.arg);
+        return ret;
     }
 
     template <typename T>
-    void operator()(T& x)
+    ast_query_type operator()(T const& x)
     {
-        ast_query_type& continuation = x.rh;
         rotate_visitor<T> rotate(x);
+        T ret = boost::apply_visitor(rotate, x.rh);
 
         precedence_visitor precedence;
-        return boost::apply_visitor(precedence, continuation);
+        ret.rh = boost::apply_visitor(precedence, ret.rh);
+        return ret;
     }
 };
 

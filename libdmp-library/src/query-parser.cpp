@@ -187,7 +187,7 @@ namespace dmp_library {
         cout << (r ? "parse_suceeded" : "parse_failed" ) << endl;
 
         precedence_visitor precedence;
-        boost::apply_visitor(precedence, ast);
+        ast = boost::apply_visitor(precedence, ast);
 
         print_visitor p(cout);
         apply_visitor(p, ast);
