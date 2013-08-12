@@ -21,15 +21,15 @@ library_entry::library_entry(string artist, string title, string album)
 
 ostream& operator<<(ostream& os, library_entry const& le)
 {
-	return os 	<< "{" << std::endl
-				<< "\t" << "UID: " << le.id << std::endl
-				<< "\t" << "artist: " << le.artist << std::endl
-				<< "\t" << "a_artist: " << le.ascii_artist << std::endl
-				<< "\t" << "title: " << le.title << std::endl
-				<< "\t" << "a_title: " << le.ascii_title << std::endl
-				<< "\t" << "album: " << le.album << std::endl
-				<< "\t" << "a_album: " << le.ascii_album << std::endl
-				<< "}" << std::endl;
+    return os 	<< "{" << std::endl
+                << "\t" << "UID: " << le.id << std::endl
+                << "\t" << "artist: " << le.artist << std::endl
+                << "\t" << "a_artist: " << le.ascii_artist << std::endl
+                << "\t" << "title: " << le.title << std::endl
+                << "\t" << "a_title: " << le.ascii_title << std::endl
+                << "\t" << "album: " << le.album << std::endl
+                << "\t" << "a_album: " << le.ascii_album << std::endl
+                << "}" << std::endl;
 }
 
 }

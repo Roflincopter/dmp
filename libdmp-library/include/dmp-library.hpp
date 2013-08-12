@@ -8,6 +8,6 @@
 namespace dmp_library
 {
 
-std::vector<library_entry> read_path(std::string path);
+    std::vector<library_entry> read_path(std::string path);
 
 }

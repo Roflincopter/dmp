@@ -10,17 +10,17 @@ using namespace boost;
 using namespace std;
 using std::shared_ptr;
 
-query::field query::to_field(string const& x) 
+query::field query::to_field(string const& x)
 {
-	if (x == "artist") return field::artist;
-	if (x == "title")  return field::title;
-	if (x == "album")  return field::album;
+    if (x == "artist") return field::artist;
+    if (x == "title")  return field::title;
+    if (x == "album")  return field::album;
 }
 
 query::modifier query::to_modifier(string const& x)
 {
-	if (x == "contains") return modifier::contains;
-	if (x == "is")       return modifier::is;
+    if (x == "contains") return modifier::contains;
+    if (x == "is")       return modifier::is;
 }
 
 atom::atom(ast_atom const& ast)
@@ -37,33 +37,33 @@ atom::atom(query::field field, query::modifier modifier, string query_string)
 
 std::string const& atom::get_field_string(query::field const& f, library_entry const& e)
 {
-	switch(f)
-	{
-		case query::field::album:  return e.album;
-		case query::field::artist: return e.artist;
-		case query::field::title:  return e.title;
-		default: throw runtime_error("This should not happen: __FILE__ : __LINE__##.");
-	}
+    switch(f)
+    {
+        case query::field::album:  return e.album;
+        case query::field::artist: return e.artist;
+        case query::field::title:  return e.title;
+        default: throw runtime_error("This should not happen: __FILE__ : __LINE__##.");
+    }
 }
 
 boost::regex const atom::get_regex(query::modifier const& m)
 {
-	switch(m)
-	{
-		case query::modifier::is:       return regex(query_string);
-		case query::modifier::contains: return regex(str(format(".*%1%.*") % query_string));
-		default: throw runtime_error("This should not happen: __FILE__ : __LINE__##.");
-	}
+    switch(m)
+    {
+        case query::modifier::is:       return regex(query_string);
+        case query::modifier::contains: return regex(str(format(".*%1%.*") % query_string));
+        default: throw runtime_error("This should not happen: __FILE__ : __LINE__##.");
+    }
 }
 
 std::vector<size_t> atom::handle_search(vector<library_entry> const& library)
 {
-	for(library_entry const& entry : library)
-	{
-		std::string const& source = get_field_string(field, entry);
-	}
-	cout << "atom";
-	return std::vector<size_t>();
+    for(library_entry const& entry : library)
+    {
+        std::string const& source = get_field_string(field, entry);
+    }
+    cout << "atom";
+    return std::vector<size_t>();
 }
 
 _and::_and(dmp_library::ast_and const& ast)
@@ -78,10 +78,10 @@ _and::_and(std::shared_ptr<query> lh, shared_ptr<query> rh)
 
 std::vector<size_t> _and::handle_search(vector<library_entry> const& library)
 {
-	lh->handle_search(library);
-	cout << " and ";
-	rh->handle_search(library);
-	return std::vector<size_t>();
+    lh->handle_search(library);
+    cout << " and ";
+    rh->handle_search(library);
+    return std::vector<size_t>();
 }
 
 _or::_or(dmp_library::ast_or const& ast)
@@ -96,10 +96,10 @@ _or::_or(std::shared_ptr<query> lh, shared_ptr<query> rh)
 
 std::vector<size_t> _or::handle_search(vector<library_entry> const& library)
 {
-	lh->handle_search(library);
-	cout << " or "; 
-	rh->handle_search(library);
-	return std::vector<size_t>();
+    lh->handle_search(library);
+    cout << " or ";
+    rh->handle_search(library);
+    return std::vector<size_t>();
 }
 
 _not::_not(dmp_library::ast_not const& ast)
@@ -112,9 +112,9 @@ _not::_not(shared_ptr<query> arg)
 
 std::vector<size_t> _not::handle_search(vector<library_entry> const& library)
 {
-	cout << " not ";
-	negated->handle_search(library);
-	return std::vector<size_t>();
+    cout << " not ";
+    negated->handle_search(library);
+    return std::vector<size_t>();
 }
 
 }

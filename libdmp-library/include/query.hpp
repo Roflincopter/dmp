@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <type_traits>
 
 namespace dmp_library {
 
@@ -26,176 +27,236 @@ struct _and;
 struct _or;
 
 typedef boost::variant<ast_atom, boost::recursive_wrapper<ast_or>, boost::recursive_wrapper<ast_and>, boost::recursive_wrapper<ast_not>, boost::recursive_wrapper<ast_nest>> ast_query_type;
-	
+
 struct print_visitor : public boost::static_visitor<std::ostream&>
 {
-	std::ostream& os;
+    std::ostream& os;
 
-	print_visitor(std::ostream& os)
-	: os(os)
-	{}
+    print_visitor(std::ostream& os)
+    : os(os)
+    {}
 
-	template <typename T>
-	std::ostream& operator()(T x)
-	{
-		return os << x;
-	}
+    template <typename T>
+    std::ostream& operator()(T x)
+    {
+        return os << x;
+    }
 };
 
 struct ast_atom {
-	std::string field;
-	std::string modifier;
-	std::string input;
-	
-	typedef atom query_type;
-	
-	friend std::ostream& operator<<(std::ostream& os, ast_atom const& atom)
-	{
-		std::cout << atom.field << " " << atom.modifier << " " << atom.input;
-	}
+    std::string field;
+    std::string modifier;
+    std::string input;
+
+    typedef atom query_type;
+
+    friend std::ostream& operator<<(std::ostream& os, ast_atom const& atom)
+    {
+        std::cout << atom.field << " " << atom.modifier << " " << atom.input;
+    }
 };
 
 struct ast_not {
-	ast_query_type negated;
-	
-	typedef _not query_type;
-	
-	friend std::ostream& operator<<(std::ostream& os, ast_not const& _not)
-	{
-		os << " not: ";
-		print_visitor p(os);
-		boost::apply_visitor(p, _not.negated);
-		return os;
-	}
+    ast_query_type negated;
+
+    typedef _not query_type;
+
+    friend std::ostream& operator<<(std::ostream& os, ast_not const& _not)
+    {
+        os << " not: ";
+        print_visitor p(os);
+        boost::apply_visitor(p, _not.negated);
+        return os;
+    }
 };
 
 struct ast_or {
-	ast_query_type lh;
-	ast_query_type rh;
-	
-	typedef _or query_type;
-	
-	friend std::ostream& operator<<(std::ostream& os, ast_or const& _or)
-	{
-		print_visitor p(os);
-		boost::apply_visitor(p, _or.lh);
-		os << " :or: ";
-		boost::apply_visitor(p, _or.rh);
-		return os;
-	}
+    ast_query_type lh;
+    ast_query_type rh;
+
+    typedef _or query_type;
+
+    friend std::ostream& operator<<(std::ostream& os, ast_or const& _or)
+    {
+        print_visitor p(os);
+        boost::apply_visitor(p, _or.lh);
+        os << " :or: ";
+        boost::apply_visitor(p, _or.rh);
+        return os;
+    }
 };
 
 struct ast_and {
-	ast_query_type lh;
-	ast_query_type rh;
-	
-	typedef _and query_type;
-	
-	friend std::ostream& operator<<(std::ostream& os, ast_and const& _and)
-	{
-		print_visitor p(os);
-		boost::apply_visitor(p, _and.lh);
-		os << " :and: ";
-		boost::apply_visitor(p, _and.rh);
-		return os;
-	}
+    ast_query_type lh;
+    ast_query_type rh;
+
+    typedef _and query_type;
+
+    friend std::ostream& operator<<(std::ostream& os, ast_and const& _and)
+    {
+        print_visitor p(os);
+        boost::apply_visitor(p, _and.lh);
+        os << " :and: ";
+        boost::apply_visitor(p, _and.rh);
+        return os;
+    }
 };
 
 struct ast_nest {
-	ast_query_type arg;
-	
-	friend std::ostream& operator<<(std::ostream& os, ast_nest const& nest)
-	{
-		os << " (";
-		print_visitor p(os);
-		boost::apply_visitor(p, nest.arg);
-		os << ") ";
-		return os;
-	}
+    ast_query_type arg;
+
+    friend std::ostream& operator<<(std::ostream& os, ast_nest const& nest)
+    {
+        os << " (";
+        print_visitor p(os);
+        boost::apply_visitor(p, nest.arg);
+        os << ") ";
+        return os;
+    }
 };
+
+template <typename T>
+struct rotate_visitor : public boost::static_visitor<bool>
+{
+    T& parent;
+
+    rotate_visitor(T& parent)
+    :parent(parent)
+    {}
+
+    template <typename V>
+    bool rotate(std::false_type, V& child)
+    {
+        return false;
+    }
+
+    bool rotate(std::true_type, T& child)
+    {
+        parent.rh = child.lh;
+        child.lh = parent;
+        return true;
+    }
+
+    template <typename U>
+    bool operator()(U& x)
+    {
+        return rotate(std::is_same<T, U>(), x);
+    }
+};
+
+struct precedence_visitor : public boost::static_visitor<void>
+{
+    void operator()(ast_atom& x)
+    {
+        return;
+    }
+
+    void operator()(ast_not& x)
+    {
+        precedence_visitor precedence;
+        return boost::apply_visitor(precedence, x.negated);
+    }
+
+    void operator()(ast_nest& x)
+    {
+        precedence_visitor precedence;
+        return boost::apply_visitor(precedence, x.arg);
+    }
+
+    template <typename T>
+    void operator()(T& x)
+    {
+        ast_query_type& continuation = x.rh;
+        rotate_visitor<T> rotate(x);
+
+        precedence_visitor precedence;
+        return boost::apply_visitor(precedence, continuation);
+    }
+};
+
 
 struct to_query_visitor : public boost::static_visitor<std::shared_ptr<query>>
 {
-	template <typename T>
-	std::shared_ptr<query> operator()(T x)
-	{
-		return std::make_shared<typename T::query_type>(x);
-	}
-	
-	std::shared_ptr<query> operator()(ast_nest nest)
-	{
-		to_query_visitor v;
-		boost::apply_visitor(v, nest.arg);
-	}
+    template <typename T>
+    std::shared_ptr<query> operator()(T x)
+    {
+        return std::make_shared<typename T::query_type>(x);
+    }
+
+    std::shared_ptr<query> operator()(ast_nest nest)
+    {
+        to_query_visitor v;
+        boost::apply_visitor(v, nest.arg);
+    }
 };
 
-struct query 
+struct query
 {
-	to_query_visitor to_query;
-	
-	virtual ~query(){}
-	
-	enum class field
-	{
-		artist,
-		title,
-		album
-	};
-	
-	enum class modifier
-	{
-		contains,
-		is
-	};
-	
-	query::field to_field(std::string const& x);
-	query::modifier to_modifier(std::string const& x);
-	
-	virtual std::vector<size_t> handle_search(std::vector<library_entry> const& library) = 0;
-};	
+    to_query_visitor to_query;
+
+    virtual ~query(){}
+
+    enum class field
+    {
+        artist,
+        title,
+        album
+    };
+
+    enum class modifier
+    {
+        contains,
+        is
+    };
+
+    query::field to_field(std::string const& x);
+    query::modifier to_modifier(std::string const& x);
+
+    virtual std::vector<size_t> handle_search(std::vector<library_entry> const& library) = 0;
+};
 
 struct atom : public query
 {
-	query::field field;
-	query::modifier modifier;
-	std::string query_string;
-	
-	atom(ast_atom const& ast);
-	atom(query::field field, query::modifier modifier, std::string query_string);
-	
-	std::string const& get_field_string(query::field const& f, library_entry const& entry);
-	boost::regex const get_regex(query::modifier const& m);
-	
-	std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
+    query::field field;
+    query::modifier modifier;
+    std::string query_string;
+
+    atom(ast_atom const& ast);
+    atom(query::field field, query::modifier modifier, std::string query_string);
+
+    std::string const& get_field_string(query::field const& f, library_entry const& entry);
+    boost::regex const get_regex(query::modifier const& m);
+
+    std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
 struct _and : public query
 {
-	std::shared_ptr<query> lh;
-	std::shared_ptr<query> rh;
-	
-	_and(ast_and const& ast);
-	_and(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
-	std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
+    std::shared_ptr<query> lh;
+    std::shared_ptr<query> rh;
+
+    _and(ast_and const& ast);
+    _and(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
+    std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
 struct _or : public query
 {
-	std::shared_ptr<query> lh;
-	std::shared_ptr<query> rh;
-	
-	_or(ast_or const& ast);	
-	_or(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
-	std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
+    std::shared_ptr<query> lh;
+    std::shared_ptr<query> rh;
+
+    _or(ast_or const& ast);
+    _or(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
+    std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
 struct _not : public query
 {
-	std::shared_ptr<query> negated;
-	
-	_not(ast_not const& ast);
-	_not(std::shared_ptr<query> arg);
-	std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
+    std::shared_ptr<query> negated;
+
+    _not(ast_not const& ast);
+    _not(std::shared_ptr<query> arg);
+    std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
 }

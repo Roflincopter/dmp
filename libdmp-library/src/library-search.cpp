@@ -10,7 +10,7 @@ using namespace std;
 using namespace boost;
 
 vector<size_t> library_search::search(std::shared_ptr<query> query_obj) {
-	return query_obj->handle_search(library);
+    return query_obj->handle_search(library);
 }
 
 }
