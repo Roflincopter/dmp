@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_executable(dmp-server main.cpp)
+add_definitions("--std=c++11")
+
+add_executable(dmp-server main.cpp RTSPReceiver.hpp RTSPReceiver.cpp)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
