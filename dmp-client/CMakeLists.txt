@@ -7,5 +7,8 @@ add_executable(dmp-client main.cpp RTSPSender.hpp RTSPSender.cpp)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 find_package(LiveMedia REQUIRED)
-include_directories(${LIVEMEDIA_INCLUDE_DIR} ${GROUPSOCK_INCLUDE_DIR} ${USAGEENVIRONMENT_INCLUDE_DIR} ${BASICUSAGEENVIRONMENT_INCLUDE_DIR})
-target_link_libraries(dmp-client ${LIVEMEDIA_LIBRARY} ${GROUPSOCK_LIBRARY} ${USAGEENVIRONMENT_LIBRARY} ${BASICUSAGEENVIRONMENT_LIBRARY})
+include_directories(${LIVEMEDIA_INCLUDE_DIRS})
+target_link_libraries(dmp-client ${LIVEMEDIA_LIBRARIES})
+
+find_package(LibDMP-library REQUIRED)
+include_directories(${LIBDMP-LIBRARY_INCLUDE_DIRS})
