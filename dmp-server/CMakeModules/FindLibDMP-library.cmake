@@ -11,9 +11,6 @@ find_path(LIBDMP-LIBRARY_INCLUDE_DIR dmp-library.hpp
 find_library(LIBDMP-LIBRARY_LIBRARY NAMES dmp-library libdmp-library
 	HINTS "${CMAKE_CURRENT_BINARY_DIR}/../libdmp-library/src")
 
-message("Current bin dir: ${CMAKE_CURRENT_BINARY_DIR}")
-message("Current src dir: ${CMAKE_CURRENT_SOURCE_DIR}")
-
 set(LIBDMP-LIBRARY_LIBRARIES ${LIBDMP-LIBRARY_LIBRARY})
 set(LIBDMP-LIBRARY_INCLUDE_DIRS ${LIBDMP-LIBRARY_INCLUDE_DIR})
 
