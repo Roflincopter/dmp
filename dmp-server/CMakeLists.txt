@@ -12,3 +12,8 @@ target_link_libraries(dmp-server ${LIVEMEDIA_LIBRARIES})
 
 find_package(LibDMP-library REQUIRED)
 include_directories(${LIBDMP-LIBRARY_INCLUDE_DIRS})
+target_link_libraries(dmp-server ${LIBDMP-LIBRARY_LIBRARIES})
+
+find_package(Boost COMPONENTS system serialization REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+target_link_libraries(dmp-server ${Boost_LIBRARIES})
