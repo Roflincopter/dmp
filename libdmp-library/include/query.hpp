@@ -266,6 +266,16 @@ struct _or : public query
 
 struct _not : public query
 {
+    struct sequence_generator {
+        int current;
+
+        sequence_generator()
+        : current(0)
+        {}
+
+        int operator()() {return current++;}
+    };
+
     std::shared_ptr<query> negated;
 
     _not(ast_not const& ast);

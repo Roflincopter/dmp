@@ -5,7 +5,13 @@
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+#include <boost/serialization/vector.hpp>
+
 #include <vector>
+#include <fstream>
 
 namespace dmp_library {
 
@@ -24,7 +30,7 @@ boost::optional<library_entry> build_library_entry(filesystem::path p)
     }
 }
 
-vector<library_entry> build_library(filesystem::recursive_directory_iterator it)
+Library build_library(filesystem::recursive_directory_iterator it)
 {
     vector<library_entry> library;
     for(; it != filesystem::recursive_directory_iterator(); ++it)
@@ -47,9 +53,40 @@ vector<library_entry> build_library(filesystem::recursive_directory_iterator it)
     return library;
 }
 
-vector<library_entry> read_path(string path)
+Library read_cache(std::string const& cache_path)
 {
-    filesystem::path p(path);
+    std::ifstream ifs(cache_path);
+    if(ifs)
+    {
+        archive::text_iarchive ar(ifs);
+        Library lib;
+        ar & lib;
+        return lib;
+    }
+    else
+    {
+        std::cout << "opening file " + cache_path + " for reading failed: make this a nice exception." << std::endl;
+    }
+}
+
+void write_cache(std::string const& cache_path, Library const& lib)
+{
+    std::ofstream ofs(cache_path);
+    if(ofs)
+    {
+        archive::text_oarchive ar(ofs);
+        ar & lib;
+    }
+    else
+    {
+        std::cout << "opening file " + cache_path + " for writing failed: make this a nice exception." << std::endl;
+    }
+    return;
+}
+
+Library parse_directory(std::string const& directory_path)
+{
+    filesystem::path p(directory_path);
     if(filesystem::exists(p))
     {
         if(filesystem::is_regular_file(p))
@@ -70,7 +107,26 @@ vector<library_entry> read_path(string path)
     }
     else
     {
-        throw runtime_error("File/Folder: \"" + path + "\" does not exist.");
+        throw runtime_error("File/Folder: \"" + p.string() + "\" does not exist.");
+    }
+}
+
+Library create_library(string path, bool use_cache, bool create_cache)
+{
+    filesystem::path cache_path = filesystem::path(path) += filesystem::path(cache_file);
+
+    if(filesystem::exists(cache_path) && use_cache)
+    {
+        return read_cache(cache_path.string());
+    }
+    else
+    {
+        Library lib = parse_directory(path);
+        if(create_cache)
+        {
+            write_cache(cache_path.string(), lib);
+        }
+        return lib;
     }
 }
 

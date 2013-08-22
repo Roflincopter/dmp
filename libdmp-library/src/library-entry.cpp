@@ -19,6 +19,18 @@ library_entry::library_entry(string artist, string title, string album)
 , id(next_id++)
 {}
 
+bool library_entry::operator==(const library_entry &that) const
+{
+    return  this->artist       == that.artist &&
+            this->ascii_artist == that.ascii_artist &&
+            this->title        == that.title &&
+            this->ascii_title  == that.ascii_title &&
+            this->album        == that.album &&
+            this->ascii_album  == that.ascii_album &&
+            this->id           == that.id;
+}
+
+
 ostream& operator<<(ostream& os, library_entry const& le)
 {
     return os 	<< "{" << std::endl
@@ -31,5 +43,7 @@ ostream& operator<<(ostream& os, library_entry const& le)
                 << "\t" << "a_album: " << le.ascii_album << std::endl
                 << "}" << std::endl;
 }
+
+
 
 }

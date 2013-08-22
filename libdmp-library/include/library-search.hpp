@@ -13,16 +13,6 @@ class library_search
 {
     std::vector<library_entry> const& library;
 
-    struct incremental_generator
-    {
-        size_t current = 0;
-
-        size_t operator()()
-        {
-            return current++;
-        }
-    };
-
 public:
 
     library_search(std::vector<library_entry> const& library)

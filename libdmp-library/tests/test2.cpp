@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
     assert(argc == 2);
     std::string dir(argv[1]);
 
-    auto database = dmp_library::read_path(dir);
+    auto database = dmp_library::create_library(dir, false);
     auto searcher = dmp_library::library_search(database);
 
     std::shared_ptr<dmp_library::query> q = dmp_library::parse_query("artist contains \"x\" and not title contains \"x\" or album is \"x\"");

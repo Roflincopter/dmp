@@ -9,3 +9,6 @@ target_link_libraries(test2 dmp-library)
 
 add_executable(test3 test3.cpp)
 target_link_libraries(test3 dmp-library)
+
+add_executable(test4 test4.cpp)
+target_link_libraries(test4 dmp-library)

@@ -58,12 +58,19 @@ boost::regex const atom::get_regex(query::modifier const& m)
 
 std::vector<size_t> atom::handle_search(vector<library_entry> const& library)
 {
+    std::vector<size_t> ret;
     for(library_entry const& entry : library)
     {
         std::string const& source = get_field_string(field, entry);
+        boost::regex x = get_regex(modifier);
+
+        if(boost::regex_match(source, x))
+        {
+            ret.push_back(entry.id);
+        }
     }
     cout << "atom";
-    return std::vector<size_t>();
+    return ret;
 }
 
 _and::_and(dmp_library::ast_and const& ast)
@@ -78,10 +85,13 @@ _and::_and(std::shared_ptr<query> lh, shared_ptr<query> rh)
 
 std::vector<size_t> _and::handle_search(vector<library_entry> const& library)
 {
-    lh->handle_search(library);
+    auto lhv = lh->handle_search(library);
     cout << " and ";
-    rh->handle_search(library);
-    return std::vector<size_t>();
+    auto rhv = rh->handle_search(library);
+
+    std::vector<size_t> ret;
+    std::set_intersection(lhv.begin(), lhv.end(), rhv.begin(), rhv.end(), std::back_inserter(ret));
+    return ret;
 }
 
 _or::_or(dmp_library::ast_or const& ast)
@@ -96,10 +106,13 @@ _or::_or(std::shared_ptr<query> lh, shared_ptr<query> rh)
 
 std::vector<size_t> _or::handle_search(vector<library_entry> const& library)
 {
-    lh->handle_search(library);
+    auto lhv = lh->handle_search(library);
     cout << " or ";
-    rh->handle_search(library);
-    return std::vector<size_t>();
+    auto rhv = rh->handle_search(library);
+
+    std::vector<size_t> ret;
+    std::set_union(lhv.begin(), lhv.end(), rhv.begin(), rhv.end(), std::back_inserter(ret));
+    return ret;
 }
 
 _not::_not(dmp_library::ast_not const& ast)
@@ -113,8 +126,16 @@ _not::_not(shared_ptr<query> arg)
 std::vector<size_t> _not::handle_search(vector<library_entry> const& library)
 {
     cout << " not ";
-    negated->handle_search(library);
-    return std::vector<size_t>();
+    std::vector<size_t> x = negated->handle_search(library);
+
+    std::vector<size_t> all(library.size());
+    sequence_generator gen;
+    std::generate(all.begin(), all.end(), gen);
+
+    std::vector<size_t> ret;
+    std::set_difference(all.begin(), all.end(), x.begin(), x.end(), std::back_inserter(ret));
+
+    return ret;
 }
 
 }
