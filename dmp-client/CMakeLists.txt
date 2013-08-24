@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 add_definitions("--std=c++11")
 
-add_executable(dmp-client main.cpp RTSPSender.hpp RTSPSender.cpp)
+add_executable(dmp-client main.cpp RTSPSender.hpp RTSPSender.cpp dmp_connection.hpp dmp_connection.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
 target_link_libraries(dmp-client dmp-library)
