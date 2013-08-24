@@ -1,19 +1,11 @@
 
 #include "RTSPSender.hpp"
-#include "dmp_connection.hpp"
 
 #include <dmp-library.hpp>
+#include <connect.hpp>
 
-#include <boost/asio.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
-
-using namespace boost::asio::ip;
-
-#include <sstream>
+#include <iostream>
 #include <string>
-
-
 
 int main(int argc, char* argv[]) {
     if(argc < 2)
@@ -26,7 +18,7 @@ int main(int argc, char* argv[]) {
     dmp_library::Library music = dmp_library::create_library(music_path);
 
     {
-        dmp_connection connection("localhost", 1337);
+        dmp::connection connection = dmp::connect("localhost", 1337);
         connection.send(music);
     } //destruction closes the socket.
 
