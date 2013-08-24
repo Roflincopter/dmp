@@ -8,12 +8,16 @@ using namespace boost::asio::ip;
 
 struct dmp_connection {
     boost::asio::io_service io_service;
+    basic_resolver<tcp> resolver;
+    basic_resolver_query<tcp> query;
     basic_endpoint<tcp> endpoint;
     tcp::socket socket;
 
     dmp_connection(std::string hostname, uint16_t port)
     : io_service()
-    , endpoint(address::from_string(hostname), port)
+    , resolver(io_service)
+    , query(hostname, std::to_string(port))
+    , endpoint(*resolver.resolve(query))
     , socket(io_service)
     {
         socket.connect(endpoint);

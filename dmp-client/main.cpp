@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     dmp_library::Library music = dmp_library::create_library(music_path);
 
     {
-        dmp_connection connection("127.0.0.1", 1337);
+        dmp_connection connection("localhost", 1337);
         connection.send(music);
     } //destruction closes the socket.
 
