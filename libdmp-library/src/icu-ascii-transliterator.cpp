@@ -13,7 +13,7 @@ namespace dmp_library {
 
 string transliterate_to_ascii(string const& x)
 {
-    UErrorCode ec;
+    UErrorCode ec = U_ZERO_ERROR;
 
     string id1("Any-Latin");
     UnicodeString u_id1(id1.c_str());
@@ -44,7 +44,7 @@ string transliterate_to_ascii(string const& x)
 
 vector<string> possible_transliterator_ids()
 {
-    UErrorCode ec;
+    UErrorCode ec = U_ZERO_ERROR;
     auto it = Transliterator::getAvailableIDs(ec);
     if(U_FAILURE(ec)) {
         throw runtime_error("could not create a \"AvailableIDs\" iterator");
