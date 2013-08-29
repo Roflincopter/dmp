@@ -250,7 +250,6 @@ struct _and : public query
     std::shared_ptr<query> rh;
 
     _and(ast_and const& ast);
-    _and(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
     std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
@@ -260,7 +259,6 @@ struct _or : public query
     std::shared_ptr<query> rh;
 
     _or(ast_or const& ast);
-    _or(std::shared_ptr<query> lh, std::shared_ptr<query> rh);
     std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 
@@ -279,7 +277,6 @@ struct _not : public query
     std::shared_ptr<query> negated;
 
     _not(ast_not const& ast);
-    _not(std::shared_ptr<query> arg);
     std::vector<size_t> handle_search(std::vector<library_entry> const& library) final;
 };
 

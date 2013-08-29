@@ -78,11 +78,6 @@ _and::_and(dmp_library::ast_and const& ast)
 , rh(apply_visitor(to_query, ast.rh))
 {}
 
-_and::_and(std::shared_ptr<query> lh, shared_ptr<query> rh)
-: lh(lh)
-, rh(rh)
-{}
-
 std::vector<size_t> _and::handle_search(vector<library_entry> const& library)
 {
     auto lhv = lh->handle_search(library);
@@ -99,11 +94,6 @@ _or::_or(dmp_library::ast_or const& ast)
 , rh(apply_visitor(to_query, ast.rh))
 {}
 
-_or::_or(std::shared_ptr<query> lh, shared_ptr<query> rh)
-: lh(lh)
-, rh(rh)
-{}
-
 std::vector<size_t> _or::handle_search(vector<library_entry> const& library)
 {
     auto lhv = lh->handle_search(library);
@@ -117,10 +107,6 @@ std::vector<size_t> _or::handle_search(vector<library_entry> const& library)
 
 _not::_not(dmp_library::ast_not const& ast)
 : negated(apply_visitor(to_query, ast.negated))
-{}
-
-_not::_not(shared_ptr<query> arg)
-: negated(negated)
 {}
 
 std::vector<size_t> _not::handle_search(vector<library_entry> const& library)
