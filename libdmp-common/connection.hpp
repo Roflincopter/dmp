@@ -13,14 +13,13 @@ namespace dmp {
 using namespace boost::asio::ip;
 
 class connection {
-    std::unique_ptr<boost::asio::io_service> io_service;
+    std::shared_ptr<boost::asio::io_service> io_service;
     tcp::socket socket;
 
 public:
 
-    connection(std::unique_ptr<boost::asio::io_service>&& io_service,
-               tcp::socket&& socket)
-    : io_service(std::move(io_service))
+    connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
+    : io_service(io_service)
     , socket(std::move(socket))
     {}
 
@@ -29,7 +28,11 @@ public:
     , socket(std::move(that.socket))
     {}
 
-    ~connection(){}
+    ~connection()
+    {
+        std::cout << "Destructing Connection." << std::endl;
+        socket.close();
+    }
 
     template <typename T>
     void send(T const& message)

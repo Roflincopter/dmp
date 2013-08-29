@@ -4,7 +4,7 @@ namespace dmp {
 
 connection connect(std::string hostname, uint16_t port)
 {
-    std::unique_ptr<boost::asio::io_service> io_service(new boost::asio::io_service);
+    std::shared_ptr<boost::asio::io_service> io_service = std::make_shared<boost::asio::io_service>();
     basic_resolver<tcp> resolver(*io_service);
     basic_resolver_query<tcp> query(hostname, std::to_string(port));
     basic_endpoint<tcp> endpoint;
@@ -23,7 +23,7 @@ connection connect(std::string hostname, uint16_t port)
         }
         else
         {
-            return connection(std::move(io_service), std::move(socket));
+            return connection(io_service, std::move(socket));
         }
     }
 
