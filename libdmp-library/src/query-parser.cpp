@@ -55,6 +55,7 @@ namespace dmp_library {
     template<typename Iterator>
     struct atom_parser : spirit::qi::grammar<Iterator, ast_query_type(), spirit::qi::ascii::space_type>
     {
+        qi::rule<Iterator, ast_query_type(), ascii::space_type> start;
         qi::rule<Iterator, ast_query_type(), ascii::space_type> query;
 
         qi::rule<Iterator, ast_query_type(), ascii::space_type> _or;
@@ -81,7 +82,7 @@ namespace dmp_library {
         qi::rule<Iterator, void(), ascii::space_type> quote;
         qi::rule<Iterator, void(), ascii::space_type> end_of_query;
 
-        atom_parser() : atom_parser::base_type(query)
+        atom_parser() : atom_parser::base_type(start)
         {
             using qi::lexeme;
             using ascii::char_;
@@ -93,6 +94,7 @@ namespace dmp_library {
             using qi::on_error;
             using qi::fail;
 
+            start.name("start");
             query.name("query");
             _or.name("or");
             _orprime.name("or");
@@ -117,7 +119,9 @@ namespace dmp_library {
             quote.name("qoute");
 
 
-            query %= _or | end_of_query;
+            start %=  query > end_of_query;
+
+            query %= _or;
 
             _or  %= _orprime | _and;
 
@@ -166,7 +170,7 @@ namespace dmp_library {
 
             on_error<fail>
             (
-                query
+                start
                 , std::cout
                     << val("Error! Expecting ")
                     << qi::_4                               // what failed?
@@ -185,6 +189,8 @@ namespace dmp_library {
         ast_query_type ast;
         bool r = qi::phrase_parse(str.cbegin(), str.cend(), ap, ascii::space, ast);
         cout << (r ? "parse_suceeded" : "parse_failed" ) << endl;
+
+        if(!r) return nullptr;
 
         precedence_visitor precedence;
         ast = boost::apply_visitor(precedence, ast);
