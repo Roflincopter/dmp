@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <string>
-#include <inttypes.h>
+#include <cstdint>
 
 namespace dmp_library
 {
@@ -26,7 +26,7 @@ struct library_entry
     std::string ascii_title;
     std::string album;
     std::string ascii_album;
-    uint32_t id;
+    std::uint32_t id;
 
     friend std::ostream& operator<<(std::ostream& os, library_entry const& le);
 
