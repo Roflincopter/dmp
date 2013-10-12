@@ -1,44 +1,21 @@
 #pragma once
 
-#include <boost/archive/basic_text_iarchive.hpp>
-#include <boost/archive/basic_text_oarchive.hpp>
-
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <boost/fusion/support.hpp>
+
+#include <cstdint>
 
 namespace message {
 
-template <typename Archive, typename T>
-struct Serialize
-{
-    template <typename I, typename E>
-    static typename std::enable_if<!std::is_same<I,E>::value, void>::type
-    serialize(Archive& ar, I const& it, E const& end)
-    {
-        ar & boost::fusion::deref(it);
-        Serialize::serialize(ar, boost::fusion::advance_c<1>(it), end);
-    }
-
-    template <typename I, typename E>
-    static typename std::enable_if<std::is_same<I,E>::value, void>::type
-    serialize(Archive&, I, E)
-    {
-        return;
-    }
-
-    static void serialize(Archive& ar, T& x)
-    {
-        serialize(ar, boost::fusion::begin(x), boost::fusion::end(x));
-    }
+enum class Type : uint32_t {
+    NoMessage,
+    Ping,
+    Pong
 };
-
-template <typename T> using out_serializer = Serialize<boost::archive::text_oarchive, T>;
-template <typename T> using in_serializer  = Serialize<boost::archive::text_iarchive, T>;
-
-
 
 struct Ping {
     
+    Type type;
+    std::string ping;
     std::string payload;
 
     struct RandDevice
@@ -67,21 +44,27 @@ struct Ping {
             ret += alphanum[rand() % (alphanum.size() - 1)];
         }
 
-        return "Ping: " + ret;
+        return ret;
     }
     
     Ping()
-    : payload(random_string())
+    : type(Type::Ping)
+    , ping("Ping: ")
+    , payload(random_string())
     {}
 };
 
 struct Pong
 {
+    Type type;
+    std::string pong;
     std::string payload;
 
     Pong(){}
     Pong(message::Ping p)
-    : payload("Pong: " + p.payload.substr(6))
+    : type(Type::Pong)
+    , pong("Pong: ")
+    , payload(p.payload)
     {}
 };
 
@@ -89,10 +72,14 @@ struct Pong
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::Ping,
+    (message::Type, type)
+    (std::string, ping)
     (std::string, payload)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::Pong,
+    (message::Type, type)
+    (std::string, pong)
     (std::string, payload)
 )

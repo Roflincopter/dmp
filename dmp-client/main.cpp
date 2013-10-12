@@ -4,6 +4,7 @@
 #include <dmp-library.hpp>
 #include <connect.hpp>
 #include <message.hpp>
+#include <message_serializer.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -14,20 +15,20 @@ int main(int argc, char* argv[]) {
         std::ofstream ofs("/tmp/temp");
         boost::archive::text_oarchive oar(ofs);
         message::Ping p;
-        message::out_serializer<message::Ping>::serialize(oar, p);
+        message::serialize(oar, p);
     }
     message::Ping pi;
     {
         std::ifstream ifs("/tmp/temp");
         boost::archive::text_iarchive iar(ifs);
-        message::in_serializer<message::Ping>::serialize(iar, pi);
+        message::serialize(iar, pi);
     }
 
     {
         std::ofstream ofs("/tmp/temp");
         boost::archive::text_oarchive oar(ofs);
         message::Pong po(pi);
-        message::out_serializer<message::Pong>::serialize(oar, po);
+        message::serialize(oar, po);
     }
     if(argc < 2)
     {
