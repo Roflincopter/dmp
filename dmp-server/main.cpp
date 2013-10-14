@@ -11,10 +11,12 @@
 
 int main(int argc, char** argv) {
 
-    //dmp::connection connection = dmp::accept(1337);
+    std::vector<dmp::connection> vec;
+
+    std::function<void(dmp::connection&&)> f = [&](dmp::connection&& x){vec.emplace_back(std::move(x));};
 
     boost::asio::io_service io_service;
-    boost::thread t(boost::bind(dmp::accept_loop, 1337, boost::ref(io_service)));
+    boost::thread accept_thread(boost::bind(dmp::accept_loop, 1337, boost::ref(io_service), f));
 
     bool stop = false;
     while(!stop)
@@ -32,19 +34,12 @@ int main(int argc, char** argv) {
     }
 
     io_service.stop();
-    std::cout << "Joining Thread" << std::endl;
-    t.join();
-    std::cout << "Joined Thread" << std::endl;
+    accept_thread.join();
 
-    /*
-    dmp_library::Library music = connection.receive<dmp_library::Library>();
-
-    for(auto const& e : music)
+    for(auto& x : vec)
     {
-        std::cout << e << std::endl;
+        std::cout << "Wehew" << std::endl;
     }
-    */
-    //RTSPReceiver receiver("127.0.0.1", 6666, 6667, 320);
-    //receiver.start();
+
     return 0;
 }
