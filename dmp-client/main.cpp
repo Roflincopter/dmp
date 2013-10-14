@@ -6,29 +6,32 @@
 #include <message.hpp>
 #include <message_serializer.hpp>
 
-#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <string>
 
 int main(int argc, char* argv[]) {
+    std::stringstream ss;
     {
-        std::ofstream ofs("/tmp/temp");
-        boost::archive::text_oarchive oar(ofs);
+        //std::ofstream ofs("/tmp/temp");
+        boost::archive::text_oarchive oar(ss);
         message::Ping p;
         message::serialize(oar, p);
+        std::cout << ss.str().size() << std::endl;
+        std::cout << ss.str() << std::endl;
     }
     message::Ping pi;
     {
-        std::ifstream ifs("/tmp/temp");
-        boost::archive::text_iarchive iar(ifs);
+        boost::archive::text_iarchive iar(ss);
         message::serialize(iar, pi);
     }
 
     {
-        std::ofstream ofs("/tmp/temp");
-        boost::archive::text_oarchive oar(ofs);
+        std::stringstream ss;
+        boost::archive::text_oarchive oar(ss);
         message::Pong po(pi);
         message::serialize(oar, po);
+        std::cout << ss.str() << std::endl;
     }
     if(argc < 2)
     {
