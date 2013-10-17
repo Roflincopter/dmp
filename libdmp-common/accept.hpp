@@ -7,6 +7,6 @@ namespace dmp{
 
 using namespace boost::asio::ip;
 
-void accept_loop(uint16_t port, boost::asio::io_service& io_service, std::function<void(dmp::connection&&)> f);
+void accept_loop(uint16_t port, boost::asio::io_service& io_service, std::function<void(dmp::Connection&&)> f);
 
 }

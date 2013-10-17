@@ -16,22 +16,22 @@ namespace dmp {
 
 using namespace boost::asio::ip;
 
-class connection {
+class Connection {
     std::shared_ptr<boost::asio::io_service> io_service;
     tcp::socket socket;
 
 public:
-    connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
+    Connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
     : io_service(io_service)
     , socket(std::move(socket))
     {}
 
-    connection(connection&& that)
+    Connection(Connection&& that)
     : io_service(std::move(that.io_service))
     , socket(std::move(that.socket))
     {}
 
-    ~connection()
+    ~Connection()
     {
         socket.close();
     }

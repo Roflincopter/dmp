@@ -7,9 +7,9 @@ using namespace std;
 
 namespace dmp_library {
 
-uint32_t library_entry::next_id = 0;
+uint32_t LibraryEntry::next_id = 0;
 
-library_entry::library_entry(string artist, string title, string album)
+LibraryEntry::LibraryEntry(string artist, string title, string album)
 : artist(artist)
 , ascii_artist(transliterate_to_ascii(artist))
 , title(title)
@@ -19,7 +19,7 @@ library_entry::library_entry(string artist, string title, string album)
 , id(next_id++)
 {}
 
-bool library_entry::operator==(const library_entry &that) const
+bool LibraryEntry::operator==(const LibraryEntry &that) const
 {
     return  this->artist       == that.artist &&
             this->ascii_artist == that.ascii_artist &&
@@ -31,7 +31,7 @@ bool library_entry::operator==(const library_entry &that) const
 }
 
 
-ostream& operator<<(ostream& os, library_entry const& le)
+ostream& operator<<(ostream& os, LibraryEntry const& le)
 {
     return os 	<< "{" << std::endl
                 << "\t" << "UID: " << le.id << std::endl

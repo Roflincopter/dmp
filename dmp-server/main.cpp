@@ -11,11 +11,9 @@
 
 int main(int argc, char** argv) {
 
+    std::vector<dmp::Connection> vec;
 
-
-    std::vector<dmp::connection> vec;
-
-    std::function<void(dmp::connection&&)> f = [&](dmp::connection&& x){
+    std::function<void(dmp::Connection&&)> f = [&](dmp::Connection&& x){
         switch(x.receive_type())
         {
             case message::Type::Ping :

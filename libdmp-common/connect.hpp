@@ -8,6 +8,6 @@ namespace dmp {
 
 using namespace boost::asio::ip;
 
-connection connect(std::string hostname, uint16_t port);
+Connection connect(std::string hostname, uint16_t port);
 
 }

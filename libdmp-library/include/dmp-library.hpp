@@ -7,7 +7,7 @@
 
 namespace dmp_library
 {
-    typedef std::vector<library_entry> Library;
+    typedef std::vector<LibraryEntry> Library;
 
     const std::string cache_file = ".dmp_library";
 

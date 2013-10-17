@@ -21,60 +21,60 @@ namespace dmp_library {
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dmp_library::ast_atom,
+    dmp_library::ast::Atom,
     (string, field)
     (string, modifier)
     (string, input)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dmp_library::ast_not,
-    (dmp_library::ast_query_type, negated)
+    dmp_library::ast::Not,
+    (dmp_library::ast::AstQueryType, negated)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dmp_library::ast_or,
-    (dmp_library::ast_query_type, lh)
-    (dmp_library::ast_query_type, rh)
+    dmp_library::ast::Or,
+    (dmp_library::ast::AstQueryType, lh)
+    (dmp_library::ast::AstQueryType, rh)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dmp_library::ast_and,
-    (dmp_library::ast_query_type, lh)
-    (dmp_library::ast_query_type, rh)
+    dmp_library::ast::And,
+    (dmp_library::ast::AstQueryType, lh)
+    (dmp_library::ast::AstQueryType, rh)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dmp_library::ast_nest,
-    (dmp_library::ast_query_type, arg)
+    dmp_library::ast::Nest,
+    (dmp_library::ast::AstQueryType, arg)
 )
 
 
 namespace dmp_library {
 
     template<typename Iterator>
-    struct atom_parser : spirit::qi::grammar<Iterator, ast_query_type(), spirit::qi::ascii::space_type>
+    struct atom_parser : spirit::qi::grammar<Iterator, ast::AstQueryType(), spirit::qi::ascii::space_type>
     {
-        qi::rule<Iterator, ast_query_type(), ascii::space_type> start;
-        qi::rule<Iterator, ast_query_type(), ascii::space_type> query;
+        qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> start;
+        qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> query;
 
-        qi::rule<Iterator, ast_query_type(), ascii::space_type> _or;
-        qi::rule<Iterator, ast_or(), ascii::space_type> _orprime;
+        qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> _or;
+        qi::rule<Iterator, ast::Or(), ascii::space_type> _orprime;
         qi::rule<Iterator, void(), ascii::space_type> _orliteral;
 
-        qi::rule<Iterator, ast_query_type(), ascii::space_type> _and;
-        qi::rule<Iterator, ast_and(), ascii::space_type> _andprime;
+        qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> _and;
+        qi::rule<Iterator, ast::And(), ascii::space_type> _andprime;
         qi::rule<Iterator, void(), ascii::space_type> _andliteral;
 
-        qi::rule<Iterator, ast_query_type(), ascii::space_type> _not;
-        qi::rule<Iterator, ast_not(), ascii::space_type> _notprime;
+        qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> _not;
+        qi::rule<Iterator, ast::Not(), ascii::space_type> _notprime;
         qi::rule<Iterator, void(), ascii::space_type> _notliteral;
 
-        qi::rule<Iterator, ast_nest(), ascii::space_type> nested;
+        qi::rule<Iterator, ast::Nest(), ascii::space_type> nested;
         qi::rule<Iterator, void(), ascii::space_type> parenthesis_open;
         qi::rule<Iterator, void(), ascii::space_type> parenthesis_close;
 
-        qi::rule<Iterator, ast_atom(), ascii::space_type> atom;
+        qi::rule<Iterator, ast::Atom(), ascii::space_type> atom;
 
         qi::rule<Iterator, string(), ascii::space_type> field;
         qi::rule<Iterator, string(), ascii::space_type> modifier;
@@ -183,23 +183,23 @@ namespace dmp_library {
         }
     };
 
-    shared_ptr<query> parse_query(string const& str)
+    shared_ptr<Query> parse_query(string const& str)
     {
         atom_parser<string::const_iterator> ap;
-        ast_query_type ast;
+        ast::AstQueryType ast;
         bool r = qi::phrase_parse(str.cbegin(), str.cend(), ap, ascii::space, ast);
         cout << (r ? "parse_suceeded" : "parse_failed" ) << endl;
 
         if(!r) return nullptr;
 
-        precedence_visitor precedence;
+        ast::precedence_visitor precedence;
         ast = boost::apply_visitor(precedence, ast);
 
-        print_visitor p(cout);
+        PrintVisitor p(cout);
         apply_visitor(p, ast);
         cout << endl;
 
-        to_query_visitor q;
+        ast::to_query_visitor q;
         return apply_visitor(q, ast);
     }
 }

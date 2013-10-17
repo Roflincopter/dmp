@@ -12,7 +12,7 @@
 
 int main(int argc, char* argv[]) {
 
-    dmp::connection conn = dmp::connect("localhost", 1337);
+    dmp::Connection conn = dmp::connect("localhost", 1337);
 
     message::Ping ping;
     std::cout << "Payload: " << ping.payload << std::endl;

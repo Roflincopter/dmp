@@ -9,7 +9,7 @@ namespace dmp_library {
 using namespace std;
 using namespace boost;
 
-vector<size_t> library_search::search(std::shared_ptr<query> query_obj) {
+vector<size_t> LibrarySearcher::search(std::shared_ptr<Query> query_obj) {
     return query_obj->handle_search(library);
 }
 

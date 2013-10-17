@@ -11,14 +11,14 @@
 namespace dmp_library
 {
 
-struct library_entry
+struct LibraryEntry
 {
-    library_entry() = default;
+    LibraryEntry() = default;
 
-    library_entry(std::string artist, std::string title, std::string album);
+    LibraryEntry(std::string artist, std::string title, std::string album);
 
-    library_entry& operator=(library_entry const&) = delete;
-    bool operator==(library_entry const& that) const;
+    LibraryEntry& operator=(LibraryEntry const&) = delete;
+    bool operator==(LibraryEntry const& that) const;
 
     std::string artist;
     std::string ascii_artist;
@@ -28,7 +28,7 @@ struct library_entry
     std::string ascii_album;
     std::uint32_t id;
 
-    friend std::ostream& operator<<(std::ostream& os, library_entry const& le);
+    friend std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
 
     template<typename Archive>
     void serialize(Archive& ar, const unsigned int)
