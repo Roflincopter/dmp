@@ -173,11 +173,11 @@ namespace dmp_library {
                 start
                 , std::cout
                     << val("Error! Expecting ")
-                    << qi::_4                               // what failed?
+                    << qi::_4                                   // what failed?
                     << std::endl
                     << construct<std::string>(qi::_1, qi::_3)
                     << val("<here>")
-                    << construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
+                    << construct<std::string>(qi::_3, qi::_2)
                     << std::endl
             );
         }

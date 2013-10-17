@@ -1,10 +1,10 @@
 
 #include "RTSPSender.hpp"
 
-#include <dmp-library.hpp>
-#include <connect.hpp>
-#include <message.hpp>
-#include <message_serializer.hpp>
+#include "dmp-library.hpp"
+#include "connect.hpp"
+#include "message.hpp"
+#include "message_serializer.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -35,7 +35,6 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-
 
     if(argc < 2)
     {
