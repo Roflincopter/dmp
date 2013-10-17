@@ -11,28 +11,32 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
-    std::stringstream ss;
+
+    dmp::connection conn = dmp::connect("localhost", 1337);
+
+    message::Ping ping;
+    std::cout << "Payload: " << ping.payload << std::endl;
+
+    conn.send(ping);
+    switch (conn.receive_type())
     {
-        //std::ofstream ofs("/tmp/temp");
-        boost::archive::text_oarchive oar(ss);
-        message::Ping p;
-        message::serialize(oar, p);
-        std::cout << ss.str().size() << std::endl;
-        std::cout << ss.str() << std::endl;
-    }
-    message::Ping pi;
-    {
-        boost::archive::text_iarchive iar(ss);
-        message::serialize(iar, pi);
+        case message::Type::Ping :
+        {
+            message::Ping pi = conn.receive<message::Ping>();
+            message::Pong po(pi);
+            conn.send(po);
+            break;
+        }
+
+        case message::Type::Pong :
+        {
+            message::Pong p = conn.receive<message::Pong>();
+            std::cout << "Payload: " << p.payload << std::endl;
+            break;
+        }
     }
 
-    {
-        std::stringstream ss;
-        boost::archive::text_oarchive oar(ss);
-        message::Pong po(pi);
-        message::serialize(oar, po);
-        std::cout << ss.str() << std::endl;
-    }
+
     if(argc < 2)
     {
         std::cout << "Please give the path to your music folder as first argument" << std::endl;
