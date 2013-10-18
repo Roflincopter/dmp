@@ -11,7 +11,7 @@ include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
 target_link_libraries(dmp-server dmp-common)
 
 find_package(LiveMedia REQUIRED)
-include_directories(${LIVEMEDIA_INCLUDE_DIRS})
+include_directories(SYSTEM ${LIVEMEDIA_INCLUDE_DIRS})
 target_link_libraries(dmp-server ${LIVEMEDIA_LIBRARIES})
 
 find_package(Boost COMPONENTS system serialization REQUIRED)

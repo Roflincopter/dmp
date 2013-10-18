@@ -56,6 +56,7 @@ struct Atom {
     friend std::ostream& operator<<(std::ostream& os, Atom const& atom)
     {
         std::cout << atom.field << " " << atom.modifier << " " << atom.input;
+        return os;
     }
 };
 
@@ -202,7 +203,7 @@ struct to_query_visitor : public boost::static_visitor<std::shared_ptr<Query>>
     std::shared_ptr<Query> operator()(ast::Nest nest)
     {
         to_query_visitor v;
-        boost::apply_visitor(v, nest.arg);
+        return boost::apply_visitor(v, nest.arg);
     }
 };
 

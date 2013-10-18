@@ -15,12 +15,14 @@ Query::field Query::to_field(string const& x)
     if (x == "artist") return field::artist;
     if (x == "title")  return field::title;
     if (x == "album")  return field::album;
+    throw std::runtime_error("String: " + x + " did not represent a field");
 }
 
 Query::modifier Query::to_modifier(string const& x)
 {
     if (x == "contains") return modifier::contains;
     if (x == "is")       return modifier::is;
+    throw std::runtime_error("String: " + x + " did not represent a modifier");
 }
 
 Atom::Atom(const ast::Atom &ast)

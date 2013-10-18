@@ -65,7 +65,7 @@ Library read_cache(std::string const& cache_path)
     }
     else
     {
-        std::cout << "opening file " + cache_path + " for reading failed: make this a nice exception." << std::endl;
+        throw std::runtime_error("opening file " + cache_path + " for reading failed: make this a nice exception.");
     }
 }
 
