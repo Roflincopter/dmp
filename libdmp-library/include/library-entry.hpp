@@ -19,6 +19,7 @@ struct LibraryEntry
 
     LibraryEntry(LibraryEntry const&) = default;
     LibraryEntry& operator=(LibraryEntry const&) = delete;
+    LibraryEntry& operator=(LibraryEntry&&) = default;
     bool operator==(LibraryEntry const& that) const;
 
     std::string artist;
