@@ -46,6 +46,12 @@ public:
     , io_service(std::move(that.io_service))
     {}
 
+    Connection& operator=(Connection&& that){
+        std::swap(socket, that.socket);
+        std::swap(io_service, that.io_service);
+        return *this;
+    }
+
     ~Connection()
     {
         socket.close();
