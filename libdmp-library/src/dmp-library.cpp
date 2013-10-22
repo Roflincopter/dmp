@@ -44,9 +44,8 @@ Library build_library(filesystem::recursive_directory_iterator it)
                 library.emplace_back(entry.get());
             }
         }
-        catch(std::runtime_error const& e)
+        catch(std::runtime_error const&)
         {
-            //std::cout << e.what() << std::endl;
             continue;
         }
     }

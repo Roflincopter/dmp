@@ -23,7 +23,7 @@ private:
     Groupsock* rtpGroupsock;
     Groupsock* rtcpGroupsock;
 
-    static void afterPlaying(void* clientData)
+    static void afterPlaying(void*)
     {
         *env << "...done receiving\n";
 

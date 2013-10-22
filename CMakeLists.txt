@@ -1,8 +1,22 @@
 cmake_minimum_required(VERSION 2.8)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+project(DMP)
 
-add_definitions(--std=c++11)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+
+include(wubwubcmake/warning_settings.cmake)
+get_sane_warning_flags(warnings)
+
+if(MINGW)
+        include(wubwubcmake/enable_gnu11.cmake)
+else()
+        include(wubwubcmake/enable_cpp11.cmake)
+endif()
+
+include(wubwubcmake/join.cmake)
+join("${warnings}" " " warnings)
+
+add_definitions(${warnings})
 
 add_subdirectory(libdmp-library)
 add_subdirectory(libdmp-common)

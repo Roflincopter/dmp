@@ -9,7 +9,9 @@ namespace message {
 enum class Type : uint32_t {
     NoMessage,
     Ping,
-    Pong
+    Pong,
+    NameRequest,
+    NameResponse
 };
 
 struct Ping {
@@ -60,11 +62,42 @@ struct Pong
     std::string pong;
     std::string payload;
 
-    Pong(){}
+    Pong()
+    : type(Type::Pong)
+    , pong("Pong: ")
+    , payload("")
+    {}
+
     Pong(message::Ping p)
     : type(Type::Pong)
     , pong("Pong: ")
     , payload(p.payload)
+    {}
+};
+
+struct NameRequest
+{
+    Type type;
+
+    NameRequest()
+    : type(Type::NameRequest)
+    {}
+
+};
+
+struct NameResponse
+{
+    Type type;
+    std::string name;
+
+    NameResponse()
+    : type(Type::NameResponse)
+    , name("")
+    {}
+
+    NameResponse(std::string name)
+    : type(Type::NameResponse)
+    , name(name)
     {}
 };
 
@@ -82,4 +115,15 @@ BOOST_FUSION_ADAPT_STRUCT(
     (message::Type, type)
     (std::string, pong)
     (std::string, payload)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::NameRequest,
+    (message::Type, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::NameResponse,
+    (message::Type, type)
+    (std::string, name)
 )

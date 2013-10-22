@@ -128,12 +128,12 @@ struct rotate_visitor : public boost::static_visitor<T>
 {
     T const& parent;
 
-    rotate_visitor(T const& parent)
-    :parent(parent)
+    rotate_visitor(T const& parent_)
+    :parent(parent_)
     {}
 
     template <typename V>
-    T rotate(std::false_type, V const& x)
+    T rotate(std::false_type, V const&)
     {
         return parent;
     }

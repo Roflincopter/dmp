@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 add_definitions("--std=c++11")
 
-add_executable(dmp-client main.cpp RTSPSender.hpp RTSPSender.cpp)
+add_executable(dmp-client   main.cpp
+                            RTSPSender.hpp RTSPSender.cpp
+                            dmp_client.hpp dmp_client.cpp
+              )
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
 target_link_libraries(dmp-client dmp-library)
@@ -14,6 +17,6 @@ find_package(LiveMedia REQUIRED)
 include_directories(SYSTEM ${LIVEMEDIA_INCLUDE_DIRS})
 target_link_libraries(dmp-client ${LIVEMEDIA_LIBRARIES})
 
-find_package(Boost COMPONENTS system serialization REQUIRED)
+find_package(Boost COMPONENTS system serialization program_options REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(dmp-client ${Boost_LIBRARIES})

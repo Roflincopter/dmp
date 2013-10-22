@@ -9,23 +9,19 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char** argv) {
+int main(int, char**) {
 
     std::vector<dmp::Connection> vec;
 
     std::function<void(dmp::Connection&&)> f = [&](dmp::Connection&& x){
-        switch(x.receive_type())
-        {
-            case message::Type::Ping :
-            {
-                message::Ping pi = x.receive<message::Ping>();
-                message::Pong po(pi);
-                x.send(po);
-                break;
-            }
-        }
-
         vec.emplace_back(std::move(x));
+        message::Ping pi;
+        vec.back().send(pi);
+
+        sleep(3);
+
+        pi = message::Ping();
+        vec.back().send(pi);
     };
 
     boost::asio::io_service io_service;
@@ -49,10 +45,7 @@ int main(int argc, char** argv) {
     io_service.stop();
     accept_thread.join();
 
-    for(auto& x : vec)
-    {
-        std::cout << "Wehew" << std::endl;
-    }
+    std::cout << "Wehew" << vec.size() << std::endl;
 
     return 0;
 }
