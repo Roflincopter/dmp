@@ -160,14 +160,14 @@ struct ReceiveProxy {
 
         {
             std::vector<uint8_t> buf(4);
-            size_t read_bytes = boost::asio::read(socket, boost::asio::buffer(buf));
+            size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
             assert(read_bytes == 4);
             const unsigned char* data = buf.data();
             size = *reinterpret_cast<const uint32_t*>(data);
         }
         {
             std::vector<uint8_t> buf(size);
-            size_t read_bytes = boost::asio::read(socket, boost::asio::buffer(buf));
+            size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
             assert(read_bytes == size);
             const unsigned char* data = buf.data();
             content = std::string(reinterpret_cast<const char*>(data), size);

@@ -1,6 +1,7 @@
 #include "dmp-library.hpp"
 
-#include "taglib/fileref.h"
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
