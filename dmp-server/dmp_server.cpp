@@ -1,7 +1,14 @@
 #include "dmp_server.hpp"
 
+#include <boost/thread.hpp>
+
 DmpServer::DmpServer()
+: server_io_service()
+{}
+
+void DmpServer::run()
 {
+    server_io_service.run();
 }
 
 void DmpServer::add_connection(dmp::Connection&& c)
@@ -13,5 +20,9 @@ void DmpServer::add_connection(dmp::Connection&& c)
         return;
     }
     message::NameResponse name_res = c.receive();
-    //connections.emplace(std::make_pair(name_res.name, std::move(c)));
+
+    auto cep = std::unique_ptr<ClientEndpoint>(new ClientEndpoint(std::move(c)));
+    connections[name_res.name] = std::move(cep);
+
+    boost::thread(boost::bind(&ClientEndpoint::run, connections[name_res.name].get()));
 }

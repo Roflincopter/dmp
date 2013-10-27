@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
             ("help", "produce help message")
             ("server", value<std::string>(), "Server hostanme")
             ("port", value<uint16_t>(), "Destination port")
+            ("name", value<std::string>(), "Your screen name")
             ;
 
     boost::program_options::variables_map vm;
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 
     dmp::Connection conn = dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>());
 
-    DmpClient client(std::move(conn));
+    DmpClient client(vm["name"].as<std::string>(), std::move(conn));
     //this also starts the asio eventloop
 
     return 0;

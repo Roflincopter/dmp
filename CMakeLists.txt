@@ -16,7 +16,7 @@ endif()
 include(wubwubcmake/join.cmake)
 join("${warnings}" " " warnings)
 
-add_definitions(${warnings})
+add_definitions(${warnings} -g3)
 
 add_subdirectory(libdmp-library)
 add_subdirectory(libdmp-common)

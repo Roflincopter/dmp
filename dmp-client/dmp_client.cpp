@@ -1,7 +1,8 @@
 #include "dmp_client.hpp"
 
-DmpClient::DmpClient(dmp::Connection&& conn)
-: connection(std::move(conn))
+DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
+: name(name)
+, connection(std::move(conn))
 {
     listen_requests();
     listen_input();
@@ -74,7 +75,7 @@ void DmpClient::handle_pong(message::Pong pong)
 
 void DmpClient::handle_name_request(message::NameRequest name_req)
 {
-    message::NameResponse name_res("Floepsie");
+    message::NameResponse name_res(name);
     connection.send(name_res);
 
     listen_requests();

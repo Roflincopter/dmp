@@ -4,11 +4,12 @@
 
 class DmpClient
 {
+    std::string name;
     dmp::Connection connection;
     message::Ping last_sent_ping;
 
 public:
-    DmpClient(dmp::Connection&& conn);
+    DmpClient(std::string name, dmp::Connection&& conn);
 
     void handle_request(message::Type t);
     void listen_requests();

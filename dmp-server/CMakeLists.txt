@@ -4,6 +4,7 @@ add_definitions("--std=c++11")
 
 add_executable(dmp-server main.cpp
 						  dmp_server.hpp dmp_server.cpp
+						  client_endpoint.hpp client_endpoint.cpp
 						  RTSPReceiver.hpp RTSPReceiver.cpp
 			  )
 
