@@ -14,7 +14,7 @@ else()
 endif()
 
 include(wubwubcmake/join.cmake)
-join("${warnings}" " " warnings)
+join("${warnings}" " " warnings -Wno-shadow)
 
 add_definitions(${warnings} -g3)
 
