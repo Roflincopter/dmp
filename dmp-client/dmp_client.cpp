@@ -25,7 +25,6 @@ void DmpClient::index(std::string path)
 
 void DmpClient::handle_request(message::Type t)
 {
-    std::cerr << "Received Type: " << static_cast<uint32_t>(t) << std::endl;
     switch(t)
     {
         case message::Type::NoMessage:

@@ -71,7 +71,6 @@ std::vector<size_t> Atom::handle_search(vector<LibraryEntry> const& library)
             ret.push_back(entry.id);
         }
     }
-    cout << "atom";
     return ret;
 }
 

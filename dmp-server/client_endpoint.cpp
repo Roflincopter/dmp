@@ -84,7 +84,6 @@ void ClientEndpoint::listen_requests()
 void ClientEndpoint::keep_alive()
 {
     ping_timer->expires_from_now(boost::posix_time::seconds(10));
-    std::cout << "Keep_alive called" << std::endl;
     auto cb = [this](boost::system::error_code const& ec)
     {
         if(ec)
@@ -93,10 +92,7 @@ void ClientEndpoint::keep_alive()
         }
 
         last_ping = message::Ping();
-
         connection.send(last_ping);
-        std::cout << "sent ping" << std::endl;
-
         keep_alive();
     };
     ping_timer->async_wait(cb);

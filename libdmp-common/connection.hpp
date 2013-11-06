@@ -128,7 +128,6 @@ public:
 
             uint8_t* data = async_size_buffer.data();
             uint32_t size = *reinterpret_cast<const uint32_t*>(data);
-            std::cout << "Received size: " << size << std::endl;
 
             auto content_cb = [this, cb, size](boost::system::error_code ec, size_t bytes_transfered)
             {
@@ -141,9 +140,6 @@ public:
 
                 uint8_t* data = async_mess_buffer.data();
                 std::string content = std::string(reinterpret_cast<const char*>(data), size);
-
-                std::cout << "size reference: " << size << std::endl;
-                std::cout << "received content: " << content << std::endl;
 
                 std::istringstream iss(content);
                 boost::archive::text_iarchive iar(iss);

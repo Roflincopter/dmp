@@ -45,19 +45,10 @@ struct DmpCallbacks {
         call_visitor<T> v(message);
         auto it = callbacks.find(message.type);
 
-        std::stringstream x;
-        x << static_cast<uint32_t>(message.type);
-        std::string y = x.str();
-
-        for (const auto e : callbacks)
-        {
-            std::cout << static_cast<uint32_t>(e.first) << std::endl;
-        }
-
         if (it != callbacks.cend()) {
             return boost::apply_visitor(v, it->second);
         } else {
-            throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + y);
+            throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<uint32_t>(message.type)));
         }
     }
 

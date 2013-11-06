@@ -29,8 +29,6 @@ int main(int, char**) {
         std::string input;
         std::getline(std::cin, input);
 
-        std::cout << "Input: " << input << std::endl;
-
         if (input == "stop")
         {
             stop = true;
