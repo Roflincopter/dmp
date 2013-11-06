@@ -2,8 +2,6 @@
 
 #include "icu-ascii-transliterator.hpp"
 
-#include "boost/serialization/access.hpp"
-
 #include <iostream>
 #include <string>
 #include <cstdint>
@@ -18,7 +16,7 @@ struct LibraryEntry
     LibraryEntry(std::string artist, std::string title, std::string album);
 
     LibraryEntry(LibraryEntry const&) = default;
-    LibraryEntry& operator=(LibraryEntry const&) = delete;
+    LibraryEntry& operator=(LibraryEntry const&) = default;
     LibraryEntry& operator=(LibraryEntry&&) = default;
     bool operator==(LibraryEntry const& that) const;
 

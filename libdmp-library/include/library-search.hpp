@@ -20,6 +20,7 @@ public:
     {}
 
     std::vector<size_t> search(std::shared_ptr<Query> query_obj);
+    std::vector<LibraryEntry> search(std::string query);
 
 };
 

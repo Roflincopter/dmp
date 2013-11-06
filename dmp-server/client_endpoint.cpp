@@ -1,8 +1,9 @@
 #include "client_endpoint.hpp"
 #include "message.hpp"
 
-ClientEndpoint::ClientEndpoint(dmp::Connection&& conn)
-: ping_timer(new boost::asio::deadline_timer(*conn.io_service))
+ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
+: name(name)
+, ping_timer(new boost::asio::deadline_timer(*conn.io_service))
 , connection(std::move(conn))
 , last_ping()
 {
@@ -15,26 +16,43 @@ void ClientEndpoint::run()
     connection.io_service->run();
 }
 
+void ClientEndpoint::bind_callbacks(message::DmpCallbacks cbs)
+{
+    callbacks = cbs;
+}
+
+void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr)
+{
+    callbacks.set(message::Type::SearchResponse, cb);
+    connection.send(sr);
+}
+
 void ClientEndpoint::handle_request(message::Type t)
 {
     switch(t)
-    {/*
-        case message::Type::NoMessage:
-        {
+    {
+        /*case message::Type::NoMessage: {
             throw std::runtime_error("We received a None message this shouldn't happen");
             break;
         }
-        case message::Type::Ping:
-        {
+        case message::Type::Ping: {
             connection.async_receive<message::Ping>([this](message::Ping m){handle_ping(m);});
             break;
         }*/
-        case message::Type::Pong:
-        {
-            connection.async_receive<message::Pong>([this](message::Pong m){handle_pong(m);});
+        case message::Type::Pong: {
+            connection.async_receive<message::Pong>(callbacks);
             break;
         }
-        /*case message::Type::NameRequest: {
+        case message::Type::SearchRequest: {
+            connection.async_receive<message::SearchRequest>(callbacks);
+            break;
+        }
+        case message::Type::SearchResponse: {
+            connection.async_receive<message::SearchResponse>(callbacks);
+            break;
+        }
+        /*
+        case message::Type::NameRequest: {
             connection.async_receive<message::NameRequest>([this](message::NameRequest m){handle_name_request(m);});
             break;
         }
@@ -42,8 +60,7 @@ void ClientEndpoint::handle_request(message::Type t)
             throw std::runtime_error("Client shouldn't receive a NameResponse ever.");
             break;
         }*/
-        default:
-        {
+        default: {
             listen_requests();
         }
     }

@@ -13,9 +13,11 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "message_serializer.hpp"
 #include "message.hpp"
+#include "message_serializer.hpp"
+#include "message_callbacks.hpp"
 
 namespace dmp {
 
@@ -28,21 +30,25 @@ class Connection {
     friend class ReceiveProxy;
 
     tcp::socket socket;
+    boost::mutex send_mutex;
 
     std::vector<uint8_t> async_type_buffer{};
     std::vector<uint8_t> async_size_buffer{};
     std::vector<uint8_t> async_mess_buffer{};
+
 
 public:
     std::shared_ptr<boost::asio::io_service> io_service;
 
     Connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
     : socket(std::move(socket))
+    , send_mutex()
     , io_service(io_service)
     {}
 
     Connection(Connection&& that)
     : socket(std::move(that.socket))
+    , send_mutex()
     , io_service(std::move(that.io_service))
     {}
 
@@ -60,6 +66,7 @@ public:
     template <typename T>
     void send(T x)
     {
+        boost::mutex::scoped_lock(send_mutex);
         std::ostringstream oss;
         boost::archive::text_oarchive oar(oss);
         message::serialize(oar, x);
@@ -108,7 +115,7 @@ public:
     ReceiveProxy receive();
 
     template <typename T>
-    void async_receive(std::function<void(T)> cb)
+    void async_receive(message::DmpCallbacks cb)
     {
         auto size_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
         {

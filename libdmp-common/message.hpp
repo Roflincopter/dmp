@@ -1,6 +1,10 @@
 #pragma once
 
+#include "dmp-library.hpp"
+
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
 
 #include <cstdint>
 
@@ -11,7 +15,9 @@ enum class Type : uint32_t {
     Ping,
     Pong,
     NameRequest,
-    NameResponse
+    NameResponse,
+    SearchRequest,
+    SearchResponse,
 };
 
 struct Ping {
@@ -101,6 +107,38 @@ struct NameResponse
     {}
 };
 
+struct SearchRequest
+{
+    Type type;
+    std::string query;
+
+    SearchRequest()
+    : type(Type::SearchRequest)
+    , query()
+    {}
+
+    SearchRequest(std::string query)
+    : type(Type::SearchRequest)
+    , query(query)
+    {}
+};
+
+struct SearchResponse
+{
+    Type type;
+    std::vector<dmp_library::LibraryEntry> results;
+
+    SearchResponse()
+    : type(Type::SearchResponse)
+    , results()
+    {}
+
+    SearchResponse(std::vector<dmp_library::LibraryEntry> results)
+    : type(Type::SearchResponse)
+    , results(results)
+    {}
+};
+
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -126,4 +164,17 @@ BOOST_FUSION_ADAPT_STRUCT(
     message::NameResponse,
     (message::Type, type)
     (std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::SearchRequest,
+    (message::Type, type)
+    (std::string, query)
+)
+
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::SearchResponse,
+    (message::Type, type)
+    (std::vector<dmp_library::LibraryEntry>, results)
 )

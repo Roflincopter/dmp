@@ -9,6 +9,7 @@
 #include "dmp_client.hpp"
 
 #include <boost/program_options.hpp>
+#include <boost/thread.hpp>
 
 #include <sstream>
 #include <iostream>
@@ -41,7 +42,42 @@ int main(int argc, char* argv[]) {
     }
 
     DmpClient client(name, std::move(conn));
-    //this also starts the asio eventloop
+
+    message::DmpCallbacks cbs;
+    cbs.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, &client, std::placeholders::_1))).
+        set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, &client, std::placeholders::_1))).
+        set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, &client, std::placeholders::_1))).
+        set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, &client, std::placeholders::_1))).
+        set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, &client, std::placeholders::_1)));
+
+    client.bind_callbacks(cbs);
+
+    boost::thread(boost::bind(&DmpClient::run, &client));
+
+    client.index("/home/dennis/Music");
+
+    std::string input;
+    do
+    {
+        std::getline(std::cin, input);
+
+        std::stringstream ss(input);
+        std::string cmd;
+        ss >> cmd;
+        ss >> std::ws;
+
+        if (cmd == "index") {
+            std::string arg;
+            std::getline(ss, arg);
+            client.index(arg);
+        }
+        if (cmd == "Search") {
+            std::string arg;
+            std::getline(ss, arg);
+            client.search(arg);
+        }
+
+    } while(std::cin);
 
     return 0;
 }
