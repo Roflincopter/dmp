@@ -1,5 +1,4 @@
 
-#include "RTSPSender.hpp"
 #include "dmp_client.hpp"
 
 #include "dmp-library.hpp"
@@ -55,6 +54,8 @@ int main(int argc, char* argv[]) {
     boost::thread(boost::bind(&DmpClient::run, &client));
 
     client.index("/home/dennis/Music");
+
+
 
     std::string input;
     do

@@ -1,5 +1,4 @@
 
-#include "RTSPReceiver.hpp"
 #include "dmp_server.hpp"
 
 #include "dmp-library.hpp"
@@ -33,7 +32,7 @@ int main(int, char**) {
         {
             stop = true;
         }
-        sleep(1);
+        boost::this_thread::sleep(boost::posix_time::seconds(1));
     }
 
     io_service.stop();
