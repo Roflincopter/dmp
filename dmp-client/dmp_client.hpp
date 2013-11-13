@@ -1,6 +1,8 @@
 #pragma once
 
 #include "connection.hpp"
+#include "dmp_sender.hpp"
+#include "dmp_receiver.hpp"
 
 class DmpClient
 {
@@ -9,6 +11,9 @@ class DmpClient
     message::Ping last_sent_ping;
     message::DmpCallbacks callbacks;
     dmp_library::Library lib;
+
+    DmpSender sender;
+    DmpReceiver receiver;
 
 public:
     DmpClient(std::string name, dmp::Connection&& conn);

@@ -14,6 +14,11 @@
 #include <iostream>
 #include <string>
 
+
+
+#include "dmp_sender.hpp"
+#include "dmp_receiver.hpp"
+
 int main(int argc, char* argv[]) {
 
     using boost::program_options::value;

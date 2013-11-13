@@ -9,6 +9,9 @@
 #include <iostream>
 #include <string>
 
+
+#include "dmp_radio.hpp"
+
 int main(int, char**) {
 
     DmpServer server;
