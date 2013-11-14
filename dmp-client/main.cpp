@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
             ("help", "produce help message")
             ("server", value<std::string>(), "The server you want to connect to")
             ("port", value<uint16_t>(), "The port you want to connect to")
-            ("name", value<std::string>(), "Your screen name");
+            ("name", value<std::string>(), "Your screen name")
+            ("sender", value<bool>(), "Sending or not.");
 
     boost::program_options::positional_options_description pos_desc;
     pos_desc.add("server", 1).add("port", 1);
@@ -36,6 +37,12 @@ int main(int argc, char* argv[]) {
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(pos_desc).run(), vm);
     boost::program_options::notify(vm);
 
+/*    if (vm["sender"].as<bool>())
+        DmpSender s("localhost", 2000, "test.mp3");
+    else
+        DmpReceiver r("localhost", 2001);
+    return 0;
+*/
     dmp::Connection conn = dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>());
 
     std::string name;

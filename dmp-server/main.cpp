@@ -14,6 +14,10 @@
 
 int main(int, char**) {
 
+    /*DmpRadio radio(2000, 2001);
+    return 0;
+    */
+
     DmpServer server;
 
     std::function<void(dmp::Connection&&)> f = [&](dmp::Connection&& x){
