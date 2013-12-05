@@ -6,7 +6,14 @@ Connection connect(std::string hostname, uint16_t port)
 {
     std::shared_ptr<boost::asio::io_service> io_service = std::make_shared<boost::asio::io_service>();
     basic_resolver<tcp> resolver(*io_service);
-    basic_resolver_query<tcp> query(hostname, std::to_string(port));
+    std::string portstr;
+    {
+        std::stringstream ss;
+        ss << port;
+        portstr = ss.str();
+    }
+
+    basic_resolver_query<tcp> query(hostname, portstr);
     basic_endpoint<tcp> endpoint;
     tcp::socket socket(*io_service);
 
@@ -27,7 +34,7 @@ Connection connect(std::string hostname, uint16_t port)
         }
     }
 
-    throw std::runtime_error("None of the supplied endpoints for query " + hostname + ":" + std::to_string(port) + " accepted the connection.");
+    throw std::runtime_error("None of the supplied endpoints for query " + hostname + ":" /*+ std::to_string(port)*/ + " accepted the connection.");
 }
 
 }

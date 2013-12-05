@@ -13,7 +13,7 @@ struct LibraryEntry
 {
     LibraryEntry() = default;
 
-    LibraryEntry(std::string artist, std::string title, std::string album);
+    LibraryEntry(std::string artist, std::string title, std::string album, std::uint32_t track);
 
     LibraryEntry(LibraryEntry const&) = default;
     LibraryEntry& operator=(LibraryEntry const&) = default;
@@ -26,6 +26,7 @@ struct LibraryEntry
     std::string ascii_title;
     std::string album;
     std::string ascii_album;
+    std::uint32_t track;
     std::uint32_t id;
 
     friend std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
@@ -33,7 +34,7 @@ struct LibraryEntry
     template<typename Archive>
     void serialize(Archive& ar, const unsigned int)
     {
-        ar & artist & ascii_artist & title & ascii_title & album & ascii_album & id;
+        ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & id;
     }
 
 private:

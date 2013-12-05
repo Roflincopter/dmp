@@ -18,9 +18,8 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
 {
     GMainLoop* loop;
 
-    GstElement* pipeline,* source,* decoder,* converter,* resampler,* audiosink;
-    GstBus *bus;
-    guint bus_watch_id;
+    GstElement* pipeline = nullptr,* source = nullptr,* decoder = nullptr,* converter = nullptr,* resampler = nullptr,* audiosink = nullptr;
+    GstBus *bus = nullptr;
 
     gst_init(0, nullptr);
 
@@ -34,24 +33,23 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
     audiosink = gst_element_factory_make("autoaudiosink", "audiosink");
 
 
-#define X(x) if(!x) std::cout << #x << " " << x << std::endl;
+
     if (!pipeline || !source || !decoder || !converter || !resampler || !audiosink)
     {
-        X(pipeline);
-        X(source);
-        X(decoder);
-        X(converter);
-        X(resampler);
-        X(audiosink);
+        CHECK_GSTREAMER_COMPONENT(pipeline);
+        CHECK_GSTREAMER_COMPONENT(source);
+        CHECK_GSTREAMER_COMPONENT(decoder);
+        CHECK_GSTREAMER_COMPONENT(converter);
+        CHECK_GSTREAMER_COMPONENT(resampler);
+        CHECK_GSTREAMER_COMPONENT(audiosink);
         throw std::runtime_error("Could not create the pipeline components for this receiver.");
     }
-#undef X
 
     g_object_set(G_OBJECT(source), "host", host.c_str(), nullptr);
     g_object_set(G_OBJECT(source), "port", gint(port), nullptr);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-    bus_watch_id = gst_bus_add_watch (bus, bus_call, loop);
+    gst_bus_add_watch (bus, bus_call, loop);
     gst_object_unref(bus);
 
     gst_bin_add_many(GST_BIN(pipeline), source, decoder, converter, resampler, audiosink, nullptr);

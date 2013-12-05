@@ -16,6 +16,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(dmp-library ${Boost_LIBRARIES})
 
 find_package(TagLib REQUIRED)
+include_directories(${TAGLIB_INCLUDES})
+message(STATUS ${TAGLIB_LIBRARIES})
+target_link_libraries(dmp-library ${TAGLIB_LIBRARIES})
 
 if(MINGW)
 	target_link_libraries(dmp-library ${TAGLIB_LIBRARIES} z icudt51)

@@ -14,9 +14,9 @@ else()
 endif()
 
 include(wubwubcmake/join.cmake)
-join("${warnings}" " " warnings -Wno-shadow)
+join("${warnings}" " " warnings)
 
-add_definitions(${warnings} -g3)
+add_definitions(${warnings} -g3 -Wno-shadow -Wno-switch-enum)
 
 add_subdirectory(libdmp-library)
 add_subdirectory(libdmp-common)

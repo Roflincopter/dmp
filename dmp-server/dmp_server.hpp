@@ -11,11 +11,13 @@ class DmpServer
     boost::asio::io_service server_io_service;
     std::map<std::string, std::shared_ptr<ClientEndpoint>> connections;
     message::DmpCallbacks callbacks;
-    std::map<std::string, std::map<std::string, message::SearchResponse>> temporary_responses;
     std::map<std::string, DmpRadio> radios;
+    boost::asio::deadline_timer debug_timer;
 
 public:
     DmpServer();
+
+    void timed_debug();
 
     void run();
     void add_connection(dmp::Connection&& c);

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DmpClientGui</class>
+ <widget class="QMainWindow" name="DmpClientGui">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QTableView" name="search_result"/>
+        </item>
+        <item>
+         <widget class="QTreeView" name="playlist"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="search_bar">
+        <property name="text">
+         <string>Default text</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1280</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuIndex">
+    <property name="title">
+     <string>Index</string>
+    </property>
+    <addaction name="actionIndex_Folder"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuIndex"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionIndex_Folder">
+   <property name="text">
+    <string>Index Folder</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>search_bar</sender>
+   <signal>returnPressed()</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>searchBarReturned()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>554</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>151</x>
+     <y>572</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIndex_Folder</sender>
+   <signal>triggered()</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>indexFolder()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>searchBarReturned()</slot>
+  <slot>indexFolder()</slot>
+ </slots>
+</ui>

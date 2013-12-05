@@ -5,6 +5,7 @@ set(dmp-common-sources
                        accept.hpp accept.cpp
                        connect.hpp connect.cpp
                        message.hpp
+                       message_outputter.hpp
                        message_serializer.hpp
                        message_callbacks.hpp
                        gstreamer_util.hpp gstreamer_util.cpp

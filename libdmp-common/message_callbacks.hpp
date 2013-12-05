@@ -13,6 +13,8 @@ using CallBackType = boost::variant<
                                         , CB<message::NameResponse>
                                         , CB<message::SearchRequest>
                                         , CB<message::SearchResponse>
+                                        , CB<message::Bye>
+                                        , CB<message::ByeAck>
                                     >;
 
 struct DmpCallbacks {

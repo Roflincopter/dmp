@@ -18,6 +18,8 @@ enum class Type : uint32_t {
     NameResponse,
     SearchRequest,
     SearchResponse,
+    Bye,
+    ByeAck
 };
 
 struct Ping {
@@ -126,16 +128,40 @@ struct SearchRequest
 struct SearchResponse
 {
     Type type;
+    std::string origin;
+    std::string query;
     std::vector<dmp_library::LibraryEntry> results;
 
     SearchResponse()
     : type(Type::SearchResponse)
+    , origin()
+    , query()
     , results()
     {}
 
-    SearchResponse(std::vector<dmp_library::LibraryEntry> results)
+    SearchResponse(std::string query, std::vector<dmp_library::LibraryEntry> results, std::string origin)
     : type(Type::SearchResponse)
+    , origin(origin)
+    , query(query)
     , results(results)
+    {}
+};
+
+struct Bye
+{
+    Type type;
+
+    Bye()
+    : type(Type::Bye)
+    {}
+};
+
+struct ByeAck
+{
+    Type type;
+
+    ByeAck()
+    : type(Type::ByeAck)
     {}
 };
 
@@ -176,5 +202,20 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     message::SearchResponse,
     (message::Type, type)
+    (std::string, origin)
+    (std::string, query)
     (std::vector<dmp_library::LibraryEntry>, results)
 )
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::Bye,
+    (message::Type, type)
+)
+
+
+BOOST_FUSION_ADAPT_STRUCT(
+    message::ByeAck,
+    (message::Type, type)
+)
+
+

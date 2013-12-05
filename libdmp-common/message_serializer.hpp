@@ -26,7 +26,8 @@ struct Serialize
 };
 
 template <typename Archive, typename T>
-void serialize(Archive& ar, T& x)
+typename std::enable_if<boost::fusion::traits::is_sequence<T>::value, void>::type
+serialize(Archive& ar, T& x)
 {
     Serialize::serialize(ar, boost::fusion::begin(x), boost::fusion::end(x));
 }

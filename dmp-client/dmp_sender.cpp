@@ -18,9 +18,8 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
 {
     GMainLoop* loop;
 
-    GstElement* pipeline,* source,* decoder,* encoder,* parser,* pay, * sink;
-    GstBus *bus;
-    guint bus_watch_id;
+    GstElement* pipeline = nullptr,* source = nullptr,* decoder = nullptr,* encoder = nullptr,* sink = nullptr;
+    GstBus *bus = nullptr;
 
     gst_init(0, nullptr);
 
@@ -30,23 +29,17 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
     source   = gst_element_factory_make("filesrc", "file");
     decoder  = gst_element_factory_make("decodebin", "decoder");
     encoder  = gst_element_factory_make("lamemp3enc", "encoder");
-    parser   = gst_element_factory_make("mpegaudioparse", "parser");
-    pay      = gst_element_factory_make("rtpmpapay", "pay");
     sink     = gst_element_factory_make("tcpclientsink", "send");
 
-#define X(x) if(!x) std::cout << #x << " " << x << std::endl;
-    if (!pipeline || !source || !decoder || !encoder || !parser || !pay || !sink)
+    if (!pipeline || !source || !decoder || !encoder || !sink)
     {
-        X(pipeline);
-        X(source);
-        X(decoder);
-        X(encoder);
-        X(parser);
-        X(pay);
-        X(sink)
+        CHECK_GSTREAMER_COMPONENT(pipeline);
+        CHECK_GSTREAMER_COMPONENT(source);
+        CHECK_GSTREAMER_COMPONENT(decoder);
+        CHECK_GSTREAMER_COMPONENT(encoder);
+        CHECK_GSTREAMER_COMPONENT(sink)
         throw std::runtime_error("Could not create the pipeline components for this sender.");
     }
-#undef X
 
     g_object_set(G_OBJECT(source), "location", file.c_str(), nullptr);
 
@@ -57,7 +50,7 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
     g_object_set(G_OBJECT(sink), "port", gint(port), nullptr);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-    bus_watch_id = gst_bus_add_watch (bus, bus_call, loop);
+    gst_bus_add_watch (bus, bus_call, loop);
     gst_object_unref (bus);
 
     gst_bin_add_many (GST_BIN(pipeline), source, decoder, encoder, sink, nullptr);

@@ -7,6 +7,8 @@ ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
 , connection(std::move(conn))
 , last_ping()
 {
+    callbacks.set(message::Type::Bye, std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1));
+
     listen_requests();
     keep_alive();
 }
@@ -16,9 +18,9 @@ void ClientEndpoint::run()
     connection.io_service->run();
 }
 
-void ClientEndpoint::bind_callbacks(message::DmpCallbacks cbs)
+message::DmpCallbacks& ClientEndpoint::get_callbacks()
 {
-    callbacks = cbs;
+    return callbacks;
 }
 
 void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr)
@@ -60,6 +62,10 @@ void ClientEndpoint::handle_request(message::Type t)
             throw std::runtime_error("Client shouldn't receive a NameResponse ever.");
             break;
         }*/
+        case message::Type::Bye: {
+            connection.async_receive<message::Bye>(callbacks);
+            break;
+        }
         default: {
             listen_requests();
         }
@@ -79,6 +85,13 @@ void ClientEndpoint::listen_requests()
 {
     std::function<void(message::Type)> cb = std::bind(&ClientEndpoint::handle_request, this, std::placeholders::_1);
     connection.async_receive_type(cb);
+}
+
+void ClientEndpoint::handle_bye(message::Bye)
+{
+    message::ByeAck b;
+    connection.send(b);
+    connection.io_service->stop();
 }
 
 void ClientEndpoint::keep_alive()

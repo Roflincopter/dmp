@@ -23,7 +23,7 @@ public:
 
     std::string get_name() {return name;}
 
-    void bind_callbacks(message::DmpCallbacks cbs);
+    message::DmpCallbacks& get_callbacks();
 
     //Warning only callbacks can use this forward function as a callback... need to fix that
     template <typename T>
@@ -37,4 +37,5 @@ public:
 
     void handle_request(message::Type t);
     void handle_pong(message::Pong p);
+    void handle_bye(message::Bye);
 };

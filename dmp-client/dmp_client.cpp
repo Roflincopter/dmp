@@ -3,13 +3,17 @@
 DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
 : name(name)
 , connection(std::move(conn))
+, last_sent_ping()
 , lib()
+, callbacks()
 {
-    listen_requests();
+    callbacks.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
+              set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1)));
 }
 
 void DmpClient::run()
 {
+    listen_requests();
     connection.io_service->run();
 }
 
@@ -58,6 +62,10 @@ void DmpClient::handle_request(message::Type t)
             connection.async_receive<message::SearchResponse>(callbacks);
             break;
         }
+        case message::Type::ByeAck: {
+            connection.async_receive<message::ByeAck>(callbacks);
+            break;
+        }
         default:
         {
             listen_requests();
@@ -77,6 +85,12 @@ void DmpClient::search(std::string query)
     connection.send(q);
 }
 
+void DmpClient::send_bye()
+{
+    message::Bye b;
+    connection.send(b);
+}
+
 void DmpClient::handle_ping(message::Ping ping)
 {
     message::Pong pong(ping);
@@ -89,7 +103,7 @@ void DmpClient::handle_pong(message::Pong pong)
 {
     assert(last_sent_ping.payload != "");
     if (last_sent_ping.payload != pong.payload) {
-        connection.io_service->stop(); //something went wrong terminate connection.
+        stop();
     }
 
     listen_requests();
@@ -106,7 +120,7 @@ void DmpClient::handle_name_request(message::NameRequest name_req)
 void DmpClient::handle_search_request(message::SearchRequest search_req)
 {
     dmp_library::LibrarySearcher searcher(lib);
-    message::SearchResponse response(searcher.search(search_req.query));
+    message::SearchResponse response(search_req.query, searcher.search(search_req.query), name);
     connection.send(response);
 
     listen_requests();

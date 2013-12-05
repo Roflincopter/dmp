@@ -24,7 +24,7 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
     TagLib::FileRef file(p.string().c_str());
     TagLib::Tag* t = file.tag();
     if(t) {
-        return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true)));
+        return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track()));
     }
     else {
         return boost::optional<LibraryEntry>();
@@ -117,7 +117,9 @@ Library create_library(string path, bool use_cache, bool create_cache)
 
     if(filesystem::exists(cache_path) && use_cache)
     {
-        return read_cache(cache_path.string());
+        Library lib = read_cache(cache_path.string());
+        write_cache(cache_path.string(), lib);
+        return lib;
     }
     else
     {
