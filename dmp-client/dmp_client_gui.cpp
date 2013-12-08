@@ -12,56 +12,29 @@
 DmpClientGui::DmpClientGui(DmpClient& client_ref, QWidget *parent)
 : QMainWindow(parent)
 , client(client_ref)
-, search_response_model()
+, search_result_model()
 , ui(new Ui::DmpClientGui)
 {
     client.get_callbacks().set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, &client, std::placeholders::_1))).
-                           set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, &client, std::placeholders::_1))).
-                           set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, &client, std::placeholders::_1)));
+                           set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, &client, std::placeholders::_1)));
 
     client_thread = std::thread(std::bind(&DmpClient::run, &client));
 
     ui->setupUi(this);
 
-    ui->search_result->setModel(&search_response_model);
-
-    search_response_model.setColumnCount(5);
-    search_response_model.setHorizontalHeaderLabels(QStringList({"Artist", "Title", "Album", "Trackno", "User"}));
+    ui->search_result->setModel(&search_result_model);
 }
 
 
 void DmpClientGui::searchBarReturned()
 {
     std::string query = ui->search_bar->text().toStdString();
-    client.get_callbacks().set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClientGui::handle_search_response, this, query, std::placeholders::_1)));
+    client.get_callbacks().set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&SearchResultModel::handle_search_response, &search_result_model, query, std::placeholders::_1)));
 
-    search_response_model.setRowCount(0);
     client.search(query);
 }
 
-void DmpClientGui::handle_search_response(std::string query, message::SearchResponse response)
-{
-    if(query != response.query) {
-        return;
-    }
 
-    QString origin = QString::fromStdString(response.origin);
-    for(auto entry : response.results)
-    {
-        QList<QStandardItem*> row({
-                                      new QStandardItem(QString::fromStdString(entry.artist)),
-                                      new QStandardItem(QString::fromStdString(entry.title)),
-                                      new QStandardItem(QString::fromStdString(entry.album)),
-                                      new QStandardItem(QString::fromStdString(std::to_string(entry.track))),
-                                      new QStandardItem(origin)
-            }
-        );
-        search_response_model.appendRow(row);
-    }
-
-    //ToDo: needs to be fixed...
-    client.listen_requests();
-}
 
 void DmpClientGui::indexFolder()
 {

@@ -114,8 +114,8 @@ public:
 
     ReceiveProxy receive();
 
-    template <typename T>
-    void async_receive(message::DmpCallbacks cb)
+    template <typename T, typename Callable>
+    void async_receive(Callable cb)
     {
         auto size_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
         {

@@ -9,6 +9,7 @@ set(dmp-common-sources
                        message_serializer.hpp
                        message_callbacks.hpp
                        gstreamer_util.hpp gstreamer_util.cpp
+                       fusion_static_dispatch.hpp fusion_static_dispatch.cpp
 )
 
 if(MINGW)

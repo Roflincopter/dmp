@@ -2,6 +2,7 @@
 
 #include <boost/fusion/support.hpp>
 #include <boost/fusion/adapted.hpp>
+#include <boost/fusion/include/pair.hpp>
 
 #include <iostream>
 #include <ostream>
@@ -29,9 +30,8 @@ struct Outputter
         return os;
     }
 
+
 };
-
-
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, std::vector<T> vec)
@@ -44,16 +44,18 @@ std::ostream& operator<<(std::ostream& os, std::vector<T> vec)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, message::Type t)
-{
-    return os << static_cast<uint32_t>(t);
-}
-
-}
-
 template <typename T>
 typename std::enable_if<boost::fusion::traits::is_sequence<T>::value, std::ostream&>::type
 operator<<(std::ostream& os, T x)
 {
     return std::Outputter::output(os, boost::fusion::begin(x), boost::fusion::end(x));
 }
+
+inline std::ostream& operator<<(std::ostream& os, message::Type t)
+{
+    return os << static_cast<uint32_t>(t);
+}
+
+}
+
+

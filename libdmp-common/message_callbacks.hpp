@@ -19,6 +19,12 @@ using CallBackType = boost::variant<
 
 struct DmpCallbacks {
     std::map<message::Type, CallBackType> callbacks;
+    std::function<void()> finally;
+
+    DmpCallbacks(std::function<void()> finally)
+    : callbacks()
+    , finally(finally)
+    {}
 
     template<typename argument>
     struct call_visitor : public boost::static_visitor<void>
@@ -48,7 +54,8 @@ struct DmpCallbacks {
         auto it = callbacks.find(message.type);
 
         if (it != callbacks.cend()) {
-            return boost::apply_visitor(v, it->second);
+            boost::apply_visitor(v, it->second);
+            finally();
         } else {
             throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<uint32_t>(message.type)));
         }

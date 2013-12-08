@@ -6,7 +6,6 @@
 DmpServer::DmpServer()
 : server_io_service()
 , connections()
-, callbacks()
 , radios()
 , debug_timer(server_io_service)
 {}
@@ -63,6 +62,4 @@ void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::S
         std::function<void(message::SearchResponse)> cb2 = std::bind(cb1, x.second, std::placeholders::_1);
         x.second->search(cb2, sr);
     }
-
-    origin->listen_requests();
 }

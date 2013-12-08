@@ -5,7 +5,7 @@ DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
 , connection(std::move(conn))
 , last_sent_ping()
 , lib()
-, callbacks()
+, callbacks(std::bind(&DmpClient::listen_requests, this))
 {
     callbacks.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
               set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1)));
@@ -95,8 +95,6 @@ void DmpClient::handle_ping(message::Ping ping)
 {
     message::Pong pong(ping);
     connection.send(pong);
-
-    listen_requests();
 }
 
 void DmpClient::handle_pong(message::Pong pong)
@@ -105,16 +103,12 @@ void DmpClient::handle_pong(message::Pong pong)
     if (last_sent_ping.payload != pong.payload) {
         stop();
     }
-
-    listen_requests();
 }
 
 void DmpClient::handle_name_request(message::NameRequest name_req)
 {
     message::NameResponse name_res(name);
     connection.send(name_res);
-
-    listen_requests();
 }
 
 void DmpClient::handle_search_request(message::SearchRequest search_req)
@@ -122,8 +116,6 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
     dmp_library::LibrarySearcher searcher(lib);
     message::SearchResponse response(search_req.query, searcher.search(search_req.query), name);
     connection.send(response);
-
-    listen_requests();
 }
 
 void DmpClient::handle_search_response(message::SearchResponse search_res)
@@ -131,6 +123,4 @@ void DmpClient::handle_search_response(message::SearchResponse search_res)
     for (auto e : search_res.results) {
         std::cout << e << std::endl;
     }
-
-    listen_requests();
 }

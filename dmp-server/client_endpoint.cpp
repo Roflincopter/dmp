@@ -6,6 +6,7 @@ ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
 , ping_timer(new boost::asio::deadline_timer(*conn.io_service))
 , connection(std::move(conn))
 , last_ping()
+, callbacks(std::bind(&ClientEndpoint::listen_requests, this))
 {
     callbacks.set(message::Type::Bye, std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1));
 
@@ -77,8 +78,6 @@ void ClientEndpoint::handle_pong(message::Pong p)
     if(p.payload != last_ping.payload) {
         connection.io_service->stop();
     }
-
-    listen_requests();
 }
 
 void ClientEndpoint::listen_requests()

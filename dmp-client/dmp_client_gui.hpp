@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dmp_client.hpp"
+#include "search_result_model.hpp"
 
 #include <QMainWindow>
 #include <QStandardItemModel>
@@ -18,7 +19,7 @@ class DmpClientGui : public QMainWindow
     DmpClient& client;
     std::thread client_thread;
 
-    QStandardItemModel search_response_model;
+    SearchResultModel search_result_model;
 
 public:
     explicit DmpClientGui(DmpClient& client_ref, QWidget *parent = 0);
@@ -31,7 +32,5 @@ public slots:
 
 private:
     Ui::DmpClientGui *ui;
-
-    void handle_search_response(std::string query, message::SearchResponse);
 };
 

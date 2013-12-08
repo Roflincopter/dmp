@@ -30,7 +30,7 @@ public:
     void forward(std::shared_ptr<ClientEndpoint> sender, T x)
     {
         connection.send(x);
-        sender->listen_requests();
+        //sender->listen_requests();
     }
 
     void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);

@@ -38,14 +38,16 @@ my_qt5_wrap_ui(QtGeneratedHeaders
 
 qt5_wrap_cpp(QtGeneratedSources
                           dmp_client_gui.hpp
+                          search_result_model.hpp
 )
 
 add_executable(dmp-client main.cpp
                           dmp_client.hpp dmp_client.cpp
                           dmp_sender.hpp dmp_sender.cpp
                           dmp_receiver.hpp dmp_receiver.cpp
-						  dmp_client_gui.hpp dmp_client_gui.cpp
-						  ${QtGeneratedHeaders} ${QtGeneratedSources}
+                          dmp_client_gui.hpp dmp_client_gui.cpp
+                          search_result_model.hpp search_result_model.cpp
+                          ${QtGeneratedHeaders} ${QtGeneratedSources}
 )
 
 if(MINGW)
@@ -77,7 +79,6 @@ target_link_libraries(dmp-client ${GOBJECT_LIBRARIES})
 
 find_package(Qt5Widgets REQUIRED)
 add_definitions(${Qt5Widgets_DEFINITIONS})
-message(status "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 target_link_libraries(dmp-client ${Qt5Widgets_LIBRARIES})
