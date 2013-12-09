@@ -11,6 +11,9 @@
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
 
+#include <sstream>
+#include <iostream>
+
 using namespace boost;
 using namespace std;
 using namespace boost::spirit;
@@ -49,12 +52,44 @@ BOOST_FUSION_ADAPT_STRUCT(
     (dmp_library::ast::AstQueryType, arg)
 )
 
-
 namespace dmp_library {
+
+    struct ReportError {
+        std::string& error;
+
+        ReportError(std::string& error)
+        : error(error)
+        {}
+
+        // the result type must be explicit for Phoenix
+        template<typename, typename, typename, typename>
+        struct result { typedef void type; };
+
+        // contract the string to the surrounding new-line characters
+        template<typename Iter>
+
+        void operator()(Iter first_iter, Iter last_iter, Iter error_iter, const qi::info& what) const {
+            std::stringstream ss;
+            std::string first(first_iter, error_iter);
+            std::string last(error_iter, last_iter);
+
+            ss        << std::string("Error! Expecting ")
+                      << what                                   // what failed?
+                      << std::endl
+                      << first
+                      << std::string("<here>")
+                      << last
+                      << std::endl;
+            error = ss.str();
+        }
+    };
 
     template<typename Iterator>
     struct atom_parser : spirit::qi::grammar<Iterator, ast::AstQueryType(), spirit::qi::ascii::space_type>
     {
+        std::string error;
+        const phoenix::function<ReportError> error_reporter;
+
         qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> start;
         qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> query;
 
@@ -82,10 +117,13 @@ namespace dmp_library {
         qi::rule<Iterator, void(), ascii::space_type> quote;
         qi::rule<Iterator, void(), ascii::space_type> end_of_query;
 
-        atom_parser() : atom_parser::base_type(start)
+        atom_parser()
+        : atom_parser::base_type(start)
+        , error()
+        , error_reporter(error)
         {
-            using qi::lexeme;
             using ascii::char_;
+
             using phoenix::at_c;
             using phoenix::push_back;
             using phoenix::val;
@@ -93,6 +131,8 @@ namespace dmp_library {
 
             using qi::on_error;
             using qi::fail;
+            using qi::lexeme;
+            using qi::eps;
 
             start.name("start");
             query.name("query");
@@ -119,7 +159,7 @@ namespace dmp_library {
             quote.name("qoute");
 
 
-            start %=  query > end_of_query;
+            start %= eps > query > end_of_query;
 
             query %= _or;
 
@@ -170,15 +210,8 @@ namespace dmp_library {
 
             on_error<fail>
             (
-                start
-                , std::cout
-                    << val("Error! Expecting ")
-                    << qi::_4                                   // what failed?
-                    << std::endl
-                    << construct<std::string>(qi::_1, qi::_3)
-                    << val("<here>")
-                    << construct<std::string>(qi::_3, qi::_2)
-                    << std::endl
+                start,
+                error_reporter(_1, _2, _3, _4)
             );
         }
     };
@@ -188,9 +221,10 @@ namespace dmp_library {
         atom_parser<string::const_iterator> ap;
         ast::AstQueryType ast;
         bool r = qi::phrase_parse(str.cbegin(), str.cend(), ap, ascii::space, ast);
-        cout << (r ? "parse_suceeded" : "parse_failed" ) << endl;
 
-        if(!r) return nullptr;
+        if(!r) {
+            throw std::runtime_error(ap.error);
+        }
 
         ast::precedence_visitor precedence;
         ast = boost::apply_visitor(precedence, ast);
