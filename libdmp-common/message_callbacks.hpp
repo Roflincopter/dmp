@@ -19,11 +19,11 @@ using CallBackType = boost::variant<
 
 struct DmpCallbacks {
     std::map<message::Type, CallBackType> callbacks;
-    std::function<void()> finally;
+    std::function<void()> refresher;
 
-    DmpCallbacks(std::function<void()> finally)
+    DmpCallbacks(std::function<void()> refresher)
     : callbacks()
-    , finally(finally)
+    , refresher(refresher)
     {}
 
     template<typename argument>
@@ -55,7 +55,7 @@ struct DmpCallbacks {
 
         if (it != callbacks.cend()) {
             boost::apply_visitor(v, it->second);
-            finally();
+            refresher();
         } else {
             throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<uint32_t>(message.type)));
         }

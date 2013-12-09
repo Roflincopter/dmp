@@ -19,7 +19,9 @@ enum class Type : uint32_t {
     SearchRequest,
     SearchResponse,
     Bye,
-    ByeAck
+    ByeAck,
+    Radio,
+    RadioAck,
 };
 
 struct Ping {
@@ -165,6 +167,14 @@ struct ByeAck
     {}
 };
 
+struct Radio {
+    Type type;
+
+    Radio()
+    : type(Type::Radio)
+    {}
+};
+
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -172,32 +182,31 @@ BOOST_FUSION_ADAPT_STRUCT(
     (message::Type, type)
     (std::string, ping)
     (std::string, payload)
-)
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::Pong,
     (message::Type, type)
     (std::string, pong)
     (std::string, payload)
-)
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::NameRequest,
     (message::Type, type)
-)
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::NameResponse,
     (message::Type, type)
     (std::string, name)
-)
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::SearchRequest,
     (message::Type, type)
     (std::string, query)
-)
-
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::SearchResponse,
@@ -205,17 +214,15 @@ BOOST_FUSION_ADAPT_STRUCT(
     (std::string, origin)
     (std::string, query)
     (std::vector<dmp_library::LibraryEntry>, results)
-)
+);
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::Bye,
     (message::Type, type)
-)
+);
 
 
 BOOST_FUSION_ADAPT_STRUCT(
     message::ByeAck,
     (message::Type, type)
-)
-
-
+);

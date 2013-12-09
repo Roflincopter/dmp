@@ -8,7 +8,10 @@ DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
 , callbacks(std::bind(&DmpClient::listen_requests, this))
 {
     callbacks.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
-              set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1)));
+              set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))).
+              set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))).
+              set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1)));
+
 }
 
 void DmpClient::run()
@@ -17,9 +20,9 @@ void DmpClient::run()
     connection.io_service->run();
 }
 
-void DmpClient::bind_callbacks(message::DmpCallbacks cbs)
+void DmpClient::stop()
 {
-    callbacks = cbs;
+    connection.io_service->stop();
 }
 
 void DmpClient::index(std::string path)
@@ -81,8 +84,20 @@ void DmpClient::listen_requests()
 
 void DmpClient::search(std::string query)
 {
+    try {
+        dmp_library::parse_query(query);
+    } catch (std::runtime_error err) {
+        ui->query_parse_error(err.what());
+        return;
+    }
+
     message::SearchRequest q(query);
     connection.send(q);
+}
+
+message::DmpCallbacks& DmpClient::get_callbacks()
+{
+    return callbacks;
 }
 
 void DmpClient::send_bye()

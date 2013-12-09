@@ -30,8 +30,6 @@ add_definitions("--std=c++11")
 
 find_package(Qt5Widgets REQUIRED)
 
-#set(CMAKE_AUTOMOC ON)
-
 my_qt5_wrap_ui(QtGeneratedHeaders
                           dmp_client_gui.ui
 )
@@ -47,6 +45,8 @@ add_executable(dmp-client main.cpp
                           dmp_receiver.hpp dmp_receiver.cpp
                           dmp_client_gui.hpp dmp_client_gui.cpp
                           search_result_model.hpp search_result_model.cpp
+                          ui_interface.hpp
+                          dmp_client_interface.hpp
                           ${QtGeneratedHeaders} ${QtGeneratedSources}
 )
 

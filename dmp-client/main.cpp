@@ -2,11 +2,11 @@
 #include "dmp_client.hpp"
 
 #include "dmp-library.hpp"
-#include "connect.hpp"
 #include "message.hpp"
 #include "message_serializer.hpp"
 #include "dmp_client.hpp"
 #include "dmp_client_gui.hpp"
+#include "connect.hpp"
 
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
@@ -46,9 +46,6 @@ int main(int argc, char* argv[]) {
         DmpReceiver r("localhost", 2001);
     return 0;
 */
-
-    dmp::Connection conn = dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>());
-
     std::string name;
     if(!vm["name"].empty()) {
         name = vm["name"].as<std::string>();
@@ -56,15 +53,17 @@ int main(int argc, char* argv[]) {
         name = boost::asio::ip::host_name();
     }
 
-    DmpClient client(name, std::move(conn));
-
     int retval = 0;
     {
         int x = 0;
         QApplication qapp(x, nullptr);
 
-        DmpClientGui gui(client);
-        gui.show();
+        auto gui = std::make_shared<DmpClientGui>();
+        auto client = std::make_shared<DmpClient>(name, dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>()));
+        client->set_ui(gui);
+        gui->set_client(client);
+
+        gui->show();
 
         retval = qapp.exec();
     }

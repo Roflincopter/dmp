@@ -157,5 +157,6 @@
  <slots>
   <slot>searchBarReturned()</slot>
   <slot>indexFolder()</slot>
+  <slot>close_gui()</slot>
  </slots>
 </ui>

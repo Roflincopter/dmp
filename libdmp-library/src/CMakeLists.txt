@@ -43,8 +43,4 @@ if (${_BUNDLE_TYPE} STREQUAL "COMMON")
   add_definitions (-DUSE_COMMON_RESOURCES)
 endif (${_BUNDLE_TYPE} STREQUAL "COMMON")
 
-#create_icu_resource_bundle (TARGET dmp-library NAME icu_example_data
-#  FILES ${PROJECT_RES} ${_BUNDLE_TYPE} RESOURCE_LOCATION _LOCATION
-#  CXX_FLAGS _CXX_FLAGS)
-
 target_link_libraries(dmp-library ${ICU_LIBRARIES})

@@ -25,21 +25,7 @@ void SearchResultModel::handle_search_response(std::string query, message::Searc
         return;
     }
 
-    //std::cout << response << std::endl;
-
     search_results.push_back(std::make_pair(response.origin, response.results));
-
-    //std::cout << search_results << std::endl;
-
-    /*
-    size_t rows = 0;
-    for(auto e : search_results)
-    {
-        rows += e.second.size();
-    }
-    typedef decltype(search_results)::value_type::second_type::value_type T;// value_type::second_type::value_type;
-    int columns = boost::fusion::result_of::size<T>::type::value;
-    */
 
     endInsertRows();
 }
