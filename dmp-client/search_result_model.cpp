@@ -77,6 +77,11 @@ QVariant SearchResultModel::headerData(int section, Qt::Orientation orientation,
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
+
+    if (orientation == Qt::Vertical) {
+        return QVariant();
+    }
+
     if(section < 0 || section >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
         return QVariant();
     }
