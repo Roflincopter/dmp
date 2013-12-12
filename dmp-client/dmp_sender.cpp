@@ -37,7 +37,7 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
         CHECK_GSTREAMER_COMPONENT(source);
         CHECK_GSTREAMER_COMPONENT(decoder);
         CHECK_GSTREAMER_COMPONENT(encoder);
-        CHECK_GSTREAMER_COMPONENT(sink)
+        CHECK_GSTREAMER_COMPONENT(sink);
         throw std::runtime_error("Could not create the pipeline components for this sender.");
     }
 
