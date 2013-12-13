@@ -20,7 +20,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QTableView" name="search_result">
+         <widget class="DmpClientGuiSearchResults" name="search_results">
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
@@ -45,7 +45,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLineEdit" name="search_bar">
+       <widget class="DmpClientGuiSearchBar" name="search_bar">
         <property name="text">
          <string>Default text</string>
         </property>
@@ -55,7 +55,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="DmpClientGuiMenuBar" name="menu_bar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -103,6 +103,26 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DmpClientGuiSearchBar</class>
+   <extends>QLineEdit</extends>
+   <header>dmp_client_gui_search_bar.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>DmpClientGuiMenuBar</class>
+   <extends>QMenuBar</extends>
+   <header>dmp_client_gui_menu_bar.hpp</header>
+   <slots>
+    <slot>indexFolder()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>DmpClientGuiSearchResults</class>
+   <extends>QTableView</extends>
+   <header>dmp_client_gui_search_results.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -140,7 +160,7 @@
   <connection>
    <sender>actionIndex_Folder</sender>
    <signal>triggered()</signal>
-   <receiver>DmpClientGui</receiver>
+   <receiver>menu_bar</receiver>
    <slot>indexFolder()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -148,8 +168,8 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
+     <x>639</x>
+     <y>12</y>
     </hint>
    </hints>
   </connection>

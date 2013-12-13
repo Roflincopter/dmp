@@ -1,6 +1,5 @@
 #include "dmp_client_gui.hpp"
 
-#include "ui_dmp_client_gui.hpp"
 #include "message_outputter.hpp"
 #include "connect.hpp"
 
@@ -19,36 +18,50 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , ui(new Ui::DmpClientGui)
 {
     ui->setupUi(this);
+}
 
-    ui->search_result->setModel(&search_result_model);
+void DmpClientGui::update_ui_client_interface()
+{
+    shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui->menu_bar, [](void*){});
+    shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui->search_bar, [](void*){});
+    shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui->search_results, [](void*){});
+
+    ui->menu_bar->set_client(client);
+    client->add_delegate(shared_menu_bar);
+    ui->search_bar->set_client(client);
+    client->add_delegate(shared_search_bar);
+    ui->search_results->set_client(client);
+    client->add_delegate(shared_search_results);
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
     if(!client) {
         client = new_client;
+
         client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
     } else {
         if(client_thread.joinable()) {
             client_thread.join();
+
             client = new_client;
+
             client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
         }
         else {
             throw std::runtime_error("Tried to assign a new client when old client was still running.");
         }
     }
+    update_ui_client_interface();
 }
 
 
 void DmpClientGui::searchBarReturned()
 {
     std::string query = ui->search_bar->text().toStdString();
-    client->get_callbacks().set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&SearchResultModel::handle_search_response, &search_result_model, query, std::placeholders::_1)));
-
     client->search(query);
 }
-
+/*
 void DmpClientGui::query_parse_error(std::string str) const
 {
     QMessageBox popup;
@@ -57,15 +70,7 @@ void DmpClientGui::query_parse_error(std::string str) const
     popup.setText(QString::fromStdString(str));
     popup.exec();
 }
-
-void DmpClientGui::indexFolder()
-{
-    std::string folder = QFileDialog::getExistingDirectory(this, tr("Select music folder to index")).toStdString();
-    if(folder.empty()) {
-       return;
-    }
-    client->index(folder);
-}
+*/
 
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
@@ -95,9 +100,4 @@ void DmpClientGui::closeEvent(QCloseEvent*)
 
     //join the client_thread
     client_thread.join();
-}
-
-DmpClientGui::~DmpClientGui()
-{
-    delete ui;
 }

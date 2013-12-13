@@ -9,20 +9,18 @@ namespace std {
     std::string to_string(std::string x);
 }
 
-class SearchResultModel : public QAbstractTableModel
+class SearchResultModel
 {
-    Q_OBJECT
-
     std::vector<std::pair<std::string, dmp_library::Library>> search_results;
 
 public:
     SearchResultModel();
 
-    void handle_search_response(std::string query, message::SearchResponse);
+    virtual void add_search_response(message::SearchResponse);
 
-    int rowCount(const QModelIndex & = QModelIndex()) const final;
-    int columnCount(const QModelIndex &) const final;
-    QVariant data(const QModelIndex &index, int role) const final;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
-
+    std::string get_cell(int row, int column) const;
+    std::string header_data(int section) const;
+    int row_count() const;
+    int column_count() const;
 };
+

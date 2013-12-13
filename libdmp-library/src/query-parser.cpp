@@ -228,11 +228,11 @@ namespace dmp_library {
 
         ast::precedence_visitor precedence;
         ast = boost::apply_visitor(precedence, ast);
-
+/*
         PrintVisitor p(cout);
         apply_visitor(p, ast);
         cout << endl;
-
+*/
         ast::to_query_visitor q;
         return apply_visitor(q, ast);
     }

@@ -14,6 +14,11 @@ DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
 
 }
 
+void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
+{
+    delegates.push_back(delegate);
+}
+
 void DmpClient::run()
 {
     listen_requests();
@@ -84,10 +89,16 @@ void DmpClient::listen_requests()
 
 void DmpClient::search(std::string query)
 {
+    callbacks.set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, query, std::placeholders::_1)));
+
     try {
         dmp_library::parse_query(query);
     } catch (std::runtime_error err) {
-        ui->query_parse_error(err.what());
+        for(auto delegate : delegates)
+        {
+            auto d = delegate.lock();
+            d->query_parse_error(err.what());
+        }
         return;
     }
 
@@ -133,9 +144,17 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
     connection.send(response);
 }
 
-void DmpClient::handle_search_response(message::SearchResponse search_res)
+void DmpClient::handle_search_response(std::string query, message::SearchResponse search_res)
 {
-    for (auto e : search_res.results) {
-        std::cout << e << std::endl;
+    //If the result is out of date, ignore it.
+    if(query != search_res.query) {
+        return;
     }
+
+    for (auto delegate : delegates)
+    {
+        auto d = delegate.lock();
+        d->search_results(search_res);
+    }
+
 }

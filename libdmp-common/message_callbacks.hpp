@@ -1,5 +1,9 @@
 #pragma once
 
+#include "message.hpp"
+
+#include <boost/variant.hpp>
+
 #include <stdexcept>
 
 namespace message {

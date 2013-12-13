@@ -18,16 +18,9 @@ BOOST_FUSION_ADAPT_STRUCT
     (uint32_t, id)
 )
 
-void SearchResultModel::handle_search_response(std::string query, message::SearchResponse response)
+void SearchResultModel::add_search_response(message::SearchResponse response)
 {
-    beginInsertRows(QModelIndex(), rowCount(), rowCount() - 1 + response.results.size());
-    if(query != response.query) {
-        return;
-    }
-
     search_results.push_back(std::make_pair(response.origin, response.results));
-
-    endInsertRows();
 }
 
 SearchResultModel::SearchResultModel()
@@ -36,7 +29,7 @@ SearchResultModel::SearchResultModel()
     qRegisterMetaType<QIntVector>("QIntVector");
 }
 
-int SearchResultModel::rowCount(const QModelIndex&) const
+int SearchResultModel::row_count() const
 {
     size_t rows = 0;
     for(auto e : search_results)
@@ -46,44 +39,34 @@ int SearchResultModel::rowCount(const QModelIndex&) const
     return rows;
 }
 
-int SearchResultModel::columnCount(const QModelIndex&) const
+int SearchResultModel::column_count() const
 {
     return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
 }
 
-QVariant SearchResultModel::data(const QModelIndex &index, int role) const
+std::string SearchResultModel::get_cell(int row, int column) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if(!index.isValid() || index.column() >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
-        return QVariant();
+    if(column >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
+        throw std::out_of_range("Column index was out of range.");
     }
 
-    int row = index.row();
     for(auto& p : search_results)
     {
         if(row > 0 && size_t(row) >= p.second.size()) {
             row -= p.second.size();
             continue;
         }
-        return QVariant(QString::fromUtf8(get_nth(p.second[row], index.column()).c_str()));
+        return get_nth(p.second[row], column);
     }
-    return QVariant();
+
+    throw std::out_of_range("Row index was out of range.");
 }
 
-QVariant SearchResultModel::headerData(int section, Qt::Orientation orientation, int role) const
+std::string SearchResultModel::header_data(int section) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant();
+    if(section >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
+        throw std::out_of_range("Column index was out of range.");
     }
 
-    if (orientation == Qt::Vertical) {
-        return QVariant();
-    }
-
-    if(section < 0 || section >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
-        return QVariant();
-    }
-    return QVariant(QString::fromStdString(get_nth_name<dmp_library::LibraryEntry>(section)));
+    return get_nth_name<dmp_library::LibraryEntry>(section);
 }

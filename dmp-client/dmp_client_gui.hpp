@@ -3,6 +3,8 @@
 #include "search_result_model.hpp"
 #include "dmp_client.hpp"
 #include "dmp_client_interface.hpp"
+#include "ui_dmp_client_gui.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 #include <QMainWindow>
 #include <QStandardItemModel>
@@ -10,11 +12,7 @@
 #include <thread>
 #include <memory>
 
-namespace Ui {
-class DmpClientGui;
-}
-
-class DmpClientGui : public QMainWindow, public UiInterface, public std::enable_shared_from_this<UiInterface>
+class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 {
     Q_OBJECT
 
@@ -22,20 +20,28 @@ class DmpClientGui : public QMainWindow, public UiInterface, public std::enable_
     std::shared_ptr<DmpClientInterface> client;
     std::thread client_thread;
 
+    /* these variables hold non-owning shared pointers to the raw pointers
+    *  provided by the QtDesigner generated code. Be very cautious what you
+    *  do with these. They should only be used as weak_pointers and no other.
+    *  shared pointers should leave this class instance.
+    */
+    std::shared_ptr<DmpClientGuiMenuBar> shared_menu_bar;
+    std::shared_ptr<DmpClientGuiSearchBar> shared_search_bar;
+    std::shared_ptr<DmpClientGuiSearchResults> shared_search_results;
+
+    void update_ui_client_interface();
+
 public:
     explicit DmpClientGui(QWidget *parent = 0);
-    ~DmpClientGui();
+    ~DmpClientGui() = default;
 
     void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
-    void query_parse_error(std::string err) const final;
     void closeEvent(QCloseEvent*) final;
 
 public slots:
     void searchBarReturned();
-    void indexFolder();
 
 private:
-    Ui::DmpClientGui *ui;
+    std::unique_ptr<Ui::DmpClientGui> ui;
 };
-

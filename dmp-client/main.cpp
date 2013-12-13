@@ -59,8 +59,8 @@ int main(int argc, char* argv[]) {
         QApplication qapp(x, nullptr);
 
         auto gui = std::make_shared<DmpClientGui>();
+        
         auto client = std::make_shared<DmpClient>(name, dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>()));
-        client->set_ui(gui);
         gui->set_client(client);
 
         gui->show();

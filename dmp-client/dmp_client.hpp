@@ -3,9 +3,8 @@
 #include "connection.hpp"
 #include "dmp_sender.hpp"
 #include "dmp_receiver.hpp"
-
-#include "ui_interface.hpp"
 #include "dmp_client_interface.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 class DmpClient : public DmpClientInterface
 {
@@ -14,7 +13,7 @@ class DmpClient : public DmpClientInterface
     message::Ping last_sent_ping;
     dmp_library::Library lib;
 
-    std::shared_ptr<UiInterface> ui;
+    std::vector<std::weak_ptr<DmpClientUiDelegate>> delegates;
 
     DmpSender sender;
     DmpReceiver receiver;
@@ -26,10 +25,7 @@ public:
     DmpClient(std::string name, dmp::Connection&& conn);
     DmpClient(DmpClient&&) = default;
 
-    void set_ui(std::shared_ptr<UiInterface> new_ui)
-    {
-        ui = new_ui;
-    }
+    void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
 
     void handle_request(message::Type t);
     void listen_requests();
@@ -45,5 +41,5 @@ public:
     void handle_name_request(message::NameRequest name_req);
     void handle_pong(message::Pong pong);
     void handle_search_request(message::SearchRequest search_req);
-    void handle_search_response(message::SearchResponse search_res);
+    void handle_search_response(std::string query, message::SearchResponse search_res);
 };
