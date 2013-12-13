@@ -15,13 +15,19 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , search_result_model()
 , client(nullptr)
 , client_thread()
+, shared_main_window(nullptr)
+, shared_menu_bar(nullptr)
+, shared_search_bar(nullptr)
+, shared_search_results(nullptr)
 , ui(new Ui::DmpClientGui)
+, client_synchronisation_thread()
 {
     ui->setupUi(this);
 }
 
 void DmpClientGui::update_ui_client_interface()
 {
+    shared_main_window = std::shared_ptr<DmpClientGui>(this, [](void*){});
     shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui->menu_bar, [](void*){});
     shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui->search_bar, [](void*){});
     shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui->search_results, [](void*){});
@@ -32,6 +38,8 @@ void DmpClientGui::update_ui_client_interface()
     client->add_delegate(shared_search_bar);
     ui->search_results->set_client(client);
     client->add_delegate(shared_search_results);
+
+    client->add_delegate(shared_main_window);
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
@@ -72,31 +80,28 @@ void DmpClientGui::query_parse_error(std::string str) const
 }
 */
 
-void DmpClientGui::closeEvent(QCloseEvent*)
+void DmpClientGui::bye_ack_received()
 {
-    //Shutdown of the client and client GUI.
+    //Shutdown of the client.
     auto shutdown = [this]{
         client->stop();
     };
 
-    //Create a thread to synchronise with the server to reach a destructable state.
-    std::thread t;
+    //initiate shutdown
+    client_synchronisation_thread = std::thread(shutdown);
+}
 
-    //Create a callback to shut down the client.
-    auto cb = [&t, this, shutdown](message::ByeAck){
-        t = std::thread(shutdown);
-    };
-
-    //Register a callback to do the destruction as soon as we receive the ByeAck.
-    client->get_callbacks().set(message::Type::ByeAck, cb);
+void DmpClientGui::closeEvent(QCloseEvent*)
+{
+    //Send the bye and make sure we override the delegate function bye_ack_received.
     client->send_bye();
 
-    while (!t.joinable()) {
+    while (!client_synchronisation_thread.joinable()) {
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
     //Join the destructor thread.
-    t.join();
+    client_synchronisation_thread.join();
 
     //join the client_thread
     client_thread.join();

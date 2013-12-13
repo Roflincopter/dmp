@@ -10,8 +10,8 @@ DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
     callbacks.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
               set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))).
               set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))).
-              set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1)));
-
+              set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))).
+              set(message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1)));
 }
 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
@@ -106,11 +106,6 @@ void DmpClient::search(std::string query)
     connection.send(q);
 }
 
-message::DmpCallbacks& DmpClient::get_callbacks()
-{
-    return callbacks;
-}
-
 void DmpClient::send_bye()
 {
     message::Bye b;
@@ -156,5 +151,13 @@ void DmpClient::handle_search_response(std::string query, message::SearchRespons
         auto d = delegate.lock();
         d->search_results(search_res);
     }
+}
 
+void DmpClient::handle_bye_ack(message::ByeAck)
+{
+    for (auto delegate : delegates)
+    {
+        auto d = delegate.lock();
+        d->bye_ack_received();
+    }
 }

@@ -34,7 +34,6 @@ public:
     void run() final;
     void search(std::string query) final;
     void index(std::string path) final;
-    message::DmpCallbacks& get_callbacks() final;
     void send_bye() final;
 
     void handle_ping(message::Ping ping);
@@ -42,4 +41,5 @@ public:
     void handle_pong(message::Pong pong);
     void handle_search_request(message::SearchRequest search_req);
     void handle_search_response(std::string query, message::SearchResponse search_res);
+    void handle_bye_ack(message::ByeAck);
 };

@@ -25,6 +25,7 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
     *  do with these. They should only be used as weak_pointers and no other.
     *  shared pointers should leave this class instance.
     */
+    std::shared_ptr<DmpClientGui> shared_main_window;
     std::shared_ptr<DmpClientGuiMenuBar> shared_menu_bar;
     std::shared_ptr<DmpClientGuiSearchBar> shared_search_bar;
     std::shared_ptr<DmpClientGuiSearchResults> shared_search_results;
@@ -37,6 +38,8 @@ public:
 
     void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
+    void bye_ack_received() final;
+
     void closeEvent(QCloseEvent*) final;
 
 public slots:
@@ -44,4 +47,5 @@ public slots:
 
 private:
     std::unique_ptr<Ui::DmpClientGui> ui;
+    std::thread client_synchronisation_thread;
 };
