@@ -17,6 +17,7 @@ public:
     SearchResultModel();
 
     virtual void add_search_response(message::SearchResponse);
+    virtual void clear();
 
     std::string get_cell(int row, int column) const;
     std::string header_data(int section) const;

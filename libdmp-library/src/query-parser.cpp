@@ -54,40 +54,36 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 namespace dmp_library {
 
-    struct ReportError {
-        std::string& error;
+    std::string ParseError::what() const
+    {
+        std::stringstream ss;
+        ss << "expected: " << expected << " at pos: " << pivot;
+        return ss.str();
+    }
 
-        ReportError(std::string& error)
+    struct ReportError {
+        ParseError& error;
+
+        ReportError(ParseError& error)
         : error(error)
         {}
 
-        // the result type must be explicit for Phoenix
         template<typename, typename, typename, typename>
         struct result { typedef void type; };
 
-        // contract the string to the surrounding new-line characters
         template<typename Iter>
-
         void operator()(Iter first_iter, Iter last_iter, Iter error_iter, const qi::info& what) const {
             std::stringstream ss;
-            std::string first(first_iter, error_iter);
-            std::string last(error_iter, last_iter);
-
-            ss        << std::string("Error! Expecting ")
-                      << what                                   // what failed?
-                      << std::endl
-                      << first
-                      << std::string("<here>")
-                      << last
-                      << std::endl;
-            error = ss.str();
+            ss << what;
+            error.expected = ss.str();
+            error.pivot = error_iter - first_iter;
         }
     };
 
     template<typename Iterator>
     struct atom_parser : spirit::qi::grammar<Iterator, ast::AstQueryType(), spirit::qi::ascii::space_type>
     {
-        std::string error;
+        ParseError error;
         const phoenix::function<ReportError> error_reporter;
 
         qi::rule<Iterator, ast::AstQueryType(), ascii::space_type> start;
@@ -167,19 +163,19 @@ namespace dmp_library {
 
             _orprime %= _and >> _orliteral > _or;
 
-            _orliteral %= "or";
+            _orliteral %= qi::lit("or");
 
             _and %= _andprime | _not;
 
             _andprime %= _not >> _andliteral > _and;
 
-            _andliteral %= "and";
+            _andliteral %= qi::lit("and");
 
             _not %= _notprime | nested | atom;
 
             _notprime %= _notliteral > _not;
 
-            _notliteral %= "not";
+            _notliteral %= qi::lit("not");
 
             nested %= (parenthesis_open > query > parenthesis_close > end_of_query);
 
@@ -204,7 +200,7 @@ namespace dmp_library {
                     |   qi::string("contains")
                 );
 
-            input %= quote > lexeme[+(char_ - '"')] > quote;
+            input %= qi::eps > quote >> lexeme[+(char_ - '"')] >> quote > qi::eps;
 
             quote %= '"';
 
@@ -223,7 +219,7 @@ namespace dmp_library {
         bool r = qi::phrase_parse(str.cbegin(), str.cend(), ap, ascii::space, ast);
 
         if(!r) {
-            throw std::runtime_error(ap.error);
+            throw ap.error;
         }
 
         ast::precedence_visitor precedence;

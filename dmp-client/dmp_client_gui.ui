@@ -108,6 +108,10 @@
    <class>DmpClientGuiSearchBar</class>
    <extends>QLineEdit</extends>
    <header>dmp_client_gui_search_bar.hpp</header>
+   <slots>
+    <slot>searchBarReturned()</slot>
+    <slot>cursorChanged(int,int)</slot>
+   </slots>
   </customwidget>
   <customwidget>
    <class>DmpClientGuiMenuBar</class>
@@ -128,7 +132,7 @@
   <connection>
    <sender>search_bar</sender>
    <signal>returnPressed()</signal>
-   <receiver>DmpClientGui</receiver>
+   <receiver>search_bar</receiver>
    <slot>searchBarReturned()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -136,8 +140,8 @@
      <y>554</y>
     </hint>
     <hint type="destinationlabel">
-     <x>151</x>
-     <y>572</y>
+     <x>639</x>
+     <y>674</y>
     </hint>
    </hints>
   </connection>
@@ -170,6 +174,22 @@
     <hint type="destinationlabel">
      <x>639</x>
      <y>12</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>search_bar</sender>
+   <signal>cursorPositionChanged(int,int)</signal>
+   <receiver>search_bar</receiver>
+   <slot>cursorChanged(int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>639</x>
+     <y>674</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>674</y>
     </hint>
    </hints>
   </connection>

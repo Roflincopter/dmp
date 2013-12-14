@@ -56,7 +56,7 @@ std::string SearchResultModel::get_cell(int row, int column) const
             row -= p.second.size();
             continue;
         }
-        return get_nth(p.second[row], column);
+        return get_nth(p.second.at(row), column);
     }
 
     throw std::out_of_range("Row index was out of range.");
@@ -69,4 +69,9 @@ std::string SearchResultModel::header_data(int section) const
     }
 
     return get_nth_name<dmp_library::LibraryEntry>(section);
+}
+
+void SearchResultModel::clear()
+{
+    search_results.clear();
 }

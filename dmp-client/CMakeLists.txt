@@ -46,11 +46,13 @@ add_executable(dmp-client main.cpp
                           dmp_sender.hpp dmp_sender.cpp
                           dmp_receiver.hpp dmp_receiver.cpp
                           search_result_model.hpp search_result_model.cpp
+                          search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp
+                          search_bar_model.hpp search_bar_model.cpp
+                          search_bar_model_qt_adapter.hpp search_bar_model_qt_adapter.cpp
                           dmp_client_gui.hpp dmp_client_gui.cpp
                           dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
                           dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp
                           dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
-                          search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp
                           dmp_client_ui_controller_interface.hpp
                           dmp_client_ui_delegate.hpp
                           dmp_client_interface.hpp

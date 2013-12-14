@@ -17,3 +17,8 @@ void DmpClientGuiSearchResults::search_results(message::SearchResponse search_re
 {
     model.add_search_response(search_response);
 }
+
+void DmpClientGuiSearchResults::new_search()
+{
+    model.clear();
+}

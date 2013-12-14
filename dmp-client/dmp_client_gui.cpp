@@ -63,12 +63,6 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
     update_ui_client_interface();
 }
 
-
-void DmpClientGui::searchBarReturned()
-{
-    std::string query = ui->search_bar->text().toStdString();
-    client->search(query);
-}
 /*
 void DmpClientGui::query_parse_error(std::string str) const
 {

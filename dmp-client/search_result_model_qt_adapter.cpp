@@ -6,9 +6,19 @@ SearchResultModelQtAdapter::SearchResultModelQtAdapter()
 
 void SearchResultModelQtAdapter::add_search_response(message::SearchResponse search_response)
 {
+    if(search_response.results.size() == 0) {
+        return;
+    }
     beginInsertRows(QModelIndex(), rowCount(), rowCount() + search_response.results.size() - 1);
     SearchResultModel::add_search_response(search_response);
     endInsertRows();
+}
+
+void SearchResultModelQtAdapter::clear()
+{
+    beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
+    SearchResultModel::clear();
+    endRemoveRows();
 }
 
 int SearchResultModelQtAdapter::rowCount(const QModelIndex&) const

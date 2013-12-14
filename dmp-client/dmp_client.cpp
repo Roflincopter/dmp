@@ -93,15 +93,20 @@ void DmpClient::search(std::string query)
 
     try {
         dmp_library::parse_query(query);
-    } catch (std::runtime_error err) {
+    } catch (dmp_library::ParseError err) {
         for(auto delegate : delegates)
         {
             auto d = delegate.lock();
-            d->query_parse_error(err.what());
+            d->query_parse_error(err);
         }
         return;
     }
 
+    for(auto delegate : delegates)
+    {
+        auto d = delegate.lock();
+        d->new_search();
+    }
     message::SearchRequest q(query);
     connection.send(q);
 }

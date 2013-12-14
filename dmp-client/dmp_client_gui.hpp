@@ -43,7 +43,6 @@ public:
     void closeEvent(QCloseEvent*) final;
 
 public slots:
-    void searchBarReturned();
 
 private:
     std::unique_ptr<Ui::DmpClientGui> ui;

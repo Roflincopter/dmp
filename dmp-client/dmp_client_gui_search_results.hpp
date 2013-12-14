@@ -19,7 +19,7 @@ public:
     virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
 
     virtual void search_results(message::SearchResponse search_response) final;
-
+    virtual void new_search() final;
 signals:
 
 public slots:

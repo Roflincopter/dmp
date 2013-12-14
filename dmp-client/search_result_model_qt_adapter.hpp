@@ -10,6 +10,7 @@ public:
     SearchResultModelQtAdapter();
 
     virtual void add_search_response(message::SearchResponse search_response) final;
+    virtual void clear() final;
 
     int rowCount(const QModelIndex & = QModelIndex()) const final;
     int columnCount(const QModelIndex &) const final;
