@@ -5,20 +5,20 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 , client(nullptr)
 , model()
 {
-    setModel(&model);
+	setModel(&model);
 }
 
 void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
-    client = new_client;
+	client = new_client;
 }
 
 void DmpClientGuiSearchResults::search_results(message::SearchResponse search_response)
 {
-    model.add_search_response(search_response);
+	model.add_search_response(search_response);
 }
 
 void DmpClientGuiSearchResults::new_search()
 {
-    model.clear();
+	model.clear();
 }

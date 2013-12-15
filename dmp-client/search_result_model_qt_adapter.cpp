@@ -6,63 +6,63 @@ SearchResultModelQtAdapter::SearchResultModelQtAdapter()
 
 void SearchResultModelQtAdapter::add_search_response(message::SearchResponse search_response)
 {
-    if(search_response.results.size() == 0) {
-        return;
-    }
-    beginInsertRows(QModelIndex(), rowCount(), rowCount() + search_response.results.size() - 1);
-    SearchResultModel::add_search_response(search_response);
-    endInsertRows();
+	if(search_response.results.size() == 0) {
+		return;
+	}
+	beginInsertRows(QModelIndex(), rowCount(), rowCount() + search_response.results.size() - 1);
+	SearchResultModel::add_search_response(search_response);
+	endInsertRows();
 }
 
 void SearchResultModelQtAdapter::clear()
 {
-    beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
-    SearchResultModel::clear();
-    endRemoveRows();
+	beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
+	SearchResultModel::clear();
+	endRemoveRows();
 }
 
 int SearchResultModelQtAdapter::rowCount(const QModelIndex&) const
 {
-    return row_count();
+	return row_count();
 }
 
 int SearchResultModelQtAdapter::columnCount(const QModelIndex&) const
 {
-    return column_count();
+	return column_count();
 }
 
 QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if(!index.isValid()) {
-        return QVariant();
-    }
-    try {
-        return QVariant(QString::fromStdString(get_cell(index.row(), index.column())));
-    } catch (std::out_of_range e) {
-        return QVariant();
-    }
+	if (role != Qt::DisplayRole) {
+		return QVariant();
+	}
+	if(!index.isValid()) {
+		return QVariant();
+	}
+	try {
+		return QVariant(QString::fromStdString(get_cell(index.row(), index.column())));
+	} catch (std::out_of_range e) {
+		return QVariant();
+	}
 }
 
 QVariant SearchResultModelQtAdapter::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Vertical) {
-        return QVariant();
-    }
+	if (orientation == Qt::Vertical) {
+		return QVariant();
+	}
 
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
+	if (role != Qt::DisplayRole) {
+		return QVariant();
+	}
 
-    if(section < 0) {
-        return QVariant();
-    }
+	if(section < 0) {
+		return QVariant();
+	}
 
-    try {
-        return QVariant(QString::fromStdString(header_data(section)));
-    } catch(std::out_of_range e) {
-        return QVariant();
-    }
+	try {
+		return QVariant(QString::fromStdString(header_data(section)));
+	} catch(std::out_of_range e) {
+		return QVariant();
+	}
 }

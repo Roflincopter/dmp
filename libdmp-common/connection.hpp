@@ -27,14 +27,14 @@ struct ReceiveProxy;
 
 class Connection {
 
-    friend class ReceiveProxy;
+	friend class ReceiveProxy;
 
-    tcp::socket socket;
-    boost::mutex send_mutex;
+	tcp::socket socket;
+	boost::mutex send_mutex;
 
-    std::vector<uint8_t> async_type_buffer{};
-    std::vector<uint8_t> async_size_buffer{};
-    std::vector<uint8_t> async_mess_buffer{};
+	std::vector<uint8_t> async_type_buffer{};
+	std::vector<uint8_t> async_size_buffer{};
+	std::vector<uint8_t> async_mess_buffer{};
 
 
 public:

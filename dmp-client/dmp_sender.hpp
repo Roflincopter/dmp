@@ -5,13 +5,13 @@
 
 class DmpSender
 {
-    std::string host;
-    uint16_t port;
+	std::string host;
+	uint16_t port;
 
-    void cleanup();
+	void cleanup();
 public:
-    DmpSender();
-    DmpSender(std::string host, uint16_t port, std::string file);
+	DmpSender();
+	DmpSender(std::string host, uint16_t port, std::string file);
 
-    void run();
+	void run();
 };

@@ -7,16 +7,14 @@
 
 class DmpClientGuiRadioList : public QListView, public DmpClientUiControllerInterface, public DmpClientUiDelegate
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    std::shared_ptr<DmpClientInterface> client;
+	std::shared_ptr<DmpClientInterface> client;
 
 public:
-    explicit DmpClientGuiRadioList(QWidget *parent = 0);
+	explicit DmpClientGuiRadioList(QWidget *parent = 0);
 
-    virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
-
-
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
 
 signals:
 

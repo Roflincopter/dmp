@@ -4,7 +4,7 @@ namespace dmp {
 
 ReceiveProxy Connection::receive()
 {
-    return ReceiveProxy{*this};
+	return ReceiveProxy{*this};
 }
 
 }

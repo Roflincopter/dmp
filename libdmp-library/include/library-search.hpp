@@ -11,16 +11,16 @@ namespace dmp_library {
 
 class LibrarySearcher
 {
-    std::vector<LibraryEntry> const& library;
+	std::vector<LibraryEntry> const& library;
 
 public:
 
-    LibrarySearcher(std::vector<LibraryEntry> const& library)
-    : library(library)
-    {}
+	LibrarySearcher(std::vector<LibraryEntry> const& library)
+	: library(library)
+	{}
 
-    std::vector<size_t> search(std::shared_ptr<Query> query_obj);
-    std::vector<LibraryEntry> search(std::string query);
+	std::vector<size_t> search(std::shared_ptr<Query> query_obj);
+	std::vector<LibraryEntry> search(std::string query);
 
 };
 

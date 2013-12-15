@@ -8,5 +8,5 @@ DmpClientGuiRadioList::DmpClientGuiRadioList(QWidget *parent)
 
 void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
-    client = new_client;
+	client = new_client;
 }

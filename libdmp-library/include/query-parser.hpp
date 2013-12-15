@@ -9,15 +9,15 @@ namespace dmp_library {
 std::shared_ptr<Query> parse_query(std::string const& str);
 
 struct ParseError{
-    std::string expected;
-    size_t pivot;
+	std::string expected;
+	size_t pivot;
 
-    ParseError()
-    : expected()
-    , pivot()
-    {}
+	ParseError()
+	: expected()
+	, pivot()
+	{}
 
-    std::string what() const;
+	std::string what() const;
 };
 
 }

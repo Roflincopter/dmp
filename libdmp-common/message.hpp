@@ -11,218 +11,218 @@
 namespace message {
 
 enum class Type : uint32_t {
-    NoMessage,
-    Ping,
-    Pong,
-    NameRequest,
-    NameResponse,
-    SearchRequest,
-    SearchResponse,
-    Bye,
-    ByeAck,
-    Radio,
-    RadioAck,
+	NoMessage,
+	Ping,
+	Pong,
+	NameRequest,
+	NameResponse,
+	SearchRequest,
+	SearchResponse,
+	Bye,
+	ByeAck,
+	Radio,
+	RadioAck,
 };
 
 struct Ping {
-    
-    Type type;
-    std::string ping;
-    std::string payload;
 
-    struct RandDevice
-    {
-        RandDevice()
-        {
-            srand(time(nullptr));
-        }
+	Type type;
+	std::string ping;
+	std::string payload;
 
-        int operator()() const
-        {
-            return rand();
-        }
-    };
+	struct RandDevice
+	{
+		RandDevice()
+		{
+			srand(time(nullptr));
+		}
 
-    std::string random_string()
-    {
-        static const std::string alphanum =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
-        static const RandDevice rand;
+		int operator()() const
+		{
+			return rand();
+		}
+	};
 
-        std::string ret = "";
-        for (int i = 0; i < 12; ++i) {
-            ret += alphanum[rand() % (alphanum.size() - 1)];
-        }
+	std::string random_string()
+	{
+		static const std::string alphanum =
+			"0123456789"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz";
+		static const RandDevice rand;
 
-        return ret;
-    }
-    
-    Ping()
-    : type(Type::Ping)
-    , ping("Ping: ")
-    , payload(random_string())
-    {}
+		std::string ret = "";
+		for (int i = 0; i < 12; ++i) {
+			ret += alphanum[rand() % (alphanum.size() - 1)];
+		}
+
+		return ret;
+	}
+
+	Ping()
+	: type(Type::Ping)
+	, ping("Ping: ")
+	, payload(random_string())
+	{}
 };
 
 struct Pong
 {
-    Type type;
-    std::string pong;
-    std::string payload;
+	Type type;
+	std::string pong;
+	std::string payload;
 
-    Pong()
-    : type(Type::Pong)
-    , pong("Pong: ")
-    , payload("")
-    {}
+	Pong()
+	: type(Type::Pong)
+	, pong("Pong: ")
+	, payload("")
+	{}
 
-    Pong(message::Ping p)
-    : type(Type::Pong)
-    , pong("Pong: ")
-    , payload(p.payload)
-    {}
+	Pong(message::Ping p)
+	: type(Type::Pong)
+	, pong("Pong: ")
+	, payload(p.payload)
+	{}
 };
 
 struct NameRequest
 {
-    Type type;
+	Type type;
 
-    NameRequest()
-    : type(Type::NameRequest)
-    {}
+	NameRequest()
+	: type(Type::NameRequest)
+	{}
 
 };
 
 struct NameResponse
 {
-    Type type;
-    std::string name;
+	Type type;
+	std::string name;
 
-    NameResponse()
-    : type(Type::NameResponse)
-    , name("")
-    {}
+	NameResponse()
+	: type(Type::NameResponse)
+	, name("")
+	{}
 
-    NameResponse(std::string name)
-    : type(Type::NameResponse)
-    , name(name)
-    {}
+	NameResponse(std::string name)
+	: type(Type::NameResponse)
+	, name(name)
+	{}
 };
 
 struct SearchRequest
 {
-    Type type;
-    std::string query;
+	Type type;
+	std::string query;
 
-    SearchRequest()
-    : type(Type::SearchRequest)
-    , query()
-    {}
+	SearchRequest()
+	: type(Type::SearchRequest)
+	, query()
+	{}
 
-    SearchRequest(std::string query)
-    : type(Type::SearchRequest)
-    , query(query)
-    {}
+	SearchRequest(std::string query)
+	: type(Type::SearchRequest)
+	, query(query)
+	{}
 };
 
 struct SearchResponse
 {
-    Type type;
-    std::string origin;
-    std::string query;
-    std::vector<dmp_library::LibraryEntry> results;
+	Type type;
+	std::string origin;
+	std::string query;
+	std::vector<dmp_library::LibraryEntry> results;
 
-    SearchResponse()
-    : type(Type::SearchResponse)
-    , origin()
-    , query()
-    , results()
-    {}
+	SearchResponse()
+	: type(Type::SearchResponse)
+	, origin()
+	, query()
+	, results()
+	{}
 
-    SearchResponse(std::string query, std::vector<dmp_library::LibraryEntry> results, std::string origin)
-    : type(Type::SearchResponse)
-    , origin(origin)
-    , query(query)
-    , results(results)
-    {}
+	SearchResponse(std::string query, std::vector<dmp_library::LibraryEntry> results, std::string origin)
+	: type(Type::SearchResponse)
+	, origin(origin)
+	, query(query)
+	, results(results)
+	{}
 };
 
 struct Bye
 {
-    Type type;
+	Type type;
 
-    Bye()
-    : type(Type::Bye)
-    {}
+	Bye()
+	: type(Type::Bye)
+	{}
 };
 
 struct ByeAck
 {
-    Type type;
+	Type type;
 
-    ByeAck()
-    : type(Type::ByeAck)
-    {}
+	ByeAck()
+	: type(Type::ByeAck)
+	{}
 };
 
 struct Radio {
-    Type type;
+	Type type;
 
-    Radio()
-    : type(Type::Radio)
-    {}
+	Radio()
+	: type(Type::Radio)
+	{}
 };
 
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::Ping,
-    (message::Type, type)
-    (std::string, ping)
-    (std::string, payload)
+	message::Ping,
+	(message::Type, type)
+	(std::string, ping)
+	(std::string, payload)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::Pong,
-    (message::Type, type)
-    (std::string, pong)
-    (std::string, payload)
+	message::Pong,
+	(message::Type, type)
+	(std::string, pong)
+	(std::string, payload)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::NameRequest,
-    (message::Type, type)
+	message::NameRequest,
+	(message::Type, type)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::NameResponse,
-    (message::Type, type)
-    (std::string, name)
+	message::NameResponse,
+	(message::Type, type)
+	(std::string, name)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::SearchRequest,
-    (message::Type, type)
-    (std::string, query)
+	message::SearchRequest,
+	(message::Type, type)
+	(std::string, query)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::SearchResponse,
-    (message::Type, type)
-    (std::string, origin)
-    (std::string, query)
-    (std::vector<dmp_library::LibraryEntry>, results)
+	message::SearchResponse,
+	(message::Type, type)
+	(std::string, origin)
+	(std::string, query)
+	(std::vector<dmp_library::LibraryEntry>, results)
 );
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::Bye,
-    (message::Type, type)
+	message::Bye,
+	(message::Type, type)
 );
 
 
 BOOST_FUSION_ADAPT_STRUCT(
-    message::ByeAck,
-    (message::Type, type)
+	message::ByeAck,
+	(message::Type, type)
 );

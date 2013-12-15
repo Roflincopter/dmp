@@ -10,6 +10,6 @@ class DmpRadio
 
 public:
 
-    DmpRadio(uint16_t from, uint16_t to);
+	DmpRadio(uint16_t from, uint16_t to);
 };
 

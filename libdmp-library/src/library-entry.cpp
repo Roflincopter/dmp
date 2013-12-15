@@ -22,29 +22,31 @@ LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint3
 
 bool LibraryEntry::operator==(const LibraryEntry &that) const
 {
-    return  this->artist       == that.artist &&
-            this->ascii_artist == that.ascii_artist &&
-            this->title        == that.title &&
-            this->ascii_title  == that.ascii_title &&
-            this->album        == that.album &&
-            this->ascii_album  == that.ascii_album &&
-            this->track        == that.track &&
-            this->id           == that.id;
+	return
+		this->artist       == that.artist       &&
+		this->ascii_artist == that.ascii_artist &&
+		this->title        == that.title        &&
+		this->ascii_title  == that.ascii_title  &&
+		this->album        == that.album        &&
+		this->ascii_album  == that.ascii_album  &&
+		this->track        == that.track        &&
+		this->id           == that.id;
 }
 
 
 ostream& operator<<(ostream& os, LibraryEntry const& le)
 {
-    return os 	<< "{" << std::endl
-                << "\t" << "UID: " << le.id << std::endl
-                << "\t" << "artist: " << le.artist << std::endl
-                << "\t" << "a_artist: " << le.ascii_artist << std::endl
-                << "\t" << "title: " << le.title << std::endl
-                << "\t" << "a_title: " << le.ascii_title << std::endl
-                << "\t" << "album: " << le.album << std::endl
-                << "\t" << "track: " << le.track << std::endl
-                << "\t" << "a_album: " << le.ascii_album << std::endl
-                << "}" << std::endl;
+	return os
+		<< "{" << std::endl
+		<< "\t" << "UID: " << le.id << std::endl
+		<< "\t" << "artist: " << le.artist << std::endl
+		<< "\t" << "a_artist: " << le.ascii_artist << std::endl
+		<< "\t" << "title: " << le.title << std::endl
+		<< "\t" << "a_title: " << le.ascii_title << std::endl
+		<< "\t" << "album: " << le.album << std::endl
+		<< "\t" << "track: " << le.track << std::endl
+		<< "\t" << "a_album: " << le.ascii_album << std::endl
+		<< "}" << std::endl;
 }
 
 

@@ -22,70 +22,70 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , ui(new Ui::DmpClientGui)
 , client_synchronisation_thread()
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 }
 
 void DmpClientGui::update_ui_client_interface()
 {
-    shared_main_window = std::shared_ptr<DmpClientGui>(this, [](void*){});
-    shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui->menu_bar, [](void*){});
-    shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui->search_bar, [](void*){});
-    shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui->search_results, [](void*){});
+	shared_main_window = std::shared_ptr<DmpClientGui>(this, [](void*){});
+	shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui->menu_bar, [](void*){});
+	shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui->search_bar, [](void*){});
+	shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui->search_results, [](void*){});
 
-    ui->menu_bar->set_client(client);
-    client->add_delegate(shared_menu_bar);
-    ui->search_bar->set_client(client);
-    client->add_delegate(shared_search_bar);
-    ui->search_results->set_client(client);
-    client->add_delegate(shared_search_results);
+	ui->menu_bar->set_client(client);
+	client->add_delegate(shared_menu_bar);
+	ui->search_bar->set_client(client);
+	client->add_delegate(shared_search_bar);
+	ui->search_results->set_client(client);
+	client->add_delegate(shared_search_results);
 
-    client->add_delegate(shared_main_window);
+	client->add_delegate(shared_main_window);
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
-    if(!client) {
-        client = new_client;
+	if(!client) {
+		client = new_client;
 
-        client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
-    } else {
-        if(client_thread.joinable()) {
-            client_thread.join();
+		client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
+	} else {
+		if(client_thread.joinable()) {
+			client_thread.join();
 
-            client = new_client;
+			client = new_client;
 
-            client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
-        }
-        else {
-            throw std::runtime_error("Tried to assign a new client when old client was still running.");
-        }
-    }
-    update_ui_client_interface();
+			client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
+		}
+		else {
+			throw std::runtime_error("Tried to assign a new client when old client was still running.");
+		}
+	}
+	update_ui_client_interface();
 }
 
 void DmpClientGui::bye_ack_received()
 {
-    //Shutdown of the client.
-    auto shutdown = [this]{
-        client->stop();
-    };
+	//Shutdown of the client.
+	auto shutdown = [this]{
+		client->stop();
+	};
 
-    //initiate shutdown
-    client_synchronisation_thread = std::thread(shutdown);
+	//initiate shutdown
+	client_synchronisation_thread = std::thread(shutdown);
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
-    //Send the bye and make sure we override the delegate function bye_ack_received.
-    client->send_bye();
+	//Send the bye and make sure we override the delegate function bye_ack_received.
+	client->send_bye();
 
-    while (!client_synchronisation_thread.joinable()) {
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
-    }
+	while (!client_synchronisation_thread.joinable()) {
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
+	}
 
-    //Join the destructor thread.
-    client_synchronisation_thread.join();
+	//Join the destructor thread.
+	client_synchronisation_thread.join();
 
-    //join the client_thread
-    client_thread.join();
+	//join the client_thread
+	client_thread.join();
 }

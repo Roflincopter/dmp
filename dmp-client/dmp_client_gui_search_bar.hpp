@@ -7,20 +7,20 @@
 
 class DmpClientGuiSearchBar : public QLineEdit, public DmpClientUiControllerInterface, public DmpClientUiDelegate
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    std::shared_ptr<DmpClientInterface> client;
-    SearchBarModelQtAdapter model;
+	std::shared_ptr<DmpClientInterface> client;
+	SearchBarModelQtAdapter model;
 
 public:
-    explicit DmpClientGuiSearchBar(QWidget *parent = 0);
+	explicit DmpClientGuiSearchBar(QWidget *parent = 0);
 
-    virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
 
-    virtual void query_parse_error(dmp_library::ParseError e) final;
+	virtual void query_parse_error(dmp_library::ParseError e) final;
 signals:
 
 public slots:
-    void searchBarReturned();
-    void cursorChanged(int old_pos, int new_pos);
+	void searchBarReturned();
+	void cursorChanged(int old_pos, int new_pos);
 };

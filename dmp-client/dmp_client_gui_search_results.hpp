@@ -9,17 +9,17 @@
 
 class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControllerInterface, public DmpClientUiDelegate
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    std::shared_ptr<DmpClientInterface> client;
-    SearchResultModelQtAdapter model;
+	std::shared_ptr<DmpClientInterface> client;
+	SearchResultModelQtAdapter model;
 public:
-    explicit DmpClientGuiSearchResults(QWidget *parent = 0);
+	explicit DmpClientGuiSearchResults(QWidget *parent = 0);
 
-    virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
 
-    virtual void search_results(message::SearchResponse search_response) final;
-    virtual void new_search() final;
+	virtual void search_results(message::SearchResponse search_response) final;
+	virtual void new_search() final;
 signals:
 
 public slots:

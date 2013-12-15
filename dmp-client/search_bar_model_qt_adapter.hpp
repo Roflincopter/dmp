@@ -8,17 +8,17 @@
 
 class SearchBarModelQtAdapter : public SearchBarModel
 {
-    std::string& expected;
-    size_t& pivot;
+	std::string& expected;
+	size_t& pivot;
 
 public:
-    SearchBarModelQtAdapter();
+	SearchBarModelQtAdapter();
 
-    void set_line_edit_text_format(QLineEdit* search_bar, const std::vector<QTextLayout::FormatRange> formats);
-    void reset_error_state(QLineEdit* search_bar);
-    void set_error_state(QLineEdit* search_bar);
+	void set_line_edit_text_format(QLineEdit* search_bar, const std::vector<QTextLayout::FormatRange> formats);
+	void reset_error_state(QLineEdit* search_bar);
+	void set_error_state(QLineEdit* search_bar);
 
-    virtual void set_data(std::string new_expected, size_t new_pivot);
+	virtual void set_data(std::string new_expected, size_t new_pivot);
 
-    void model_check_state(int cursor_pos, QLineEdit* search_bar);
+	void model_check_state(int cursor_pos, QLineEdit* search_bar);
 };

@@ -6,13 +6,13 @@
 
 class DmpReceiver
 {
-    std::string host;
-    uint16_t port;
+	std::string host;
+	uint16_t port;
 
-    void cleanup();
+	void cleanup();
 public:
-    DmpReceiver();
-    DmpReceiver(std::string host, uint16_t port);
+	DmpReceiver();
+	DmpReceiver(std::string host, uint16_t port);
 };
 
 #endif // DMP_RECEIVER_HPP

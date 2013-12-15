@@ -10,15 +10,15 @@ DmpClientGuiMenuBar::DmpClientGuiMenuBar(QWidget *parent)
 
 void DmpClientGuiMenuBar::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
-    client = new_client;
+	client = new_client;
 }
 
 void DmpClientGuiMenuBar::indexFolder()
 {
-    std::string folder = QFileDialog::getExistingDirectory(this, tr("Select music folder to index")).toStdString();
-    if(folder.empty()) {
-       return;
-    }
+	std::string folder = QFileDialog::getExistingDirectory(this, tr("Select music folder to index")).toStdString();
+	if(folder.empty()) {
+	   return;
+	}
 
-    client->index(folder);
+	client->index(folder);
 }

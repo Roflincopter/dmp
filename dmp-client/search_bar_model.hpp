@@ -5,14 +5,14 @@
 
 class SearchBarModel
 {
-    std::string expected;
-    size_t pivot;
+	std::string expected;
+	size_t pivot;
 
 public:
-    SearchBarModel();
+	SearchBarModel();
 
-    virtual void set_data(std::string new_expected, size_t new_pivot);
+	virtual void set_data(std::string new_expected, size_t new_pivot);
 
-    std::string& get_expected();
-    size_t& get_pivot();
+	std::string& get_expected();
+	size_t& get_pivot();
 };
