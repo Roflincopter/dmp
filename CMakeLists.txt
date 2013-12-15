@@ -8,9 +8,9 @@ include(wubwubcmake/warning_settings.cmake)
 get_sane_warning_flags(warnings)
 
 if(MINGW)
-        include(wubwubcmake/enable_gnu11.cmake)
+    include(wubwubcmake/enable_gnu11.cmake)
 else()
-        include(wubwubcmake/enable_cpp11.cmake)
+    include(wubwubcmake/enable_cpp11.cmake)
 endif()
 
 include(wubwubcmake/address_sanitizer.cmake)

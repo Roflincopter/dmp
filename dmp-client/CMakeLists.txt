@@ -17,10 +17,10 @@ function(MY_QT5_WRAP_UI outfiles )
 		get_filename_component(infile ${it} ABSOLUTE)
 		set(outfile ${CMAKE_CURRENT_SOURCE_DIR}/ui_${outfile}.hpp)
 		add_custom_command(OUTPUT ${outfile}
-		  COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
-		  ARGS ${ui_options} -o ${outfile} ${infile}
-		  MAIN_DEPENDENCY ${infile}
-		  VERBATIM)
+			COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
+			ARGS ${ui_options} -o ${outfile} ${infile}
+			MAIN_DEPENDENCY ${infile}
+			VERBATIM)
 		list(APPEND ${outfiles} ${outfile})
 	endforeach()
 	set(${outfiles} ${${outfiles}} PARENT_SCOPE)
