@@ -39,6 +39,7 @@ qt5_wrap_cpp(QtGeneratedSources
                           dmp_client_gui_search_bar.hpp
                           dmp_client_gui_menu_bar.hpp
                           dmp_client_gui_search_results.hpp
+                          dmp_client_gui_radio_list.hpp
 )
 
 add_executable(dmp-client main.cpp
@@ -53,6 +54,7 @@ add_executable(dmp-client main.cpp
                           dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
                           dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp
                           dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
+                          dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
                           dmp_client_ui_controller_interface.hpp
                           dmp_client_ui_delegate.hpp
                           dmp_client_interface.hpp

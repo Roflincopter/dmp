@@ -48,11 +48,11 @@ QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) co
 
 QVariant SearchResultModelQtAdapter::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole) {
+    if (orientation == Qt::Vertical) {
         return QVariant();
     }
 
-    if (orientation == Qt::Vertical) {
+    if (role != Qt::DisplayRole) {
         return QVariant();
     }
 

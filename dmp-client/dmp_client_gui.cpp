@@ -63,17 +63,6 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
     update_ui_client_interface();
 }
 
-/*
-void DmpClientGui::query_parse_error(std::string str) const
-{
-    QMessageBox popup;
-    popup.setModal(true);
-    popup.setWindowTitle("Query parse error");
-    popup.setText(QString::fromStdString(str));
-    popup.exec();
-}
-*/
-
 void DmpClientGui::bye_ack_received()
 {
     //Shutdown of the client.

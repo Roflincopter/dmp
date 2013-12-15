@@ -41,12 +41,13 @@ int SearchResultModel::row_count() const
 
 int SearchResultModel::column_count() const
 {
-    return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
+    return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value + 1;
 }
 
 std::string SearchResultModel::get_cell(int row, int column) const
 {
-    if(column >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
+    size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
+    if(column >= number_of_entry_members + 1) {
         throw std::out_of_range("Column index was out of range.");
     }
 
@@ -56,7 +57,11 @@ std::string SearchResultModel::get_cell(int row, int column) const
             row -= p.second.size();
             continue;
         }
-        return get_nth(p.second.at(row), column);
+        if(column < number_of_entry_members) {
+            return get_nth(p.second.at(row), column);
+        } else {
+            return p.first;
+        }
     }
 
     throw std::out_of_range("Row index was out of range.");
@@ -64,11 +69,16 @@ std::string SearchResultModel::get_cell(int row, int column) const
 
 std::string SearchResultModel::header_data(int section) const
 {
-    if(section >= boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value) {
+    size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
+    if(section >= number_of_entry_members + 1) {
         throw std::out_of_range("Column index was out of range.");
     }
 
-    return get_nth_name<dmp_library::LibraryEntry>(section);
+    if(section < number_of_entry_members) {
+        return get_nth_name<dmp_library::LibraryEntry>(section);
+    } else {
+        return "Client";
+    }
 }
 
 void SearchResultModel::clear()
