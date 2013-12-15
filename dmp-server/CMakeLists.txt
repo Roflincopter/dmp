@@ -30,6 +30,10 @@ find_package(GObject REQUIRED)
 include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
 target_link_libraries(dmp-server ${GOBJECT_LIBRARIES})
 
+if(USE_GPERF)
+	target_link_libraries(dmp-server "-lprofiler")
+endif(USE_GPERF)
+
 if(MINGW)
 	add_definitions("-DBOOST_THREAD_USE_LIB=1 -mms-bitfields -DPCRE_STATIC")
 	target_link_libraries(dmp-server pthread ws2_32 mswsock ffi)

@@ -44,3 +44,7 @@ if (${_BUNDLE_TYPE} STREQUAL "COMMON")
 endif (${_BUNDLE_TYPE} STREQUAL "COMMON")
 
 target_link_libraries(dmp-library ${ICU_LIBRARIES})
+
+if(USE_GPERF)
+    target_link_libraries(dmp-library "-lprofiler")
+endif(USE_GPERF)

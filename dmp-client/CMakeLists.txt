@@ -92,6 +92,10 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 target_link_libraries(dmp-client ${Qt5Widgets_LIBRARIES})
 
+if(USE_GPERF)
+	target_link_libraries(dmp-client "-lprofiler")
+endif(USE_GPERF)
+
 qt5_use_modules(dmp-client Widgets)
 
 if(MINGW)

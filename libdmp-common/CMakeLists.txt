@@ -35,3 +35,8 @@ target_link_libraries(dmp-common ${GLIB2_LIBRARIES})
 find_package(GObject REQUIRED)
 include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
 target_link_libraries(dmp-common ${GOBJECT_LIBRARIES})
+
+
+if(USE_GPERF)
+	target_link_libraries(dmp-common "-lprofiler")
+endif(USE_GPERF)
