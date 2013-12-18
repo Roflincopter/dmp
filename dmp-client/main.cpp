@@ -26,10 +26,10 @@ int main(int argc, char* argv[]) {
 	using boost::program_options::value;
 	boost::program_options::options_description desc;
 	desc.add_options()
-		("help", "produce help message")
-		("server", value<std::string>(), "The server you want to connect to")
-		("port", value<uint16_t>(), "The port you want to connect to")
-		("name", value<std::string>(), "Your screen name")
+		("help,h", "produce help message")
+		("server,s", value<std::string>()->required(), "The server you want to connect to")
+		("port,p", value<uint16_t>()->required(), "The port you want to connect to")
+		("name,n", value<std::string>(), "Your screen name")
 		//("sender", value<bool>(), "Sending or not.")
 		;
 
@@ -37,8 +37,31 @@ int main(int argc, char* argv[]) {
 	pos_desc.add("server", 1).add("port", 1);
 
 	boost::program_options::variables_map vm;
-	boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(pos_desc).run(), vm);
-	boost::program_options::notify(vm);
+
+	try {
+		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(pos_desc).run(), vm);
+
+		if(vm.count("help")) {
+			std::cout << "Usage: " << std::string(argv[0]);
+
+			for (int i=0; i<pos_desc.max_total_count(); ++i) {
+				std::cout << " <" << pos_desc.name_for_position(i) << ">";
+			}
+
+			std::cout << " [Options]" << std::endl << std::endl;
+
+			std::cout << "Options:" << std::endl;
+			std::cout << desc << std::endl;
+			return 0;
+		}
+
+		boost::program_options::notify(vm);
+
+	} catch(boost::program_options::error& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
+
 /*
 	if (vm["sender"].as<bool>())
 		DmpSender s("localhost", 2000, "test.mp3");
