@@ -5,7 +5,7 @@
 
 #include <boost/asio/deadline_timer.hpp>
 
-class ClientEndpoint
+class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 {
 	std::string name;
 	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
@@ -25,12 +25,10 @@ public:
 
 	message::DmpCallbacks& get_callbacks();
 
-	//Warning only callbacks can use this forward function as a callback... need to fix that
 	template <typename T>
-	void forward(std::shared_ptr<ClientEndpoint> sender, T x)
+	void forward(T x)
 	{
 		connection.send(x);
-		//sender->listen_requests();
 	}
 
 	void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);

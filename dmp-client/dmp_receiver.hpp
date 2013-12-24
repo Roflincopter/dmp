@@ -1,18 +1,25 @@
-#ifndef DMP_RECEIVER_HPP
-#define DMP_RECEIVER_HPP
+#pragma once
+
+#include <gst/gst.h>
 
 #include <cstdint>
 #include <string>
 
 class DmpReceiver
 {
-	std::string host;
-	uint16_t port;
+	GMainLoop* loop;
+	GstElement* pipeline;
+	GstElement* source;
+	GstElement* decoder;
+	GstElement* converter;
+	GstElement* resampler;
+	GstElement* audiosink;
+	GstBus *bus;
 
 	void cleanup();
 public:
 	DmpReceiver();
-	DmpReceiver(std::string host, uint16_t port);
+	void stop();
+	void connect(std::string host, uint16_t port);
 };
 
-#endif // DMP_RECEIVER_HPP

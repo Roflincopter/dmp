@@ -8,7 +8,10 @@ DmpServer::DmpServer()
 , connections()
 , radios()
 , debug_timer(server_io_service)
-{}
+, port_pool(std::make_shared<NumberPool>(50000, 51000))
+{
+	gst_init(0, nullptr);
+}
 
 void DmpServer::timed_debug()
 {
@@ -43,8 +46,9 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	auto cep = std::make_shared<ClientEndpoint>(name_res.name, std::move(c));
 
-	cep->get_callbacks().set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, cep.get(), std::placeholders::_1)))
-		.set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1)));
+	cep->get_callbacks().set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, cep.get(), std::placeholders::_1))).
+		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
+		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1)));
 
 	connections[name_res.name] = std::move(cep);
 
@@ -55,10 +59,32 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr)
 {
-	std::function<void(std::shared_ptr<ClientEndpoint>, message::SearchResponse)> cb1 = std::bind(&ClientEndpoint::forward<message::SearchResponse>, origin.get(), std::placeholders::_1, std::placeholders::_2);
+	std::function<void(message::SearchResponse)> cb = std::bind(&ClientEndpoint::forward<message::SearchResponse>, origin.get(), std::placeholders::_1);
 	for(auto const& x : connections)
 	{
-		std::function<void(message::SearchResponse)> cb2 = std::bind(cb1, x.second, std::placeholders::_1);
-		x.second->search(cb2, sr);
+		x.second->search(cb, sr);
+	}
+}
+
+void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
+{
+	if(radios.find(ar.name) == radios.end()) {
+		DmpRadio r (ar.name, port_pool);
+		radios[ar.name] = std::make_pair(std::thread(), r);
+
+		origin->forward(message::AddRadioResponse(true, ""));
+		radios[ar.name].first = std::thread(std::bind(&DmpRadio::run, &radios[ar.name].second));
+		origin->forward(message::ListenConnectionRequest(r.get_receiver_port()));
+
+		std::map<std::string, std::vector<dmp_library::LibraryEntry>> playlists;
+		for(auto& radio : radios) {
+			playlists.emplace(radio.first, radio.second.second.get_playlist());
+		}
+
+		for(auto connection : connections) {
+			connection.second->forward(message::Radios(playlists));
+		}
+	} else {
+		origin->forward(message::AddRadioResponse(false, "Radio with name " + ar.name + " already exists"));
 	}
 }

@@ -1,17 +1,27 @@
 #include "dmp_client.hpp"
 
-DmpClient::DmpClient(std::string name, dmp::Connection&& conn)
+#include "message_outputter.hpp"
+
+DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
 : name(name)
+, host(host)
 , connection(std::move(conn))
 , last_sent_ping()
 , lib()
+, delegates()
+, sender()
+, receiver()
 , callbacks(std::bind(&DmpClient::listen_requests, this))
 {
-	callbacks.set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
+	callbacks.
+		set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
 		set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))).
 		set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))).
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))).
-		set(message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1)));
+		set(message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))).
+		set(message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))).
+		set(message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))).
+		set(message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1)));
 }
 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
@@ -33,6 +43,11 @@ void DmpClient::stop()
 void DmpClient::index(std::string path)
 {
 	lib = dmp_library::create_library(path);
+}
+
+void DmpClient::add_radio(std::string radio_name)
+{
+	connection.send(message::AddRadio(radio_name));
 }
 
 void DmpClient::handle_request(message::Type t)
@@ -74,9 +89,22 @@ void DmpClient::handle_request(message::Type t)
 			connection.async_receive<message::ByeAck>(callbacks);
 			break;
 		}
+		case message::Type::AddRadioResponse: {
+			connection.async_receive<message::AddRadioResponse>(callbacks);
+			break;
+		}
+		case message::Type::ListenConnectionRequest: {
+			connection.async_receive<message::ListenConnectionRequest>(callbacks);
+			break;
+		}
+		case message::Type::Radios: {
+			connection.async_receive<message::Radios>(callbacks);
+			break;
+		}
 		default:
 		{
-			listen_requests();
+			std::cout << "Case: " << t << " left unhandled" << std::endl;
+			throw std::runtime_error("Default case reached");
 		}
 	}
 }
@@ -94,19 +122,11 @@ void DmpClient::search(std::string query)
 	try {
 		dmp_library::parse_query(query);
 	} catch (dmp_library::ParseError err) {
-		for(auto delegate : delegates)
-		{
-			auto d = delegate.lock();
-			d->query_parse_error(err);
-		}
+		call_on_delegates(delegates, &DmpClientUiDelegate::query_parse_error, err);
 		return;
 	}
 
-	for(auto delegate : delegates)
-	{
-		auto d = delegate.lock();
-		d->new_search();
-	}
+	call_on_delegates(delegates, &DmpClientUiDelegate::new_search);
 	message::SearchRequest q(query);
 	connection.send(q);
 }
@@ -151,18 +171,38 @@ void DmpClient::handle_search_response(std::string query, message::SearchRespons
 		return;
 	}
 
-	for (auto delegate : delegates)
-	{
-		auto d = delegate.lock();
-		d->search_results(search_res);
-	}
+	call_on_delegates(delegates, &DmpClientUiDelegate::search_results, search_res);
 }
 
 void DmpClient::handle_bye_ack(message::ByeAck)
 {
-	for (auto delegate : delegates)
-	{
-		auto d = delegate.lock();
-		d->bye_ack_received();
+	call_on_delegates(delegates, &DmpClientUiDelegate::bye_ack_received);
+}
+
+void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
+{
+	if(response.succes) {
+		call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_succes, response);
+	} else {
+		call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_failed, response);
 	}
+}
+
+void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
+{
+	receiver.stop();
+	if(receiver_thread.joinable()) {
+		receiver_thread.join();
+	}
+	receiver_thread = std::thread(std::bind(&DmpReceiver::connect, receiver, host, req.port));
+}
+
+void DmpClient::handle_radios(message::Radios radios)
+{
+	call_on_delegates(delegates, &DmpClientUiDelegate::radios_update, radios);
+}
+
+DmpClient::~DmpClient() {
+	receiver.stop();
+	receiver_thread.join();
 }

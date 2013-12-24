@@ -29,6 +29,7 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	std::shared_ptr<DmpClientGuiMenuBar> shared_menu_bar;
 	std::shared_ptr<DmpClientGuiSearchBar> shared_search_bar;
 	std::shared_ptr<DmpClientGuiSearchResults> shared_search_results;
+	std::shared_ptr<DmpClientGuiRadioList> shared_radio_list;
 
 	void update_ui_client_interface();
 

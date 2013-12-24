@@ -2,27 +2,18 @@
 
 #include "gstreamer_util.hpp"
 
-#include <gst/gst.h>
-
 #include <stdexcept>
 #include <iostream>
 
 DmpReceiver::DmpReceiver()
-: host("")
-, port(0)
-{}
-
-DmpReceiver::DmpReceiver(std::string host, uint16_t port)
-: host(host)
-, port(port)
+: loop(nullptr)
+, pipeline(nullptr)
+, source(nullptr)
+, decoder(nullptr)
+, converter(nullptr)
+, resampler(nullptr)
+, audiosink(nullptr)
 {
-	GMainLoop* loop;
-
-	GstElement* pipeline = nullptr,* source = nullptr,* decoder = nullptr,* converter = nullptr,* resampler = nullptr,* audiosink = nullptr;
-	GstBus *bus = nullptr;
-
-	gst_init(0, nullptr);
-
 	loop = g_main_loop_new(nullptr, false);
 
 	pipeline  = gst_pipeline_new("receiver");
@@ -31,8 +22,6 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
 	converter = gst_element_factory_make("audioconvert", "converter");
 	resampler = gst_element_factory_make("audioresample", "resampler");
 	audiosink = gst_element_factory_make("autoaudiosink", "audiosink");
-
-
 
 	if (!pipeline || !source || !decoder || !converter || !resampler || !audiosink)
 	{
@@ -45,9 +34,6 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
 		throw std::runtime_error("Could not create the pipeline components for this receiver.");
 	}
 
-	g_object_set(G_OBJECT(source), "host", host.c_str(), nullptr);
-	g_object_set(G_OBJECT(source), "port", gint(port), nullptr);
-
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
 	gst_bus_add_watch (bus, bus_call, loop);
 	gst_object_unref(bus);
@@ -56,6 +42,19 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
 	gst_element_link_many(source, decoder, nullptr);
 	g_signal_connect(decoder, "pad-added", G_CALLBACK(on_pad_added), converter);
 	gst_element_link_many(converter, resampler, audiosink, nullptr);
+}
+
+void DmpReceiver::stop()
+{
+	g_main_loop_quit(loop);
+}
+
+void DmpReceiver::connect(std::string host, uint16_t port)
+{
+	gst_element_set_state(pipeline, GST_STATE_NULL);
+
+	g_object_set(G_OBJECT(source), "host", host.c_str(), nullptr);
+	g_object_set(G_OBJECT(source), "port", gint(port), nullptr);
 
 	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_receiver");
 
@@ -63,3 +62,4 @@ DmpReceiver::DmpReceiver(std::string host, uint16_t port)
 
 	g_main_loop_run(loop);
 }
+

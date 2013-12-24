@@ -8,6 +8,8 @@
 #include "dmp_client_gui.hpp"
 #include "connect.hpp"
 
+#include <gst/gst.h>
+
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
 
@@ -22,6 +24,8 @@
 #include "dmp_receiver.hpp"
 
 int main(int argc, char* argv[]) {
+
+	gst_init(0, nullptr);
 
 	using boost::program_options::value;
 	boost::program_options::options_description desc;
@@ -83,7 +87,7 @@ int main(int argc, char* argv[]) {
 
 		auto gui = std::make_shared<DmpClientGui>();
 
-		auto client = std::make_shared<DmpClient>(name, dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>()));
+		auto client = std::make_shared<DmpClient>(name, vm["server"].as<std::string>(), dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>()));
 		gui->set_client(client);
 
 		gui->show();

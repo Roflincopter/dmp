@@ -30,7 +30,8 @@ template<typename T, int... Indices>
 std::string get_nth(T seq, int index, indices<Indices...>)
 {
 	typedef std::string(*element_type)(T);
-	static element_type table[] = {
+	static element_type table[] =
+	{
 		[](T seq){return std::to_string(boost::fusion::at_c<Indices>(seq));}
 		...
 	};

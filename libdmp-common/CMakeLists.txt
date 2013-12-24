@@ -1,15 +1,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 set(dmp-common-sources
-                       connection.hpp connection.cpp
-                       accept.hpp accept.cpp
-                       connect.hpp connect.cpp
-                       message.hpp
-                       message_outputter.hpp
-                       message_serializer.hpp
-                       message_callbacks.hpp
-                       gstreamer_util.hpp gstreamer_util.cpp
-                       fusion_static_dispatch.hpp fusion_static_dispatch.cpp
+	connection.hpp connection.cpp
+	accept.hpp accept.cpp
+	connect.hpp connect.cpp
+	message.hpp
+	message_outputter.hpp
+	message_serializer.hpp
+	message_callbacks.hpp
+	gstreamer_util.hpp gstreamer_util.cpp
+	fusion_static_dispatch.hpp fusion_static_dispatch.cpp
+	number_pool.hpp number_pool.cpp
 )
 
 if(MINGW)

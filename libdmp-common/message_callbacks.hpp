@@ -19,6 +19,10 @@ using CallBackType = boost::variant<
 	, CB<message::SearchResponse>
 	, CB<message::Bye>
 	, CB<message::ByeAck>
+	, CB<message::AddRadio>
+	, CB<message::AddRadioResponse>
+	, CB<message::ListenConnectionRequest>
+	, CB<message::Radios>
 >;
 
 struct DmpCallbacks {

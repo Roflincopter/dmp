@@ -31,23 +31,32 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QToolButton" name="toolButton">
+            <widget class="QToolButton" name="addRadioButton">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="text">
-              <string>AddRadio</string>
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
             </widget>
            </item>
            <item alignment="Qt::AlignLeft">
-            <widget class="QToolButton" name="toolButton_3">
+            <widget class="QToolButton" name="deleteRadioButton">
              <property name="text">
-              <string>DeleteRadio</string>
+              <string/>
              </property>
             </widget>
            </item>
           </layout>
          </item>
          <item>
-          <widget class="DmpClientGuiRadioList" name="listView">
+          <widget class="DmpClientGuiRadioList" name="radio_list">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -132,7 +141,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="separator"/>
   </widget>
@@ -174,6 +183,9 @@
    <class>DmpClientGuiRadioList</class>
    <extends>QListView</extends>
    <header>dmp_client_gui_radio_list.hpp</header>
+   <slots>
+    <slot>addRadio()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -217,12 +229,12 @@
    <slot>searchBarReturned()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>399</x>
-     <y>554</y>
+     <x>400</x>
+     <y>719</y>
     </hint>
     <hint type="destinationlabel">
-     <x>639</x>
-     <y>674</y>
+     <x>640</x>
+     <y>719</y>
     </hint>
    </hints>
   </connection>
@@ -233,12 +245,28 @@
    <slot>cursorChanged(int,int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>639</x>
-     <y>674</y>
+     <x>640</x>
+     <y>719</y>
     </hint>
     <hint type="destinationlabel">
-     <x>639</x>
-     <y>674</y>
+     <x>640</x>
+     <y>719</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>radio_list</receiver>
+   <slot>addRadio()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>24</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>

@@ -95,7 +95,7 @@ Library parse_directory(std::string const& directory_path)
 			if(entry) {
 				return {entry.get()};
 			} else {
-				return {};
+				return Library();
 			}
 		} else if(filesystem::is_directory(p))
 		{

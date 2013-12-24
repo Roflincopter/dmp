@@ -22,6 +22,10 @@ enum class Type : uint32_t {
 	ByeAck,
 	Radio,
 	RadioAck,
+	AddRadio,
+	AddRadioResponse,
+	ListenConnectionRequest,
+	Radios,
 };
 
 struct Ping {
@@ -175,6 +179,85 @@ struct Radio {
 	{}
 };
 
+struct AddRadio {
+	Type type;
+	std::string name;
+
+	AddRadio()
+	: type(Type::AddRadio)
+	, name()
+	{}
+
+	AddRadio(std::string name)
+	: type(Type::AddRadio)
+	, name(name)
+	{}
+};
+
+struct AddRadioResponse {
+	Type type;
+	bool succes;
+	std::string reason;
+
+	AddRadioResponse()
+	: type(Type::AddRadioResponse)
+	, succes()
+	, reason()
+	{}
+
+	AddRadioResponse(bool succes, std::string reason="")
+	: type(Type::AddRadioResponse)
+	, succes(succes)
+	, reason()
+	{}
+};
+
+struct ListenConnectionRequest {
+	Type type;
+	uint16_t port;
+
+	ListenConnectionRequest()
+	: type(Type::ListenConnectionRequest)
+	, port()
+	{}
+
+	ListenConnectionRequest(uint16_t port)
+	: type(Type::ListenConnectionRequest)
+	, port(port)
+	{}
+};
+/*
+struct ListenConnectionRequestAck {
+	Type type;
+
+	ListenConnectionRequestAck()
+	: type(Type::ListenConnectionRequestAck)
+	{}
+};
+*/
+struct Radios {
+	Type type;
+	std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios;
+
+	Radios()
+	: type(Type::Radios)
+	, radios()
+	{}
+
+	Radios(std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios)
+	: type(Type::Radios)
+	, radios(radios)
+	{}
+};
+/*
+struct RadiosAck {
+	Type type;
+
+	RadiosAck()
+	: type(Type::RadiosAck)
+	{}
+};
+*/
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -182,31 +265,31 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 	(std::string, ping)
 	(std::string, payload)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Pong,
 	(message::Type, type)
 	(std::string, pong)
 	(std::string, payload)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::NameRequest,
 	(message::Type, type)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::NameResponse,
 	(message::Type, type)
 	(std::string, name)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::SearchRequest,
 	(message::Type, type)
 	(std::string, query)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::SearchResponse,
@@ -214,15 +297,54 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, origin)
 	(std::string, query)
 	(std::vector<dmp_library::LibraryEntry>, results)
-);
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Bye,
 	(message::Type, type)
-);
+)
 
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::ByeAck,
 	(message::Type, type)
-);
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::AddRadio,
+	(message::Type, type)
+	(std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::AddRadioResponse,
+	(message::Type, type)
+	(bool, succes)
+	(std::string, reason)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::ListenConnectionRequest,
+	(message::Type, type)
+	(uint16_t, port)
+)
+/*
+BOOST_FUSION_ADAPT_STRUCT(
+	message::ListenConnectionRequestAck,
+	(message::Type, type)
+)
+*/
+//To not confuse the macro expansion about macro parameters.
+typedef std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios_type;
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::Radios,
+	(message::Type, type)
+	(radios_type, radios)
+)
+/*
+BOOST_FUSION_ADAPT_STRUCT(
+	message::RadiosAck,
+	(message::Type, type)
+)
+*/

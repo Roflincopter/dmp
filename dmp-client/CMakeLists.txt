@@ -51,6 +51,8 @@ set(DmpClientSources
 	search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp
 	search_bar_model.hpp search_bar_model.cpp
 	search_bar_model_qt_adapter.hpp search_bar_model_qt_adapter.cpp
+	radio_list_model.hpp radio_list_model.cpp
+	radio_list_model_qt_adapter.hpp radio_list_model_qt_adapter.cpp
 	dmp_client_gui.hpp dmp_client_gui.cpp
 	dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
 	dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp

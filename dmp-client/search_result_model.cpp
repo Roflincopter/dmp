@@ -18,15 +18,15 @@ BOOST_FUSION_ADAPT_STRUCT
 	(uint32_t, id)
 )
 
-void SearchResultModel::add_search_response(message::SearchResponse response)
-{
-	search_results.push_back(std::make_pair(response.origin, response.results));
-}
-
 SearchResultModel::SearchResultModel()
 {
 	typedef QVector<int> QIntVector;
 	qRegisterMetaType<QIntVector>("QIntVector");
+}
+
+void SearchResultModel::add_search_response(message::SearchResponse response)
+{
+	search_results.push_back(std::make_pair(response.origin, response.results));
 }
 
 int SearchResultModel::row_count() const
