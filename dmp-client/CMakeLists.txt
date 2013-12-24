@@ -28,6 +28,13 @@ endfunction()
 
 add_definitions("--std=c++11")
 
+if(MINGW)
+	cmake_policy(SET CMP0020 NEW)
+	set(CMAKE_PREFIX_PATH "${WINSDK_LIB};${QT5PREFIX}")
+	set(Boost_USE_STATIC_LIBS ON)
+	set(Boost_USE_STATIC_RUNTIME ON)
+endif(MINGW)
+
 find_package(Qt5Widgets REQUIRED)
 
 my_qt5_wrap_ui(QtGeneratedHeaders
@@ -67,11 +74,6 @@ set(DmpClientSources
 set(DmpClientResources resources.qrc)
 
 add_executable(dmp-client ${DmpClientSources} ${DmpClientResources})
-
-if(MINGW)
-	set(Boost_USE_STATIC_LIBS ON)
-	set(Boost_USE_STATIC_RUNTIME ON)
-endif(MINGW)
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
 target_link_libraries(dmp-client dmp-library)
