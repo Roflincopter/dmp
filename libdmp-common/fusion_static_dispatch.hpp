@@ -1,5 +1,7 @@
 #pragma once
 
+#include "index_list.hpp"
+
 #include <boost/fusion/sequence.hpp>
 #include <boost/fusion/adapted.hpp>
 #include <boost/fusion/sequence/intrinsic/size.hpp>
@@ -10,21 +12,6 @@
 namespace std {
 	std::string to_string(std::string x);
 }
-
-template<int... Indices>
-struct indices {
-	typedef indices<Indices..., sizeof...(Indices)> next;
-};
-
-template<int N>
-struct build_indices {
-	typedef typename build_indices<N - 1>::type::next type;
-};
-
-template<>
-struct build_indices<0> {
-	typedef indices<> type;
-};
 
 template<typename T, int... Indices>
 std::string get_nth(T seq, int index, indices<Indices...>)

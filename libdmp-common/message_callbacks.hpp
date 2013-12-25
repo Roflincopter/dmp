@@ -1,6 +1,8 @@
 #pragma once
 
 #include "message.hpp"
+#include "index_list.hpp"
+#include "connection.hpp"
 
 #include <boost/variant.hpp>
 

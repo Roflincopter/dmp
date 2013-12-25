@@ -20,12 +20,20 @@ enum class Type : uint32_t {
 	SearchResponse,
 	Bye,
 	ByeAck,
-	Radio,
-	RadioAck,
 	AddRadio,
 	AddRadioResponse,
 	ListenConnectionRequest,
 	Radios,
+	LAST
+};
+
+struct NoMessage {
+	Type type;
+
+	NoMessage()
+	{
+		throw std::runtime_error("No NoMessage struct should be made ever.");
+	}
 };
 
 struct Ping {
@@ -171,14 +179,6 @@ struct ByeAck
 	{}
 };
 
-struct Radio {
-	Type type;
-
-	Radio()
-	: type(Type::Radio)
-	{}
-};
-
 struct AddRadio {
 	Type type;
 	std::string name;
@@ -258,7 +258,41 @@ struct RadiosAck {
 	{}
 };
 */
+
+template <Type t>
+struct type_to_message
+{
+	typedef NoMessage type;
+};
+
+#define TYPE_TO_MESSAGE_STRUCT(X) \
+template<>\
+struct type_to_message<Type::X>\
+{\
+	typedef X type;\
+};
+
+TYPE_TO_MESSAGE_STRUCT(Ping)
+TYPE_TO_MESSAGE_STRUCT(Pong)
+TYPE_TO_MESSAGE_STRUCT(NameRequest)
+TYPE_TO_MESSAGE_STRUCT(NameResponse)
+TYPE_TO_MESSAGE_STRUCT(SearchRequest)
+TYPE_TO_MESSAGE_STRUCT(SearchResponse)
+TYPE_TO_MESSAGE_STRUCT(Bye)
+TYPE_TO_MESSAGE_STRUCT(ByeAck)
+TYPE_TO_MESSAGE_STRUCT(AddRadio)
+TYPE_TO_MESSAGE_STRUCT(AddRadioResponse)
+TYPE_TO_MESSAGE_STRUCT(ListenConnectionRequest)
+TYPE_TO_MESSAGE_STRUCT(Radios)
+
+#undef TYPE_TO_MESSAGE_STRUCT
+
 }
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::NoMessage,
+	(message::Type, type)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Ping,

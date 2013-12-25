@@ -1,6 +1,7 @@
 #include "dmp_client.hpp"
 
 #include "message_outputter.hpp"
+#include "static_message_receiver_switch.hpp"
 
 DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
 : name(name)
@@ -52,61 +53,7 @@ void DmpClient::add_radio(std::string radio_name)
 
 void DmpClient::handle_request(message::Type t)
 {
-	switch(t)
-	{
-		case message::Type::NoMessage:
-		{
-			throw std::runtime_error("We received a None message this shouldn't happen");
-			break;
-		}
-		case message::Type::Ping:
-		{
-			connection.async_receive<message::Ping>(callbacks);
-			break;
-		}
-		case message::Type::Pong:
-		{
-			connection.async_receive<message::Pong>(callbacks);
-			break;
-		}
-		case message::Type::NameRequest: {
-			connection.async_receive<message::NameRequest>(callbacks);
-			break;
-		}
-		case message::Type::NameResponse: {
-			throw std::runtime_error("Client shouldn't receive a NameResponse ever.");
-			break;
-		}
-		case message::Type::SearchRequest: {
-			connection.async_receive<message::SearchRequest>(callbacks);
-			break;
-		}
-		case message::Type::SearchResponse: {
-			connection.async_receive<message::SearchResponse>(callbacks);
-			break;
-		}
-		case message::Type::ByeAck: {
-			connection.async_receive<message::ByeAck>(callbacks);
-			break;
-		}
-		case message::Type::AddRadioResponse: {
-			connection.async_receive<message::AddRadioResponse>(callbacks);
-			break;
-		}
-		case message::Type::ListenConnectionRequest: {
-			connection.async_receive<message::ListenConnectionRequest>(callbacks);
-			break;
-		}
-		case message::Type::Radios: {
-			connection.async_receive<message::Radios>(callbacks);
-			break;
-		}
-		default:
-		{
-			std::cout << "Case: " << t << " left unhandled" << std::endl;
-			throw std::runtime_error("Default case reached");
-		}
-	}
+	handle_message(callbacks, t, connection);
 }
 
 void DmpClient::listen_requests()

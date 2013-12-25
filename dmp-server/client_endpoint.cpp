@@ -1,6 +1,7 @@
 #include "client_endpoint.hpp"
 #include "message.hpp"
 #include "message_outputter.hpp"
+#include "static_message_receiver_switch.hpp"
 
 ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
 : name(name)
@@ -33,33 +34,7 @@ void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, mes
 
 void ClientEndpoint::handle_request(message::Type t)
 {
-	switch(t)
-	{
-		case message::Type::Pong: {
-			connection.async_receive<message::Pong>(callbacks);
-			break;
-		}
-		case message::Type::SearchRequest: {
-			connection.async_receive<message::SearchRequest>(callbacks);
-			break;
-		}
-		case message::Type::SearchResponse: {
-			connection.async_receive<message::SearchResponse>(callbacks);
-			break;
-		}
-		case message::Type::Bye: {
-			connection.async_receive<message::Bye>(callbacks);
-			break;
-		}
-		case message::Type::AddRadio: {
-			connection.async_receive<message::AddRadio>(callbacks);
-			break;
-		}
-		default: {
-			std::cerr << "Message of type: " << t << " was not handled by switch in ClientEndpoint::handle_request." << std::endl;
-			listen_requests();
-		}
-	}
+	handle_message(callbacks, t, connection);
 }
 
 void ClientEndpoint::handle_pong(message::Pong p)
