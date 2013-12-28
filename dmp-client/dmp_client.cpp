@@ -1,7 +1,7 @@
 #include "dmp_client.hpp"
 
 #include "message_outputter.hpp"
-#include "static_message_receiver_switch.hpp"
+
 
 DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
 : name(name)
@@ -13,6 +13,7 @@ DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
 , sender()
 , receiver()
 , callbacks(std::bind(&DmpClient::listen_requests, this))
+, message_switch(make_message_switch(callbacks, connection))
 {
 	callbacks.
 		set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
@@ -53,7 +54,7 @@ void DmpClient::add_radio(std::string radio_name)
 
 void DmpClient::handle_request(message::Type t)
 {
-	handle_message(callbacks, t, connection);
+	message_switch.handle_message(t);
 }
 
 void DmpClient::listen_requests()
@@ -151,5 +152,7 @@ void DmpClient::handle_radios(message::Radios radios)
 
 DmpClient::~DmpClient() {
 	receiver.stop();
-	receiver_thread.join();
+	if(receiver_thread.joinable()) {
+		receiver_thread.join();
+	}
 }

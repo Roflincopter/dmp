@@ -2,16 +2,22 @@
 
 #include "connection.hpp"
 #include "message_callbacks.hpp"
+#include "message_switch.hpp"
 
 #include <boost/asio/deadline_timer.hpp>
 
 class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 {
 	std::string name;
-	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
+
+	//ping_timer depends on the io_service of the connection so the pings stop when the connection dies.
+	//Leave them in this order or make them independant.
 	dmp::Connection connection;
+	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
+
 	message::Ping last_ping;
 	message::DmpCallbacks callbacks;
+	MessageSwitch message_switch;
 
 public:
 

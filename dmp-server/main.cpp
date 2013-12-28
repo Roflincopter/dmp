@@ -24,10 +24,10 @@ int main(int, char**) {
 		server.add_connection(std::move(x));
 	};
 
-	boost::thread server_thread(boost::bind(&DmpServer::run, boost::ref(server)));
+	std::thread server_thread(std::bind(&DmpServer::run, std::ref(server)));
 
 	boost::asio::io_service io_service;
-	boost::thread accept_thread(boost::bind(dmp::accept_loop, 1337, boost::ref(io_service), f));
+	std::thread accept_thread(std::bind(dmp::accept_loop, 1337, std::ref(io_service), f));
 
 	bool stop = false;
 	while(!stop)

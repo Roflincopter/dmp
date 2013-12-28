@@ -6,6 +6,8 @@
 #include "dmp_client_interface.hpp"
 #include "dmp_client_ui_delegate.hpp"
 
+#include "message_switch.hpp"
+
 #include <thread>
 
 class DmpClient : public DmpClientInterface
@@ -24,6 +26,7 @@ class DmpClient : public DmpClientInterface
 	DmpReceiver receiver;
 
 	message::DmpCallbacks callbacks;
+	MessageSwitch message_switch;
 
 public:
 

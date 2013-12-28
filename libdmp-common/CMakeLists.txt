@@ -8,9 +8,9 @@ set(dmp-common-sources
 	message_outputter.hpp
 	message_serializer.hpp
 	message_callbacks.hpp
-	static_message_receiver_switch.hpp
 	gstreamer_util.hpp gstreamer_util.cpp
 	fusion_static_dispatch.hpp fusion_static_dispatch.cpp
+	message_switch.hpp
 	number_pool.hpp number_pool.cpp
 )
 
@@ -37,7 +37,6 @@ target_link_libraries(dmp-common ${GLIB2_LIBRARIES})
 find_package(GObject REQUIRED)
 include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
 target_link_libraries(dmp-common ${GOBJECT_LIBRARIES})
-
 
 if(USE_GPERF)
 	target_link_libraries(dmp-common "-lprofiler")

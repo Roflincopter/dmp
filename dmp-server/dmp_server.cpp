@@ -22,6 +22,9 @@ void DmpServer::timed_debug()
 		{
 			throw std::runtime_error("something went wrong in the server debug timer.");
 		}
+
+		//std::cout << connections.size() << std::endl;
+
 		timed_debug();
 	};
 	debug_timer.async_wait(cb);
@@ -46,14 +49,14 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	auto cep = std::make_shared<ClientEndpoint>(name_res.name, std::move(c));
 
-	cep->get_callbacks().set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, cep.get(), std::placeholders::_1))).
+	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1)));
 
-	connections[name_res.name] = std::move(cep);
+	connections[name_res.name] = cep;
 
-	boost::thread* execthread = new boost::thread(boost::bind(&ClientEndpoint::run, connections[name_res.name].get()));
-	boost::thread jointhread([this, execthread, name_res](){execthread->join(); connections.erase(name_res.name); delete execthread;});
+	std::thread* execthread = new std::thread(std::bind(&ClientEndpoint::run, connections[name_res.name].get()));
+	std::thread jointhread([this, execthread, name_res](){execthread->join(); connections.erase(name_res.name); delete execthread;});
 	jointhread.detach();
 }
 

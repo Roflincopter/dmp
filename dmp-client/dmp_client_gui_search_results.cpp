@@ -6,6 +6,9 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 , model()
 {
 	setModel(&model);
+	hideColumn(1);
+	hideColumn(3);
+	hideColumn(5);
 }
 
 void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> new_client)
