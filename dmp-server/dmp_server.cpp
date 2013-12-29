@@ -37,6 +37,11 @@ void DmpServer::run()
 	server_io_service.run();
 }
 
+void DmpServer::stop()
+{
+	server_io_service.stop();
+}
+
 void DmpServer::add_connection(dmp::Connection&& c)
 {
 	message::NameRequest name_req;

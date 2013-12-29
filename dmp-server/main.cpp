@@ -44,6 +44,8 @@ int main(int, char**) {
 
 	io_service.stop();
 	accept_thread.join();
+	server.stop();
+	server_thread.join();
 
 	return 0;
 }
