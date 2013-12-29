@@ -23,7 +23,8 @@ DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
 		set(message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))).
 		set(message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))).
 		set(message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))).
-		set(message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1)));
+		set(message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))).
+		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1)));
 }
 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
@@ -155,4 +156,9 @@ DmpClient::~DmpClient() {
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
+}
+
+void DmpClient::handle_add_radio(message::AddRadio added_radio)
+{
+	call_on_delegates(delegates, &DmpClientUiDelegate::radio_added, added_radio);
 }

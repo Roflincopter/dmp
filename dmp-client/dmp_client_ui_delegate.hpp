@@ -24,6 +24,7 @@ struct DmpClientUiDelegate
 	virtual void add_radio_failed(message::AddRadioResponse){}
 	virtual void test(std::string, int){}
 	virtual void radios_update(message::Radios){}
+	virtual void radio_added(message::AddRadio radio_added){}
 
 	virtual ~DmpClientUiDelegate(){}
 };

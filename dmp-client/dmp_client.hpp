@@ -55,4 +55,5 @@ public:
 	void handle_add_radio_response(message::AddRadioResponse);
 	void handle_listener_connection_request(message::ListenConnectionRequest req);
 	void handle_radios(message::Radios radios);
+	void handle_add_radio(message::AddRadio added_radio);
 };

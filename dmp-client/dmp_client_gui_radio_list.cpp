@@ -40,3 +40,8 @@ void DmpClientGuiRadioList::radios_update(message::Radios radios)
 	}
 	model.set_radio_names(radio_names);
 }
+
+void DmpClientGuiRadioList::radio_added(message::AddRadio added_radio)
+{
+	model.add_radio(added_radio.name);
+}

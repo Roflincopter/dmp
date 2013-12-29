@@ -18,3 +18,8 @@ void RadioListModel::set_radio_names(std::vector<std::string> new_radio_names)
 {
 	radio_names = new_radio_names;
 }
+
+void RadioListModel::add_radio(std::string radio_name)
+{
+	radio_names.push_back(radio_name);
+}

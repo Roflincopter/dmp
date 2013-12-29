@@ -55,6 +55,12 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	connections[name_res.name] = cep;
 
+	std::map<std::string, std::vector<dmp_library::LibraryEntry>> playlists;
+	for(auto& radio : radios) {
+		playlists.emplace(radio.first, radio.second.second.get_playlist());
+	}
+	connections[name_res.name]->forward(message::Radios(playlists));
+
 	std::thread* execthread = new std::thread(std::bind(&ClientEndpoint::run, connections[name_res.name].get()));
 	std::thread jointhread([this, execthread, name_res](){execthread->join(); connections.erase(name_res.name); delete execthread;});
 	jointhread.detach();
@@ -79,13 +85,8 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 		radios[ar.name].first = std::thread(std::bind(&DmpRadio::run, &radios[ar.name].second));
 		origin->forward(message::ListenConnectionRequest(r.get_receiver_port()));
 
-		std::map<std::string, std::vector<dmp_library::LibraryEntry>> playlists;
-		for(auto& radio : radios) {
-			playlists.emplace(radio.first, radio.second.second.get_playlist());
-		}
-
 		for(auto connection : connections) {
-			connection.second->forward(message::Radios(playlists));
+			connection.second->forward(message::AddRadio(ar.name));
 		}
 	} else {
 		origin->forward(message::AddRadioResponse(false, "Radio with name " + ar.name + " already exists"));
