@@ -85,8 +85,11 @@ public:
 		boost::system::error_code ec;
 		std::vector<uint8_t> buf(4);
 		size_t read_bytes = boost::asio::read(socket, boost::asio::buffer(buf), ec);
+		if(ec) {
+			throw std::runtime_error("Receive type failed");
+		}
 		assert(read_bytes == 4);
-		const unsigned char* data = buf.data();
+		uint8_t const* data = buf.data();
 		type = static_cast<message::Type>(*reinterpret_cast<const uint32_t*>(data));
 		return type;
 	}
@@ -103,7 +106,7 @@ public:
 			}
 
 			assert(bytes_transfered == 4);
-			const unsigned char* data = async_type_buffer.data();
+			uint8_t const* data = async_type_buffer.data();
 			message::Type type = static_cast<message::Type>(*reinterpret_cast<const uint32_t*>(data));
 			assert(type != message::Type::NoMessage);
 			cb(type);
@@ -126,7 +129,7 @@ public:
 
 			assert(bytes_transfered == 4);
 
-			uint8_t* data = async_size_buffer.data();
+			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
 			auto content_cb = [this, cb, size](boost::system::error_code ec, size_t bytes_transfered)
@@ -138,7 +141,7 @@ public:
 
 				assert(bytes_transfered == size);
 
-				uint8_t* data = async_mess_buffer.data();
+				uint8_t const* data = async_mess_buffer.data();
 				std::string content = std::string(reinterpret_cast<const char*>(data), size);
 
 				std::istringstream iss(content);
