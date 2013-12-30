@@ -47,6 +47,6 @@ public slots:
 	void dmpConnect();
 
 private:
-	std::unique_ptr<Ui::DmpClientGui> ui;
+	Ui::DmpClientGui ui;
 	std::thread client_synchronisation_thread;
 };

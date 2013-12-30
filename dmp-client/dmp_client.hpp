@@ -39,12 +39,13 @@ public:
 	void handle_request(message::Type t);
 	void listen_requests();
 
-	void stop() final;
-	void run() final;
-	void search(std::string query) final;
-	void index(std::string path) final;
-	void send_bye() final;
-	void add_radio(std::string str) final;
+	virtual void stop() final;
+	virtual void run() final;
+	virtual void search(std::string query) final;
+	virtual void index(std::string path) final;
+	virtual void send_bye() final;
+	virtual void add_radio(std::string str) final;
+	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) final;
 
 	void handle_ping(message::Ping ping);
 	void handle_name_request(message::NameRequest name_req);

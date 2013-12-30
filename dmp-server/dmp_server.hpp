@@ -29,4 +29,5 @@ public:
 
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
+	void handle_queue(message::Queue queue);
 };

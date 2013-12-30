@@ -32,6 +32,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
             <widget class="QToolButton" name="addRadioButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="styleSheet">
               <string notr="true"/>
              </property>
@@ -48,6 +51,9 @@
            </item>
            <item alignment="Qt::AlignLeft">
             <widget class="QToolButton" name="deleteRadioButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -100,6 +106,9 @@
      </item>
      <item>
       <widget class="DmpClientGuiSearchBar" name="search_bar">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Default text</string>
        </property>
@@ -152,11 +161,17 @@
    </property>
   </action>
   <action name="actionIndex_Folder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Index Folder</string>
    </property>
   </action>
   <action name="actionConnect">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Connect</string>
    </property>
@@ -184,13 +199,19 @@
    <class>DmpClientGuiSearchResults</class>
    <extends>QTableView</extends>
    <header>dmp_client_gui_search_results.hpp</header>
+   <slots>
+    <slot>currentActiveRadio(std::string)</slot>
+    <slot>queueRequest(QModelIndex)</slot>
+   </slots>
   </customwidget>
   <customwidget>
    <class>DmpClientGuiRadioList</class>
    <extends>QListView</extends>
    <header>dmp_client_gui_radio_list.hpp</header>
    <slots>
+    <signal>currentlySelectedRadio(std::string)</signal>
     <slot>addRadio()</slot>
+    <slot>radioSelected(QModelIndex)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -289,6 +310,38 @@
     <hint type="destinationlabel">
      <x>639</x>
      <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>search_results</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>search_results</receiver>
+   <slot>queueRequest(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>640</x>
+     <y>526</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>640</x>
+     <y>526</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_list</sender>
+   <signal>currentlySelectedRadio(std::string)</signal>
+   <receiver>search_results</receiver>
+   <slot>currentActiveRadio(std::string)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>214</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>640</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>

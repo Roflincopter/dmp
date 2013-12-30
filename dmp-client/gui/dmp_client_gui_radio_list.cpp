@@ -12,6 +12,12 @@ DmpClientGuiRadioList::DmpClientGuiRadioList(QWidget *parent)
 	setModel(&model);
 }
 
+void DmpClientGuiRadioList::selectionChanged(QItemSelection const& selected, QItemSelection const& deselected)
+{
+	emit currentlySelectedRadio(model.data(selected.indexes()[0], Qt::DisplayRole).toString().toStdString());
+	QListView::selectionChanged(selected, deselected);
+}
+
 void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;

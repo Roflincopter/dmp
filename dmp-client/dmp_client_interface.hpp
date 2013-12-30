@@ -11,6 +11,7 @@ struct DmpClientInterface {
 	virtual void stop() = 0;
 	virtual void send_bye() = 0;
 	virtual void run() = 0;
+	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) = 0;
 
 	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate) = 0;
 

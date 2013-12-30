@@ -24,6 +24,7 @@ enum class Type : uint32_t {
 	AddRadioResponse,
 	ListenConnectionRequest,
 	Radios,
+	Queue,
 	LAST
 };
 
@@ -259,6 +260,27 @@ struct RadiosAck {
 };
 */
 
+struct Queue {
+	Type type;
+	std::string radio;
+	std::string owner;
+	dmp_library::LibraryEntry entry;
+
+	Queue()
+	: type(Type::Queue)
+	, radio()
+	, owner()
+	, entry()
+	{}
+
+	Queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
+	: type(Type::Queue)
+	, radio(radio)
+	, owner(owner)
+	, entry(entry)
+	{}
+};
+
 template <Type t>
 struct type_to_message
 {
@@ -284,6 +306,7 @@ TYPE_TO_MESSAGE_STRUCT(AddRadio)
 TYPE_TO_MESSAGE_STRUCT(AddRadioResponse)
 TYPE_TO_MESSAGE_STRUCT(ListenConnectionRequest)
 TYPE_TO_MESSAGE_STRUCT(Radios)
+TYPE_TO_MESSAGE_STRUCT(Queue)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
@@ -338,7 +361,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 )
 
-
 BOOST_FUSION_ADAPT_STRUCT(
 	message::ByeAck,
 	(message::Type, type)
@@ -382,3 +404,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 )
 */
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::Queue,
+	(message::Type, type)
+	(std::string, radio)
+	(std::string, owner)
+	(dmp_library::LibraryEntry, entry)
+)

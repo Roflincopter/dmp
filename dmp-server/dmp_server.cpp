@@ -3,6 +3,8 @@
 
 #include <boost/thread.hpp>
 
+#include "message_outputter.hpp"
+
 DmpServer::DmpServer()
 : server_io_service()
 , connections()
@@ -56,7 +58,8 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
-		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1)));
+		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
+		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1)));
 
 	connections[name_res.name] = cep;
 
@@ -105,4 +108,9 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 	} else {
 		origin->forward(message::AddRadioResponse(false, "Radio with name " + ar.name + " already exists"));
 	}
+}
+
+void DmpServer::handle_queue(message::Queue queue)
+{
+	std::cout << "Should handle message queue: " << queue << std::endl;
 }

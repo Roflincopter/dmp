@@ -20,19 +20,19 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , shared_search_bar(nullptr)
 , shared_search_results(nullptr)
 , shared_radio_list(nullptr)
-, ui(new Ui::DmpClientGui)
+, ui()
 , client_synchronisation_thread()
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 }
 
 void DmpClientGui::update_ui_client_interface()
 {
 	shared_main_window = std::shared_ptr<DmpClientGui>(this, [](void*){});
-	shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui->menu_bar, [](void*){});
-	shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui->search_bar, [](void*){});
-	shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui->search_results, [](void*){});
-	shared_radio_list = std::shared_ptr<DmpClientGuiRadioList>(ui->radio_list, [](void*){});
+	shared_menu_bar = std::shared_ptr<DmpClientGuiMenuBar>(ui.menu_bar, [](void*){});
+	shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui.search_bar, [](void*){});
+	shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui.search_results, [](void*){});
+	shared_radio_list = std::shared_ptr<DmpClientGuiRadioList>(ui.radio_list, [](void*){});
 
 	shared_menu_bar->set_client(client);
 	client->add_delegate(shared_menu_bar);
@@ -104,6 +104,11 @@ void DmpClientGui::dmpConnect()
 	auto client_sp = std::make_shared<DmpClient>(connect.get_name(), connect.get_host(), connect.get_port());
 
 	set_client(client_sp);
+
+	ui.actionIndex_Folder->setEnabled(true);
+	ui.search_bar->setEnabled(true);
+	ui.addRadioButton->setEnabled(true);
+	ui.deleteRadioButton->setEnabled(true);
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)

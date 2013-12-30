@@ -53,6 +53,11 @@ void DmpClient::add_radio(std::string radio_name)
 	connection.send(message::AddRadio(radio_name));
 }
 
+void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
+{
+	connection.send(message::Queue(radio, owner, entry));
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);

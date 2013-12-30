@@ -85,3 +85,17 @@ void SearchResultModel::clear()
 {
 	search_results.clear();
 }
+
+std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row)
+{
+	for(auto&p : search_results)
+	{
+		if(row > 0 && size_t(row) >= p.second.size()) {
+			row -= p.second.size();
+			continue;
+		}
+		return std::make_pair(p.first, p.second.at(row));
+	}
+
+	throw std::runtime_error("Row index is out of range");
+}

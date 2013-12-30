@@ -13,6 +13,9 @@ class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControlle
 
 	std::shared_ptr<DmpClientInterface> client;
 	SearchResultModelQtAdapter model;
+
+	std::string current_active_radio;
+
 public:
 	explicit DmpClientGuiSearchResults(QWidget *parent = 0);
 
@@ -23,5 +26,6 @@ public:
 signals:
 
 public slots:
-
+	void queueRequest(QModelIndex index);
+	void currentActiveRadio(std::string radio_name);
 };

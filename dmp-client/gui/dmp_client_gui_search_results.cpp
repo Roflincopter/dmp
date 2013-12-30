@@ -25,3 +25,14 @@ void DmpClientGuiSearchResults::new_search()
 {
 	model.clear();
 }
+
+void DmpClientGuiSearchResults::queueRequest(QModelIndex index)
+{
+	auto x = model.get_row_info(index.row());
+	client->queue(current_active_radio, x.first, x.second);
+}
+
+void DmpClientGuiSearchResults::currentActiveRadio(std::string radio_name)
+{
+	current_active_radio = radio_name;
+}
