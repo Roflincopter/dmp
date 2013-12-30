@@ -15,7 +15,7 @@ function(MY_QT5_WRAP_UI outfiles )
 	foreach(it ${ui_files})
 		get_filename_component(outfile ${it} NAME_WE)
 		get_filename_component(infile ${it} ABSOLUTE)
-		set(outfile ${CMAKE_CURRENT_SOURCE_DIR}/ui_${outfile}.hpp)
+		set(outfile ${CMAKE_CURRENT_SOURCE_DIR}/gui/ui_${outfile}.hpp)
 		add_custom_command(OUTPUT ${outfile}
 			COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
 			ARGS ${ui_options} -o ${outfile} ${infile}
@@ -38,17 +38,17 @@ endif(MINGW)
 find_package(Qt5Widgets REQUIRED)
 
 my_qt5_wrap_ui(QtGeneratedHeaders
-	dmp_client_gui.ui
-	dmp_client_connect_dialog.ui
+	gui/dmp_client_gui.ui
+	gui/dmp_client_connect_dialog.ui
 )
 
 qt5_wrap_cpp(QtGeneratedSources
-	dmp_client_gui.hpp
-	dmp_client_connect_dialog.hpp
-	dmp_client_gui_search_bar.hpp
-	dmp_client_gui_menu_bar.hpp
-	dmp_client_gui_search_results.hpp
-	dmp_client_gui_radio_list.hpp
+	gui/dmp_client_gui.hpp
+	gui/dmp_client_connect_dialog.hpp
+	gui/dmp_client_gui_search_bar.hpp
+	gui/dmp_client_gui_menu_bar.hpp
+	gui/dmp_client_gui_search_results.hpp
+	gui/dmp_client_gui_radio_list.hpp
 )
 
 set(DmpClientSources
@@ -57,24 +57,26 @@ set(DmpClientSources
 	dmp_sender.hpp dmp_sender.cpp
 	dmp_receiver.hpp dmp_receiver.cpp
 	search_result_model.hpp search_result_model.cpp
-	search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp
+	gui/search_result_model_qt_adapter.hpp gui/search_result_model_qt_adapter.cpp
 	search_bar_model.hpp search_bar_model.cpp
-	search_bar_model_qt_adapter.hpp search_bar_model_qt_adapter.cpp
+	gui/search_bar_model_qt_adapter.hpp gui/search_bar_model_qt_adapter.cpp
 	radio_list_model.hpp radio_list_model.cpp
-	radio_list_model_qt_adapter.hpp radio_list_model_qt_adapter.cpp
-	dmp_client_gui.hpp dmp_client_gui.cpp
-	dmp_client_connect_dialog.hpp dmp_client_connect_dialog.cpp
-	dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
-	dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp
-	dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
-	dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
+	gui/radio_list_model_qt_adapter.hpp gui/radio_list_model_qt_adapter.cpp
+	gui/dmp_client_gui.hpp gui/dmp_client_gui.cpp
+	gui/dmp_client_connect_dialog.hpp gui/dmp_client_connect_dialog.cpp
+	gui/dmp_client_gui_search_bar.hpp gui/dmp_client_gui_search_bar.cpp
+	gui/dmp_client_gui_menu_bar.hpp gui/dmp_client_gui_menu_bar.cpp
+	gui/dmp_client_gui_search_results.hpp gui/dmp_client_gui_search_results.cpp
+	gui/dmp_client_gui_radio_list.hpp gui/dmp_client_gui_radio_list.cpp
 	dmp_client_ui_controller_interface.hpp
 	dmp_client_ui_delegate.hpp
 	dmp_client_interface.hpp
 	${QtGeneratedHeaders} ${QtGeneratedSources}
 )
 
-set(DmpClientResources resources.qrc)
+#set(DmpClientResources resources.qrc)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(dmp-client ${DmpClientSources} ${DmpClientResources})
 

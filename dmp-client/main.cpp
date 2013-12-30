@@ -5,7 +5,7 @@
 #include "message.hpp"
 #include "message_serializer.hpp"
 #include "dmp_client.hpp"
-#include "dmp_client_gui.hpp"
+#include "gui/dmp_client_gui.hpp"
 #include "connect.hpp"
 
 #include <gst/gst.h>
