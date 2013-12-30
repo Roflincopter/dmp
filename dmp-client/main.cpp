@@ -31,9 +31,6 @@ int main(int argc, char* argv[]) {
 	boost::program_options::options_description desc;
 	desc.add_options()
 		("help,h", "produce help message")
-		("server,s", value<std::string>()->required(), "The server you want to connect to")
-		("port,p", value<uint16_t>()->required(), "The port you want to connect to")
-		("name,n", value<std::string>(), "Your screen name")
 		//("sender", value<bool>(), "Sending or not.")
 		;
 
@@ -73,12 +70,6 @@ int main(int argc, char* argv[]) {
 		DmpReceiver r("localhost", 2001);
 	return 0;
 */
-	std::string name;
-	if(!vm["name"].empty()) {
-		name = vm["name"].as<std::string>();
-	} else {
-		name = boost::asio::ip::host_name();
-	}
 
 	int retval = 0;
 	{
@@ -86,9 +77,6 @@ int main(int argc, char* argv[]) {
 		QApplication qapp(x, nullptr);
 
 		auto gui = std::make_shared<DmpClientGui>();
-
-		auto client = std::make_shared<DmpClient>(name, vm["server"].as<std::string>(), dmp::connect(vm["server"].as<std::string>(), vm["port"].as<uint16_t>()));
-		gui->set_client(client);
 
 		gui->show();
 

@@ -114,13 +114,14 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionConnect"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuIndex">
@@ -153,6 +154,11 @@
   <action name="actionIndex_Folder">
    <property name="text">
     <string>Index Folder</string>
+   </property>
+  </action>
+  <action name="actionConnect">
+   <property name="text">
+    <string>Connect</string>
    </property>
   </action>
  </widget>
@@ -270,10 +276,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionConnect</sender>
+   <signal>triggered()</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>dmpConnect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>searchBarReturned()</slot>
   <slot>indexFolder()</slot>
-  <slot>close_gui()</slot>
+  <slot>dmpConnect()</slot>
  </slots>
 </ui>

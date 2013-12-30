@@ -1,12 +1,12 @@
 #include "dmp_client.hpp"
 
 #include "message_outputter.hpp"
+#include "connect.hpp"
 
-
-DmpClient::DmpClient(std::string name, std::string host, dmp::Connection&& conn)
+DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 : name(name)
 , host(host)
-, connection(std::move(conn))
+, connection(dmp::connect(host, port))
 , last_sent_ping()
 , lib()
 , delegates()

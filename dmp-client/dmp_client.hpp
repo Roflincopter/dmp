@@ -30,7 +30,7 @@ class DmpClient : public DmpClientInterface
 
 public:
 
-	DmpClient(std::string name, std::string host, dmp::Connection&& conn);
+	DmpClient(std::string name, std::string host, uint16_t port);
 	DmpClient(DmpClient&&) = default;
 	~DmpClient();
 

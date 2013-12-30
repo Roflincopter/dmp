@@ -44,6 +44,7 @@ public:
 	void closeEvent(QCloseEvent*) final;
 
 public slots:
+	void dmpConnect();
 
 private:
 	std::unique_ptr<Ui::DmpClientGui> ui;

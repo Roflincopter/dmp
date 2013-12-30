@@ -2,13 +2,13 @@
 
 #include "message_outputter.hpp"
 #include "connect.hpp"
+#include "dmp_client_connect_dialog.hpp"
 
 #include <QFileDialog>
 #include <QMessageBox>
 
 #include <iostream>
 #include <string>
-#include <condition_variable>
 
 DmpClientGui::DmpClientGui(QWidget *parent)
 : QMainWindow(parent)
@@ -78,8 +78,29 @@ void DmpClientGui::bye_ack_received()
 	client_synchronisation_thread = std::thread(shutdown);
 }
 
+void DmpClientGui::dmpConnect()
+{
+	DmpClientConnectDialog connect;
+
+	connect.set_default_name(boost::asio::ip::host_name());
+
+	int result = connect.exec();
+
+	if(result != QDialog::Accepted) {
+		return;
+	}
+
+	auto client_sp = std::make_shared<DmpClient>(connect.get_name(), connect.get_host(), connect.get_port());
+
+	set_client(client_sp);
+}
+
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
+	if(!client) {
+		return;
+	}
+
 	//Send the bye and make sure we override the delegate function bye_ack_received.
 	client->send_bye();
 
