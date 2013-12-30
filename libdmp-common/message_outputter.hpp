@@ -53,7 +53,7 @@ operator<<(std::ostream& os, T x)
 
 inline std::ostream& operator<<(std::ostream& os, message::Type t)
 {
-	return os << static_cast<uint32_t>(t);
+	return os << static_cast<message::Type_t>(t);
 }
 
 }

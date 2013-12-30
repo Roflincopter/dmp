@@ -68,7 +68,7 @@ struct DmpCallbacks {
 			boost::apply_visitor(v, it->second);
 			refresher();
 		} else {
-			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<uint32_t>(message.type)));
+			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message.type)));
 		}
 	}
 

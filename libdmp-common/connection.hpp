@@ -90,7 +90,7 @@ public:
 		}
 		assert(read_bytes == 4);
 		uint8_t const* data = buf.data();
-		type = static_cast<message::Type>(*reinterpret_cast<const uint32_t*>(data));
+		type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 		return type;
 	}
 
@@ -100,6 +100,8 @@ public:
 
 		auto read_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
 		{
+			message::Type type = message::Type::NoMessage;
+
 			if(ec)
 			{
 				throw std::runtime_error("Error in ansyc_receive_type_handler");
@@ -107,7 +109,7 @@ public:
 
 			assert(bytes_transfered == 4);
 			uint8_t const* data = async_type_buffer.data();
-			message::Type type = static_cast<message::Type>(*reinterpret_cast<const uint32_t*>(data));
+			type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 			assert(type != message::Type::NoMessage);
 			cb(type);
 		};

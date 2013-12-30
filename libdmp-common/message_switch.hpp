@@ -4,7 +4,7 @@
 
 struct MessageSwitch
 {
-	std::array<std::function<void()>, static_cast<uint32_t>(message::Type::LAST)> table;
+	std::array<std::function<void()>, static_cast<message::Type_t>(message::Type::LAST)> table;
 
 	template<typename Conn, int... Indices>
 	MessageSwitch(message::DmpCallbacks& cbs, indices<Indices...>, Conn& conn)
@@ -20,7 +20,7 @@ struct MessageSwitch
 	{}
 
 	void handle_message(message::Type index) {
-		table[static_cast<uint32_t>(index)]();
+		table[static_cast<message::Type_t>(index)]();
 	}
 
 };
@@ -28,7 +28,7 @@ struct MessageSwitch
 template <typename Conn>
 MessageSwitch make_message_switch(message::DmpCallbacks& cbs, Conn& conn)
 {
-	typedef typename build_indices<static_cast<uint32_t>(message::Type::LAST)>::type indices_type;
+	typedef typename build_indices<static_cast<message::Type_t>(message::Type::LAST)>::type indices_type;
 
 	return MessageSwitch(cbs, indices_type{}, conn);
 }

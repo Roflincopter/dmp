@@ -10,7 +10,9 @@
 
 namespace message {
 
-enum class Type : uint32_t {
+typedef uint32_t Type_t;
+
+enum class Type : Type_t {
 	NoMessage,
 	Ping,
 	Pong,
