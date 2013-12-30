@@ -51,19 +51,30 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	if(!client) {
 		client = new_client;
 
-		client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
 	} else {
 		if(client_thread.joinable()) {
 			client_thread.join();
 
 			client = new_client;
 
-			client_thread = std::thread(std::bind(&DmpClientInterface::run, client));
+
 		}
 		else {
 			throw std::runtime_error("Tried to assign a new client when old client was still running.");
 		}
 	}
+
+	auto client_runner = [this]
+	{
+		try {
+			client->run();
+		} catch (std::runtime_error e) {
+			std::cerr << "Connection to server lost with message: " << e.what() << std::endl;
+		}
+	};
+
+	client_thread = std::thread(client_runner);
+
 	update_ui_client_interface();
 }
 
