@@ -1,5 +1,7 @@
 #include "dmp_client_gui_search_results.hpp"
 
+#include <QHeaderView>
+
 DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 : QTableView(parent)
 , client(nullptr)
@@ -9,6 +11,7 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 	hideColumn(1);
 	hideColumn(3);
 	hideColumn(5);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> new_client)

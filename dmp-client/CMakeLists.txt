@@ -49,6 +49,7 @@ qt5_wrap_cpp(QtGeneratedSources
 	gui/dmp_client_gui_menu_bar.hpp
 	gui/dmp_client_gui_search_results.hpp
 	gui/dmp_client_gui_radio_list.hpp
+	gui/dmp_client_gui_playlists.hpp
 )
 
 set(DmpClientSources
@@ -62,12 +63,15 @@ set(DmpClientSources
 	gui/search_bar_model_qt_adapter.hpp gui/search_bar_model_qt_adapter.cpp
 	radio_list_model.hpp radio_list_model.cpp
 	gui/radio_list_model_qt_adapter.hpp gui/radio_list_model_qt_adapter.cpp
+	playlists_model.hpp playlists_model.cpp
+	gui/playlists_model_qt_adapter.hpp gui/playlists_model_qt_adapter.cpp
 	gui/dmp_client_gui.hpp gui/dmp_client_gui.cpp
 	gui/dmp_client_connect_dialog.hpp gui/dmp_client_connect_dialog.cpp
 	gui/dmp_client_gui_search_bar.hpp gui/dmp_client_gui_search_bar.cpp
 	gui/dmp_client_gui_menu_bar.hpp gui/dmp_client_gui_menu_bar.cpp
 	gui/dmp_client_gui_search_results.hpp gui/dmp_client_gui_search_results.cpp
 	gui/dmp_client_gui_radio_list.hpp gui/dmp_client_gui_radio_list.cpp
+	gui/dmp_client_gui_playlists.hpp gui/dmp_client_gui_playlists.cpp
 	dmp_client_ui_controller_interface.hpp
 	dmp_client_ui_delegate.hpp
 	dmp_client_interface.hpp

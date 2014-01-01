@@ -2,7 +2,8 @@
 
 #include "gstreamer_util.hpp"
 
-#include <string.h>
+#include <string>
+#include <tuple>
 
 DmpRadio::DmpRadio(std::string name, std::shared_ptr<NumberPool> port_pool)
 : name(name)
@@ -68,7 +69,12 @@ uint16_t DmpRadio::get_sender_port()
 	return recv_port;
 }
 
-std::vector<dmp_library::LibraryEntry> DmpRadio::get_playlist()
+DmpRadio::Playlist DmpRadio::get_playlist()
 {
-	return {};
+	return playlist;
+}
+
+void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
+{
+	playlist.push_back(std::make_tuple(queuer, owner, entry));
 }

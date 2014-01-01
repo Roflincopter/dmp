@@ -63,7 +63,7 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	connections[name_res.name] = cep;
 
-	std::map<std::string, std::vector<dmp_library::LibraryEntry>> playlists;
+	std::map<std::string, DmpRadio::Playlist> playlists;
 	for(auto& radio : radios) {
 		playlists.emplace(radio.first, radio.second.second.get_playlist());
 	}
@@ -112,5 +112,9 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 
 void DmpServer::handle_queue(message::Queue queue)
 {
-	std::cout << "Should handle message queue: " << queue << std::endl;
+	radios[queue.radio].second.queue(queue.queuer, queue.owner, queue.entry);
+	for(auto& endpoint : connections) {
+		endpoint.second->forward(message::PlaylistUpdate(queue.radio, radios[queue.radio].second.get_playlist()));
+	}
+
 }

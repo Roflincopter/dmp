@@ -24,7 +24,8 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 		set(message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))).
 		set(message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))).
 		set(message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))).
-		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1)));
+		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1))).
+		set(message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, std::placeholders::_1)));
 }
 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
@@ -55,7 +56,7 @@ void DmpClient::add_radio(std::string radio_name)
 
 void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
 {
-	connection.send(message::Queue(radio, owner, entry));
+	connection.send(message::Queue(radio, name, owner, entry));
 }
 
 void DmpClient::handle_request(message::Type t)
@@ -166,4 +167,9 @@ DmpClient::~DmpClient() {
 void DmpClient::handle_add_radio(message::AddRadio added_radio)
 {
 	call_on_delegates(delegates, &DmpClientUiDelegate::radio_added, added_radio);
+}
+
+void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
+{
+	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_updated, update);
 }

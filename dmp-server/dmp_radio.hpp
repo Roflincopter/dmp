@@ -12,6 +12,10 @@
 
 class DmpRadio
 {
+public:
+	typedef std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> Playlist;
+
+private:
 	std::string name;
 	std::shared_ptr<NumberPool> port_pool;
 
@@ -24,6 +28,8 @@ class DmpRadio
 	uint16_t recv_port;
 	uint16_t send_port;
 
+	Playlist playlist;
+
 public:
 
 	DmpRadio();
@@ -34,6 +40,7 @@ public:
 	uint16_t get_sender_port();
 	uint16_t get_receiver_port();
 
-	std::vector<dmp_library::LibraryEntry> get_playlist();
+	Playlist get_playlist();
+	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
 };
 

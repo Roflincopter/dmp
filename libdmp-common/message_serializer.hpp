@@ -1,5 +1,7 @@
 #pragma once
 
+#include "boost_tuple_serialization.hpp"
+
 #include <boost/archive/basic_text_iarchive.hpp>
 #include <boost/archive/basic_text_oarchive.hpp>
 

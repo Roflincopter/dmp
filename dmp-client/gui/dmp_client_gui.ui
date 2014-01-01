@@ -80,10 +80,19 @@
         </layout>
        </item>
        <item>
-        <widget class="QTreeView" name="playlist">
+        <widget class="DmpClientGuiPlaylists" name="playlists">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
@@ -214,6 +223,14 @@
     <slot>radioSelected(QModelIndex)</slot>
    </slots>
   </customwidget>
+  <customwidget>
+   <class>DmpClientGuiPlaylists</class>
+   <extends>QTableView</extends>
+   <header>dmp_client_gui_playlists.hpp</header>
+   <slots>
+    <slot>currentRadioChanged(std::string)</slot>
+   </slots>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -342,6 +359,22 @@
     <hint type="destinationlabel">
      <x>640</x>
      <y>526</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_list</sender>
+   <signal>currentlySelectedRadio(std::string)</signal>
+   <receiver>playlists</receiver>
+   <slot>currentRadioChanged(std::string)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>214</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>772</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>

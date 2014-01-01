@@ -11,6 +11,7 @@
 namespace message {
 
 typedef uint32_t Type_t;
+typedef std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> Playlist;
 
 enum class Type : Type_t {
 	NoMessage,
@@ -27,6 +28,7 @@ enum class Type : Type_t {
 	ListenConnectionRequest,
 	Radios,
 	Queue,
+	PlaylistUpdate,
 	LAST
 };
 
@@ -240,14 +242,14 @@ struct ListenConnectionRequestAck {
 */
 struct Radios {
 	Type type;
-	std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios;
+	std::map<std::string, Playlist> radios;
 
 	Radios()
 	: type(Type::Radios)
 	, radios()
 	{}
 
-	Radios(std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios)
+	Radios(std::map<std::string, Playlist> radios)
 	: type(Type::Radios)
 	, radios(radios)
 	{}
@@ -265,21 +267,42 @@ struct RadiosAck {
 struct Queue {
 	Type type;
 	std::string radio;
+	std::string queuer;
 	std::string owner;
 	dmp_library::LibraryEntry entry;
 
 	Queue()
 	: type(Type::Queue)
 	, radio()
+	, queuer()
 	, owner()
 	, entry()
 	{}
 
-	Queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
+	Queue(std::string radio, std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 	: type(Type::Queue)
 	, radio(radio)
+	, queuer(queuer)
 	, owner(owner)
 	, entry(entry)
+	{}
+};
+
+struct PlaylistUpdate {
+	Type type;
+	std::string radio_name;
+	Playlist playlist;
+
+	PlaylistUpdate()
+	: type(Type::PlaylistUpdate)
+	, radio_name()
+	, playlist()
+	{}
+
+	PlaylistUpdate(std::string radio_name, Playlist playlist)
+	: type(Type::PlaylistUpdate)
+	, radio_name(radio_name)
+	, playlist(playlist)
 	{}
 };
 
@@ -309,10 +332,24 @@ TYPE_TO_MESSAGE_STRUCT(AddRadioResponse)
 TYPE_TO_MESSAGE_STRUCT(ListenConnectionRequest)
 TYPE_TO_MESSAGE_STRUCT(Radios)
 TYPE_TO_MESSAGE_STRUCT(Queue)
+TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
 }
+
+BOOST_FUSION_ADAPT_STRUCT
+(
+	dmp_library::LibraryEntry,
+	(std::string, artist)
+	(std::string, ascii_artist)
+	(std::string, title)
+	(std::string, ascii_title)
+	(std::string, album)
+	(std::string, ascii_album)
+	(uint32_t, track)
+	(uint32_t, id)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::NoMessage,
@@ -393,7 +430,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 */
 //To not confuse the macro expansion about macro parameters.
-typedef std::map<std::string, std::vector<dmp_library::LibraryEntry>> radios_type;
+typedef std::map<std::string, message::Playlist> radios_type;
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Radios,
@@ -411,6 +448,14 @@ BOOST_FUSION_ADAPT_STRUCT(
 	message::Queue,
 	(message::Type, type)
 	(std::string, radio)
+	(std::string, queuer)
 	(std::string, owner)
 	(dmp_library::LibraryEntry, entry)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+message::PlaylistUpdate,
+	(message::Type, type)
+	(std::string, radio_name)
+	(message::Playlist, playlist)
 )

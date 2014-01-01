@@ -20,6 +20,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , shared_search_bar(nullptr)
 , shared_search_results(nullptr)
 , shared_radio_list(nullptr)
+, shared_playlists(nullptr)
 , ui()
 , client_synchronisation_thread()
 {
@@ -33,6 +34,9 @@ void DmpClientGui::update_ui_client_interface()
 	shared_search_bar = std::shared_ptr<DmpClientGuiSearchBar>(ui.search_bar, [](void*){});
 	shared_search_results = std::shared_ptr<DmpClientGuiSearchResults>(ui.search_results, [](void*){});
 	shared_radio_list = std::shared_ptr<DmpClientGuiRadioList>(ui.radio_list, [](void*){});
+	shared_playlists = std::shared_ptr<DmpClientGuiPlaylists>(ui.playlists, [](void*){});
+
+	client->add_delegate(shared_main_window);
 
 	shared_menu_bar->set_client(client);
 	client->add_delegate(shared_menu_bar);
@@ -42,8 +46,8 @@ void DmpClientGui::update_ui_client_interface()
 	client->add_delegate(shared_search_results);
 	shared_radio_list->set_client(client);
 	client->add_delegate(shared_radio_list);
-
-	client->add_delegate(shared_main_window);
+	shared_playlists->set_client(client);
+	client->add_delegate(shared_playlists);
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
