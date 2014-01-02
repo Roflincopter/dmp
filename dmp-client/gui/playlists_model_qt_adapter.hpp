@@ -15,5 +15,7 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
 
 	virtual void update_playlist(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist) final;
+	virtual void append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist) final;
+
 	virtual void set_current_radio(std::string radio_name) final;
 };

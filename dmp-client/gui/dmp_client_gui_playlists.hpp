@@ -20,6 +20,7 @@ public:
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
 	virtual void playlist_updated(message::PlaylistUpdate update) final;
+	virtual void add_radio_succes(message::AddRadioResponse response) final;
 
 signals:
 

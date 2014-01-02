@@ -98,7 +98,7 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 		DmpRadio r (ar.name, port_pool);
 		radios[ar.name] = std::make_pair(std::thread(), r);
 
-		origin->forward(message::AddRadioResponse(true, ""));
+		origin->forward(message::AddRadioResponse(ar.name, true, ""));
 		radios[ar.name].first = std::thread(std::bind(&DmpRadio::run, &radios[ar.name].second));
 		origin->forward(message::ListenConnectionRequest(r.get_receiver_port()));
 
@@ -106,15 +106,16 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 			connection.second->forward(message::AddRadio(ar.name));
 		}
 	} else {
-		origin->forward(message::AddRadioResponse(false, "Radio with name " + ar.name + " already exists"));
+		origin->forward(message::AddRadioResponse(ar.name, false, "Radio with name " + ar.name + " already exists"));
 	}
 }
 
 void DmpServer::handle_queue(message::Queue queue)
 {
 	radios[queue.radio].second.queue(queue.queuer, queue.owner, queue.entry);
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Append, 0, 0);
 	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::PlaylistUpdate(queue.radio, radios[queue.radio].second.get_playlist()));
+		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios[queue.radio].second.get_playlist()));
 	}
 
 }

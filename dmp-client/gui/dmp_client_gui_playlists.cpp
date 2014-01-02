@@ -18,7 +18,37 @@ void DmpClientGuiPlaylists::set_client(std::shared_ptr<DmpClientInterface> new_c
 
 void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 {
+	switch(update.action.type)
+	{
+		case message::PlaylistUpdate::Action::Type::Append:
+		{
+			model.append(update.radio_name, update.playlist);
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Insert:
+		{
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Move:
+		{
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Reset:
+		{
+			break;
+		}
+		default:
+		{
+			throw std::runtime_error("This should never happen");
+		}
+	}
+
 	model.update_playlist(update.radio_name, update.playlist);
+}
+
+void DmpClientGuiPlaylists::add_radio_succes(message::AddRadioResponse response)
+{
+	model.create_radio(response.radio_name);
 }
 
 void DmpClientGuiPlaylists::currentRadioChanged(std::string name)

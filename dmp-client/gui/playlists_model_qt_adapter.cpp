@@ -49,6 +49,19 @@ void PlaylistsModelQtAdapter::update_playlist(std::string radio_name, std::vecto
 	}
 }
 
+void PlaylistsModelQtAdapter::append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry> > playlist)
+{
+	if(radio_name == current_radio) {
+		beginInsertRows(QModelIndex(), rowCount(), rowCount() + playlist.size() - 1);
+	}
+
+	PlaylistsModel::append(radio_name, playlist);
+
+	if(radio_name == current_radio) {
+		endInsertRows();
+	}
+}
+
 void PlaylistsModelQtAdapter::set_current_radio(std::string radio_name)
 {
 	beginResetModel();

@@ -201,17 +201,20 @@ struct AddRadio {
 
 struct AddRadioResponse {
 	Type type;
+	std::string radio_name;
 	bool succes;
 	std::string reason;
 
 	AddRadioResponse()
 	: type(Type::AddRadioResponse)
+	, radio_name()
 	, succes()
 	, reason()
 	{}
 
-	AddRadioResponse(bool succes, std::string reason="")
+	AddRadioResponse(std::string radio_name, bool succes, std::string reason="")
 	: type(Type::AddRadioResponse)
+	, radio_name(radio_name)
 	, succes(succes)
 	, reason()
 	{}
@@ -289,7 +292,36 @@ struct Queue {
 };
 
 struct PlaylistUpdate {
+	struct Action
+	{
+		enum class Type
+		{
+			NoAction,
+			Append,
+			Insert,
+			Move,
+			Reset,
+		};
+
+		Type type;
+		uint32_t from;
+		uint32_t to;
+
+		Action()
+		: type(Type::NoAction)
+		, from()
+		, to()
+		{}
+
+		Action(Type type, uint32_t from, uint32_t to)
+		: type(type)
+		, from(from)
+		, to(to)
+		{}
+	};
+
 	Type type;
+	Action action;
 	std::string radio_name;
 	Playlist playlist;
 
@@ -299,8 +331,9 @@ struct PlaylistUpdate {
 	, playlist()
 	{}
 
-	PlaylistUpdate(std::string radio_name, Playlist playlist)
+	PlaylistUpdate(Action action, std::string radio_name, Playlist playlist)
 	: type(Type::PlaylistUpdate)
+	, action(action)
 	, radio_name(radio_name)
 	, playlist(playlist)
 	{}
@@ -414,6 +447,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::AddRadioResponse,
 	(message::Type, type)
+	(std::string, radio_name)
 	(bool, succes)
 	(std::string, reason)
 )
@@ -454,8 +488,16 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-message::PlaylistUpdate,
+	message::PlaylistUpdate::Action,
+	(message::PlaylistUpdate::Action::Type, type)
+	(uint32_t, from)
+	(uint32_t, to)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::PlaylistUpdate,
 	(message::Type, type)
+	(message::PlaylistUpdate::Action, action)
 	(std::string, radio_name)
 	(message::Playlist, playlist)
 )

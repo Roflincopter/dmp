@@ -20,5 +20,8 @@ public:
 	std::string get_cell(int row, int column) const;
 
 	virtual void update_playlist(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist);
+	virtual void append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist);
+
 	virtual void set_current_radio(std::string radio_name);
+	virtual void create_radio(std::string radio_name);
 };

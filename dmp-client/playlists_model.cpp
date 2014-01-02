@@ -80,7 +80,22 @@ void PlaylistsModel::update_playlist(std::string radio_name, message::Playlist p
 	playlists[radio_name] = playlist;
 }
 
+void PlaylistsModel::append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist)
+{
+	auto it = playlists.find(radio_name);
+	if(it == playlists.end()) {
+		throw std::runtime_error("The radio on which append was called does not exists " + radio_name);
+	}
+
+	std::copy(playlist.begin(), playlist.end(), std::back_inserter(playlists[radio_name]));
+}
+
 void PlaylistsModel::set_current_radio(std::string radio_name)
 {
 	current_radio = radio_name;
+}
+
+void PlaylistsModel::create_radio(std::string radio_name)
+{
+	playlists[radio_name] = {};
 }
