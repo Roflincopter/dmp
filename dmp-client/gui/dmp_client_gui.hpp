@@ -7,7 +7,7 @@
 #include "dmp_client_ui_delegate.hpp"
 
 #include <QMainWindow>
-#include <QStandardItemModel>
+#include <QShortcut>
 
 #include <thread>
 #include <memory>
@@ -19,6 +19,8 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	SearchResultModel search_result_model;
 	std::shared_ptr<DmpClientInterface> client;
 	std::thread client_thread;
+
+	QShortcut test1_key;
 
 	/* these variables hold non-owning shared pointers to the raw pointers
 	*  provided by the QtDesigner generated code. Be very cautious what you
@@ -34,15 +36,21 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 
 	void update_ui_client_interface();
 
+
 public:
 	explicit DmpClientGui(QWidget *parent = 0);
 	~DmpClientGui() = default;
+
+	void connect_client(std::string name, std::string host, uint16_t port);
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
 	void bye_ack_received() final;
 
 	void closeEvent(QCloseEvent*) final;
+
+private slots:
+	void test1();
 
 public slots:
 	void dmpConnect();
