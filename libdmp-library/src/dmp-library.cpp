@@ -34,6 +34,8 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 Library build_library(filesystem::recursive_directory_iterator it)
 {
 	vector<LibraryEntry> library;
+	std::map<uint32_t, std::string> filemap;
+
 	for(; it != filesystem::recursive_directory_iterator(); ++it)
 	{
 		if(filesystem::is_directory(*it)){
@@ -43,6 +45,7 @@ Library build_library(filesystem::recursive_directory_iterator it)
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
 				library.emplace_back(entry.get());
+				filemap.emplace(entry.get().id, (*it).path().native());
 			}
 		}
 		catch(std::runtime_error const&)
@@ -50,7 +53,7 @@ Library build_library(filesystem::recursive_directory_iterator it)
 			continue;
 		}
 	}
-	return library;
+	return Library(library, filemap);
 }
 
 Library read_cache(std::string const& cache_path)
@@ -93,7 +96,7 @@ Library parse_directory(std::string const& directory_path)
 		{
 			boost::optional<LibraryEntry> entry = build_library_entry(p);
 			if(entry) {
-				return {entry.get()};
+				return Library({entry.get()},{{entry.get().id, p.string()}});
 			} else {
 				return Library();
 			}

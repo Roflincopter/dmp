@@ -11,7 +11,7 @@ namespace std {
 
 class SearchResultModel
 {
-	std::vector<std::pair<std::string, dmp_library::Library>> search_results;
+	std::vector<std::pair<std::string, dmp_library::Library::tracklist_t>> search_results;
 
 public:
 	SearchResultModel();

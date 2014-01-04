@@ -2,12 +2,12 @@
 
 #include "library-entry.hpp"
 #include "library-search.hpp"
+#include "library.hpp"
 
 #include <vector>
 
 namespace dmp_library
 {
-	typedef std::vector<LibraryEntry> Library;
 
 	const std::string cache_file = ".dmp_library";
 

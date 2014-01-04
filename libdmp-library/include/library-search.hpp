@@ -2,6 +2,7 @@
 
 #include "library-entry.hpp"
 #include "query-parser.hpp"
+#include "library.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -11,13 +12,14 @@ namespace dmp_library {
 
 class LibrarySearcher
 {
-	std::vector<LibraryEntry> const& library;
+	Library const& library;
 
 public:
 
-	LibrarySearcher(std::vector<LibraryEntry> const& library)
-	: library(library)
-	{}
+	LibrarySearcher(Library const& library);
+
+	LibrarySearcher(LibrarySearcher const&) = delete;
+	LibrarySearcher(LibrarySearcher&&) = delete;
 
 	std::vector<size_t> search(std::shared_ptr<Query> query_obj);
 	std::vector<LibraryEntry> search(std::string query);
