@@ -113,7 +113,7 @@ Library parse_directory(std::string const& directory_path)
 
 Library create_library(string path, bool use_cache, bool create_cache)
 {
-	filesystem::path cache_path = filesystem::path(path) += filesystem::path(cache_file);
+	filesystem::path cache_path = filesystem::path(path) / filesystem::path(cache_file);
 
 	if(filesystem::exists(cache_path) && use_cache)
 	{
