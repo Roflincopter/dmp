@@ -45,7 +45,11 @@ Library build_library(filesystem::recursive_directory_iterator it)
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
 				library.emplace_back(entry.get());
+#ifdef __GNUC__
+				filemap.emplace(entry.get().id, (char*)(*it).path().native().c_str());
+#else
 				filemap.emplace(entry.get().id, (*it).path().native());
+#endif
 			}
 		}
 		catch(std::runtime_error const&)
