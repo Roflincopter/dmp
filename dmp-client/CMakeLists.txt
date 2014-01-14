@@ -109,8 +109,17 @@ target_link_libraries(dmp-client ${GOBJECT_LIBRARIES})
 find_package(Qt5Widgets REQUIRED)
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
-set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-target_link_libraries(dmp-client ${Qt5Widgets_LIBRARIES})
+find_package(Qt5Gui REQUIRED)
+add_definitions(${Qt5Gui_DEFINITIONS})
+
+find_package(Qt5Core REQUIRED)
+add_definitions(${Qt5Gui_DEFINITIONS})
+
+set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+if(MINGW)
+	set(Qt5Widgets_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES} jpeg png pcre16 /home/dennis/projects/mxe/usr/x86_64-w64-mingw32/qt5/plugins/platforms/libqwindows.a)
+endif(MINGW)
+target_link_libraries(dmp-client ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES})
 
 if(USE_GPERF)
 	target_link_libraries(dmp-client "-lprofiler")
@@ -120,5 +129,6 @@ qt5_use_modules(dmp-client Widgets)
 
 if(MINGW)
 	add_definitions("-DBOOST_THREAD_USE_LIB=1 -mms-bitfields -DPCRE_STATIC")
-	target_link_libraries(dmp-client pthread ws2_32 mswsock ffi)
+	#target_link_libraries(dmp-client tcpclientsrc)
+	target_link_libraries(dmp-client pthread ws2_32 mswsock ffi imm32 opengl32 freetype bz2 /home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstcoreelements.a)
 endif(MINGW)

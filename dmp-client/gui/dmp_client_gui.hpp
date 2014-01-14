@@ -1,5 +1,11 @@
 #pragma once
 
+#include <QtPlugin>
+
+#if defined(_WIN32) || defined(_WIN64)
+	Q_IMPORT_PLUGIN (QWindowsIntegrationPlugin);
+#endif //defined(_WIN32) || defined(_WIN64)
+
 #include "search_result_model.hpp"
 #include "dmp_client.hpp"
 #include "dmp_client_interface.hpp"
