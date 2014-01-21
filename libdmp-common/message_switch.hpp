@@ -1,19 +1,20 @@
 #pragma once
 
+#include "index_list.hpp"
 #include "message_callbacks.hpp"
 
 struct MessageSwitch
 {
 	#ifdef __GNUC__
 	template <int index, typename Conn>
-	static constexpr std::function<void()>&& create_message_receiver(message::DmpCallbacks& cbs, Conn& conn)
+	std::function<void()> create_message_receiver(message::DmpCallbacks& cbs, Conn& conn)
 	{
-		return std::move(std::function<void()>([&conn, &cbs]
+		return [&conn, &cbs]
 		{
 			typedef typename message::type_to_message<static_cast<message::Type>(index)>::type message_t;
 			conn.template async_receive<message_t>(cbs);
 			return;
-		}));
+		};
 	}
 	#endif //__GNUC__
 
@@ -30,7 +31,7 @@ struct MessageSwitch
 			}
 		#else
 			{
-				[&conn, &cbs]()
+				[&conn, &cbs]
 				{
 					typedef typename message::type_to_message<static_cast<message::Type>(Indices)>::type message_t;
 					conn.template async_receive<message_t>(cbs);
