@@ -24,7 +24,6 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , shared_radio_list(nullptr)
 , shared_playlists(nullptr)
 , ui()
-, client_synchronisation_thread()
 {
 	ui.setupUi(this);
 
@@ -95,15 +94,9 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	update_ui_client_interface();
 }
 
-void DmpClientGui::bye_ack_received()
+void DmpClientGui::client_stopped()
 {
-	//Shutdown of the client.
-	auto shutdown = [this]{
-		client->stop();
-	};
-
-	//initiate shutdown
-	client_synchronisation_thread = std::thread(shutdown);
+	client.reset();
 }
 
 void DmpClientGui::connect_client(std::string name, std::string host, uint16_t port)
@@ -141,17 +134,7 @@ void DmpClientGui::closeEvent(QCloseEvent*)
 		}
 		return;
 	}
-
-	//Send the bye and make sure we override the delegate function bye_ack_received.
-	client->send_bye();
-
-	while (!client_synchronisation_thread.joinable()) {
-		std::this_thread::sleep_for(std::chrono::microseconds(1));
-	}
-
-	//Join the destructor thread.
-	client_synchronisation_thread.join();
-
-	//join the client_thread
+	
+	client->stop();
 	client_thread.join();
 }

@@ -18,7 +18,7 @@ struct DmpClientUiDelegate
 {
 	virtual void query_parse_error(dmp_library::ParseError e){}
 	virtual void search_results(message::SearchResponse){}
-	virtual void bye_ack_received(){}
+	virtual void client_stopped(){}
 	virtual void new_search(){}
 	virtual void add_radio_succes(message::AddRadioResponse){}
 	virtual void add_radio_failed(message::AddRadioResponse){}

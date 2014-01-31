@@ -51,7 +51,7 @@ public:
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
-	void bye_ack_received() final;
+	void client_stopped() final;
 
 	void closeEvent(QCloseEvent*) final;
 
@@ -63,5 +63,4 @@ public slots:
 
 private:
 	Ui::DmpClientGui ui;
-	std::thread client_synchronisation_thread;
 };

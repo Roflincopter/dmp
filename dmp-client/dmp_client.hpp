@@ -43,7 +43,6 @@ public:
 	virtual void run() final;
 	virtual void search(std::string query) final;
 	virtual void index(std::string path) final;
-	virtual void send_bye() final;
 	virtual void add_radio(std::string str) final;
 	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) final;
 

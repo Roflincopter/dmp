@@ -41,7 +41,8 @@ void DmpClient::run()
 
 void DmpClient::stop()
 {
-	connection.io_service->stop();
+	message::Bye b;
+	connection.send(b);
 }
 
 void DmpClient::index(std::string path)
@@ -86,12 +87,6 @@ void DmpClient::search(std::string query)
 	connection.send(q);
 }
 
-void DmpClient::send_bye()
-{
-	message::Bye b;
-	connection.send(b);
-}
-
 void DmpClient::handle_ping(message::Ping ping)
 {
 	message::Pong pong(ping);
@@ -131,7 +126,8 @@ void DmpClient::handle_search_response(std::string query, message::SearchRespons
 
 void DmpClient::handle_bye_ack(message::ByeAck)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::bye_ack_received);
+	connection.io_service->stop();
+	call_on_delegates(delegates, &DmpClientUiDelegate::client_stopped);
 }
 
 void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
