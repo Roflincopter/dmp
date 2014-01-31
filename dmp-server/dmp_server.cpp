@@ -69,7 +69,7 @@ void DmpServer::add_connection(dmp::Connection&& c)
 	}
 	connections[name_res.name]->forward(message::Radios(playlists));
 
-	std::thread* execthread = new std::thread(
+	std::thread execthread = std::thread(
 		[this, name_res]()
 		{
 			try {
@@ -77,10 +77,10 @@ void DmpServer::add_connection(dmp::Connection&& c)
 			} catch(std::runtime_error e) {
 				std::cerr << "Endpoint unexpectedly disconnected with message: " << e.what() << std::endl;
 			}
+			connections.erase(name_res.name);
 		}
 	);
-	std::thread jointhread([this, execthread, name_res](){execthread->join(); connections.erase(name_res.name); delete execthread;});
-	jointhread.detach();
+	execthread.detach();
 }
 
 void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr)
@@ -117,5 +117,4 @@ void DmpServer::handle_queue(message::Queue queue)
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios[queue.radio].second.get_playlist()));
 	}
-
 }

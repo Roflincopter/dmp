@@ -85,6 +85,8 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 			client->run();
 		} catch (std::runtime_error e) {
 			std::cerr << "Connection to server lost with message: " << e.what() << std::endl;
+			client->stop();
+			client.reset();
 		}
 	};
 
@@ -134,6 +136,9 @@ void DmpClientGui::dmpConnect()
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
 	if(!client) {
+		if(client_thread.joinable()) {
+			client_thread.join();
+		}
 		return;
 	}
 
