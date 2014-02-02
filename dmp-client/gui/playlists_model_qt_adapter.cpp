@@ -36,7 +36,7 @@ QVariant PlaylistsModelQtAdapter::data(QModelIndex const& index, int role) const
 	return QVariant(QString::fromStdString(get_cell(index.row(), index.column())));
 }
 
-void PlaylistsModelQtAdapter::update_playlist(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry> > playlist)
+void PlaylistsModelQtAdapter::update_playlist(std::string radio_name, Playlist playlist)
 {
 	if(radio_name == current_radio) {
 		beginResetModel();
@@ -49,7 +49,7 @@ void PlaylistsModelQtAdapter::update_playlist(std::string radio_name, std::vecto
 	}
 }
 
-void PlaylistsModelQtAdapter::append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry> > playlist)
+void PlaylistsModelQtAdapter::append(std::string radio_name, Playlist playlist)
 {
 	if(radio_name == current_radio) {
 		beginInsertRows(QModelIndex(), rowCount(), rowCount() + playlist.size() - 1);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dmp-library.hpp"
+#include "playlist.hpp"
 
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/serialization/vector.hpp>
@@ -11,7 +12,6 @@
 namespace message {
 
 typedef uint32_t Type_t;
-typedef std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> Playlist;
 
 enum class Type : Type_t {
 	NoMessage,
@@ -464,7 +464,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 */
 //To not confuse the macro expansion about macro parameters.
-typedef std::map<std::string, message::Playlist> radios_type;
+typedef std::map<std::string, Playlist> radios_type;
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Radios,
@@ -499,5 +499,5 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 	(message::PlaylistUpdate::Action, action)
 	(std::string, radio_name)
-	(message::Playlist, playlist)
+	(Playlist, playlist)
 )

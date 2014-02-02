@@ -10,6 +10,7 @@ set(dmp-common-sources
 	message_callbacks.hpp
 	gstreamer_util.hpp gstreamer_util.cpp
 	fusion_static_dispatch.hpp fusion_static_dispatch.cpp
+	playlist.hpp
 	message_switch.hpp
 	number_pool.hpp number_pool.cpp
 )

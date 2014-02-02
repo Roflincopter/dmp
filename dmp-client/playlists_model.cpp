@@ -55,7 +55,7 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 		std::runtime_error("internally selected current radio does not exist.");
 	}
 
-	message::Playlist const& datalist = it->second;
+	Playlist const& datalist = it->second;
 
 	if(row < 0 || row >= datalist.size()) {
 		throw std::out_of_range("Row index was out of range.");
@@ -67,20 +67,20 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 
 	auto data = datalist[row];
 	if(column == number_of_entry_members) {
-		return std::get<0>(data);
+		return data.queuer;
 	} else if(column == number_of_entry_members + 1) {
-		return std::get<1>(data);
+		return data.owner;
 	} else {
-		return get_nth(std::get<2>(data), column);
+		return get_nth(data.entry, column);
 	}
 }
 
-void PlaylistsModel::update_playlist(std::string radio_name, message::Playlist playlist)
+void PlaylistsModel::update_playlist(std::string radio_name, Playlist playlist)
 {
 	playlists[radio_name] = playlist;
 }
 
-void PlaylistsModel::append(std::string radio_name, std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> playlist)
+void PlaylistsModel::append(std::string radio_name, Playlist playlist)
 {
 	auto it = playlists.find(radio_name);
 	if(it == playlists.end()) {

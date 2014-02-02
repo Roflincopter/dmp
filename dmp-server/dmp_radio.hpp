@@ -2,6 +2,7 @@
 
 #include "dmp-library.hpp"
 
+#include "playlist.hpp"
 #include "number_pool.hpp"
 
 #include <gst/gst.h>
@@ -12,9 +13,6 @@
 
 class DmpRadio
 {
-public:
-	typedef std::vector<std::tuple<std::string, std::string, dmp_library::LibraryEntry>> Playlist;
-
 private:
 	std::string name;
 	std::shared_ptr<NumberPool> port_pool;

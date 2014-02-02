@@ -63,7 +63,7 @@ void DmpServer::add_connection(dmp::Connection&& c)
 
 	connections[name_res.name] = cep;
 
-	std::map<std::string, DmpRadio::Playlist> playlists;
+	std::map<std::string, Playlist> playlists;
 	for(auto& radio : radios) {
 		playlists.emplace(radio.first, radio.second.second.get_playlist());
 	}

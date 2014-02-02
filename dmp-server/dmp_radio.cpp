@@ -69,12 +69,12 @@ uint16_t DmpRadio::get_sender_port()
 	return recv_port;
 }
 
-DmpRadio::Playlist DmpRadio::get_playlist()
+Playlist DmpRadio::get_playlist()
 {
 	return playlist;
 }
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 {
-	playlist.push_back(std::make_tuple(queuer, owner, entry));
+	playlist.push_back({queuer, owner, entry});
 }
