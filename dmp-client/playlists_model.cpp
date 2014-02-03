@@ -27,29 +27,25 @@ int PlaylistsModel::column_count() const
 }
 
 std::string PlaylistsModel::header_data(int section) const
-{
-	size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
-	if(section < 0 || size_t(section) >= number_of_entry_members + 2 || section < 0) {
+{	
+	if(section < 0 || size_t(section) >= number_of_library_entry_members + number_of_playlist_entry_members) {
 		throw std::out_of_range("Column index was out of range.");
 	}
-
-	if(size_t(section) < number_of_entry_members) {
-		return get_nth_name<dmp_library::LibraryEntry>(section);
+	
+	size_t index = section;
+	
+	//return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>::concat_type> (size_t(section));
+	
+	if(index < number_of_library_entry_members) {
+		return get_nth_name<dmp_library::LibraryEntry>(index);
 	} else {
-		if(size_t(section) == number_of_entry_members) {
-			return "queuer";
-		} else if (size_t(section) == number_of_entry_members + 1) {
-			return "owner";
-		} else {
-			throw std::runtime_error("This should not happen");
-		}
+		index -= number_of_library_entry_members;
+		return get_nth_name<PlaylistEntry>(index);
 	}
 }
 
 std::string PlaylistsModel::get_cell(int row, int column) const
 {
-	size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
-
 	auto it = playlists.find(current_radio);
 	if(it == playlists.end()) {
 		std::runtime_error("internally selected current radio does not exist.");
@@ -61,17 +57,18 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 		throw std::out_of_range("Row index was out of range.");
 	}
 
-	if(column < 0 || size_t(column) >= number_of_entry_members + 2) {
+	if(column < 0 || size_t(column) >= number_of_library_entry_members + number_of_playlist_entry_members) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 
 	auto data = datalist[row];
-	if(size_t(column) == number_of_entry_members) {
-		return data.queuer;
-	} else if(size_t(column) == number_of_entry_members + 1) {
-		return data.owner;
+	
+	size_t index = size_t(column);
+	if(index < number_of_library_entry_members) {
+		return get_nth(data.entry, index);
 	} else {
-		return get_nth(data.entry, column);
+		index -= number_of_library_entry_members;
+		return get_nth(data, index);
 	}
 }
 
