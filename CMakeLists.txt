@@ -22,7 +22,7 @@ IF(UNIX AND NOT APPLE)
     option(USE_GPERF "Enable Google performance tools." ON)
 ENDIF(UNIX AND NOT APPLE)
 
-add_definitions(${warnings} -g3 -Wno-shadow -Wno-switch-enum)
+add_definitions(${warnings} -g3 -Wno-shadow)
 
 add_subdirectory(libdmp-library)
 add_subdirectory(libdmp-common)

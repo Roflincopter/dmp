@@ -69,7 +69,7 @@ void SearchBarModelQtAdapter::set_data(std::string new_expected, size_t new_pivo
 
 void SearchBarModelQtAdapter::model_check_state(int cursor_pos, QLineEdit* search_bar)
 {
-	if(cursor_pos < pivot || cursor_pos == 0) {
+	if(cursor_pos < 0 || size_t(cursor_pos) < pivot || cursor_pos == 0) {
 		reset_error_state(search_bar);
 	}
 }

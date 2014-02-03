@@ -29,16 +29,16 @@ int PlaylistsModel::column_count() const
 std::string PlaylistsModel::header_data(int section) const
 {
 	size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
-	if(section >= number_of_entry_members + 2 || section < 0) {
+	if(section < 0 || size_t(section) >= number_of_entry_members + 2 || section < 0) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 
-	if(section < number_of_entry_members) {
+	if(size_t(section) < number_of_entry_members) {
 		return get_nth_name<dmp_library::LibraryEntry>(section);
 	} else {
-		if(section == number_of_entry_members) {
+		if(size_t(section) == number_of_entry_members) {
 			return "queuer";
-		} else if (section == number_of_entry_members + 1) {
+		} else if (size_t(section) == number_of_entry_members + 1) {
 			return "owner";
 		} else {
 			throw std::runtime_error("This should not happen");
@@ -57,18 +57,18 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 
 	Playlist const& datalist = it->second;
 
-	if(row < 0 || row >= datalist.size()) {
+	if(row < 0 || size_t(row) >= datalist.size()) {
 		throw std::out_of_range("Row index was out of range.");
 	}
 
-	if(column < 0 || column >= number_of_entry_members + 2) {
+	if(column < 0 || size_t(column) >= number_of_entry_members + 2) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 
 	auto data = datalist[row];
-	if(column == number_of_entry_members) {
+	if(size_t(column) == number_of_entry_members) {
 		return data.queuer;
-	} else if(column == number_of_entry_members + 1) {
+	} else if(size_t(column) == number_of_entry_members + 1) {
 		return data.owner;
 	} else {
 		return get_nth(data.entry, column);

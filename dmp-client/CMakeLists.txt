@@ -108,12 +108,16 @@ target_link_libraries(dmp-client ${GOBJECT_LIBRARIES})
 
 find_package(Qt5Widgets REQUIRED)
 add_definitions(${Qt5Widgets_DEFINITIONS})
+include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
 
 find_package(Qt5Gui REQUIRED)
 add_definitions(${Qt5Gui_DEFINITIONS})
+include_directories(SYSTEM ${Qt5Gui_INCLUDE_DIRS})
 
 find_package(Qt5Core REQUIRED)
-add_definitions(${Qt5Gui_DEFINITIONS})
+add_definitions(${Qt5Core_DEFINITIONS})
+include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
+
 
 set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 if(MINGW)

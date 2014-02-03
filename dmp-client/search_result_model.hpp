@@ -5,10 +5,6 @@
 
 #include <QAbstractTableModel>
 
-namespace std {
-	std::string to_string(std::string x);
-}
-
 class SearchResultModel
 {
 	std::vector<std::pair<std::string, dmp_library::Library::tracklist_t>> search_results;

@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 		if(vm.count("help")) {
 			std::cout << "Usage: " << std::string(argv[0]);
 
-			for (int i=0; i<pos_desc.max_total_count(); ++i) {
+			for (int i=0; unsigned(i) < pos_desc.max_total_count(); ++i) {
 				std::cout << " <" << pos_desc.name_for_position(i) << ">";
 			}
 
