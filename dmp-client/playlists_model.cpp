@@ -3,16 +3,15 @@
 #include "fusion_static_dispatch.hpp"
 #include "message_outputter.hpp"
 
+#include <boost/mpl/joint_view.hpp>
+#include <boost/fusion/sequence.hpp>
+
 PlaylistsModel::PlaylistsModel()
 {
 }
 
 int PlaylistsModel::row_count() const
 {
-	if(current_radio.empty()) {
-		return 0;
-	}
-
 	auto it = playlists.find(current_radio);
 	if(it != playlists.end()) {
 		return it->second.size();
@@ -23,7 +22,7 @@ int PlaylistsModel::row_count() const
 
 int PlaylistsModel::column_count() const
 {
-	return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value + 2;
+	return number_of_library_entry_members + number_of_playlist_entry_members;
 }
 
 std::string PlaylistsModel::header_data(int section) const
@@ -32,16 +31,7 @@ std::string PlaylistsModel::header_data(int section) const
 		throw std::out_of_range("Column index was out of range.");
 	}
 	
-	size_t index = section;
-	
-	//return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>::concat_type> (size_t(section));
-	
-	if(index < number_of_library_entry_members) {
-		return get_nth_name<dmp_library::LibraryEntry>(index);
-	} else {
-		index -= number_of_library_entry_members;
-		return get_nth_name<PlaylistEntry>(index);
-	}
+	return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>>(section);
 }
 
 std::string PlaylistsModel::get_cell(int row, int column) const
@@ -62,14 +52,7 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 	}
 
 	auto data = datalist[row];
-	
-	size_t index = size_t(column);
-	if(index < number_of_library_entry_members) {
-		return get_nth(data.entry, index);
-	} else {
-		index -= number_of_library_entry_members;
-		return get_nth(data, index);
-	}
+	return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>(data.entry, data), column);
 }
 
 void PlaylistsModel::update_playlist(std::string radio_name, Playlist playlist)

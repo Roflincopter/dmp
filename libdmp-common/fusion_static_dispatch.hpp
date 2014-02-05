@@ -6,6 +6,7 @@
 #include <boost/fusion/adapted.hpp>
 #include <boost/fusion/sequence/intrinsic/size.hpp>
 #include <boost/fusion/include/size.hpp>
+#include <boost/fusion/iterator.hpp>
 
 #include <string>
 
@@ -13,45 +14,54 @@ namespace std {
 	std::string to_string(std::string x);
 }
 
-#ifdef __GNUC__
+#if defined( __GNUC__ ) && !defined( __clang__ )
 template<int index, typename T>
 std::function<std::string(T)> make_at_c_lambda(T seq)
 {
 	return [](T seq){
-		return std::to_string(boost::fusion::at_c<index>(seq));
+		return std::to_string(boost::fusion::deref(boost::fusion::advance_c<index>(boost::fusion::begin(seq))));
 	};
 }
-#endif //__GNUC__
+#endif //defined( __GNUC__ ) && !defined( __clang__ )
 
 template<typename T, int... Indices>
-std::string get_nth(T seq, int index, indices<Indices...>)
+std::string get_nth_impl(T seq, int index, indices<Indices...>)
 {
 	typedef std::function<std::string(T)> element_type;
 	static element_type table[] =
 	{
-#ifdef __GNUC__
+#if defined( __GNUC__ ) && !defined( __clang__ )
 		//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 		make_at_c_lambda<Indices>(seq)
 		...
 #else
-		[](T seq){return std::to_string(boost::fusion::at_c<Indices>(seq));}
+		[](T seq){return std::to_string(boost::fusion::deref(boost::fusion::advance_c<Indices>(boost::fusion::begin(seq))));}
 		...
-#endif //__GNUC__
+#endif //defined( __GNUC__ ) && !defined( __clang__ )
 	};
 
 	return table[index](seq);
 }
 
 template<typename T>
-std::string get_nth(T seq, int index)
+struct get_nth_functor
 {
-	typedef typename boost::fusion::result_of::size<T>::type seq_size;
-	typedef typename build_indices<seq_size::value>::type indices_type;
+	std::string operator()(T seq, int index)
+	{
+		typedef typename boost::fusion::result_of::size<T>::type seq_size;
+		typedef typename build_indices<seq_size::value>::type indices_type;
+	
+		return get_nth_impl(seq, index, indices_type{});
+	}
+};
 
-	return get_nth(seq, index, indices_type{});
+template <typename T>
+std::string get_nth(T x, int index)
+{
+	return get_nth_functor<T>()(x, index);
 }
 
-#ifdef __GNUC__
+#if defined( __GNUC__ ) && !defined( __clang__ )
 template<int index, typename T>
 std::function<std::string()> make_struct_member_name_lambda()
 {
@@ -59,31 +69,60 @@ std::function<std::string()> make_struct_member_name_lambda()
 		return std::string(boost::fusion::extension::struct_member_name<T, index>::call());
 	};
 }
-#endif //__GNUC__
+#endif //defined( __GNUC__ ) && !defined( __clang__ )
 
-template<typename T, int... Indices>
-std::string get_nth_name(int index, indices<Indices...>)
+template<typename T>
+struct get_nth_name_impl {
+	
+	get_nth_name_impl() = default;
+	
+	template<int... Indices>
+	std::string operator()(int index, indices<Indices...>)
+	{
+		typedef std::function<std::string()> element_type;
+		static element_type table[] = {
+	#if defined( __GNUC__ ) && !defined( __clang__ )
+			//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
+			make_struct_member_name_lambda<Indices, T>()
+			...
+	#else
+			[]{return std::string(boost::fusion::extension::struct_member_name<T, Indices>::call());}
+			...
+	#endif //defined( __GNUC__ ) && !defined( __clang__ )
+		};
+	
+		return table[index]();
+	}
+};
+
+template <typename T>
+struct get_nth_name_functor 
 {
-	typedef std::function<std::string()> element_type;
-	static element_type table[] = {
-#ifdef __GNUC__
-		//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
-		make_struct_member_name_lambda<Indices, T>()
-		...
-#else
-		[]{return std::string(boost::fusion::extension::struct_member_name<T, Indices>::call());}
-		...
-#endif //__GNUC__
-	};
+	std::string operator()(int index)
+	{
+		typedef typename boost::fusion::result_of::size<T>::type seq_size;
+		typedef typename build_indices<seq_size::value>::type indices_type;
+	
+		return get_nth_name_impl<T>()(index, indices_type{});
+	}
+};
 
-	return table[index]();
-}
+template <typename T, typename U>
+struct get_nth_name_functor<boost::fusion::joint_view<T,U>>
+{
+	std::string operator()(int index)
+	{
+		constexpr size_t size_of_T = boost::fusion::result_of::size<T>::type::value;
+		if(index < size_of_T){
+			return get_nth_name_functor<T>()(index);
+		} else {
+			return get_nth_name_functor<U>()(index - size_of_T);
+		}
+	}
+};
 
 template <typename T>
 std::string get_nth_name(int index)
 {
-	typedef typename boost::fusion::result_of::size<T>::type seq_size;
-	typedef typename build_indices<seq_size::value>::type indices_type;
-
-	return get_nth_name<T>(index, indices_type{});
+	return get_nth_name_functor<T>()(index);
 }

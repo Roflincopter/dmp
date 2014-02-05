@@ -7,7 +7,21 @@
 
 class SearchResultModel
 {
-	std::vector<std::pair<std::string, dmp_library::Library::tracklist_t>> search_results;
+public:
+	struct Client
+	{
+		std::string client;
+		
+		Client(std::string client)
+		: client(client)
+		{}
+	};
+	
+private:
+	static constexpr size_t number_of_library_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
+	
+	typedef std::pair<Client, dmp_library::Library::tracklist_t> SearchResultsElement;
+	std::vector<SearchResultsElement> search_results;
 
 public:
 	SearchResultModel();
@@ -22,4 +36,10 @@ public:
 
 	std::pair<std::string, dmp_library::LibraryEntry> get_row_info(int row);
 };
+
+BOOST_FUSION_ADAPT_STRUCT
+(
+	SearchResultModel::Client,
+	(std::string, client)
+)
 

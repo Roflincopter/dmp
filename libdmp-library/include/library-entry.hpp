@@ -6,6 +6,8 @@
 #include <string>
 #include <cstdint>
 
+#include <boost/fusion/adapted.hpp>
+
 namespace dmp_library
 {
 
@@ -42,3 +44,16 @@ private:
 };
 
 }
+
+BOOST_FUSION_ADAPT_STRUCT
+(
+	dmp_library::LibraryEntry,
+	(std::string, artist)
+	(std::string, ascii_artist)
+	(std::string, title)
+	(std::string, ascii_title)
+	(std::string, album)
+	(std::string, ascii_album)
+	(uint32_t, track)
+	(uint32_t, id)
+)

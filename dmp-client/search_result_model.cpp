@@ -13,17 +13,13 @@ SearchResultModel::SearchResultModel()
 
 void SearchResultModel::add_search_response(message::SearchResponse response)
 {
-	search_results.push_back(std::make_pair(response.origin, response.results));
+	search_results.push_back(std::make_pair(Client(response.origin), response.results));
 }
 
 int SearchResultModel::row_count() const
 {
 	size_t rows = 0;
-	for(auto e : search_results)
-	{
-		rows += e.second.size();
-	}
-	return rows;
+	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement rh){return acc + rh.second.size();});
 }
 
 int SearchResultModel::column_count() const
@@ -33,22 +29,18 @@ int SearchResultModel::column_count() const
 
 std::string SearchResultModel::get_cell(int row, int column) const
 {
-	size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
-	if(column < 0 || size_t(column) >= number_of_entry_members + 1) {
+	if(column < 0 || size_t(column) >= number_of_library_entry_members + 1) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 
-	for(auto& p : search_results)
+	for(SearchResultsElement p : search_results)
 	{
 		if(row > 0 && size_t(row) >= p.second.size()) {
 			row -= p.second.size();
 			continue;
 		}
-		if(size_t(column) < number_of_entry_members) {
-			return get_nth(p.second.at(row), column);
-		} else {
-			return p.first;
-		}
+		
+		return get_nth(boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client>(p.second.at(row), p.first), column);
 	}
 
 	throw std::out_of_range("Row index was out of range.");
@@ -56,16 +48,11 @@ std::string SearchResultModel::get_cell(int row, int column) const
 
 std::string SearchResultModel::header_data(int section) const
 {
-	size_t number_of_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
-	if(section < 0 || size_t(section) >= number_of_entry_members + 1) {
+	if(section < 0 || size_t(section) >= number_of_library_entry_members + 1) {
 		throw std::out_of_range("Column index was out of range.");
 	}
-
-	if(size_t(section) < number_of_entry_members) {
-		return get_nth_name<dmp_library::LibraryEntry>(section);
-	} else {
-		return "Client";
-	}
+	
+	return get_nth_name<boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client>>(section);
 }
 
 void SearchResultModel::clear()
@@ -81,7 +68,7 @@ std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_inf
 			row -= p.second.size();
 			continue;
 		}
-		return std::make_pair(p.first, p.second.at(row));
+		return std::make_pair(p.first.client, p.second.at(row));
 	}
 
 	throw std::runtime_error("Row index is out of range");
