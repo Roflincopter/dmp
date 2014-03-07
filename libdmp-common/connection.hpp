@@ -86,7 +86,8 @@ public:
 		return type;
 	}
 
-	void async_receive_type(std::function<void(message::Type)> cb)
+	template <typename Callable>
+	void async_receive_type(Callable const& cb)
 	{
 		async_type_buffer.resize(4, 0);
 
@@ -105,16 +106,16 @@ public:
 			assert(type != message::Type::NoMessage);
 			cb(type);
 		};
-
+		
 		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), read_cb);
 	}
 
 	ReceiveProxy receive();
 
 	template <typename T, typename Callable>
-	void async_receive(Callable cb)
+	void async_receive(Callable const& cb)
 	{
-		auto size_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+		auto size_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
 		{
 			if (ec)
 			{
@@ -126,7 +127,7 @@ public:
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
-			auto content_cb = [this, cb, size](boost::system::error_code ec, size_t bytes_transfered)
+			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t bytes_transfered)
 			{
 				if (ec)
 				{
