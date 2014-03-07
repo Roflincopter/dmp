@@ -60,7 +60,7 @@ void SearchResultModel::clear()
 	search_results.clear();
 }
 
-std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row)
+std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
 {
 	for(auto&p : search_results)
 	{

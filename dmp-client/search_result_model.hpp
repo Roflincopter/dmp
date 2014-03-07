@@ -34,7 +34,7 @@ public:
 	int row_count() const;
 	int column_count() const;
 
-	std::pair<std::string, dmp_library::LibraryEntry> get_row_info(int row);
+	std::pair<std::string, dmp_library::LibraryEntry> get_row_info(int row) const;
 };
 
 BOOST_FUSION_ADAPT_STRUCT
