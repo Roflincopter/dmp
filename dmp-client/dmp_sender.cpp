@@ -2,27 +2,18 @@
 
 #include "gstreamer_util.hpp"
 
-#include <gst/gst.h>
-
 #include <stdexcept>
 #include <iostream>
 
 DmpSender::DmpSender()
-: host("")
-, port(0)
-{}
-
-DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
-: host(host)
-, port(port)
+: loop(nullptr)
+, pipeline(nullptr)
+, source(nullptr)
+, decoder(nullptr)
+, encoder(nullptr)
+, sink(nullptr)
+, bus(nullptr)
 {
-	GMainLoop* loop;
-
-	GstElement* pipeline = nullptr,* source = nullptr,* decoder = nullptr,* encoder = nullptr,* sink = nullptr;
-	GstBus *bus = nullptr;
-
-	gst_init(0, nullptr);
-
 	loop = g_main_loop_new(nullptr, false);
 
 	pipeline = gst_pipeline_new("sender");
@@ -41,14 +32,6 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
 		throw std::runtime_error("Could not create the pipeline components for this sender.");
 	}
 
-	g_object_set(G_OBJECT(source), "location", file.c_str(), nullptr);
-
-	g_object_set(G_OBJECT(encoder), "bitrate", gint(320), nullptr);
-	g_object_set(G_OBJECT(encoder), "cbr", gboolean(true), nullptr);
-
-	g_object_set(G_OBJECT(sink), "host", host.c_str(), nullptr);
-	g_object_set(G_OBJECT(sink), "port", gint(port), nullptr);
-
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
 	gst_bus_add_watch (bus, bus_call, loop);
 	gst_object_unref (bus);
@@ -59,7 +42,17 @@ DmpSender::DmpSender(std::string host, uint16_t port, std::string file)
 	gst_element_link_many(encoder, sink, nullptr);
 
 	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_sender");
+}
 
+void DmpSender::run(std::string host, uint16_t port, std::string file){
+	g_object_set(G_OBJECT(source), "location", file.c_str(), nullptr);
+
+	g_object_set(G_OBJECT(encoder), "bitrate", gint(320), nullptr);
+	g_object_set(G_OBJECT(encoder), "cbr", gboolean(true), nullptr);
+
+	g_object_set(G_OBJECT(sink), "host", host.c_str(), nullptr);
+	g_object_set(G_OBJECT(sink), "port", gint(port), nullptr);
+	
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);
 
 	g_main_loop_run(loop);

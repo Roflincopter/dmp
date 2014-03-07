@@ -1,17 +1,24 @@
 #pragma once
 
+#include <gst/gst.h>
+
 #include <cstdint>
 #include <string>
 
 class DmpSender
-{
-	std::string host;
-	uint16_t port;
-
-	void cleanup();
+{	
+	GMainLoop* loop;
+	
+	GstElement* pipeline;
+	GstElement* source;
+	GstElement* decoder;
+	GstElement* encoder;
+	GstElement* sink;
+	
+	GstBus *bus;
+	
 public:
 	DmpSender();
-	DmpSender(std::string host, uint16_t port, std::string file);
 
-	void run();
+	void run(std::string host, uint16_t port, std::string file);
 };
