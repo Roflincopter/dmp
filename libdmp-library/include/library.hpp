@@ -26,6 +26,8 @@ struct Library
 	{
 		ar & tracklist & filemap;
 	}
+	
+	std::string get_filename(LibraryEntry entry) const;
 };
 
 }

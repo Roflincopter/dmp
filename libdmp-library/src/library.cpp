@@ -12,4 +12,9 @@ Library::Library(tracklist_t tracklist, filemap_t filemap)
 {
 }
 
+std::string Library::get_filename(LibraryEntry entry) const
+{
+	return filemap.at(entry.id);
+}
+
 }
