@@ -26,7 +26,6 @@ class Connection {
 	friend class ReceiveProxy;
 
 	tcp::socket socket;
-	boost::mutex send_mutex;
 
 	std::vector<uint8_t> async_type_buffer{};
 	std::vector<uint8_t> async_size_buffer{};
@@ -38,13 +37,11 @@ public:
 
 	Connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
 	: socket(std::move(socket))
-	, send_mutex()
 	, io_service(io_service)
 	{}
 
 	Connection(Connection&& that)
 	: socket(std::move(that.socket))
-	, send_mutex()
 	, io_service(std::move(that.io_service))
 	{}
 
@@ -62,7 +59,6 @@ public:
 	template <typename T>
 	void send(T x)
 	{
-		boost::mutex::scoped_lock(send_mutex);
 		std::ostringstream oss;
 		boost::archive::text_oarchive oar(oss);
 		message::serialize(oar, x);
