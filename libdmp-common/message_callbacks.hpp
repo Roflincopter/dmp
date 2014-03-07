@@ -30,11 +30,13 @@ using CallBackType = boost::variant<
 >;
 
 struct DmpCallbacks {
-	std::map<message::Type, CallBackType> callbacks;
+	typedef std::map<message::Type, CallBackType> Callbacks_t;
+	
+	Callbacks_t callbacks;
 	std::function<void()> refresher;
 
-	DmpCallbacks(std::function<void()> refresher)
-	: callbacks()
+	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks)
+	: callbacks(initial_callbacks)
 	, refresher(refresher)
 	{}
 

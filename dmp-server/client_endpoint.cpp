@@ -7,7 +7,7 @@ ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
 , connection(std::move(conn))
 , ping_timer(new boost::asio::deadline_timer(*connection.io_service))
 , last_ping()
-, callbacks(std::bind(&ClientEndpoint::listen_requests, this))
+, callbacks(std::bind(&ClientEndpoint::listen_requests, this), {})
 , message_switch(make_message_switch(callbacks, connection))
 {
 	callbacks.

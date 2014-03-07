@@ -6,28 +6,33 @@
 DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 : name(name)
 , host(host)
+, callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
 , connection(dmp::connect(host, port))
 , last_sent_ping()
 , lib()
 , delegates()
 , sender()
 , receiver()
-, callbacks(std::bind(&DmpClient::listen_requests, this))
 , message_switch(make_message_switch(callbacks, connection))
 {
-	callbacks.
-		set(message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))).
-		set(message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))).
-		set(message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))).
-		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))).
-		set(message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))).
-		set(message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))).
-		set(message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))).
-		set(message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))).
-		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1))).
-		set(message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, std::placeholders::_1)));
 }
 
+message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
+{
+	return {
+		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))},
+		{message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))},
+		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))},
+		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))},
+		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))},
+		{message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))},
+		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))},
+		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))},
+		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1))},
+		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, std::placeholders::_1))},
+	};
+}
+ 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
 	delegates.push_back(delegate);

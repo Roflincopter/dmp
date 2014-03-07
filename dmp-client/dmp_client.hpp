@@ -14,6 +14,7 @@ class DmpClient : public DmpClientInterface
 {
 	std::string name;
 	std::string host;
+	message::DmpCallbacks callbacks;
 	dmp::Connection connection;
 	message::Ping last_sent_ping;
 	dmp_library::Library lib;
@@ -25,7 +26,6 @@ class DmpClient : public DmpClientInterface
 	std::thread receiver_thread;
 	DmpReceiver receiver;
 
-	message::DmpCallbacks callbacks;
 	MessageSwitch message_switch;
 
 public:
@@ -34,6 +34,8 @@ public:
 	DmpClient(DmpClient&&) = default;
 	~DmpClient();
 
+	message::DmpCallbacks::Callbacks_t initial_callbacks();
+	
 	void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
 
 	void handle_request(message::Type t);
