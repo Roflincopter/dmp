@@ -52,7 +52,7 @@ public:
 	void handle_name_request(message::NameRequest name_req);
 	void handle_pong(message::Pong pong);
 	void handle_search_request(message::SearchRequest search_req);
-	void handle_search_response(std::string query, message::SearchResponse search_res);
+	void handle_search_response(message::SearchResponse search_res);
 	void handle_bye_ack(message::ByeAck);
 	void handle_add_radio_response(message::AddRadioResponse);
 	void handle_listener_connection_request(message::ListenConnectionRequest req);

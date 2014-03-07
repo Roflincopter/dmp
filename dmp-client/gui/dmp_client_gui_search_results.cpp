@@ -21,11 +21,16 @@ void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> n
 
 void DmpClientGuiSearchResults::search_results(message::SearchResponse search_response)
 {
+	if(search_response.query != current_query) {
+		return;
+	}
+	
 	model.add_search_response(search_response);
 }
 
-void DmpClientGuiSearchResults::new_search()
+void DmpClientGuiSearchResults::new_search(std::string query)
 {
+	current_query = query;
 	model.clear();
 }
 

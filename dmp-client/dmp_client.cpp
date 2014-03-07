@@ -24,6 +24,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))},
 		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))},
 		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))},
+		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, std::placeholders::_1))},
 		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))},
 		{message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))},
 		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))},
@@ -78,8 +79,6 @@ void DmpClient::listen_requests()
 
 void DmpClient::search(std::string query)
 {
-	callbacks.set(message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, query, std::placeholders::_1)));
-
 	try {
 		dmp_library::parse_query(query);
 	} catch (dmp_library::ParseError err) {
@@ -87,7 +86,7 @@ void DmpClient::search(std::string query)
 		return;
 	}
 
-	call_on_delegates(delegates, &DmpClientUiDelegate::new_search);
+	call_on_delegates(delegates, &DmpClientUiDelegate::new_search, query);
 	message::SearchRequest q(query);
 	connection.send(q);
 }
@@ -119,13 +118,8 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
 	connection.send(response);
 }
 
-void DmpClient::handle_search_response(std::string query, message::SearchResponse search_res)
+void DmpClient::handle_search_response(message::SearchResponse search_res)
 {
-	//If the result is out of date, ignore it.
-	if(query != search_res.query) {
-		return;
-	}
-
 	call_on_delegates(delegates, &DmpClientUiDelegate::search_results, search_res);
 }
 

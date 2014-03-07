@@ -15,6 +15,7 @@ class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControlle
 	SearchResultModelQtAdapter model;
 
 	std::string current_active_radio;
+	std::string current_query;
 
 public:
 	explicit DmpClientGuiSearchResults(QWidget *parent = 0);
@@ -22,7 +23,7 @@ public:
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
 
 	virtual void search_results(message::SearchResponse search_response) final;
-	virtual void new_search() final;
+	virtual void new_search(std::string query) final;
 signals:
 
 public slots:
