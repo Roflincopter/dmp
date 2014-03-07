@@ -27,6 +27,7 @@ using CallBackType = boost::variant<
 	, CB<message::Radios>
 	, CB<message::Queue>
 	, CB<message::PlaylistUpdate>
+	, CB<message::StreamRequest>
 >;
 
 struct DmpCallbacks {

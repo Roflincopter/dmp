@@ -29,6 +29,7 @@ enum class Type : Type_t {
 	Radios,
 	Queue,
 	PlaylistUpdate,
+	StreamRequest,
 	LAST
 };
 
@@ -339,6 +340,24 @@ struct PlaylistUpdate {
 	{}
 };
 
+struct StreamRequest {
+	Type type;
+	dmp_library::LibraryEntry entry;
+	uint16_t port;
+	
+	StreamRequest()
+	: type(Type::StreamRequest)
+	, entry()
+	, port()
+	{}
+	
+	StreamRequest(dmp_library::LibraryEntry entry, uint16_t port)
+	: type(Type::StreamRequest)
+	, entry(entry)
+	, port(port)
+	{}
+};
+
 template <Type t>
 struct type_to_message
 {
@@ -366,6 +385,7 @@ TYPE_TO_MESSAGE_STRUCT(ListenConnectionRequest)
 TYPE_TO_MESSAGE_STRUCT(Radios)
 TYPE_TO_MESSAGE_STRUCT(Queue)
 TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
+TYPE_TO_MESSAGE_STRUCT(StreamRequest)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
@@ -487,4 +507,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::PlaylistUpdate::Action, action)
 	(std::string, radio_name)
 	(Playlist, playlist)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::StreamRequest,
+	(message::Type, type)
+	(dmp_library::LibraryEntry, entry)
+	(uint16_t, port)
 )
