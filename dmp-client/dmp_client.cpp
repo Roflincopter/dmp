@@ -9,7 +9,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
 , connection(dmp::connect(host, port))
 , last_sent_ping()
-, lib()
+, library()
 , delegates()
 , sender()
 , receiver()
@@ -52,7 +52,7 @@ void DmpClient::stop()
 
 void DmpClient::index(std::string path)
 {
-	lib = dmp_library::create_library(path);
+	library = dmp_library::create_library(path);
 }
 
 void DmpClient::add_radio(std::string radio_name)
@@ -114,7 +114,7 @@ void DmpClient::handle_name_request(message::NameRequest name_req)
 
 void DmpClient::handle_search_request(message::SearchRequest search_req)
 {
-	dmp_library::LibrarySearcher searcher(lib);
+	dmp_library::LibrarySearcher searcher(library);
 	message::SearchResponse response(search_req.query, searcher.search(search_req.query), name);
 	connection.send(response);
 }

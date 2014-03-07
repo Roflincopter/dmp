@@ -17,7 +17,7 @@ class DmpClient : public DmpClientInterface
 	message::DmpCallbacks callbacks;
 	dmp::Connection connection;
 	message::Ping last_sent_ping;
-	dmp_library::Library lib;
+	dmp_library::Library library;
 
 	std::vector<std::weak_ptr<DmpClientUiDelegate>> delegates;
 
