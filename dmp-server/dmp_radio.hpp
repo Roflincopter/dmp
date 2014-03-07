@@ -1,22 +1,33 @@
 #pragma once
 
 #include "dmp-library.hpp"
+#include "dmp_server_interface.hpp"
 
 #include "playlist.hpp"
 #include "number_pool.hpp"
 
 #include <gst/gst.h>
 
+#include <boost/optional.hpp>
+
 #include <stdexcept>
 #include <iostream>
 #include <memory>
+#include <thread>
+#include <condition_variable>
 
 class DmpRadio
 {
 private:
 	std::string name;
+	std::weak_ptr<DmpServerInterface> server;
 	std::shared_ptr<NumberPool> port_pool;
-
+	std::unique_ptr<std::mutex> queue_mutex;
+	std::unique_ptr<std::condition_variable> queue_filled;
+	std::unique_ptr<std::mutex> radio_mutex;
+	std::unique_ptr<std::condition_variable> radio_action;
+	std::thread queue_thread;
+	
 	GMainLoop* loop;
 	GstElement* pipeline;
 	GstElement* source;
@@ -31,7 +42,7 @@ private:
 public:
 
 	DmpRadio();
-	DmpRadio(std::string name, std::shared_ptr<NumberPool> port_pool);
+	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool);
 
 	void run();
 
@@ -39,6 +50,7 @@ public:
 	uint16_t get_receiver_port();
 
 	Playlist get_playlist();
+	void play();
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
 };
 

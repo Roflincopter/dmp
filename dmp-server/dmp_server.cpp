@@ -95,13 +95,12 @@ void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::S
 void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
 {
 	if(radios.find(ar.name) == radios.end()) {
-		DmpRadio r (ar.name, port_pool);
-		radios[ar.name] = std::make_pair(std::thread(), r);
+		radios[ar.name] = std::make_pair(std::thread(), DmpRadio(ar.name, shared_from_this(), port_pool));
 
 		origin->forward(message::AddRadioResponse(ar.name, true, ""));
 		radios[ar.name].first = std::thread(std::bind(&DmpRadio::run, &radios[ar.name].second));
-		origin->forward(message::ListenConnectionRequest(r.get_receiver_port()));
-
+		origin->forward(message::ListenConnectionRequest(radios[ar.name].second.get_receiver_port()));
+		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));
 		}
@@ -117,4 +116,9 @@ void DmpServer::handle_queue(message::Queue queue)
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios[queue.radio].second.get_playlist()));
 	}
+}
+
+void DmpServer::order_stream(std::string client, dmp_library::LibraryEntry entry, uint16_t port)
+{
+	connections[client]->forward(message::StreamRequest(entry, port));
 }

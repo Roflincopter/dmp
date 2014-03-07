@@ -1,4 +1,11 @@
-#ifndef DMP_SERVER_INTERFACE_HPP
-#define DMP_SERVER_INTERFACE_HPP
+#pragma once
 
-#endif // DMP_SERVER_INTERFACE_HPP
+#include "dmp-library.hpp"
+
+#include <string>
+
+struct DmpServerInterface {
+	
+	virtual void order_stream(std::string client, dmp_library::LibraryEntry entry, uint16_t port) = 0;
+	
+};
