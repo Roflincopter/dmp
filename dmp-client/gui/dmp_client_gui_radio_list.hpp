@@ -16,12 +16,12 @@ class DmpClientGuiRadioList : public QListView, public DmpClientUiControllerInte
 public:
 	explicit DmpClientGuiRadioList(QWidget *parent = 0);
 
-	virtual void selectionChanged(QItemSelection const& selected, QItemSelection const& deselected) final;
+	virtual void selectionChanged(QItemSelection const& selected, QItemSelection const& deselected) override final;
 
-	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
-	virtual void radios_update(message::Radios) final;
-	virtual void radio_added(message::AddRadio radio_added) final;
+	virtual void radios_update(message::Radios) override final;
+	virtual void radio_added(message::AddRadio radio_added) override final;
 
 signals:
 	void currentlySelectedRadio(std::string);

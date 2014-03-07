@@ -18,7 +18,7 @@ public:
 	void reset_error_state(QLineEdit* search_bar);
 	void set_error_state(QLineEdit* search_bar);
 
-	virtual void set_data(std::string new_expected, size_t new_pivot);
+	virtual void set_data(std::string new_expected, size_t new_pivot) override;
 
 	void model_check_state(int cursor_pos, QLineEdit* search_bar);
 };

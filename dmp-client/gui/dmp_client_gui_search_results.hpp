@@ -20,10 +20,10 @@ class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControlle
 public:
 	explicit DmpClientGuiSearchResults(QWidget *parent = 0);
 
-	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
-	virtual void search_results(message::SearchResponse search_response) final;
-	virtual void new_search(std::string query) final;
+	virtual void search_results(message::SearchResponse search_response) override final;
+	virtual void new_search(std::string query) override final;
 signals:
 
 public slots:

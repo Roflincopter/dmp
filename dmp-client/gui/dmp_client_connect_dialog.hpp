@@ -9,7 +9,7 @@ struct PortValidator : public QIntValidator {
 	: QIntValidator(1, std::numeric_limits<uint16_t>::max(), parent)
 	{}
 
-	QValidator::State validate(QString &input, int &pos) const final
+	QValidator::State validate(QString &input, int &pos) const override final
 	{
 		QIntValidator::State result(QIntValidator::validate(input, pos));
 		if (result == QValidator::Intermediate) {

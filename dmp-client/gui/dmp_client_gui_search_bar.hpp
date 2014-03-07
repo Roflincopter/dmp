@@ -15,9 +15,9 @@ class DmpClientGuiSearchBar : public QLineEdit, public DmpClientUiControllerInte
 public:
 	explicit DmpClientGuiSearchBar(QWidget *parent = 0);
 
-	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
-	virtual void query_parse_error(dmp_library::ParseError e) final;
+	virtual void query_parse_error(dmp_library::ParseError e) override final;
 signals:
 
 public slots:

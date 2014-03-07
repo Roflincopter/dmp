@@ -16,7 +16,7 @@ class DmpClientGuiMenuBar : public QMenuBar, public DmpClientUiControllerInterfa
 public:
 	explicit DmpClientGuiMenuBar(QWidget *parent = 0);
 
-	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) final;
+	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
 signals:
 

@@ -51,9 +51,9 @@ public:
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
-	void client_stopped() final;
+	void client_stopped() override final;
 
-	void closeEvent(QCloseEvent*) final;
+	void closeEvent(QCloseEvent*) override final;
 
 private slots:
 	void test1();
