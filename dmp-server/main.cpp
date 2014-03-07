@@ -18,13 +18,13 @@ int main(int, char**) {
 	//DmpRadio radio(2000, 2001);
 	//return 0;
 
-	DmpServer server;
+	auto server = std::make_shared<DmpServer>();
 
 	std::function<void(dmp::Connection&&)> f = [&](dmp::Connection&& x){
-		server.add_connection(std::move(x));
+		server->add_connection(std::move(x));
 	};
 
-	std::thread server_thread(std::bind(&DmpServer::run, std::ref(server)));
+	std::thread server_thread(std::bind(&DmpServer::run, std::ref(*server)));
 
 	boost::asio::io_service io_service;
 	std::thread accept_thread(std::bind(dmp::accept_loop, 1337, std::ref(io_service), f));
@@ -44,7 +44,7 @@ int main(int, char**) {
 
 	io_service.stop();
 	accept_thread.join();
-	server.stop();
+	server->stop();
 	server_thread.join();
 
 	return 0;
