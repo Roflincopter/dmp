@@ -31,6 +31,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))},
 		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1))},
 		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, std::placeholders::_1))},
+		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, std::placeholders::_1))}
 	};
 }
  
@@ -167,4 +168,18 @@ void DmpClient::handle_add_radio(message::AddRadio added_radio)
 void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
 {
 	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_updated, update);
+}
+
+void DmpClient::handle_stream_request(message::StreamRequest sr)
+{	
+	auto sender_runner = [this, sr]{
+		try {
+			sender.run(host, sr.port, library.get_filename(sr.entry));
+		} catch(std::runtime_error e){
+			std::cout << "Sender crashed with message: " << e.what() << std::endl;
+		}
+	};
+	
+	std::thread t(sender_runner);
+	t.detach();
 }

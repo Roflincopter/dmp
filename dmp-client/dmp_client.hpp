@@ -59,4 +59,5 @@ public:
 	void handle_radios(message::Radios radios);
 	void handle_add_radio(message::AddRadio added_radio);
 	void handle_playlist_update(message::PlaylistUpdate update);
+	void handle_stream_request(message::StreamRequest sr);
 };
