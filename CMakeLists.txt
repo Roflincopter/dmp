@@ -13,7 +13,7 @@ else()
     include(wubwubcmake/enable_cpp11.cmake)
 endif()
 
-include(wubwubcmake/address_sanitizer.cmake)
+include(wubwubcmake/sanitizers.cmake)
 
 include(wubwubcmake/join.cmake)
 join("${warnings}" " " warnings)
