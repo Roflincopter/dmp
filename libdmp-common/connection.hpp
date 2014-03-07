@@ -9,10 +9,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/bind.hpp>
-#include <boost/function_types/function_type.hpp>
-#include <boost/function_types/parameter_types.hpp>
-#include <boost/typeof/typeof.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "message.hpp"
