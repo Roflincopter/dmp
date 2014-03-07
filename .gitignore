@@ -1,6 +1,3 @@
-debug-build
-clang-debug-build
-mxe-build
-mxe-32-build
+*-build
 *.user*
 ui_*
