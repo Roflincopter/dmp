@@ -18,7 +18,6 @@ void SearchResultModel::add_search_response(message::SearchResponse response)
 
 int SearchResultModel::row_count() const
 {
-	size_t rows = 0;
 	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement rh){return acc + rh.second.size();});
 }
 

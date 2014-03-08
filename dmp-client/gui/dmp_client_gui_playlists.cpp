@@ -37,6 +37,7 @@ void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 		{
 			break;
 		}
+		case message::PlaylistUpdate::Action::Type::NoAction:
 		default:
 		{
 			throw std::runtime_error("This should never happen");
