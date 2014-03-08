@@ -27,12 +27,16 @@ class DmpClient : public DmpClientInterface
 	DmpReceiver receiver;
 
 	MessageSwitch message_switch;
+	
+	boost::asio::deadline_timer debug_timer;
 
 public:
 
 	DmpClient(std::string name, std::string host, uint16_t port);
 	DmpClient(DmpClient&&) = default;
 	~DmpClient();
+	
+	void timed_debug();
 
 	message::DmpCallbacks::Callbacks_t initial_callbacks();
 	

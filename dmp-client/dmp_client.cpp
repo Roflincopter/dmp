@@ -14,6 +14,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , sender()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
+, debug_timer(*connection.io_service)
 {
 }
 
@@ -34,6 +35,21 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, std::placeholders::_1))}
 	};
 }
+
+void DmpClient::timed_debug()
+{
+	debug_timer.expires_from_now(boost::posix_time::seconds(5));
+
+	auto cb = [this](boost::system::error_code ec){
+		if(ec)
+		{
+			throw std::runtime_error("something went wrong in the client debug timer.");
+		}
+		
+		timed_debug();
+	};
+	debug_timer.async_wait(cb);
+}
  
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
@@ -42,6 +58,7 @@ void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 
 void DmpClient::run()
 {
+	timed_debug();
 	listen_requests();
 	connection.io_service->run();
 }
