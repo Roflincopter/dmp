@@ -34,7 +34,6 @@ DmpSender::DmpSender()
 
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
 	gst_bus_add_watch (bus, bus_call, loop);
-	gst_object_unref (bus);
 
 	gst_bin_add_many (GST_BIN(pipeline), source, decoder, encoder, sink, nullptr);
 	gst_element_link_many(source, decoder, nullptr);
