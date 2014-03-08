@@ -299,6 +299,7 @@ struct PlaylistUpdate {
 		{
 			NoAction,
 			Append,
+			Update,
 			Insert,
 			Move,
 			Reset,

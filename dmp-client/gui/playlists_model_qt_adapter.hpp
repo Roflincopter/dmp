@@ -14,8 +14,9 @@ public:
 	QVariant data(const QModelIndex &index, int role) const override final;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
 
-	virtual void update_playlist(std::string radio_name, Playlist playlist) override final;
+	virtual void update(std::string radio_name, Playlist playlist) override final;
 	virtual void append(std::string radio_name, Playlist playlist) override final;
+	virtual void reset(std::string radio_name) override final;
 
 	virtual void set_current_radio(std::string radio_name) override final;
 };

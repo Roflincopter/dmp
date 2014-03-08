@@ -3,6 +3,8 @@
 #include <boost/fusion/support.hpp>
 #include <boost/fusion/adapted.hpp>
 #include <boost/fusion/include/pair.hpp>
+#include <boost/fusion/include/map.hpp>
+#include <boost/fusion/include/vector.hpp>
 
 #include <iostream>
 #include <ostream>
@@ -33,14 +35,25 @@ struct Outputter
 
 };
 
+template <typename T, typename U>
+std::ostream& operator<<(std::ostream& os, std::map<T, U> map)
+{
+	os << "{" << std::endl;
+	for (auto&& x : map) {
+		os << "\t{" << x.first << ", " << x.second << "}" << std::endl;
+	}
+	os << "}" << std::endl;
+	return os;
+}
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, std::vector<T> vec)
 {
-	os << "{" << std::endl;
-	for (auto& x : vec) {
+	os << "{";
+	for (auto&& x : vec) {
 		os << "\t" << x;
 	}
-	os << "}";
+	os << "}" << std::endl;
 	return os;
 }
 

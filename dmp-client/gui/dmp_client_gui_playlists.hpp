@@ -19,6 +19,7 @@ public:
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
+	virtual void radios_update(message::Radios update) override final;
 	virtual void playlist_updated(message::PlaylistUpdate update) override final;
 	virtual void add_radio_succes(message::AddRadioResponse response) override final;
 

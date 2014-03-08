@@ -55,7 +55,7 @@ std::string PlaylistsModel::get_cell(int row, int column) const
 	return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>(data.entry, data), column);
 }
 
-void PlaylistsModel::update_playlist(std::string radio_name, Playlist playlist)
+void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 {
 	playlists[radio_name] = playlist;
 }
@@ -68,6 +68,16 @@ void PlaylistsModel::append(std::string radio_name, Playlist playlist)
 	}
 
 	std::copy(playlist.begin(), playlist.end(), std::back_inserter(playlists[radio_name]));
+}
+
+void PlaylistsModel::reset(std::string radio_name)
+{
+	auto it = playlists.find(radio_name);
+	if(it == playlists.end()) {
+		throw std::runtime_error("The radio on which reset was called does not exists " + radio_name);
+	}
+	
+	playlists[radio_name].clear();
 }
 
 void PlaylistsModel::set_current_radio(std::string radio_name)

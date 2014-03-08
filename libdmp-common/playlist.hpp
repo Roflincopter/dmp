@@ -14,7 +14,14 @@ struct PlaylistEntry {
 	{
 		ar & queuer & owner & entry;
 	}
+	
+	friend std::ostream& operator<<(std::ostream& os, PlaylistEntry const& pe);
 };
+
+inline std::ostream& operator<<(std::ostream& os, PlaylistEntry const& pe) {
+	os << "queuer: " << pe.queuer << ", owner: " << pe.owner << ", entry:\n" << pe.entry << std::endl;
+	return os;
+}
 
 BOOST_FUSION_ADAPT_STRUCT (
 	PlaylistEntry,

@@ -23,8 +23,9 @@ public:
 	std::string header_data(int section) const;
 	std::string get_cell(int row, int column) const;
 
-	virtual void update_playlist(std::string radio_name, Playlist playlist);
+	virtual void update(std::string radio_name, Playlist playlist);
 	virtual void append(std::string radio_name, Playlist playlist);
+	virtual void reset(std::string radio_name);
 
 	virtual void set_current_radio(std::string radio_name);
 	virtual void create_radio(std::string radio_name);

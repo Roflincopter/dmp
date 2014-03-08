@@ -16,6 +16,14 @@ void DmpClientGuiPlaylists::set_client(std::shared_ptr<DmpClientInterface> new_c
 	client = new_client;
 }
 
+void DmpClientGuiPlaylists::radios_update(message::Radios update)
+{
+	for(auto&& radio : update.radios)
+	{
+		model.update(radio.first, radio.second);
+	}
+}
+
 void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 {
 	switch(update.action.type)
@@ -23,6 +31,11 @@ void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 		case message::PlaylistUpdate::Action::Type::Append:
 		{
 			model.append(update.radio_name, update.playlist);
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Update:
+		{
+			model.update(update.radio_name, update.playlist);
 			break;
 		}
 		case message::PlaylistUpdate::Action::Type::Insert:
@@ -35,6 +48,7 @@ void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 		}
 		case message::PlaylistUpdate::Action::Type::Reset:
 		{
+			model.reset(update.radio_name);
 			break;
 		}
 		case message::PlaylistUpdate::Action::Type::NoAction:
@@ -43,8 +57,6 @@ void DmpClientGuiPlaylists::playlist_updated(message::PlaylistUpdate update)
 			throw std::runtime_error("This should never happen");
 		}
 	}
-
-	model.update_playlist(update.radio_name, update.playlist);
 }
 
 void DmpClientGuiPlaylists::add_radio_succes(message::AddRadioResponse response)

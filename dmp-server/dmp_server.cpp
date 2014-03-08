@@ -112,7 +112,7 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 void DmpServer::handle_queue(message::Queue queue)
 {
 	radios[queue.radio].second.queue(queue.queuer, queue.owner, queue.entry);
-	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Append, 0, 0);
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios[queue.radio].second.get_playlist()));
 	}
