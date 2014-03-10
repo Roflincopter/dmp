@@ -15,7 +15,7 @@ struct LibraryEntry
 {
 	LibraryEntry() = default;
 
-	LibraryEntry(std::string artist, std::string title, std::string album, std::uint32_t track);
+	LibraryEntry(std::string artist, std::string title, std::string album, std::uint32_t track, std::uint32_t length);
 
 	LibraryEntry(LibraryEntry const&) = default;
 	LibraryEntry& operator=(LibraryEntry const&) = default;
@@ -29,6 +29,7 @@ struct LibraryEntry
 	std::string album;
 	std::string ascii_album;
 	std::uint32_t track;
+	std::uint32_t length;
 	std::uint32_t id;
 
 	friend std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
@@ -36,7 +37,7 @@ struct LibraryEntry
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
 	{
-		ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & id;
+		ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & length & id;
 	}
 
 private:
@@ -55,5 +56,6 @@ BOOST_FUSION_ADAPT_STRUCT
 	(std::string, album)
 	(std::string, ascii_album)
 	(uint32_t, track)
+	(uint32_t, length)
 	(uint32_t, id)
 )

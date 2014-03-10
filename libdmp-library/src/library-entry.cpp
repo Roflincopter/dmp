@@ -9,7 +9,7 @@ namespace dmp_library {
 
 uint32_t LibraryEntry::next_id = 0;
 
-LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint32_t track)
+LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint32_t track, std::uint32_t length)
 : artist(artist)
 , ascii_artist(transliterate_to_ascii(artist))
 , title(title)
@@ -17,6 +17,7 @@ LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint3
 , album(album)
 , ascii_album(transliterate_to_ascii(album))
 , track(track)
+, length(length)
 , id(next_id++)
 {}
 
@@ -30,6 +31,7 @@ bool LibraryEntry::operator==(const LibraryEntry &that) const
 		this->album        == that.album        &&
 		this->ascii_album  == that.ascii_album  &&
 		this->track        == that.track        &&
+		this->length       == that.length       &&
 		this->id           == that.id;
 }
 
@@ -45,10 +47,9 @@ ostream& operator<<(ostream& os, LibraryEntry const& le)
 		<< "\t" << "a_title: " << le.ascii_title << std::endl
 		<< "\t" << "album: " << le.album << std::endl
 		<< "\t" << "track: " << le.track << std::endl
+		<< "\t" << "length" << le.length << std::endl
 		<< "\t" << "a_album: " << le.ascii_album << std::endl
 		<< "}" << std::endl;
 }
-
-
 
 }

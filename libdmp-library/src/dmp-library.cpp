@@ -21,10 +21,11 @@ using namespace boost;
 
 boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 {
-	TagLib::FileRef file(p.string().c_str());
+	TagLib::FileRef file(p.string().c_str(), true, TagLib::AudioProperties::ReadStyle::Accurate);
+	TagLib::AudioProperties* audio_prop = file.audioProperties();
 	TagLib::Tag* t = file.tag();
-	if(t) {
-		return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track()));
+	if(t && audio_prop) {
+		return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->length()));
 	}
 	else {
 		return boost::optional<LibraryEntry>();
