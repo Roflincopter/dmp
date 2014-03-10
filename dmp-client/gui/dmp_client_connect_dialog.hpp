@@ -4,31 +4,11 @@
 
 #include <memory>
 
-struct PortValidator : public QIntValidator {
-	PortValidator(QObject * parent)
-	: QIntValidator(1, std::numeric_limits<uint16_t>::max(), parent)
-	{}
-
-	QValidator::State validate(QString &input, int &pos) const override final
-	{
-		QIntValidator::State result(QIntValidator::validate(input, pos));
-		if (result == QValidator::Intermediate) {
-			result = QValidator::Invalid;
-		}
-
-		if(input.isEmpty()) {
-			result = QIntValidator::State::Acceptable;
-		}
-
-		return result;
-	}
-};
-
 class DmpClientConnectDialog : public QDialog
 {
 	Q_OBJECT
 
-	PortValidator port_validator;
+	QIntValidator port_validator{1, std::numeric_limits<uint16_t>::max(), this};
 
 public:
 	explicit DmpClientConnectDialog(QWidget *parent = 0);
