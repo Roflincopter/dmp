@@ -29,3 +29,4 @@ add_subdirectory(libdmp-common)
 
 add_subdirectory(dmp-server)
 add_subdirectory(dmp-client)
+add_subdirectory(qt-client)

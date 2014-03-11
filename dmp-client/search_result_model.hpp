@@ -3,8 +3,6 @@
 #include "dmp-library.hpp"
 #include "message.hpp"
 
-#include <QAbstractTableModel>
-
 class SearchResultModel
 {
 public:

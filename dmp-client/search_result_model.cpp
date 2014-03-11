@@ -7,8 +7,6 @@
 
 SearchResultModel::SearchResultModel()
 {
-	typedef QVector<int> QIntVector;
-	qRegisterMetaType<QIntVector>("QIntVector");
 }
 
 void SearchResultModel::add_search_response(message::SearchResponse response)
