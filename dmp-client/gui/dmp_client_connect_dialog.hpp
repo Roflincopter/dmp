@@ -21,4 +21,10 @@ public:
 
 private:
 	Ui::DmpClientConnectDialog ui;
+
+	//! Checks if current input is acceptable, enables/disables the ok-button
+	void updateOkButton();
+
+private slots:
+	void inputChanged();
 };

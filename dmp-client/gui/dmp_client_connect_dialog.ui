@@ -83,9 +83,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>buttonBox</zorder>
-  <zorder>NameLabel</zorder>
-  <zorder>formLayoutWidget</zorder>
  </widget>
  <tabstops>
   <tabstop>NameEdit</tabstop>
@@ -127,5 +124,56 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>HostEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>inputChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>63</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>71</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NameEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>inputChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>30</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>71</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PortEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>inputChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>71</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>inputChanged()</slot>
+ </slots>
 </ui>
