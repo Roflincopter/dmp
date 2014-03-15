@@ -28,9 +28,9 @@ struct LibraryEntry
 	std::string ascii_title;
 	std::string album;
 	std::string ascii_album;
-	std::uint32_t track;
-	std::uint32_t length;
-	std::uint32_t id;
+	uint32_t track;
+	uint32_t length;
+	uint32_t id;
 
 	friend std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
 

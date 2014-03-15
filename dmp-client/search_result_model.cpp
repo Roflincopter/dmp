@@ -24,7 +24,7 @@ int SearchResultModel::column_count() const
 	return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value + 1;
 }
 
-std::string SearchResultModel::get_cell(int row, int column) const
+boost::any SearchResultModel::get_cell(int row, int column) const
 {
 	if(column < 0 || size_t(column) >= number_of_library_entry_members + 1) {
 		throw std::out_of_range("Column index was out of range.");

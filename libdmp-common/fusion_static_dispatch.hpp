@@ -7,6 +7,7 @@
 #include <boost/fusion/sequence/intrinsic/size.hpp>
 #include <boost/fusion/include/size.hpp>
 #include <boost/fusion/iterator.hpp>
+#include <boost/any.hpp>
 
 #include <string>
 
@@ -16,18 +17,18 @@ namespace std {
 
 #if defined( __GNUC__ ) && !defined( __clang__ )
 template<int index, typename T>
-std::function<std::string(T)> make_at_c_lambda(T seq)
+std::function<boost::any(T)> make_at_c_lambda(T seq)
 {
 	return [](T seq){
-		return std::to_string(boost::fusion::deref(boost::fusion::advance_c<index>(boost::fusion::begin(seq))));
+		return boost::any(boost::fusion::deref(boost::fusion::advance_c<index>(boost::fusion::begin(seq))));
 	};
 }
 #endif //defined( __GNUC__ ) && !defined( __clang__ )
 
 template<typename T, int... Indices>
-std::string get_nth_impl(T seq, int index, indices<Indices...>)
+boost::any get_nth_impl(T seq, int index, indices<Indices...>)
 {
-	typedef std::function<std::string(T)> element_type;
+	typedef std::function<boost::any(T)> element_type;
 	static element_type table[] =
 	{
 #if defined( __GNUC__ ) && !defined( __clang__ )
@@ -46,7 +47,7 @@ std::string get_nth_impl(T seq, int index, indices<Indices...>)
 template<typename T>
 struct get_nth_functor
 {
-	std::string operator()(T seq, int index)
+	boost::any operator()(T seq, int index)
 	{
 		typedef typename boost::fusion::result_of::size<T>::type seq_size;
 		typedef typename build_indices<seq_size::value>::type indices_type;
@@ -56,7 +57,7 @@ struct get_nth_functor
 };
 
 template <typename T>
-std::string get_nth(T x, int index)
+boost::any get_nth(T x, int index)
 {
 	return get_nth_functor<T>()(x, index);
 }

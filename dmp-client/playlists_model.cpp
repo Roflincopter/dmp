@@ -34,7 +34,7 @@ std::string PlaylistsModel::header_data(int section) const
 	return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>>(section);
 }
 
-std::string PlaylistsModel::get_cell(int row, int column) const
+boost::any PlaylistsModel::get_cell(int row, int column) const
 {
 	auto it = playlists.find(current_radio);
 	if(it == playlists.end()) {

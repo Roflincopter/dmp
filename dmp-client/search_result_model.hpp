@@ -3,6 +3,8 @@
 #include "dmp-library.hpp"
 #include "message.hpp"
 
+#include <boost/any.hpp>
+
 class SearchResultModel
 {
 public:
@@ -23,11 +25,13 @@ private:
 
 public:
 	SearchResultModel();
+	
+	typedef boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client> ElementType;
 
 	virtual void add_search_response(message::SearchResponse);
 	virtual void clear();
 
-	std::string get_cell(int row, int column) const;
+	boost::any get_cell(int row, int column) const;
 	std::string header_data(int section) const;
 	int row_count() const;
 	int column_count() const;

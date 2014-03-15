@@ -5,6 +5,8 @@
 
 #include "dmp-library.hpp"
 
+#include <boost/any.hpp>
+
 class PlaylistsModel
 {
 	static constexpr size_t number_of_library_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
@@ -17,11 +19,13 @@ protected:
 public:
 	PlaylistsModel();
 
+	typedef boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry> ElementType;
+	
 	int row_count() const;
 	int column_count() const;
 
 	std::string header_data(int section) const;
-	std::string get_cell(int row, int column) const;
+	boost::any get_cell(int row, int column) const;
 
 	virtual void update(std::string radio_name, Playlist playlist);
 	virtual void append(std::string radio_name, Playlist playlist);

@@ -1,4 +1,10 @@
 #include "search_result_model_qt_adapter.hpp"
+#include "boost_any_to_qvariant.hpp"
+
+#include <boost/any.hpp>
+
+#include <boost/fusion/iterator/advance.hpp>
+#include <boost/fusion/include/advance.hpp>
 
 SearchResultModelQtAdapter::SearchResultModelQtAdapter()
 {
@@ -40,7 +46,7 @@ QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) co
 		return QVariant();
 	}
 	try {
-		return QVariant(QString::fromStdString(get_cell(index.row(), index.column())));
+		return QVariant(to_qvariant<SearchResultModel::ElementType>(get_cell(index.row(), index.column()), index.column()));
 	} catch (std::out_of_range e) {
 		return QVariant();
 	}

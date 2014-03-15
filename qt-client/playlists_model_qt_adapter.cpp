@@ -1,5 +1,7 @@
 #include "playlists_model_qt_adapter.hpp"
 
+#include "boost_any_to_qvariant.hpp"
+
 PlaylistsModelQtAdapter::PlaylistsModelQtAdapter()
 {
 }
@@ -33,7 +35,7 @@ QVariant PlaylistsModelQtAdapter::data(QModelIndex const& index, int role) const
 		return QVariant();
 	}
 
-	return QVariant(QString::fromStdString(get_cell(index.row(), index.column())));
+	return to_qvariant<PlaylistsModel::ElementType>(get_cell(index.row(), index.column()), index.column());
 }
 
 void PlaylistsModelQtAdapter::update(std::string radio_name, Playlist playlist)
