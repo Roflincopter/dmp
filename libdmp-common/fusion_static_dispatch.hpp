@@ -36,7 +36,7 @@ boost::any get_nth_impl(T seq, int index, indices<Indices...>)
 		make_at_c_lambda<Indices>(seq)
 		...
 #else
-		[](T seq){return std::to_string(boost::fusion::deref(boost::fusion::advance_c<Indices>(boost::fusion::begin(seq))));}
+		[](T seq){return boost::any(boost::fusion::deref(boost::fusion::advance_c<Indices>(boost::fusion::begin(seq))));}
 		...
 #endif //defined( __GNUC__ ) && !defined( __clang__ )
 	};

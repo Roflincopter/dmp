@@ -1,30 +1,31 @@
 #pragma once
 
+#include "dmp-library.hpp"
+
 #include <QVariant>
+#include <QString>
 #include <QMetaType>
 
-#include <boost/fusion/iterator.hpp>
-#include <boost/fusion/sequence.hpp>
+#include <boost/fusion/include/begin.hpp>
+#include <boost/fusion/include/deref.hpp>
+#include <boost/fusion/include/value_of.hpp>
+#include <boost/fusion/include/distance.hpp>
 #include <boost/fusion/include/advance.hpp>
-#include <boost/fusion/include/size.hpp>
+#include <boost/any.hpp>
 
 #include <string>
 
-Q_DECLARE_METATYPE(std::string)
-
 template<typename value_type>
-typename std::enable_if<std::is_same<value_type, std::string>::value, QVariant>::type 
-convert(boost::any const& x)
-{
-	return QVariant::fromValue<QString>(QString::fromStdString(boost::any_cast<value_type>(x)));
-}
-
-template<typename value_type>
-typename std::enable_if<!std::is_same<value_type, std::string>::value, QVariant>::type 
-convert(boost::any const& x)
+QVariant convert(boost::any const& x)
 {
 	return QVariant::fromValue<value_type>(boost::any_cast<value_type>(x));
 }
+
+template<>
+QVariant convert<std::string>(boost::any const& x);
+
+template<>
+QVariant convert<dmp_library::LibraryEntry::Duration>(boost::any const& x);
 
 template <typename T, int n, int size>
 typename std::enable_if<(n < size), QVariant>::type
@@ -56,16 +57,16 @@ QVariant to_qvariant(boost::any const& x, int index)
 
 	switch(index)
 	{
-		QVARIANT_CONVERSION(0);
-		QVARIANT_CONVERSION(1);
-		QVARIANT_CONVERSION(2);
-		QVARIANT_CONVERSION(3);
-		QVARIANT_CONVERSION(4);
-		QVARIANT_CONVERSION(5);
-		QVARIANT_CONVERSION(6);
-		QVARIANT_CONVERSION(7);
-		QVARIANT_CONVERSION(8);
-		QVARIANT_CONVERSION(9);
+		QVARIANT_CONVERSION(0 );
+		QVARIANT_CONVERSION(1 );
+		QVARIANT_CONVERSION(2 );
+		QVARIANT_CONVERSION(3 );
+		QVARIANT_CONVERSION(4 );
+		QVARIANT_CONVERSION(5 );
+		QVARIANT_CONVERSION(6 );
+		QVARIANT_CONVERSION(7 );
+		QVARIANT_CONVERSION(8 );
+		QVARIANT_CONVERSION(9 );
 		QVARIANT_CONVERSION(10);
 		default : throw std::runtime_error("Boost any to Qvariant conversion switch was too small.");
 	}

@@ -1,7 +1,8 @@
 
 #include "library-entry.hpp"
 
-#include "ostream"
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -21,18 +22,18 @@ LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint3
 , id(next_id++)
 {}
 
-bool LibraryEntry::operator==(const LibraryEntry &that) const
+bool operator==(LibraryEntry const& lh, LibraryEntry const& rh)
 {
 	return
-		this->artist       == that.artist       &&
-		this->ascii_artist == that.ascii_artist &&
-		this->title        == that.title        &&
-		this->ascii_title  == that.ascii_title  &&
-		this->album        == that.album        &&
-		this->ascii_album  == that.ascii_album  &&
-		this->track        == that.track        &&
-		this->length       == that.length       &&
-		this->id           == that.id;
+		lh.artist       == rh.artist       &&
+		lh.ascii_artist == rh.ascii_artist &&
+		lh.title        == rh.title        &&
+		lh.ascii_title  == rh.ascii_title  &&
+		lh.album        == rh.album        &&
+		lh.ascii_album  == rh.ascii_album  &&
+		lh.track        == rh.track        &&
+		lh.length       == rh.length       &&
+		lh.id           == rh.id;
 }
 
 
@@ -50,6 +51,26 @@ ostream& operator<<(ostream& os, LibraryEntry const& le)
 		<< "\t" << "length" << le.length << std::endl
 		<< "\t" << "a_album: " << le.ascii_album << std::endl
 		<< "}" << std::endl;
+}
+
+bool operator==(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh)
+{
+	return
+		lh.hours   == rh.hours   &&
+		lh.minutes == rh.minutes &&
+		lh.seconds == rh.seconds;
+}
+
+std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur)
+{
+	return os << dur.to_string();
+}
+
+string LibraryEntry::Duration::to_string() const
+{
+	std::stringstream ss;
+	ss << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
+	return ss.str();
 }
 
 }

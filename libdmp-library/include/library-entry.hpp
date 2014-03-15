@@ -13,6 +13,31 @@ namespace dmp_library
 
 struct LibraryEntry
 {
+	struct Duration
+	{
+		uint32_t hours;
+		uint32_t minutes;
+		uint32_t seconds;
+		
+		Duration() = default;
+		
+		Duration(std::uint32_t duration)
+		: hours(duration / (60 * 60))
+		, minutes((duration / 60) % 60)
+		, seconds(duration % 60)
+		{
+			
+		}
+		
+		std::string to_string() const;
+		
+		template <typename Archive>
+		void serialize(Archive& ar, const unsigned int)
+		{
+			ar & hours & minutes & seconds;
+		}
+	};
+	
 	LibraryEntry() = default;
 
 	LibraryEntry(std::string artist, std::string title, std::string album, std::uint32_t track, std::uint32_t length);
@@ -20,7 +45,6 @@ struct LibraryEntry
 	LibraryEntry(LibraryEntry const&) = default;
 	LibraryEntry& operator=(LibraryEntry const&) = default;
 	LibraryEntry& operator=(LibraryEntry&&) = default;
-	bool operator==(LibraryEntry const& that) const;
 
 	std::string artist;
 	std::string ascii_artist;
@@ -29,10 +53,8 @@ struct LibraryEntry
 	std::string album;
 	std::string ascii_album;
 	uint32_t track;
-	uint32_t length;
+	Duration length;
 	uint32_t id;
-
-	friend std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
 
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
@@ -44,7 +66,21 @@ private:
 	static uint32_t next_id;
 };
 
+std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
+std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur);
+
+bool operator==(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
+bool operator==(LibraryEntry const& lh, LibraryEntry const& rh);
+
 }
+
+BOOST_FUSION_ADAPT_STRUCT
+(
+	dmp_library::LibraryEntry::Duration,
+	(uint32_t, hours)
+	(uint32_t, minutes)
+	(uint32_t, seconds)
+)
 
 BOOST_FUSION_ADAPT_STRUCT
 (
@@ -56,6 +92,6 @@ BOOST_FUSION_ADAPT_STRUCT
 	(std::string, album)
 	(std::string, ascii_album)
 	(uint32_t, track)
-	(uint32_t, length)
+	(dmp_library::LibraryEntry::Duration, length)
 	(uint32_t, id)
 )
