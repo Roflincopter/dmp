@@ -8,6 +8,7 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 , model()
 {
 	setModel(&model);
+	setItemDelegate(&delegate);
 	hideColumn(1);
 	hideColumn(3);
 	hideColumn(5);

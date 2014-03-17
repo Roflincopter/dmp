@@ -1,10 +1,9 @@
 #pragma once
 
 #include "dmp-library.hpp"
+#include "dmp_qt_meta_types.hpp"
 
 #include <QVariant>
-#include <QString>
-#include <QMetaType>
 
 #include <boost/fusion/include/begin.hpp>
 #include <boost/fusion/include/deref.hpp>
@@ -20,12 +19,6 @@ QVariant convert(boost::any const& x)
 {
 	return QVariant::fromValue<value_type>(boost::any_cast<value_type>(x));
 }
-
-template<>
-QVariant convert<std::string>(boost::any const& x);
-
-template<>
-QVariant convert<dmp_library::LibraryEntry::Duration>(boost::any const& x);
 
 template <typename T, int n, int size>
 typename std::enable_if<(n < size), QVariant>::type

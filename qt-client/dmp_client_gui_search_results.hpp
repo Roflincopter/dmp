@@ -4,6 +4,7 @@
 #include "dmp_client_interface.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "gui_item_delegate.hpp"
 
 #include <QTableView>
 
@@ -13,6 +14,7 @@ class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControlle
 
 	std::shared_ptr<DmpClientInterface> client;
 	SearchResultModelQtAdapter model;
+	GuiItemDelegate delegate;
 
 	std::string current_active_radio;
 	std::string current_query;

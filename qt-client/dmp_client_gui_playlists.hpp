@@ -1,6 +1,7 @@
 #pragma once
 
 #include "playlists_model_qt_adapter.hpp"
+#include "gui_item_delegate.hpp"
 
 #include "dmp_client_ui_delegate.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
@@ -13,6 +14,7 @@ class DmpClientGuiPlaylists : public QTableView, public DmpClientUiDelegate, pub
 
 	std::shared_ptr<DmpClientInterface> client;
 	PlaylistsModelQtAdapter model;
+	GuiItemDelegate delegate;
 
 public:
 	explicit DmpClientGuiPlaylists(QWidget *parent = 0);

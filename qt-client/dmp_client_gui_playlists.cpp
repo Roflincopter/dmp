@@ -5,6 +5,7 @@
 DmpClientGuiPlaylists::DmpClientGuiPlaylists(QWidget *parent) : QTableView(parent)
 {
 	setModel(&model);
+	setItemDelegate(&delegate);
 	hideColumn(1);
 	hideColumn(3);
 	hideColumn(5);
