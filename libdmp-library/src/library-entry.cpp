@@ -69,7 +69,18 @@ std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur)
 string LibraryEntry::Duration::to_string() const
 {
 	std::stringstream ss;
-	ss << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
+	if(hours) {
+		ss << hours << "h" << ":" << std::setw(2) << std::setfill('0') << minutes << "m";
+	}
+	if(!hours && minutes) {
+		ss << minutes << "m";
+	}
+	if(minutes) {
+		ss << ":" << std::setw(2) << std::setfill('0') << seconds << "s";
+	}
+	if(!hours && !minutes && seconds) {
+		ss << seconds << "s";
+	}
 	return ss.str();
 }
 
