@@ -10,6 +10,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "message.hpp"
 #include "message_serializer.hpp"
@@ -30,6 +31,8 @@ class Connection {
 	std::vector<uint8_t> async_type_buffer{};
 	std::vector<uint8_t> async_size_buffer{};
 	std::vector<uint8_t> async_mess_buffer{};
+	
+	boost::mutex send_mutex;
 
 
 public:
@@ -59,6 +62,7 @@ public:
 	template <typename T>
 	void send(T x)
 	{
+		boost::interprocess::scoped_lock<boost::mutex> l(send_mutex);
 		std::ostringstream oss;
 		boost::archive::text_oarchive oar(oss);
 		message::serialize(oar, x);
