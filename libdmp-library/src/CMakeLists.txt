@@ -1,9 +1,9 @@
 include_directories("../include")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
-
 file(GLOB dmp-library-sources *.cpp)
 file(GLOB dmp-library-headers ../include/*.hpp)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 if(MINGW)
 	add_library(dmp-library STATIC ${dmp-library-sources} ${dmp-library-headers})
@@ -17,14 +17,11 @@ target_link_libraries(dmp-library ${Boost_LIBRARIES})
 
 find_package(TagLib REQUIRED)
 include_directories(${TAGLIB_INCLUDES})
-message(STATUS ${TAGLIB_LIBRARIES})
 target_link_libraries(dmp-library ${TAGLIB_LIBRARIES})
 
 if(MINGW)
-	target_link_libraries(dmp-library ${TAGLIB_LIBRARIES} z icudt51)
+	target_link_libraries(dmp-library z icudt51)
 	add_definitions("-DTAGLIB_STATIC")
-else(MINGW)
-	target_link_libraries(dmp-library ${TAGLIB_LIBRARIES})
 endif(MINGW)
 
 find_package(ICU REQUIRED)

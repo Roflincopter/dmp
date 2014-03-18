@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_definitions("--std=c++11")
-
 add_executable(dmp-server main.cpp
                           dmp_server.hpp dmp_server.cpp
                           dmp_radio.hpp dmp_radio.cpp

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <condition_variable>
 
 class DmpRadio : public GStreamerBase
