@@ -1,14 +1,24 @@
-#include "gstreamer_util.hpp"
+
+#include "gstreamer_base.hpp"
+
+#include <iostream>
+
+void GStreamerBase::eos_reached()
+{
+	std::cerr << "End of stream Reached." << std::endl;
+}
+
+void GStreamerBase::error_encountered(GError err){}
+
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 {
-	GMainLoop *loop = (GMainLoop *) data;
+	GStreamerBase* base = (GStreamerBase* ) data;
 
 	switch (GST_MESSAGE_TYPE (msg)) {
 
 	case GST_MESSAGE_EOS:
-		g_print ("End of stream\n");
-		g_main_loop_quit (loop);
+		base->eos_reached();
 		break;
 
 	case GST_MESSAGE_ERROR: {
@@ -18,10 +28,8 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		gst_message_parse_error (msg, &error, &debug);
 		g_free (debug);
 
-		g_printerr ("Error: %s\n", error->message);
+		base->error_encountered(*error);
 		g_error_free (error);
-
-		g_main_loop_quit (loop);
 		break;
 	}
 	default:
@@ -44,4 +52,3 @@ void on_pad_added (GstElement* element, GstPad* pad, gpointer data)
 
   gst_object_unref (sinkpad);
 }
-

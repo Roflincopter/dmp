@@ -1,11 +1,11 @@
 #pragma once
 
-#include <gst/gst.h>
+#include "gstreamer_base.hpp"
 
 #include <cstdint>
 #include <string>
 
-class DmpReceiver
+class DmpReceiver : public GStreamerBase
 {
 	GMainLoop* loop;
 	GstElement* pipeline;

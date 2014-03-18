@@ -8,7 +8,7 @@ set(dmp-common-sources
 	message_outputter.hpp
 	message_serializer.hpp
 	message_callbacks.hpp
-	gstreamer_util.hpp gstreamer_util.cpp
+	gstreamer_base.hpp gstreamer_base.cpp
 	fusion_static_dispatch.hpp fusion_static_dispatch.cpp
 	playlist.hpp
 	message_switch.hpp

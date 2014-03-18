@@ -1,11 +1,11 @@
 #pragma once
 
-#include <gst/gst.h>
+#include "gstreamer_base.hpp"
 
 #include <cstdint>
 #include <string>
 
-class DmpSender
+class DmpSender : public GStreamerBase
 {	
 	GMainLoop* loop;
 	
@@ -19,6 +19,9 @@ class DmpSender
 	
 public:
 	DmpSender();
+	virtual ~DmpSender() = default;
+	
+	virtual void eos_reached() override final;
 
 	void run(std::string host, uint16_t port, std::string file);
 };

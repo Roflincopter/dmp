@@ -22,7 +22,7 @@ class DmpClient : public DmpClientInterface
 	std::vector<std::weak_ptr<DmpClientUiDelegate>> delegates;
 
 	DmpSender sender;
-
+	
 	std::thread receiver_thread;
 	DmpReceiver receiver;
 
@@ -34,7 +34,7 @@ public:
 
 	DmpClient(std::string name, std::string host, uint16_t port);
 	DmpClient(DmpClient&&) = default;
-	~DmpClient();
+	virtual ~DmpClient();
 	
 	void timed_debug();
 

@@ -2,11 +2,9 @@
 
 #include "dmp-library.hpp"
 #include "dmp_server_interface.hpp"
-
 #include "playlist.hpp"
 #include "number_pool.hpp"
-
-#include <gst/gst.h>
+#include "gstreamer_base.hpp"
 
 #include <boost/optional.hpp>
 
@@ -16,7 +14,7 @@
 #include <thread>
 #include <condition_variable>
 
-class DmpRadio
+class DmpRadio : public GStreamerBase
 {
 private:
 	std::string name;

@@ -1,7 +1,5 @@
 #include "dmp_radio.hpp"
 
-#include "gstreamer_util.hpp"
-
 #include <string>
 #include <tuple>
 
@@ -34,7 +32,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	g_object_set(G_OBJECT(sink), "port", gint(send_port), nullptr);
 
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-	gst_bus_add_watch (bus, bus_call, loop);
+	gst_bus_add_watch (bus, bus_call, this);
 
 	gst_bin_add_many (GST_BIN(pipeline), source, sink, nullptr);
 	gst_element_link_many(source, sink, nullptr);

@@ -1,7 +1,5 @@
 #include "dmp_sender.hpp"
 
-#include "gstreamer_util.hpp"
-
 #include <stdexcept>
 #include <iostream>
 
@@ -33,7 +31,7 @@ DmpSender::DmpSender()
 	}
 
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-	gst_bus_add_watch (bus, bus_call, loop);
+	gst_bus_add_watch (bus, bus_call, this);
 
 	gst_bin_add_many (GST_BIN(pipeline), source, decoder, encoder, sink, nullptr);
 	gst_element_link_many(source, decoder, nullptr);
@@ -41,6 +39,11 @@ DmpSender::DmpSender()
 	gst_element_link_many(encoder, sink, nullptr);
 
 	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_sender");
+}
+
+void DmpSender::eos_reached()
+{
+	g_main_loop_quit(loop);
 }
 
 void DmpSender::run(std::string host, uint16_t port, std::string file){
