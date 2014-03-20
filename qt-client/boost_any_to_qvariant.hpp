@@ -2,14 +2,10 @@
 
 #include "dmp-library.hpp"
 #include "dmp_qt_meta_types.hpp"
+#include "friendly_fusion.hpp"
 
 #include <QVariant>
 
-#include <boost/fusion/include/begin.hpp>
-#include <boost/fusion/include/deref.hpp>
-#include <boost/fusion/include/value_of.hpp>
-#include <boost/fusion/include/distance.hpp>
-#include <boost/fusion/include/advance.hpp>
 #include <boost/any.hpp>
 
 #include <string>
@@ -21,14 +17,21 @@ QVariant convert(boost::any const& x)
 }
 
 template <typename T, int n, int size>
-typename std::enable_if<(n < size), QVariant>::type
+typename std::enable_if<(n < size) && boost::mpl::is_sequence<T>::value, QVariant>::type
 convert(boost::any const& x)
 {
-	typedef boost::fusion::result_of::begin<T> begin;
-	typedef boost::fusion::result_of::advance_c<typename begin::type, n> adv_it;
-	typedef boost::fusion::result_of::deref<typename adv_it::type> deref;
+	typedef friendly_fusion::result_of::begin<T> begin;
+	typedef friendly_fusion::result_of::advance_c<typename begin::type, n> adv_it;
+	typedef friendly_fusion::result_of::deref<typename adv_it::type> deref;
 	typedef typename std::decay<typename deref::type>::type value_type;
 	return convert<value_type>(x);
+}
+
+template <typename T, int n, int size>
+typename std::enable_if<(n < size) && !boost::mpl::is_sequence<T>::value, QVariant>::type
+convert(boost::any const&)
+{
+	
 }
 
 template <typename T, int n, int size>
@@ -44,7 +47,7 @@ QVariant to_qvariant(boost::any const& x, int index)
 	#define QVARIANT_CONVERSION(X) \
 	case X: \
 	{\
-		typedef typename boost::fusion::result_of::size<T>::type size_type; \
+		typedef typename friendly_fusion::result_of::size<T>::type size_type; \
 		return convert<T, X, size_type::value>(x); \
 	}
 

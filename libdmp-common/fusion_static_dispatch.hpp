@@ -1,12 +1,8 @@
 #pragma once
 
 #include "index_list.hpp"
+#include "friendly_fusion.hpp"
 
-#include <boost/fusion/sequence.hpp>
-#include <boost/fusion/adapted.hpp>
-#include <boost/fusion/sequence/intrinsic/size.hpp>
-#include <boost/fusion/include/size.hpp>
-#include <boost/fusion/iterator.hpp>
 #include <boost/any.hpp>
 
 #if defined( __GNUC__ ) && !defined( __clang__ )
@@ -14,7 +10,7 @@ template<int index, typename T>
 std::function<boost::any(T)> make_at_c_lambda(T seq)
 {
 	return [](T seq){
-		return boost::any(boost::fusion::deref(boost::fusion::advance_c<index>(boost::fusion::begin(seq))));
+		return boost::any(friendly_fusion::deref(friendly_fusion::advance_c<index>(friendly_fusion::begin(seq))));
 	};
 }
 #endif //defined( __GNUC__ ) && !defined( __clang__ )
@@ -30,7 +26,7 @@ boost::any get_nth_impl(T seq, int index, indices<Indices...>)
 		make_at_c_lambda<Indices>(seq)
 		...
 #else
-		[](T seq){return boost::any(boost::fusion::deref(boost::fusion::advance_c<Indices>(boost::fusion::begin(seq))));}
+		[](T seq){return boost::any(friendly_fusion::deref(friendly_fusion::advance_c<Indices>(friendly_fusion::begin(seq))));}
 		...
 #endif //defined( __GNUC__ ) && !defined( __clang__ )
 	};
@@ -43,7 +39,7 @@ struct get_nth_functor
 {
 	boost::any operator()(T seq, int index)
 	{
-		typedef typename boost::fusion::result_of::size<T>::type seq_size;
+		typedef typename friendly_fusion::result_of::size<T>::type seq_size;
 		typedef typename build_indices<seq_size::value>::type indices_type;
 	
 		return get_nth_impl(seq, index, indices_type{});
@@ -61,7 +57,7 @@ template<int index, typename T>
 std::function<std::string()> make_struct_member_name_lambda()
 {
 	return []{
-		return std::string(boost::fusion::extension::struct_member_name<T, index>::call());
+		return std::string(friendly_fusion::extension::struct_member_name<T, index>::call());
 	};
 }
 #endif //defined( __GNUC__ ) && !defined( __clang__ )
@@ -81,7 +77,7 @@ struct get_nth_name_impl {
 			make_struct_member_name_lambda<Indices, T>()
 			...
 	#else
-			[]{return std::string(boost::fusion::extension::struct_member_name<T, Indices>::call());}
+			[]{return std::string(friendly_fusion::extension::struct_member_name<T, Indices>::call());}
 			...
 	#endif //defined( __GNUC__ ) && !defined( __clang__ )
 		};
@@ -95,7 +91,7 @@ struct get_nth_name_functor
 {
 	std::string operator()(int index)
 	{
-		typedef typename boost::fusion::result_of::size<T>::type seq_size;
+		typedef typename friendly_fusion::result_of::size<T>::type seq_size;
 		typedef typename build_indices<seq_size::value>::type indices_type;
 	
 		return get_nth_name_impl<T>()(index, indices_type{});
@@ -107,7 +103,7 @@ struct get_nth_name_functor<boost::fusion::joint_view<T,U>>
 {
 	std::string operator()(int index)
 	{
-		constexpr size_t size_of_T = boost::fusion::result_of::size<T>::type::value;
+		constexpr size_t size_of_T = friendly_fusion::result_of::size<T>::type::value;
 		if(index < size_of_T){
 			return get_nth_name_functor<T>()(index);
 		} else {

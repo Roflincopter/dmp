@@ -2,6 +2,7 @@
 
 #include "dmp-library.hpp"
 #include "message.hpp"
+#include "friendly_fusion.hpp"
 
 #include <boost/any.hpp>
 
@@ -18,7 +19,7 @@ public:
 	};
 	
 private:
-	static constexpr size_t number_of_library_entry_members = boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
+	static constexpr size_t number_of_library_entry_members = friendly_fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
 	
 	typedef std::pair<Client, dmp_library::Library::tracklist_t> SearchResultsElement;
 	std::vector<SearchResultsElement> search_results;

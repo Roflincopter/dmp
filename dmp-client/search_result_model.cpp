@@ -21,7 +21,7 @@ int SearchResultModel::row_count() const
 
 int SearchResultModel::column_count() const
 {
-	return boost::fusion::result_of::size<dmp_library::LibraryEntry>::type::value + 1;
+	return friendly_fusion::result_of::size<dmp_library::LibraryEntry>::type::value + 1;
 }
 
 boost::any SearchResultModel::get_cell(int row, int column) const

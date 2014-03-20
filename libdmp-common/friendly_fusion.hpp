@@ -1,0 +1,128 @@
+#pragma once
+
+#include <boost/fusion/include/size.hpp>
+#include <boost/fusion/include/begin.hpp>
+#include <boost/fusion/include/deref.hpp>
+#include <boost/fusion/include/value_of.hpp>
+#include <boost/fusion/include/distance.hpp>
+#include <boost/fusion/include/advance.hpp>
+#include <boost/fusion/include/is_view.hpp>
+#include <boost/fusion/include/is_sequence.hpp>
+#include <boost/fusion/include/is_iterator.hpp>
+#include <boost/fusion/adapted/struct/detail/adapt_base.hpp>
+
+#include <boost/mpl/or.hpp>
+
+namespace friendly_fusion {
+
+namespace traits {
+
+template <typename T, bool NoCheck = true>
+struct is_sequence : public boost::fusion::traits::is_sequence<T>
+{
+	static_assert(NoCheck || boost::fusion::traits::is_sequence<T>::value, "Template parameter: T, is not a fusion adapted struct.");
+};
+
+template <typename T, bool NoCheck = true>
+struct is_fusion_iterator : public boost::fusion::is_fusion_iterator<T>
+{
+	static_assert(NoCheck || boost::fusion::is_fusion_iterator<T>::value, "Template parameter: T. Is not a fusion iterator.");
+};
+
+template <typename T, bool NoCheck = true>
+struct is_view : public boost::fusion::traits::is_view<T> {
+	static_assert(NoCheck || boost::fusion::traits::is_view<T>::value, "Template parameter: T, is not a fusion view");
+};
+
+template <typename T, bool NoCheck = true>
+struct is_sequence_or_view : public boost::mpl::or_<typename boost::fusion::traits::is_sequence<T>, typename boost::fusion::traits::is_view<T>> {
+	static_assert(NoCheck || (boost::fusion::traits::is_sequence<T>::value || boost::fusion::traits::is_view<T>::value), "Template parameter: T, is not a fusion sequence or a view");
+};
+
+}
+
+template <typename T>
+typename std::enable_if<traits::is_fusion_iterator<T, false>::value, typename boost::fusion::result_of::deref<T>::type>::type
+deref(T const& x)
+{
+	return boost::fusion::deref(x);
+}
+
+template <int N, typename T>
+typename std::enable_if<traits::is_fusion_iterator<T, false>::value, typename boost::fusion::result_of::advance_c<T, N>::type>::type
+advance_c(T const& x)
+{
+	return boost::fusion::advance_c<N>(x);
+}
+
+template <typename T>
+typename std::enable_if<traits::is_sequence_or_view<T, false>::value, typename boost::fusion::result_of::begin<T>::type>::type const
+begin(T& x)
+{
+	return boost::fusion::begin(x);
+}
+
+template <typename T>
+typename std::enable_if<traits::is_sequence_or_view<T, false>::value, typename boost::fusion::result_of::begin<T const>::type>::type const
+begin(T const& x)
+{
+	return boost::fusion::begin(x);
+}
+
+template <typename T>
+typename std::enable_if<traits::is_sequence_or_view<T, false>::value, typename boost::fusion::result_of::end<T>::type>::type const
+end(T& x)
+{
+	return boost::fusion::end(x);
+}
+
+template <typename T>
+typename std::enable_if<traits::is_sequence_or_view<T, false>::value, typename boost::fusion::result_of::end<T const>::type>::type const
+end(T const& x)
+{
+	return boost::fusion::end(x);
+}
+
+namespace result_of {
+
+template <typename T>
+struct size : private traits::is_sequence_or_view<T, false>, public boost::fusion::result_of::size<T>
+{
+	using typename boost::fusion::result_of::size<T>::type;
+};
+
+template <typename T>
+struct begin : private traits::is_sequence_or_view<T, false>, public boost::fusion::result_of::begin<T>
+{
+	using typename boost::fusion::result_of::begin<T>::type;
+};
+
+template <typename T>
+struct end : private traits::is_sequence_or_view<T, false>, public boost::fusion::result_of::end<T>
+{
+	using typename boost::fusion::result_of::end<T>::type;
+};
+
+template <typename T, int N>
+struct advance_c : private traits::is_fusion_iterator<T, false>, public boost::fusion::result_of::advance_c<T, N>
+{
+	using typename boost::fusion::result_of::advance_c<T, N>::type;
+};
+
+template <typename T>
+struct deref : private traits::is_fusion_iterator<T, false>, public boost::fusion::result_of::deref<T>
+{
+	using typename boost::fusion::result_of::deref<T>::type;
+};
+
+}
+
+namespace extension {
+
+template<typename T, int index>
+struct struct_member_name : private traits::is_sequence<T, false>, public boost::fusion::extension::struct_member_name<T, index>
+{};
+
+}
+
+}
