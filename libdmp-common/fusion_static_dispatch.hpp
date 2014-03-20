@@ -9,12 +9,6 @@
 #include <boost/fusion/iterator.hpp>
 #include <boost/any.hpp>
 
-#include <string>
-
-namespace std {
-	std::string to_string(std::string x);
-}
-
 #if defined( __GNUC__ ) && !defined( __clang__ )
 template<int index, typename T>
 std::function<boost::any(T)> make_at_c_lambda(T seq)
