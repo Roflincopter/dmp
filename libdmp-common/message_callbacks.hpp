@@ -5,32 +5,33 @@
 #include "connection.hpp"
 
 #include <boost/variant.hpp>
+#include <boost/variant/get.hpp>
 
 #include <stdexcept>
 
 namespace message {
 
-template <typename T> using CB = std::function<void(T)>;
-
-using CallBackType = boost::variant<
-	  CB<message::Ping>
-	, CB<message::Pong>
-	, CB<message::NameRequest>
-	, CB<message::NameResponse>
-	, CB<message::SearchRequest>
-	, CB<message::SearchResponse>
-	, CB<message::Bye>
-	, CB<message::ByeAck>
-	, CB<message::AddRadio>
-	, CB<message::AddRadioResponse>
-	, CB<message::ListenConnectionRequest>
-	, CB<message::Radios>
-	, CB<message::Queue>
-	, CB<message::PlaylistUpdate>
-	, CB<message::StreamRequest>
->;
-
 struct DmpCallbacks {
+	template <typename T> using CB = std::function<void(T)>;
+	
+	using CallBackType = boost::variant<
+		  CB<message::Ping>
+		, CB<message::Pong>
+		, CB<message::NameRequest>
+		, CB<message::NameResponse>
+		, CB<message::SearchRequest>
+		, CB<message::SearchResponse>
+		, CB<message::Bye>
+		, CB<message::ByeAck>
+		, CB<message::AddRadio>
+		, CB<message::AddRadioResponse>
+		, CB<message::ListenConnectionRequest>
+		, CB<message::Radios>
+		, CB<message::Queue>
+		, CB<message::PlaylistUpdate>
+		, CB<message::StreamRequest>
+	>;
+	
 	typedef std::map<message::Type, CallBackType> Callbacks_t;
 	
 	Callbacks_t callbacks;
@@ -41,43 +42,22 @@ struct DmpCallbacks {
 	, refresher(refresher)
 	{}
 
-	template<typename argument>
-	struct call_visitor : public boost::static_visitor<void>
-	{
-		argument x;
-
-		call_visitor(argument x)
-		: x(x)
-		{}
-
-		void operator()(std::function<void(argument)> v)
-		{
-			v(x);
-		}
-
-		template <typename U>
-		void operator()(U u)
-		{
-			throw std::runtime_error("Failed to match right callback");
-		}
-	};
-
 	template <typename T>
 	void operator()(T message) const
 	{
-		call_visitor<T> v(message);
 		auto it = callbacks.find(message.type);
 
 		if (it != callbacks.cend()) {
-			boost::apply_visitor(v, it->second);
+			auto f = boost::get<CB<T>>(it->second);
+			f(message);
 			refresher();
 		} else {
 			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message.type)));
 		}
 	}
 
-	template <typename T>
-	DmpCallbacks& set(message::Type t, T x)
+	template <typename Function>
+	DmpCallbacks& set(message::Type t, Function x)
 	{
 		callbacks[t] = x;
 		return *this;
