@@ -7,11 +7,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 : name(name)
 , server(server)
 , port_pool(port_pool)
-, queue_mutex(new std::mutex)
-, queue_filled(new std::condition_variable)
 , radio_mutex(new std::mutex)
-, radio_action(new std::condition_variable)
-, queue_thread()
 , loop(g_main_loop_new(nullptr, false))
 , pipeline(gst_pipeline_new("tcp_bridge"))
 , source(gst_element_factory_make("tcpserversrc", "recv"))
@@ -57,7 +53,6 @@ DmpRadio::DmpRadio()
 
 void DmpRadio::run()
 {
-	queue_thread = std::thread(std::bind(&DmpRadio::play, this));
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);
 	g_main_loop_run(loop);
 }
@@ -78,32 +73,60 @@ Playlist DmpRadio::get_playlist()
 	return playlist;
 }
 
+void DmpRadio::stop()
+{
+	std::unique_lock<std::mutex> l(*radio_mutex);
+	
+	PlaylistEntry entry = playlist.front();
+	auto sp = server.lock();
+	sp->order_stop(entry.owner, name);
+}
+
 void DmpRadio::play()
 {
-	{
-		std::unique_lock<std::mutex> l(*queue_mutex);
-		queue_filled->wait(l, [this]{return !playlist.empty();});
+	std::unique_lock<std::mutex> l(*radio_mutex);
 	
-		PlaylistEntry entry = playlist.front();
-		
-		auto sp = server.lock();
-		sp->order_stream(entry.owner, entry.entry, get_sender_port());
-	}
+	PlaylistEntry entry = playlist.front();
+	auto sp = server.lock();
+	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
 	
-	{
-//		std::unique_lock<std::mutex> l(*radio_mutex);
-//		radio_action->wait(l, [this]{return !action;});
-	}
+	sp->order_play(entry.owner, name);
+}
 
+void DmpRadio::pause()
+{
+	std::unique_lock<std::mutex> l(*radio_mutex);
 	
+	PlaylistEntry entry = playlist.front();
+	auto sp = server.lock();
+	sp->order_pause(entry.owner, name);
+}
+
+void DmpRadio::next()
+{
+	std::unique_lock<std::mutex> l(*radio_mutex);
+	
+	PlaylistEntry entry = playlist.front();
+	auto sp = server.lock();
+	sp->order_stop(entry.owner, name);
+	
+	playlist.erase(playlist.begin());
+	entry = playlist.front();
+	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
+	
+	sp->order_play(entry.owner, name);
 }
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 {
-	bool x = playlist.empty();
-	std::unique_lock<std::mutex> l(*queue_mutex);
-	playlist.push_back({queuer, owner, entry});
-	if(x) {
-		queue_filled->notify_one();
+	bool queue_was_empty;
+	{
+		std::unique_lock<std::mutex> l(*radio_mutex);
+		queue_was_empty = playlist.empty();
+		playlist.push_back({queuer, owner, entry});
+	}
+	
+	if (queue_was_empty) {
+		play();
 	}
 }

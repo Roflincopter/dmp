@@ -8,12 +8,14 @@ void GStreamerBase::eos_reached()
 	std::cerr << "End of stream Reached." << std::endl;
 }
 
-void GStreamerBase::error_encountered(GError err){}
-
+void GStreamerBase::error_encountered(GError err)
+{
+	
+}
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 {
-	GStreamerBase* base = (GStreamerBase* ) data;
+	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 
 	switch (GST_MESSAGE_TYPE (msg)) {
 

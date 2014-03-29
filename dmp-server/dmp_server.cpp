@@ -59,8 +59,9 @@ void DmpServer::add_connection(dmp::Connection&& c)
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
-		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1)));
-
+		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
+		set(message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpServer::handle_radio_event, this, std::placeholders::_1)));
+		
 	connections[name_res.name] = cep;
 
 	std::map<std::string, Playlist> playlists;
@@ -118,7 +119,54 @@ void DmpServer::handle_queue(message::Queue queue)
 	}
 }
 
-void DmpServer::order_stream(std::string client, dmp_library::LibraryEntry entry, uint16_t port)
+void DmpServer::handle_radio_event(message::RadioEvent re)
 {
-	connections[client]->forward(message::StreamRequest(entry, port));
+	switch(re.action) 
+	{
+		case message::RadioEvent::Action::Next:
+		{
+			radios[re.radio_name].second.next();
+			break;
+		}
+		case message::RadioEvent::Action::Pause:
+		{
+			radios[re.radio_name].second.pause();
+			break;
+		}
+		case message::RadioEvent::Action::Play:
+		{
+			radios[re.radio_name].second.play();
+			break;
+		}
+		case message::RadioEvent::Action::Stop:
+		{
+			radios[re.radio_name].second.stop();
+			break;
+		}
+		default:
+		{
+			throw std::runtime_error("Unknown RadioAction was passed to the Server.");
+		}
+		
+	}
+}
+
+void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
+{
+	connections[client]->forward(message::StreamRequest(radio_name, entry, port));
+}
+
+void DmpServer::order_pause(std::string client, std::string radio_name)
+{
+	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Pause, {}));
+}
+
+void DmpServer::order_play(std::string client, std::string radio_name)
+{
+	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Play, {}));
+}
+
+void DmpServer::order_stop(std::string client, std::string radio_name)
+{
+	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Stop, {}));
 }

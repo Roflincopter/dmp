@@ -60,6 +60,9 @@ private slots:
 
 public slots:
 	void dmpConnect();
+	void StopPressed();
+	void PlayPauseToggled(bool state);
+	void NextPressed();
 
 private:
 	Ui::DmpClientGui ui;

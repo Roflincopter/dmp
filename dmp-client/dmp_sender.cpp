@@ -55,7 +55,22 @@ void DmpSender::run(std::string host, uint16_t port, std::string file){
 	g_object_set(G_OBJECT(sink), "host", host.c_str(), nullptr);
 	g_object_set(G_OBJECT(sink), "port", gint(port), nullptr);
 	
-	gst_element_set_state(pipeline, GST_STATE_PLAYING);
+	gst_element_set_state(pipeline, GST_STATE_READY);
 
 	g_main_loop_run(loop);
+}
+
+void DmpSender::pause()
+{
+	gst_element_set_state(pipeline, GST_STATE_PAUSED);
+}
+
+void DmpSender::play()
+{
+	gst_element_set_state(pipeline, GST_STATE_PLAYING);
+}
+
+void DmpSender::stop()
+{
+	gst_element_set_state(pipeline, GST_STATE_READY);
 }

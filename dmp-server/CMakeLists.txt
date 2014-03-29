@@ -4,6 +4,7 @@ add_executable(dmp-server main.cpp
                           dmp_server.hpp dmp_server.cpp
                           dmp_radio.hpp dmp_radio.cpp
                           client_endpoint.hpp client_endpoint.cpp
+                          dmp_server_interface.hpp
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)

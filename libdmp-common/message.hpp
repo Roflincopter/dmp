@@ -30,6 +30,7 @@ enum class Type : Type_t {
 	Queue,
 	PlaylistUpdate,
 	StreamRequest,
+	RadioEvent,
 	LAST
 };
 
@@ -343,19 +344,51 @@ struct PlaylistUpdate {
 
 struct StreamRequest {
 	Type type;
+	std::string radio_name;
 	dmp_library::LibraryEntry entry;
 	uint16_t port;
 	
 	StreamRequest()
 	: type(Type::StreamRequest)
+	, radio_name()
 	, entry()
 	, port()
 	{}
 	
-	StreamRequest(dmp_library::LibraryEntry entry, uint16_t port)
+	StreamRequest(std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
 	: type(Type::StreamRequest)
+	, radio_name(radio_name)
 	, entry(entry)
 	, port(port)
+	{}
+};
+
+struct RadioEvent {
+	enum class Action {
+		NoAction,
+		Stop,
+		Pause,
+		Play,
+		Next
+	};
+	
+	Type type;
+	std::string radio_name;
+	Action action;
+	std::vector<PlaylistEntry> data;
+	
+	RadioEvent()
+	: type(Type::RadioEvent)
+	, radio_name()
+	, action(Action::NoAction)
+	, data()
+	{}
+	
+	RadioEvent(std::string radio_name, Action action, std::vector<PlaylistEntry> data)
+	: type(Type::RadioEvent)
+	, radio_name(radio_name)
+	, action(action)
+	, data(data)
 	{}
 };
 
@@ -387,6 +420,7 @@ TYPE_TO_MESSAGE_STRUCT(Radios)
 TYPE_TO_MESSAGE_STRUCT(Queue)
 TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
 TYPE_TO_MESSAGE_STRUCT(StreamRequest)
+TYPE_TO_MESSAGE_STRUCT(RadioEvent)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
@@ -513,6 +547,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::StreamRequest,
 	(message::Type, type)
+	(std::string, radio_name)
 	(dmp_library::LibraryEntry, entry)
 	(uint16_t, port)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::RadioEvent,
+	(message::Type, type)
+	(std::string, radio_name)
+	(message::RadioEvent::Action, action)
+	(std::vector<PlaylistEntry>, data)
 )

@@ -30,6 +30,7 @@ struct DmpCallbacks {
 		, CB<message::Queue>
 		, CB<message::PlaylistUpdate>
 		, CB<message::StreamRequest>
+		, CB<message::RadioEvent>
 	>;
 	
 	typedef std::map<message::Type, CallBackType> Callbacks_t;

@@ -5,7 +5,7 @@
 #include <string>
 
 struct GStreamerBase {
-	virtual void eos_reached();;
+	virtual void eos_reached();
 	virtual void error_encountered(GError err);
 };
 

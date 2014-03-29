@@ -21,17 +21,14 @@ private:
 	std::string name;
 	std::weak_ptr<DmpServerInterface> server;
 	std::shared_ptr<NumberPool> port_pool;
-	std::unique_ptr<std::mutex> queue_mutex;
-	std::unique_ptr<std::condition_variable> queue_filled;
-	std::unique_ptr<std::mutex> radio_mutex;
-	std::unique_ptr<std::condition_variable> radio_action;
-	std::thread queue_thread;
 	
 	GMainLoop* loop;
 	GstElement* pipeline;
 	GstElement* source;
 	GstElement* sink;
 	GstBus *bus;
+	
+	std::unique_ptr<std::mutex> radio_mutex;
 
 	uint16_t recv_port;
 	uint16_t send_port;
@@ -49,7 +46,12 @@ public:
 	uint16_t get_receiver_port();
 
 	Playlist get_playlist();
+	
+	void stop();
 	void play();
+	void pause();
+	void next();
+	
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
 };
 

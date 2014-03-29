@@ -126,6 +126,21 @@ void DmpClientGui::dmpConnect()
 	connect_client(connect.get_name(), connect.get_host(), connect.get_port());
 }
 
+void DmpClientGui::StopPressed()
+{
+	client->stop_radio(shared_radio_list->get_current_radio());
+}
+
+void DmpClientGui::PlayPauseToggled(bool state)
+{
+	
+}
+
+void DmpClientGui::NextPressed()
+{
+	
+}
+
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
 	if(!client) {

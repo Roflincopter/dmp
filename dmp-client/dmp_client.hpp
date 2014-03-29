@@ -20,8 +20,8 @@ class DmpClient : public DmpClientInterface
 	dmp_library::Library library;
 
 	std::vector<std::weak_ptr<DmpClientUiDelegate>> delegates;
-
-	DmpSender sender;
+	
+	std::map<std::string, DmpSender> senders;
 	
 	std::thread receiver_thread;
 	DmpReceiver receiver;
@@ -45,13 +45,18 @@ public:
 	void handle_request(message::Type t);
 	void listen_requests();
 
-	virtual void stop() final;
-	virtual void run() final;
-	virtual void search(std::string query) final;
-	virtual void index(std::string path) final;
-	virtual void add_radio(std::string str) final;
-	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) final;
+	virtual void stop() override final;
+	virtual void run() override final;
+	virtual void search(std::string query) override final;
+	virtual void index(std::string path) override final;
+	virtual void add_radio(std::string str) override final;
+	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) override final;
 
+	virtual void stop_radio(std::string radio_name) override final;
+	virtual void play_radio(std::string radio_name) override final;
+	virtual void pause_radio(std::string radio_name) override final;
+	virtual void next_radio(std::string radio_name) override final;
+	
 	void handle_ping(message::Ping ping);
 	void handle_name_request(message::NameRequest name_req);
 	void handle_pong(message::Pong pong);
@@ -64,4 +69,5 @@ public:
 	void handle_add_radio(message::AddRadio added_radio);
 	void handle_playlist_update(message::PlaylistUpdate update);
 	void handle_stream_request(message::StreamRequest sr);
+	void handle_radio_event(message::RadioEvent re);
 };

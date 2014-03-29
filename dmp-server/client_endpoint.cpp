@@ -12,8 +12,9 @@ ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
 {
 	callbacks.
 		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1))).
-		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1)));
-
+		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1)))
+;
+	
 	listen_requests();
 	keep_alive();
 }

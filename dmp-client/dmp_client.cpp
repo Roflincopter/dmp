@@ -11,7 +11,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , last_sent_ping()
 , library()
 , delegates()
-, sender()
+, senders()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
 , debug_timer(*connection.io_service)
@@ -20,19 +20,21 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 {
+	using std::placeholders::_1;
 	return {
-		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, std::placeholders::_1))},
-		{message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, std::placeholders::_1))},
-		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, std::placeholders::_1))},
-		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, std::placeholders::_1))},
-		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, std::placeholders::_1))},
-		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, std::placeholders::_1))},
-		{message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, std::placeholders::_1))},
-		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, std::placeholders::_1))},
-		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, std::placeholders::_1))},
-		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, std::placeholders::_1))},
-		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, std::placeholders::_1))},
-		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, std::placeholders::_1))}
+		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
+		{message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, _1))},
+		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, _1))},
+		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
+		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
+		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, _1))},
+		{message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, _1))},
+		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, _1))},
+		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, _1))},
+		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
+		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, _1))},
+		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
+		{message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpClient::handle_radio_event, this, _1))}
 	};
 }
 
@@ -107,6 +109,26 @@ void DmpClient::search(std::string query)
 	call_on_delegates(delegates, &DmpClientUiDelegate::new_search, query);
 	message::SearchRequest q(query);
 	connection.send(q);
+}
+
+void DmpClient::stop_radio(std::string radio_name)
+{
+	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Stop, {}));
+}
+
+void DmpClient::play_radio(std::string radio_name)
+{
+	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Play, {}));
+}
+
+void DmpClient::pause_radio(std::string radio_name)
+{
+	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Pause, {}));
+}
+
+void DmpClient::next_radio(std::string radio_name)
+{
+	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Next, {}));
 }
 
 void DmpClient::handle_ping(message::Ping ping)
@@ -189,9 +211,10 @@ void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
 
 void DmpClient::handle_stream_request(message::StreamRequest sr)
 {	
+	senders.emplace(sr.radio_name, DmpSender());
 	auto sender_runner = [this, sr]{
 		try {
-			sender.run(host, sr.port, library.get_filename(sr.entry));
+			senders[sr.radio_name].run(host, sr.port, library.get_filename(sr.entry));
 		} catch(std::runtime_error e){
 			std::cout << "Sender crashed with message: " << e.what() << std::endl;
 		}
@@ -199,4 +222,31 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	
 	std::thread t(sender_runner);
 	t.detach();
+}
+
+void DmpClient::handle_radio_event(message::RadioEvent re)
+{
+	DmpSender& sender = senders[re.radio_name];
+	switch(re.action)
+	{
+		case message::RadioEvent::Action::Pause:
+		{
+			sender.pause();
+			break;
+		}
+		case message::RadioEvent::Action::Play:
+		{
+			sender.play();
+			break;
+		}
+		case message::RadioEvent::Action::Stop:
+		{
+			sender.stop();
+			break;
+		}
+		default:
+		{
+			throw std::runtime_error("RadioEvent with incompatible command found in dmp_client");
+		}
+	}
 }

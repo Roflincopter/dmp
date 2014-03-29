@@ -24,4 +24,8 @@ public:
 	virtual void eos_reached() override final;
 
 	void run(std::string host, uint16_t port, std::string file);
+	
+	void pause();
+	void play();
+	void stop();
 };

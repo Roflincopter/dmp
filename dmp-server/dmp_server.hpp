@@ -31,6 +31,10 @@ public:
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
 	void handle_queue(message::Queue queue);
+	void handle_radio_event(message::RadioEvent re);
 	
-	virtual void order_stream(std::string client, dmp_library::LibraryEntry entry, uint16_t port) final;
+	virtual void order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port) override final;
+	virtual void order_pause(std::string client, std::string radio_name) override final;
+	virtual void order_play(std::string client, std::string radio_name) override final;
+	virtual void order_stop(std::string client, std::string radio_name) override final;
 };
