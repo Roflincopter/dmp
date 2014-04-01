@@ -39,17 +39,6 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, graph_file_name.c_str());
 }
 
-DmpRadio::DmpRadio()
-: name()
-, port_pool(nullptr)
-, loop(nullptr)
-, pipeline(nullptr)
-, source(nullptr)
-, sink(nullptr)
-, bus(nullptr)
-, recv_port()
-, send_port()
-{}
 
 void DmpRadio::run()
 {

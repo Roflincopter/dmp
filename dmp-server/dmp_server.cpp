@@ -96,11 +96,22 @@ void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::S
 void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
 {
 	if(radios.find(ar.name) == radios.end()) {
-		radios[ar.name] = std::make_pair(std::thread(), DmpRadio(ar.name, shared_from_this(), port_pool));
-
+		auto radio_it = radios.emplace(
+			std::make_pair(
+				ar.name, 
+				std::make_pair(
+					std::thread(), 
+					DmpRadio(
+						ar.name, 
+						shared_from_this(),
+						port_pool
+					)
+				)
+			)
+		).first;
 		origin->forward(message::AddRadioResponse(ar.name, true, ""));
-		radios[ar.name].first = std::thread(std::bind(&DmpRadio::run, &radios[ar.name].second));
-		origin->forward(message::ListenConnectionRequest(radios[ar.name].second.get_receiver_port()));
+		radio_it->second.first = std::thread(std::bind(&DmpRadio::run, std::ref(radio_it->second.second)));
+		origin->forward(message::ListenConnectionRequest(radio_it->second.second.get_receiver_port()));
 		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));
@@ -112,35 +123,36 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 
 void DmpServer::handle_queue(message::Queue queue)
 {
-	radios[queue.radio].second.queue(queue.queuer, queue.owner, queue.entry);
+	radios.at(queue.radio).second.queue(queue.queuer, queue.owner, queue.entry);
 	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
 	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios[queue.radio].second.get_playlist()));
+		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios.at(queue.radio).second.get_playlist()));
 	}
 }
 
 void DmpServer::handle_radio_event(message::RadioEvent re)
 {
+	auto& radio = radios.at(re.radio_name);
 	switch(re.action) 
 	{
 		case message::RadioEvent::Action::Next:
 		{
-			radios[re.radio_name].second.next();
+			radio.second.next();
 			break;
 		}
 		case message::RadioEvent::Action::Pause:
 		{
-			radios[re.radio_name].second.pause();
+			radio.second.pause();
 			break;
 		}
 		case message::RadioEvent::Action::Play:
 		{
-			radios[re.radio_name].second.play();
+			radio.second.play();
 			break;
 		}
 		case message::RadioEvent::Action::Stop:
 		{
-			radios[re.radio_name].second.stop();
+			radio.second.stop();
 			break;
 		}
 		default:

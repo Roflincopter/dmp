@@ -36,8 +36,6 @@ private:
 	Playlist playlist;
 
 public:
-
-	DmpRadio();
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool);
 
 	void run();
