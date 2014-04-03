@@ -7,21 +7,20 @@
 
 class DmpSender : public GStreamerBase
 {	
-	GMainLoop* loop;
+	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
 	
-	GstElement* pipeline;
-	GstElement* source;
-	GstElement* decoder;
-	GstElement* encoder;
-	GstElement* sink;
-	
-	GstBus *bus;
+	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> encoder;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	
 public:
 	DmpSender();
-	virtual ~DmpSender() = default;
+	virtual ~DmpSender();
 	
-	virtual void eos_reached() override final;
+	DmpSender(DmpSender&&) = default;
+	DmpSender& operator=(DmpSender&&) = default;
 
 	void run(std::string host, uint16_t port, std::string file);
 	

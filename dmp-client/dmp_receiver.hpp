@@ -7,18 +7,23 @@
 
 class DmpReceiver : public GStreamerBase
 {
-	GMainLoop* loop;
-	GstElement* pipeline;
-	GstElement* source;
-	GstElement* decoder;
-	GstElement* converter;
-	GstElement* resampler;
-	GstElement* audiosink;
-	GstBus *bus;
+	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
+	
+	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> converter;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> resampler;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> audiosink;
 
 	void cleanup();
 public:
 	DmpReceiver();
+	virtual ~DmpReceiver();
+	
+	DmpReceiver(DmpReceiver&&) = default;
+	DmpReceiver& operator=(DmpReceiver&&) = default;
+	
 	void stop();
 	void connect(std::string host, uint16_t port);
 };

@@ -184,7 +184,7 @@ void DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
-	receiver_thread = std::thread(std::bind(&DmpReceiver::connect, receiver, host, req.port));
+	receiver_thread = std::thread(std::bind(&DmpReceiver::connect, std::ref(receiver), host, req.port));
 }
 
 void DmpClient::handle_radios(message::Radios radios)

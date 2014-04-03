@@ -4,22 +4,13 @@
 #include <iostream>
 
 DmpSender::DmpSender()
-: loop(nullptr)
-, pipeline(nullptr)
-, source(nullptr)
-, decoder(nullptr)
-, encoder(nullptr)
-, sink(nullptr)
-, bus(nullptr)
+: loop(g_main_loop_new(nullptr, false))
+, pipeline(gst_pipeline_new("sender"))
+, source(gst_element_factory_make("filesrc", "file"))
+, decoder(gst_element_factory_make("decodebin", "decoder"))
+, encoder(gst_element_factory_make("lamemp3enc", "encoder"))
+, sink(gst_element_factory_make("tcpclientsink", "send"))
 {
-	loop = g_main_loop_new(nullptr, false);
-
-	pipeline = gst_pipeline_new("sender");
-	source   = gst_element_factory_make("filesrc", "file");
-	decoder  = gst_element_factory_make("decodebin", "decoder");
-	encoder  = gst_element_factory_make("lamemp3enc", "encoder");
-	sink     = gst_element_factory_make("tcpclientsink", "send");
-
 	if (!pipeline || !source || !decoder || !encoder || !sink)
 	{
 		CHECK_GSTREAMER_COMPONENT(pipeline);
@@ -29,48 +20,49 @@ DmpSender::DmpSender()
 		CHECK_GSTREAMER_COMPONENT(sink);
 		throw std::runtime_error("Could not create the pipeline components for this sender.");
 	}
+	
+	bus.reset(gst_pipeline_get_bus (GST_PIPELINE (pipeline.get())));
+	add_bus_callbacks();
 
-	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-	gst_bus_add_watch (bus, bus_call, this);
+	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), decoder.get(), encoder.get(), sink.get(), nullptr);
+	gst_element_link_many(source.get(), decoder.get(), nullptr);
+	g_signal_connect(decoder.get(), "pad-added", G_CALLBACK(on_pad_added), encoder.get());
+	gst_element_link_many(encoder.get(), sink.get(), nullptr);
 
-	gst_bin_add_many (GST_BIN(pipeline), source, decoder, encoder, sink, nullptr);
-	gst_element_link_many(source, decoder, nullptr);
-	g_signal_connect(decoder, "pad-added", G_CALLBACK(on_pad_added), encoder);
-	gst_element_link_many(encoder, sink, nullptr);
-
-	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_sender");
+	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_sender");
 }
 
-void DmpSender::eos_reached()
+DmpSender::~DmpSender()
 {
-	g_main_loop_quit(loop);
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	g_main_loop_quit(loop.get());
 }
 
 void DmpSender::run(std::string host, uint16_t port, std::string file){
-	g_object_set(G_OBJECT(source), "location", file.c_str(), nullptr);
+	g_object_set(G_OBJECT(source.get()), "location", file.c_str(), nullptr);
 
-	g_object_set(G_OBJECT(encoder), "bitrate", gint(320), nullptr);
-	g_object_set(G_OBJECT(encoder), "cbr", gboolean(true), nullptr);
+	g_object_set(G_OBJECT(encoder.get()), "bitrate", gint(320), nullptr);
+	g_object_set(G_OBJECT(encoder.get()), "cbr", gboolean(true), nullptr);
 
-	g_object_set(G_OBJECT(sink), "host", host.c_str(), nullptr);
-	g_object_set(G_OBJECT(sink), "port", gint(port), nullptr);
+	g_object_set(G_OBJECT(sink.get()), "host", host.c_str(), nullptr);
+	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	
-	gst_element_set_state(pipeline, GST_STATE_READY);
+	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 
-	g_main_loop_run(loop);
+	g_main_loop_run(loop.get());
 }
 
 void DmpSender::pause()
 {
-	gst_element_set_state(pipeline, GST_STATE_PAUSED);
+	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 }
 
 void DmpSender::play()
 {
-	gst_element_set_state(pipeline, GST_STATE_PLAYING);
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 }
 
 void DmpSender::stop()
 {
-	gst_element_set_state(pipeline, GST_STATE_READY);
+	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 }

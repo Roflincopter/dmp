@@ -2,6 +2,17 @@
 #include "gstreamer_base.hpp"
 
 #include <iostream>
+#include <cassert>
+
+void GStreamerBase::add_bus_callbacks()
+{
+	if(gst_bus_watch_id) {
+		g_source_remove(gst_bus_watch_id);
+	}
+	if(bus) {
+		gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
+	}
+}
 
 void GStreamerBase::eos_reached()
 {
@@ -10,13 +21,13 @@ void GStreamerBase::eos_reached()
 
 void GStreamerBase::error_encountered(GError err)
 {
-	
+	std::cerr << std::string(err.message) << std::endl;
 }
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 {
 	GStreamerBase* base = static_cast<GStreamerBase*>(data);
-
+	
 	switch (GST_MESSAGE_TYPE (msg)) {
 
 	case GST_MESSAGE_EOS:
