@@ -4,22 +4,18 @@
 #include <tuple>
 
 DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool)
-: name(name)
+: GStreamerBase("tcp_bridge")
+, name(name)
 , server(server)
 , port_pool(port_pool)
 , radio_mutex(new std::mutex)
-, pipeline(gst_pipeline_new("tcp_bridge"))
 , source(gst_element_factory_make("tcpserversrc", "recv"))
 , sink(gst_element_factory_make("tcpserversink", "send"))
 , recv_port(port_pool->AllocateNumber())
 , send_port(port_pool->AllocateNumber())
 {
-	bus.reset(gst_pipeline_get_bus (GST_PIPELINE (pipeline.get())));
-	add_bus_callbacks();
-	
-	if (!pipeline || !source || !sink)
+	if (!source || !sink)
 	{
-		CHECK_GSTREAMER_COMPONENT(pipeline);
 		CHECK_GSTREAMER_COMPONENT(source);
 		CHECK_GSTREAMER_COMPONENT(sink);
 		throw std::runtime_error("Could not create the pipeline components for this radio.");
@@ -30,11 +26,6 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	
 	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), sink.get(), nullptr);
 	gst_element_link_many(source.get(), sink.get(), nullptr);
-
-	//Nifty GStreamer debug graph.
-	std::string prefix("dmp_radio_");
-	std::string graph_file_name = prefix + name;
-	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, graph_file_name.c_str());
 }
 
 DmpRadio::~DmpRadio()

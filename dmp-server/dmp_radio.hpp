@@ -21,8 +21,7 @@ private:
 	std::string name;
 	std::weak_ptr<DmpServerInterface> server;
 	std::shared_ptr<NumberPool> port_pool;
-	
-	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
+
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	

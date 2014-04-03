@@ -4,16 +4,6 @@
 #include <iostream>
 #include <cassert>
 
-void GStreamerBase::add_bus_callbacks()
-{
-	if(gst_bus_watch_id) {
-		g_source_remove(gst_bus_watch_id);
-	}
-	if(bus) {
-		gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
-	}
-}
-
 void GStreamerBase::eos_reached()
 {
 	std::cerr << "End of stream Reached." << std::endl;
@@ -32,6 +22,11 @@ void GStreamerBase::run_loop()
 void GStreamerBase::stop_loop()
 {
 	g_main_loop_quit(loop.get());
+}
+
+void GStreamerBase::make_debug_graph()
+{
+	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, name.c_str());
 }
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)

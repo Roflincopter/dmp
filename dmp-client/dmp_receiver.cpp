@@ -4,16 +4,15 @@
 #include <iostream>
 
 DmpReceiver::DmpReceiver()
-: pipeline(gst_pipeline_new("receiver"))
+: GStreamerBase("receiver")
 , source(gst_element_factory_make("tcpclientsrc", "stream"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
 , converter(gst_element_factory_make("audioconvert", "converter"))
 , resampler(gst_element_factory_make("audioresample", "resampler"))
 , audiosink(gst_element_factory_make("autoaudiosink", "audiosink"))
 {
-	if (!pipeline || !source || !decoder || !converter || !resampler || !audiosink)
+	if (!source || !decoder || !converter || !resampler || !audiosink)
 	{
-		CHECK_GSTREAMER_COMPONENT(pipeline);
 		CHECK_GSTREAMER_COMPONENT(source);
 		CHECK_GSTREAMER_COMPONENT(decoder);
 		CHECK_GSTREAMER_COMPONENT(converter);
@@ -21,9 +20,6 @@ DmpReceiver::DmpReceiver()
 		CHECK_GSTREAMER_COMPONENT(audiosink);
 		throw std::runtime_error("Could not create the pipeline components for this receiver.");
 	}
-
-	bus.reset(gst_pipeline_get_bus (GST_PIPELINE (pipeline.get())));
-	add_bus_callbacks();
 
 	gst_bin_add_many(GST_BIN(pipeline.get()), source.get(), decoder.get(), converter.get(), resampler.get(), audiosink.get(), nullptr);
 	gst_element_link_many(source.get(), decoder.get(), nullptr);
