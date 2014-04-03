@@ -128,17 +128,31 @@ void DmpClientGui::dmpConnect()
 
 void DmpClientGui::StopPressed()
 {
+	disconnect(
+		ui.actionPlay, SIGNAL(toggled(bool)),
+		this,          SLOT(PlayPauseToggled(bool))
+	);
+	ui.actionPlay->setChecked(false);
+	connect(
+		ui.actionPlay, SIGNAL(toggled(bool)),
+		this,          SLOT(PlayPauseToggled(bool))
+	);
+	
 	client->stop_radio(shared_radio_list->get_current_radio());
 }
 
 void DmpClientGui::PlayPauseToggled(bool state)
 {
-	
+	if(state) {
+		client->play_radio(shared_radio_list->get_current_radio());
+	} else {
+		client->pause_radio(shared_radio_list->get_current_radio());
+	}
 }
 
 void DmpClientGui::NextPressed()
 {
-	
+	client->next_radio(shared_radio_list->get_current_radio());
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)
