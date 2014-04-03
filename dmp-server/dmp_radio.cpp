@@ -8,7 +8,6 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , server(server)
 , port_pool(port_pool)
 , radio_mutex(new std::mutex)
-, loop(g_main_loop_new(nullptr, false))
 , pipeline(gst_pipeline_new("tcp_bridge"))
 , source(gst_element_factory_make("tcpserversrc", "recv"))
 , sink(gst_element_factory_make("tcpserversink", "send"))
@@ -44,10 +43,9 @@ DmpRadio::~DmpRadio()
 	g_main_loop_quit(loop.get());
 }
 
-void DmpRadio::run()
+void DmpRadio::listen()
 {
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
-	g_main_loop_run(loop.get());
 }
 
 //Reversing the logic here. The receiving end of the client is on the sender end of the radio and vice versa.

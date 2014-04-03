@@ -32,6 +32,8 @@ struct GStreamerEmptyDeleter {
 
 struct GStreamerBase {
 	guint gst_bus_watch_id;
+	
+	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
 	std::unique_ptr<GstBus, GStreamerObjectDeleter> bus;
 	
 	virtual void eos_reached();
@@ -39,6 +41,7 @@ struct GStreamerBase {
 	
 	GStreamerBase() 
 	: gst_bus_watch_id(0)
+	, loop(g_main_loop_new(nullptr, false))
 	, bus(nullptr)
 	{
 		add_bus_callbacks();
@@ -46,12 +49,18 @@ struct GStreamerBase {
 	
 	GStreamerBase(GStreamerBase&& base)
 	: gst_bus_watch_id(std::move(base.gst_bus_watch_id))
+	, loop(std::move(base.loop))
 	, bus(std::move(base.bus))
 	{
 		base.gst_bus_watch_id = 0;
+		base.loop.reset();
 		base.bus.reset();
+		
 		add_bus_callbacks();
 	}
+	
+	void run_loop();
+	void stop_loop();
 	
 protected: 
 	void add_bus_callbacks();

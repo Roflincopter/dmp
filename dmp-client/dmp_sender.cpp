@@ -4,8 +4,7 @@
 #include <iostream>
 
 DmpSender::DmpSender()
-: loop(g_main_loop_new(nullptr, false))
-, pipeline(gst_pipeline_new("sender"))
+: pipeline(gst_pipeline_new("sender"))
 , source(gst_element_factory_make("filesrc", "file"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
 , encoder(gst_element_factory_make("lamemp3enc", "encoder"))
@@ -38,7 +37,8 @@ DmpSender::~DmpSender()
 	g_main_loop_quit(loop.get());
 }
 
-void DmpSender::run(std::string host, uint16_t port, std::string file){
+void DmpSender::setup(std::string host, uint16_t port, std::string file)
+{
 	g_object_set(G_OBJECT(source.get()), "location", file.c_str(), nullptr);
 
 	g_object_set(G_OBJECT(encoder.get()), "bitrate", gint(320), nullptr);
@@ -48,8 +48,6 @@ void DmpSender::run(std::string host, uint16_t port, std::string file){
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
-
-	g_main_loop_run(loop.get());
 }
 
 void DmpSender::pause()

@@ -180,11 +180,12 @@ void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 
 void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
 {
-	receiver.stop();
+	receiver.stop_loop();
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
-	receiver_thread = std::thread(std::bind(&DmpReceiver::connect, std::ref(receiver), host, req.port));
+	receiver_thread = std::thread(std::bind(&DmpReceiver::run_loop, std::ref(receiver)));
+	receiver.setup(host, req.port);
 }
 
 void DmpClient::handle_radios(message::Radios radios)
@@ -193,7 +194,7 @@ void DmpClient::handle_radios(message::Radios radios)
 }
 
 DmpClient::~DmpClient() {
-	receiver.stop();
+	receiver.stop_loop();
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
@@ -214,14 +215,15 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	senders.emplace(sr.radio_name, DmpSender());
 	auto sender_runner = [this, sr]{
 		try {
-			senders[sr.radio_name].run(host, sr.port, library.get_filename(sr.entry));
+			senders[sr.radio_name].run_loop();
 		} catch(std::runtime_error e){
 			std::cout << "Sender crashed with message: " << e.what() << std::endl;
 		}
 	};
-	
 	std::thread t(sender_runner);
 	t.detach();
+	
+	senders[sr.radio_name].setup(host, sr.port, library.get_filename(sr.entry));
 }
 
 void DmpClient::handle_radio_event(message::RadioEvent re)

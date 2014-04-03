@@ -6,9 +6,7 @@
 #include <string>
 
 class DmpReceiver : public GStreamerBase
-{
-	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
-	
+{	
 	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
@@ -24,7 +22,6 @@ public:
 	DmpReceiver(DmpReceiver&&) = default;
 	DmpReceiver& operator=(DmpReceiver&&) = default;
 	
-	void stop();
-	void connect(std::string host, uint16_t port);
+	void setup(std::string host, uint16_t port);
 };
 

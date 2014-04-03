@@ -4,8 +4,7 @@
 #include <iostream>
 
 DmpReceiver::DmpReceiver()
-: loop(g_main_loop_new(nullptr, false))
-, pipeline(gst_pipeline_new("receiver"))
+: pipeline(gst_pipeline_new("receiver"))
 , source(gst_element_factory_make("tcpclientsrc", "stream"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
 , converter(gst_element_factory_make("audioconvert", "converter"))
@@ -38,22 +37,13 @@ DmpReceiver::~DmpReceiver()
 	g_main_loop_quit(loop.get());
 }
 
-void DmpReceiver::stop()
-{
-	g_main_loop_quit(loop.get());
-}
-
-void DmpReceiver::connect(std::string host, uint16_t port)
-{
+void DmpReceiver::setup(std::string host, uint16_t port) {
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-
+	
 	g_object_set(G_OBJECT(source.get()), "host", host.c_str(), nullptr);
 	g_object_set(G_OBJECT(source.get()), "port", gint(port), nullptr);
-
+	
 	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, "dmp_receiver");
-
+	
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
-
-	g_main_loop_run(loop.get());
 }
-

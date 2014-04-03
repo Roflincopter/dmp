@@ -22,8 +22,6 @@ private:
 	std::weak_ptr<DmpServerInterface> server;
 	std::shared_ptr<NumberPool> port_pool;
 	
-	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
-	
 	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
@@ -42,9 +40,9 @@ public:
 	DmpRadio& operator=(DmpRadio&& r) = default;
 	
 	~DmpRadio();
-	
-	void run();
 
+	void listen();
+	
 	uint16_t get_sender_port();
 	uint16_t get_receiver_port();
 

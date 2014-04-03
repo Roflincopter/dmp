@@ -110,8 +110,10 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 			)
 		).first;
 		origin->forward(message::AddRadioResponse(ar.name, true, ""));
-		radio_it->second.first = std::thread(std::bind(&DmpRadio::run, std::ref(radio_it->second.second)));
+		radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
 		origin->forward(message::ListenConnectionRequest(radio_it->second.second.get_receiver_port()));
+		
+		radio_it->second.second.listen();
 		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));

@@ -7,8 +7,6 @@
 
 class DmpSender : public GStreamerBase
 {	
-	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
-	
 	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
@@ -22,7 +20,7 @@ public:
 	DmpSender(DmpSender&&) = default;
 	DmpSender& operator=(DmpSender&&) = default;
 
-	void run(std::string host, uint16_t port, std::string file);
+	void setup(std::string host, uint16_t port, std::string file);
 	
 	void pause();
 	void play();

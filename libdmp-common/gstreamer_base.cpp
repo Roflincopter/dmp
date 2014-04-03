@@ -24,6 +24,16 @@ void GStreamerBase::error_encountered(GError err)
 	std::cerr << std::string(err.message) << std::endl;
 }
 
+void GStreamerBase::run_loop()
+{
+	g_main_loop_run(loop.get());
+}
+
+void GStreamerBase::stop_loop()
+{
+	g_main_loop_quit(loop.get());
+}
+
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 {
 	GStreamerBase* base = static_cast<GStreamerBase*>(data);
