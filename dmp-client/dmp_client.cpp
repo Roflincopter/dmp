@@ -18,6 +18,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , playlists_model(std::make_shared<PlaylistsModel>())
 , radio_list_model(std::make_shared<RadioListModel>())
 , search_bar_model(std::make_shared<SearchBarModel>())
+, search_result_model(std::make_shared<SearchResultModel>())
 {
 }
 
@@ -76,6 +77,11 @@ std::shared_ptr<RadioListModel> DmpClient::get_radio_list_model()
 std::shared_ptr<SearchBarModel> DmpClient::get_search_bar_model()
 {
 	return search_bar_model;
+}
+
+std::shared_ptr<SearchResultModel> DmpClient::get_search_result_model()
+{
+	return search_result_model;
 }
 
 void DmpClient::run()

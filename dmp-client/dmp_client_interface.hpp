@@ -5,6 +5,7 @@
 #include "playlists_model.hpp"
 #include "radio_list_model.hpp"
 #include "search_bar_model.hpp"
+#include "search_result_model.hpp"
 
 #include <memory>
 
@@ -26,6 +27,7 @@ struct DmpClientInterface {
 	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() = 0;
 	virtual std::shared_ptr<RadioListModel> get_radio_list_model() = 0;
 	virtual std::shared_ptr<SearchBarModel> get_search_bar_model() = 0;
-
+	virtual std::shared_ptr<SearchResultModel> get_search_result_model() = 0;
+	
 	virtual ~DmpClientInterface(){}
 };

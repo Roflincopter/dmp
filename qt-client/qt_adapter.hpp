@@ -15,4 +15,9 @@ struct QtAdapter
 	{
 		model = new_model;
 	}
+	
+	std::shared_ptr<T> get_model()
+	{
+		return model;
+	}
 };

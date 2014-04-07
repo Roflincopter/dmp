@@ -66,6 +66,7 @@ set(DmpClientSources
 	dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
 	dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
 	dmp_client_gui_playlists.hpp dmp_client_gui_playlists.cpp
+	qt_adapter.hpp
 	boost_any_to_qvariant.hpp
 	gui_item_delegate.hpp gui_item_delegate.cpp
 	${QtGeneratedHeaders} ${QtGeneratedSources}

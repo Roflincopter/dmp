@@ -23,6 +23,6 @@ public:
 	void append(std::string radio_name, Playlist playlist);
 	void reset(std::string radio_name);
 
-	void create_radio(std::string radio_name);
+	auto create_radio(std::string radio_name) -> decltype(model->create_radio(radio_name));
 	void set_current_radio(std::string radio_name);
 };

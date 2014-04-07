@@ -87,7 +87,7 @@ void PlaylistsModelQtAdapter::reset(std::string radio_name)
 	}
 }
 
-void PlaylistsModelQtAdapter::create_radio(std::string radio_name)
+auto PlaylistsModelQtAdapter::create_radio(std::string radio_name) -> decltype(model->create_radio(radio_name))
 {
 	model->create_radio(radio_name);
 }

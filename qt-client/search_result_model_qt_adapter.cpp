@@ -16,25 +16,25 @@ void SearchResultModelQtAdapter::add_search_response(message::SearchResponse sea
 		return;
 	}
 	beginInsertRows(QModelIndex(), rowCount(), rowCount() + search_response.results.size() - 1);
-	SearchResultModel::add_search_response(search_response);
+	model->add_search_response(search_response);
 	endInsertRows();
 }
 
 void SearchResultModelQtAdapter::clear()
 {
 	beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
-	SearchResultModel::clear();
+	model->clear();
 	endRemoveRows();
 }
 
 int SearchResultModelQtAdapter::rowCount(const QModelIndex&) const
 {
-	return row_count();
+	return model->row_count();
 }
 
 int SearchResultModelQtAdapter::columnCount(const QModelIndex&) const
 {
-	return column_count();
+	return model->column_count();
 }
 
 QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) const
@@ -46,7 +46,7 @@ QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) co
 		return QVariant();
 	}
 	try {
-		return QVariant(to_qvariant<SearchResultModel::ElementType>(get_cell(index.row(), index.column()), index.column()));
+		return QVariant(to_qvariant<SearchResultModel::ElementType>(model->get_cell(index.row(), index.column()), index.column()));
 	} catch (std::out_of_range e) {
 		return QVariant();
 	}
@@ -67,8 +67,13 @@ QVariant SearchResultModelQtAdapter::headerData(int section, Qt::Orientation ori
 	}
 
 	try {
-		return QVariant(QString::fromStdString(header_data(section)));
+		return QVariant(QString::fromStdString(model->header_data(section)));
 	} catch(std::out_of_range e) {
 		return QVariant();
 	}
+}
+
+auto SearchResultModelQtAdapter::get_row_info(int index) -> decltype(model->get_row_info(index))
+{
+	return model->get_row_info(index);
 }

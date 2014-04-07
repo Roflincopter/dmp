@@ -18,6 +18,7 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
+	model.set_model(client->get_search_result_model());
 }
 
 void DmpClientGuiSearchResults::search_results(message::SearchResponse search_response)

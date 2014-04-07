@@ -34,6 +34,7 @@ class DmpClient : public DmpClientInterface
 	std::shared_ptr<PlaylistsModel> playlists_model;
 	std::shared_ptr<RadioListModel> radio_list_model;
 	std::shared_ptr<SearchBarModel> search_bar_model;
+	std::shared_ptr<SearchResultModel> search_result_model;
 
 public:
 
@@ -46,9 +47,10 @@ public:
 	message::DmpCallbacks::Callbacks_t initial_callbacks();
 	
 	void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
-	std::shared_ptr<PlaylistsModel> get_playlists_model();
-	std::shared_ptr<RadioListModel> get_radio_list_model();
-	std::shared_ptr<SearchBarModel> get_search_bar_model();
+	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() override final;
+	virtual std::shared_ptr<RadioListModel> get_radio_list_model() override final;
+	virtual std::shared_ptr<SearchBarModel> get_search_bar_model() override final;
+	virtual std::shared_ptr<SearchResultModel> get_search_result_model() override final;
 
 	void handle_request(message::Type t);
 	void listen_requests();
