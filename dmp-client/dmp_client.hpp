@@ -5,6 +5,7 @@
 #include "dmp_receiver.hpp"
 #include "dmp_client_interface.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "playlists_model.hpp"
 
 #include "message_switch.hpp"
 
@@ -29,6 +30,8 @@ class DmpClient : public DmpClientInterface
 	MessageSwitch message_switch;
 	
 	boost::asio::deadline_timer debug_timer;
+	
+	std::shared_ptr<PlaylistsModel> playlists_model;
 
 public:
 
@@ -41,6 +44,7 @@ public:
 	message::DmpCallbacks::Callbacks_t initial_callbacks();
 	
 	void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
+	std::shared_ptr<PlaylistsModel> get_playlists_model();
 
 	void handle_request(message::Type t);
 	void listen_requests();

@@ -10,6 +10,11 @@ PlaylistsModel::PlaylistsModel()
 {
 }
 
+std::string PlaylistsModel::get_current_radio()
+{
+	return current_radio;
+}
+
 int PlaylistsModel::row_count() const
 {
 	auto it = playlists.find(current_radio);

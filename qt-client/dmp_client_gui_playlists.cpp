@@ -15,6 +15,7 @@ DmpClientGuiPlaylists::DmpClientGuiPlaylists(QWidget *parent) : QTableView(paren
 void DmpClientGuiPlaylists::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
+	model.set_model(client->get_playlists_model());
 }
 
 void DmpClientGuiPlaylists::radios_update(message::Radios update)

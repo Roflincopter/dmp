@@ -2,6 +2,9 @@
 
 #include "message_callbacks.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "playlists_model.hpp"
+
+#include <memory>
 
 struct DmpClientInterface {
 
@@ -18,6 +21,7 @@ struct DmpClientInterface {
 	virtual void next_radio(std::string) = 0;
 
 	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate) = 0;
+	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() = 0;
 
 	virtual ~DmpClientInterface(){}
 };

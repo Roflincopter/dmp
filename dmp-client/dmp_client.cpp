@@ -15,6 +15,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
 , debug_timer(*connection.io_service)
+, playlists_model(std::make_shared<PlaylistsModel>())
 {
 }
 
@@ -58,6 +59,11 @@ void DmpClient::timed_debug()
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
 	delegates.push_back(delegate);
+}
+
+std::shared_ptr<PlaylistsModel> DmpClient::get_playlists_model()
+{
+	return playlists_model;
 }
 
 void DmpClient::run()
