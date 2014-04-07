@@ -8,6 +8,7 @@
 class DmpReceiver : public GStreamerBase
 {	
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
+//	std::unique_ptr<GstElement, GStreamerEmptyDeleter> rtpdepay;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> converter;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> resampler;
@@ -16,11 +17,11 @@ class DmpReceiver : public GStreamerBase
 	void cleanup();
 public:
 	DmpReceiver();
-	virtual ~DmpReceiver();
 	
 	DmpReceiver(DmpReceiver&&) = default;
 	DmpReceiver& operator=(DmpReceiver&&) = default;
 	
 	void setup(std::string host, uint16_t port);
+	void play();
 };
 

@@ -43,30 +43,11 @@ struct GStreamerBase {
 	virtual void eos_reached();
 	virtual void error_encountered(GError err);
 	
-	GStreamerBase(std::string name) 
-	: name(name)
-	, loop(g_main_loop_new(nullptr, false))
-	, pipeline(gst_pipeline_new(name.c_str()))
-	, bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
-	, gst_bus_watch_id(gst_bus_add_watch(bus.get(), bus_call, this))
-	{}
+	GStreamerBase(std::string name);
 	
-	GStreamerBase(GStreamerBase&& base)
-	: name(std::move(base.name))
-	, loop(std::move(base.loop))
-	, pipeline(std::move(base.pipeline))
-	, bus(std::move(base.bus))
-	, gst_bus_watch_id(std::move(base.gst_bus_watch_id))
-	{
-		base.name = "";
-		base.loop.reset();
-		base.pipeline.reset();
-		base.bus.reset();
-		base.gst_bus_watch_id = 0;
-		
-		g_source_remove(gst_bus_watch_id);
-		gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
-	}
+	GStreamerBase(GStreamerBase&& base);
+	
+	virtual ~GStreamerBase();
 	
 	void run_loop();
 	void stop_loop();

@@ -19,7 +19,11 @@ target_link_libraries(dmp-server ${Boost_LIBRARIES})
 
 find_package(GStreamer REQUIRED)
 include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
+message(STATUS "GSTREAMER LIBRARIES: ${GSTREAMER_LIBRARIES}")
 target_link_libraries(dmp-server ${GSTREAMER_LIBRARIES})
+include_directories(SYSTEM ${GSTREAMER_BASE_INCLUDE_DIRS})
+message(STATUS "GSTREAMER_BASE LIBRARIES: ${GSTREAMER_BASE_LIBRARIES}")
+target_link_libraries(dmp-server ${GSTREAMER_BASE_LIBRARIES})
 
 find_package(GLIB2 REQUIRED)
 include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})

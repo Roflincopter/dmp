@@ -10,28 +10,27 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , port_pool(port_pool)
 , radio_mutex(new std::mutex)
 , source(gst_element_factory_make("tcpserversrc", "recv"))
+, parser(gst_element_factory_make("mpegaudioparse", "parser"))
 , sink(gst_element_factory_make("tcpserversink", "send"))
 , recv_port(port_pool->AllocateNumber())
 , send_port(port_pool->AllocateNumber())
 {
-	if (!source || !sink)
+	if (!source || !parser || !sink)
 	{
 		CHECK_GSTREAMER_COMPONENT(source);
+		CHECK_GSTREAMER_COMPONENT(parser);
 		CHECK_GSTREAMER_COMPONENT(sink);
 		throw std::runtime_error("Could not create the pipeline components for this radio.");
 	}
 
 	g_object_set(G_OBJECT(source.get()), "port", gint(recv_port), nullptr);
+	
 	g_object_set(G_OBJECT(sink.get()), "port", gint(send_port), nullptr);
 	
-	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), sink.get(), nullptr);
-	gst_element_link_many(source.get(), sink.get(), nullptr);
-}
-
-DmpRadio::~DmpRadio()
-{
-	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	g_main_loop_quit(loop.get());
+	gst_bin_add_many (GST_BIN(pipeline.get()), parser.get(), source.get(), sink.get(), nullptr);
+	if(!gst_element_link_many(source.get(), parser.get(), sink.get(), nullptr)) {
+		throw std::runtime_error("Linking the elements failed");
+	}
 }
 
 void DmpRadio::listen()

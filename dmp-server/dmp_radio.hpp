@@ -23,6 +23,7 @@ private:
 	std::shared_ptr<NumberPool> port_pool;
 
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> parser;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	
 	std::unique_ptr<std::mutex> radio_mutex;
@@ -37,8 +38,6 @@ public:
 
 	DmpRadio(DmpRadio&& r) = default;
 	DmpRadio& operator=(DmpRadio&& r) = default;
-	
-	~DmpRadio();
 
 	void listen();
 	

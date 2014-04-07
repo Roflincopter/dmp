@@ -48,6 +48,8 @@ void DmpClient::timed_debug()
 			throw std::runtime_error("something went wrong in the client debug timer.");
 		}
 		
+		
+		
 		timed_debug();
 	};
 	debug_timer.async_wait(cb);
@@ -186,6 +188,7 @@ void DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 	}
 	receiver_thread = std::thread(std::bind(&DmpReceiver::run_loop, std::ref(receiver)));
 	receiver.setup(host, req.port);
+	receiver.play();
 }
 
 void DmpClient::handle_radios(message::Radios radios)
@@ -215,7 +218,7 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	senders.emplace(sr.radio_name, DmpSender());
 	auto sender_runner = [this, sr]{
 		try {
-			senders[sr.radio_name].run_loop();
+			senders.at(sr.radio_name).run_loop();
 		} catch(std::runtime_error e){
 			std::cout << "Sender crashed with message: " << e.what() << std::endl;
 		}
@@ -223,12 +226,12 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	std::thread t(sender_runner);
 	t.detach();
 	
-	senders[sr.radio_name].setup(host, sr.port, library.get_filename(sr.entry));
+	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
 }
 
 void DmpClient::handle_radio_event(message::RadioEvent re)
 {
-	DmpSender& sender = senders[re.radio_name];
+	DmpSender& sender = senders.at(re.radio_name);
 	switch(re.action)
 	{
 		case message::RadioEvent::Action::Pause:

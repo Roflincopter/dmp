@@ -10,11 +10,11 @@ class DmpSender : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> encoder;
+//	std::unique_ptr<GstElement, GStreamerEmptyDeleter> rtppay;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	
 public:
 	DmpSender();
-	virtual ~DmpSender();
 	
 	DmpSender(DmpSender&&) = default;
 	DmpSender& operator=(DmpSender&&) = default;
