@@ -1,14 +1,14 @@
 #pragma once
 
+#include "qt_adapter.hpp"
 #include "radio_list_model.hpp"
 
 #include <QAbstractListModel>
 
 #include <memory>
 
-class RadioListModelQtAdapter : public QAbstractListModel
+class RadioListModelQtAdapter : public QtAdapter<RadioListModel>, public QAbstractListModel
 {
-	std::shared_ptr<RadioListModel> model;
 public:
 	RadioListModelQtAdapter();
 	

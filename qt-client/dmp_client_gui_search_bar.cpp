@@ -9,6 +9,7 @@ DmpClientGuiSearchBar::DmpClientGuiSearchBar(QWidget *parent)
 void DmpClientGuiSearchBar::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
+	model.set_model(client->get_search_bar_model());
 }
 
 void DmpClientGuiSearchBar::query_parse_error(dmp_library::ParseError e)

@@ -3,7 +3,6 @@
 #include "boost_any_to_qvariant.hpp"
 
 PlaylistsModelQtAdapter::PlaylistsModelQtAdapter()
-: model(std::make_shared<PlaylistsModel>())
 {
 }
 

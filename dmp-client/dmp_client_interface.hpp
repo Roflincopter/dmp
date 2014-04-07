@@ -4,6 +4,7 @@
 #include "dmp_client_ui_delegate.hpp"
 #include "playlists_model.hpp"
 #include "radio_list_model.hpp"
+#include "search_bar_model.hpp"
 
 #include <memory>
 
@@ -24,6 +25,7 @@ struct DmpClientInterface {
 	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate) = 0;
 	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() = 0;
 	virtual std::shared_ptr<RadioListModel> get_radio_list_model() = 0;
+	virtual std::shared_ptr<SearchBarModel> get_search_bar_model() = 0;
 
 	virtual ~DmpClientInterface(){}
 };

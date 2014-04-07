@@ -1,14 +1,13 @@
 #pragma once
 
+#include "qt_adapter.hpp"
 #include "playlists_model.hpp"
 
 #include <QAbstractTableModel>
 
-class PlaylistsModelQtAdapter : public QAbstractTableModel
+class PlaylistsModelQtAdapter : public QtAdapter<PlaylistsModel>, public QAbstractTableModel
 {
 private:
-	std::shared_ptr<PlaylistsModel> model;
-	
 	bool should_update_view(std::string radio_name);
 public:
 	PlaylistsModelQtAdapter();

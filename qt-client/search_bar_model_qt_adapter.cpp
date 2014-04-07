@@ -3,8 +3,8 @@
 #include <iostream>
 
 SearchBarModelQtAdapter::SearchBarModelQtAdapter()
-: expected(get_expected())
-, pivot(get_pivot())
+: expected(model->get_expected())
+, pivot(model->get_pivot())
 {
 
 }
@@ -64,7 +64,7 @@ void SearchBarModelQtAdapter::set_error_state(QLineEdit *search_bar)
 
 void SearchBarModelQtAdapter::set_data(std::string new_expected, size_t new_pivot)
 {
-	SearchBarModel::set_data(new_expected, new_pivot);
+	model->set_data(new_expected, new_pivot);
 }
 
 void SearchBarModelQtAdapter::model_check_state(int cursor_pos, QLineEdit* search_bar)

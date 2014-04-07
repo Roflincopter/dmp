@@ -1,7 +1,6 @@
 #include "radio_list_model_qt_adapter.hpp"
 
 RadioListModelQtAdapter::RadioListModelQtAdapter()
-: model(std::make_shared<RadioListModel>())
 {
 }
 
