@@ -1,12 +1,18 @@
 #include "radio_list_model_qt_adapter.hpp"
 
 RadioListModelQtAdapter::RadioListModelQtAdapter()
+: model(std::make_shared<RadioListModel>())
 {
+}
+
+void RadioListModelQtAdapter::set_model(std::shared_ptr<RadioListModel> new_model)
+{
+	model = new_model;
 }
 
 int RadioListModelQtAdapter::rowCount(const QModelIndex&) const
 {
-	return row_count();
+	return model->row_count();
 }
 
 QVariant RadioListModelQtAdapter::data(const QModelIndex& index, int role) const
@@ -19,19 +25,19 @@ QVariant RadioListModelQtAdapter::data(const QModelIndex& index, int role) const
 		return QVariant();
 	}
 
-	return QVariant(QString::fromStdString(get_data(index.row())));
+	return QVariant(QString::fromStdString(model->get_data(index.row())));
 }
 
 void RadioListModelQtAdapter::set_radio_names(std::vector<std::string> new_radio_names)
 {
 	beginResetModel();
-	RadioListModel::set_radio_names(new_radio_names);
+	model->set_radio_names(new_radio_names);
 	endResetModel();
 }
 
 void RadioListModelQtAdapter::add_radio(std::string radio_name)
 {
 	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-	RadioListModel::add_radio(radio_name);
+	model->add_radio(radio_name);
 	endInsertRows();
 }

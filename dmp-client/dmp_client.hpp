@@ -32,6 +32,7 @@ class DmpClient : public DmpClientInterface
 	boost::asio::deadline_timer debug_timer;
 	
 	std::shared_ptr<PlaylistsModel> playlists_model;
+	std::shared_ptr<RadioListModel> radio_list_model;
 
 public:
 
@@ -45,6 +46,7 @@ public:
 	
 	void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
 	std::shared_ptr<PlaylistsModel> get_playlists_model();
+	std::shared_ptr<RadioListModel> get_radio_list_model();
 
 	void handle_request(message::Type t);
 	void listen_requests();

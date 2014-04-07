@@ -21,6 +21,7 @@ void DmpClientGuiRadioList::selectionChanged(QItemSelection const& selected, QIt
 void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
+	model.set_model(client->get_radio_list_model());
 }
 
 void DmpClientGuiRadioList::addRadio()
