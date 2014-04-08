@@ -14,6 +14,7 @@ set(dmp-common-sources
 	playlist.hpp
 	message_switch.hpp
 	number_pool.hpp number_pool.cpp
+	timed_debug.hpp timed_debug.cpp
 )
 
 if(MINGW)

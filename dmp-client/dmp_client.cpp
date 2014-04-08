@@ -2,6 +2,7 @@
 
 #include "message_outputter.hpp"
 #include "connect.hpp"
+#include "timed_debug.hpp"
 
 DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 : name(name)
@@ -42,23 +43,6 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 	};
 }
 
-void DmpClient::timed_debug()
-{
-	debug_timer.expires_from_now(boost::posix_time::seconds(5));
-
-	auto cb = [this](boost::system::error_code ec){
-		if(ec)
-		{
-			throw std::runtime_error("something went wrong in the client debug timer.");
-		}
-		
-		
-		
-		timed_debug();
-	};
-	debug_timer.async_wait(cb);
-}
- 
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
 	delegates.push_back(delegate);
@@ -86,7 +70,6 @@ std::shared_ptr<SearchResultModel> DmpClient::get_search_result_model()
 
 void DmpClient::run()
 {
-	timed_debug();
 	listen_requests();
 	connection.io_service->run();
 }

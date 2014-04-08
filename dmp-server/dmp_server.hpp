@@ -21,8 +21,6 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 public:
 	DmpServer();
 
-	void timed_debug();
-
 	void run();
 	void stop();
 	void add_connection(dmp::Connection&& c);

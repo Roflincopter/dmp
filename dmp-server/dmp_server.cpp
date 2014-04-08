@@ -15,27 +15,8 @@ DmpServer::DmpServer()
 	gst_init(0, nullptr);
 }
 
-void DmpServer::timed_debug()
-{
-	debug_timer.expires_from_now(boost::posix_time::seconds(5));
-
-	auto cb = [this](boost::system::error_code ec){
-		if(ec)
-		{
-			throw std::runtime_error("something went wrong in the server debug timer.");
-		}
-
-		//std::cout << connections.size() << std::endl;
-
-		timed_debug();
-	};
-	debug_timer.async_wait(cb);
-}
-
 void DmpServer::run()
 {
-	timed_debug();
-
 	server_io_service.run();
 }
 

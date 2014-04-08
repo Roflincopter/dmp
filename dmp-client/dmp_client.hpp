@@ -41,8 +41,6 @@ public:
 	DmpClient(std::string name, std::string host, uint16_t port);
 	DmpClient(DmpClient&&) = default;
 	virtual ~DmpClient();
-	
-	void timed_debug();
 
 	message::DmpCallbacks::Callbacks_t initial_callbacks();
 	
