@@ -9,12 +9,8 @@
 
 #include <memory>
 
-class SearchBarModelQtAdapter : public QtAdapter<SearchBarModel>
+struct SearchBarModelQtAdapter : public QtAdapter<SearchBarModel>
 {
-	std::string& expected;
-	size_t& pivot;
-
-public:
 	SearchBarModelQtAdapter();
 
 	void set_line_edit_text_format(QLineEdit* search_bar, const std::vector<QTextLayout::FormatRange> formats);

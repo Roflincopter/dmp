@@ -3,11 +3,7 @@
 #include <iostream>
 
 SearchBarModelQtAdapter::SearchBarModelQtAdapter()
-: expected(model->get_expected())
-, pivot(model->get_pivot())
-{
-
-}
+{}
 
 void SearchBarModelQtAdapter::set_line_edit_text_format(QLineEdit *search_bar, const std::vector<QTextLayout::FormatRange> formats)
 {
@@ -43,7 +39,7 @@ void SearchBarModelQtAdapter::set_error_state(QLineEdit *search_bar)
 
 	QTextLayout::FormatRange fr_correct;
 	fr_correct.start = 0;
-	fr_correct.length = pivot;
+	fr_correct.length = model->get_pivot();
 	fr_correct.format = correct;
 
 	//Incorrect portion
@@ -51,8 +47,8 @@ void SearchBarModelQtAdapter::set_error_state(QLineEdit *search_bar)
 	incorrect.setForeground(Qt::red);
 
 	QTextLayout::FormatRange fr_incorrect;
-	fr_incorrect.start = pivot;
-	fr_incorrect.length = search_bar->text().length() - pivot;
+	fr_incorrect.start = model->get_pivot();
+	fr_incorrect.length = search_bar->text().length() - model->get_pivot();
 	fr_incorrect.format = incorrect;
 
 	//Set the text formats.
@@ -69,7 +65,7 @@ void SearchBarModelQtAdapter::set_data(std::string new_expected, size_t new_pivo
 
 void SearchBarModelQtAdapter::model_check_state(int cursor_pos, QLineEdit* search_bar)
 {
-	if(cursor_pos < 0 || size_t(cursor_pos) < pivot || cursor_pos == 0) {
+	if(cursor_pos < 0 || size_t(cursor_pos) < model->get_pivot() || cursor_pos == 0) {
 		reset_error_state(search_bar);
 	}
 }
