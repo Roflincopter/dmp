@@ -12,15 +12,23 @@ uint32_t LibraryEntry::next_id = 0;
 
 LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint32_t track, std::uint32_t length)
 : artist(artist)
-, ascii_artist(transliterate_to_ascii(artist))
+, ascii_artist()
 , title(title)
-, ascii_title(transliterate_to_ascii(title))
+, ascii_title()
 , album(album)
-, ascii_album(transliterate_to_ascii(album))
+, ascii_album()
 , track(track)
 , length(length)
 , id(next_id++)
-{}
+{
+	try {
+		this->ascii_artist = transliterate_to_ascii(artist);
+		this->ascii_title = transliterate_to_ascii(title);
+		this->ascii_album = transliterate_to_ascii(album);
+	} catch(...) {
+		
+	}
+}
 
 bool operator==(LibraryEntry const& lh, LibraryEntry const& rh)
 {

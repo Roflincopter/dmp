@@ -1,14 +1,13 @@
 #include "dmp-library.hpp"
+#include "icu-ascii-transliterator.hpp"
 
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
-
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-
 #include <boost/serialization/vector.hpp>
 
 #include <vector>
@@ -25,9 +24,19 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 	TagLib::AudioProperties* audio_prop = file.audioProperties();
 	TagLib::Tag* t = file.tag();
 	if(t && audio_prop) {
-		return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->length()));
+		try {
+			return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->length()));
+		} catch (std::runtime_error const& e) {
+			std::cout << "Creating LibraryEntry failed: " << e.what() << std::endl;
+			for (auto&& id : possible_transliterator_ids()) {
+				std::cout << id << std::endl;
+			}
+			
+			return boost::optional<LibraryEntry>();
+		}
 	}
 	else {
+		std::cout << "fileref or audio_prop not valid for file: " << p.string() << std::endl;
 		return boost::optional<LibraryEntry>();
 	}
 }
@@ -46,14 +55,10 @@ Library build_library(filesystem::recursive_directory_iterator it)
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
 				library.emplace_back(entry.get());
-#ifdef __GNUC__
-				filemap.emplace(entry.get().id, (char*)(*it).path().native().c_str());
-#else
-				filemap.emplace(entry.get().id, (*it).path().native());
-#endif
+				filemap.emplace(entry.get().id, (*it).path().string());
 			}
 		}
-		catch(std::runtime_error const&)
+		catch(std::runtime_error const& e)
 		{
 			continue;
 		}
@@ -132,6 +137,11 @@ Library create_library(string path, bool use_cache, bool create_cache)
 	else
 	{
 		Library lib = parse_directory(path);
+		
+		if(lib.tracklist.empty()) {
+			std::cout << "library was empty when writing cache file." << std::endl;
+		}
+		
 		if(create_cache)
 		{
 			write_cache(cache_path.string(), lib);
