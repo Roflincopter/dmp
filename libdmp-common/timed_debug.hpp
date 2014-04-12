@@ -11,6 +11,11 @@ struct timed_debug {
 	static std::string add_call(std::function<void()> f);
 	static void remove_call(std::string label);
 	
+	~timed_debug()
+	{
+		timed_debug::io_service.stop();
+	}
+	
 private:
 	static int interval;
 	static NumberPool label_pool;
