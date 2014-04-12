@@ -48,7 +48,19 @@ GStreamerBase::GStreamerBase(std::string name)
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
 , gst_bus_watch_id(gst_bus_add_watch(bus.get(), bus_call, this))
-{}
+{
+#ifdef __MINGW32__
+	// Call the init function of the plugin.
+	GST_PLUGIN_STATIC_REGISTER(coreelements);
+	GST_PLUGIN_STATIC_REGISTER(tcp);
+	GST_PLUGIN_STATIC_REGISTER(playback);
+	GST_PLUGIN_STATIC_REGISTER(audioconvert);
+	GST_PLUGIN_STATIC_REGISTER(audioresample);
+	GST_PLUGIN_STATIC_REGISTER(audioparsers);
+	GST_PLUGIN_STATIC_REGISTER(autodetect);
+	GST_PLUGIN_STATIC_REGISTER(lame);
+#endif
+}
 
 GStreamerBase::~GStreamerBase()
 {

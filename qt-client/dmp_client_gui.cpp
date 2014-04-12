@@ -57,7 +57,11 @@ void DmpClientGui::update_ui_client_interface()
 void DmpClientGui::test1()
 {
 	connect_client(boost::asio::ip::host_name(), "127.0.0.1", 1337);
+#ifdef __MINGW32__
+	client->index("E:\\");
+#else
 	client->index("/home/dennis/Music");
+#endif	
 	client->add_radio("Radio1");
 	client->search("artist contains \"C\"");
 }

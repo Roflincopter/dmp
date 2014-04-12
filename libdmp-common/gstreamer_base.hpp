@@ -7,6 +7,21 @@
 
 #define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
 
+#ifdef __MINGW32__
+extern "C" {
+// Must be done at global file scope, since this results in a function
+// prototype being declared.
+GST_PLUGIN_STATIC_DECLARE(coreelements);
+GST_PLUGIN_STATIC_DECLARE(tcp);
+GST_PLUGIN_STATIC_DECLARE(playback);
+GST_PLUGIN_STATIC_DECLARE(audioconvert);
+GST_PLUGIN_STATIC_DECLARE(audioresample);
+GST_PLUGIN_STATIC_DECLARE(audioparsers);
+GST_PLUGIN_STATIC_DECLARE(autodetect);
+GST_PLUGIN_STATIC_DECLARE(lame);
+}
+#endif
+
 void on_pad_added(_GstElement* element, _GstPad* pad, void* data);
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data);
 
