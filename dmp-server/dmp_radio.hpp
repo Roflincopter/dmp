@@ -23,6 +23,7 @@ private:
 	std::shared_ptr<NumberPool> port_pool;
 
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> buffer;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> parser;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	

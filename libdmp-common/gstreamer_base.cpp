@@ -9,13 +9,24 @@ void GStreamerBase::eos_reached()
 	std::cerr << "End of stream Reached." << std::endl;
 }
 
-void GStreamerBase::error_encountered(GError err)
+void GStreamerBase::error_encountered(std::string pipeline, std::string element, GError err)
 {
-	std::cerr << std::string(err.message) << std::endl;
+	std::cerr << pipeline << ":" << element << " message: " << std::string(err.message) << std::endl;
+}
+
+void GStreamerBase::buffer_high()
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+}
+
+void GStreamerBase::buffer_low()
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: name(std::move(base.name))
+: buffering(false)
+, name(std::move(base.name))
 , loop(std::move(base.loop))
 , pipeline(std::move(base.pipeline))
 , bus(std::move(base.bus))
@@ -91,7 +102,11 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		
 		gst_message_parse_state_changed(msg, &old_, &new_, &pending);
 		
-		std::cerr << base->name << " from: " << f(old_) << " to: " << f(new_) << " pending?: "  << f(pending) << std::endl;
+		char* x = gst_object_get_name(msg->src);
+		std::string element(x);
+		g_free(x);
+		
+		std::cerr << base->name << ":" << element << " from: " << f(old_) << " to: " << f(new_) << " pending?: "  << f(pending) << std::endl;
 		break;
 	}
 
@@ -107,8 +122,36 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		g_free (debug_ptr);
 		g_error_free(error_ptr);
 		
-		base->error_encountered(error);
+		char* x = gst_object_get_name(msg->src);
+		std::string element(x);
+		g_free(x);
+		
+		base->error_encountered(base->name, element, error);
 		break;
+	}
+	
+	case GST_MESSAGE_BUFFERING: {
+		int percent;
+		
+		gst_message_parse_buffering (msg, &percent);
+		
+		if(percent == 100) {
+			base->buffering = false;
+			base->buffer_high();
+		} else {
+			
+			GstState state;
+			GstState pending;
+			GstClockTime timeout = 0;
+			
+			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
+			
+			if (!base->buffering && state == GST_STATE_PLAYING) {
+				base->buffer_low();
+			}
+			base->buffering = true;
+		}
+		
 	}
 	default:
 		break;

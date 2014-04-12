@@ -30,7 +30,9 @@ struct GStreamerEmptyDeleter {
 	void operator()(GstElement*) {}
 };
 
-struct GStreamerBase {
+struct GStreamerBase { 
+	bool buffering;
+	
 	std::string name;
 	
 	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
@@ -41,7 +43,9 @@ struct GStreamerBase {
 	guint gst_bus_watch_id;
 	
 	virtual void eos_reached();
-	virtual void error_encountered(GError err);
+	virtual void error_encountered(std::string pipeline, std::string element, GError err);
+	virtual void buffer_high();
+	virtual void buffer_low();
 	
 	GStreamerBase(std::string name);
 	
