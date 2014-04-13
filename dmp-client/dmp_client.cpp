@@ -95,6 +95,11 @@ void DmpClient::queue(std::string radio, std::string owner, dmp_library::Library
 	connection.send(message::Queue(radio, name, owner, entry));
 }
 
+void DmpClient::set_current_radio(std::string name)
+{
+	playlists_model->set_current_radio(name);
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);
@@ -108,36 +113,42 @@ void DmpClient::listen_requests()
 
 void DmpClient::search(std::string query)
 {
+	search_bar_model->set_query(query);
 	try {
 		dmp_library::parse_query(query);
 	} catch (dmp_library::ParseError err) {
-		call_on_delegates(delegates, &DmpClientUiDelegate::query_parse_error, err);
+		search_bar_model->set_data(err.expected, err.pivot);
+		call_on_delegates(delegates, &DmpClientUiDelegate::query_parse_error);
 		return;
 	}
 
-	call_on_delegates(delegates, &DmpClientUiDelegate::new_search, query);
+	call_on_delegates(delegates, &DmpClientUiDelegate::new_search_begin);
+	search_result_model->clear();
+	search_result_model->set_current_query(query);
+	call_on_delegates(delegates, &DmpClientUiDelegate::new_search_end);
+	
 	message::SearchRequest q(query);
 	connection.send(q);
 }
 
-void DmpClient::stop_radio(std::string radio_name)
+void DmpClient::stop_radio()
 {
-	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Stop, {}));
+	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Stop, {}));
 }
 
-void DmpClient::play_radio(std::string radio_name)
+void DmpClient::play_radio()
 {
-	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Play, {}));
+	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Play, {}));
 }
 
-void DmpClient::pause_radio(std::string radio_name)
+void DmpClient::pause_radio()
 {
-	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Pause, {}));
+	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Pause, {}));
 }
 
-void DmpClient::next_radio(std::string radio_name)
+void DmpClient::next_radio()
 {
-	connection.send(message::RadioEvent(radio_name, message::RadioEvent::Action::Next, {}));
+	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Next, {}));
 }
 
 void DmpClient::handle_ping(message::Ping ping)
@@ -169,7 +180,9 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
 
 void DmpClient::handle_search_response(message::SearchResponse search_res)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::search_results, search_res);
+	call_on_delegates(delegates, &DmpClientUiDelegate::search_results_start, search_res);
+	search_result_model->add_search_response(search_res);
+	call_on_delegates(delegates, &DmpClientUiDelegate::search_results_end);
 }
 
 void DmpClient::handle_bye_ack(message::ByeAck)
@@ -200,7 +213,12 @@ void DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 
 void DmpClient::handle_radios(message::Radios radios)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::radios_update, radios);
+	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_start);
+	for(auto&& radio : radios.radios)
+	{
+		playlists_model->update(radio.first, radio.second);
+	}
+	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_end);
 }
 
 DmpClient::~DmpClient() {
@@ -212,14 +230,18 @@ DmpClient::~DmpClient() {
 
 void DmpClient::handle_add_radio(message::AddRadio added_radio)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::radio_added, added_radio);
+	call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_start);
+	radio_list_model->add_radio(added_radio.name);
+	playlists_model->create_radio(added_radio.name);
+	call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_end);
 }
 
 void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_updated, update);
+	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_start, update);
+	playlists_model->handle_update(update);
+	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_end, update);
 }
-
 void DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	//remove this when todo is fixed

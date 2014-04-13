@@ -2,10 +2,11 @@
 
 #include "qt_adapter.hpp"
 #include "playlists_model.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 #include <QAbstractTableModel>
 
-class PlaylistsModelQtAdapter : public QtAdapter<PlaylistsModel>, public QAbstractTableModel
+class PlaylistsModelQtAdapter : public DmpClientUiDelegate, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
 {
 private:
 	bool should_update_view(std::string radio_name);
@@ -19,10 +20,9 @@ public:
 	QVariant data(const QModelIndex &index, int role) const override final;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
 
-	void update(std::string radio_name, Playlist playlist);
-	void append(std::string radio_name, Playlist playlist);
-	void reset(std::string radio_name);
-
-	auto create_radio(std::string radio_name) -> decltype(model->create_radio(radio_name));
-	void set_current_radio(std::string radio_name);
+	virtual void playlist_update_start(message::PlaylistUpdate update) override final;
+	virtual void playlist_update_end(message::PlaylistUpdate update) override final;
+	
+	virtual void set_radios_start() override final;
+	virtual void set_radios_end() override final;
 };

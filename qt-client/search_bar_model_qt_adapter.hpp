@@ -2,6 +2,7 @@
 
 #include "qt_adapter.hpp"
 #include "search_bar_model.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 #include <QLineEdit>
 #include <QTextLayout>
@@ -13,11 +14,6 @@ struct SearchBarModelQtAdapter : public QtAdapter<SearchBarModel>
 {
 	SearchBarModelQtAdapter();
 
-	void set_line_edit_text_format(QLineEdit* search_bar, const std::vector<QTextLayout::FormatRange> formats);
-	void reset_error_state(QLineEdit* search_bar);
-	void set_error_state(QLineEdit* search_bar);
-
-	void set_data(std::string new_expected, size_t new_pivot);
-
-	void model_check_state(int cursor_pos, QLineEdit* search_bar);
+	std::vector<QTextLayout::FormatRange> get_error_formats();
+	bool should_reset_error_state(int cursor_pos);
 };

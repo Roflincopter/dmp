@@ -48,53 +48,88 @@ bool PlaylistsModelQtAdapter::should_update_view(std::string radio_name)
 	return radio_name == model->get_current_radio();
 }
 
-void PlaylistsModelQtAdapter::update(std::string radio_name, Playlist playlist)
+void PlaylistsModelQtAdapter::playlist_update_start(message::PlaylistUpdate update)
 {
-	if(should_update_view(radio_name)) {
-		beginResetModel();
-	}
-
-	model->update(radio_name, playlist);
-
-	if(should_update_view(radio_name)) {
-		endResetModel();
+	if(should_update_view(update.radio_name))
+	{
+		switch(update.action.type)
+		{
+			case message::PlaylistUpdate::Action::Type::Append:
+			{
+				beginInsertRows(QModelIndex(), model->row_count(), update.playlist.size() - 1);
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Update:
+			{
+				beginResetModel();
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Insert:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Move:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Reset:
+			{
+				beginResetModel();
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::NoAction:
+			default:
+			{
+				throw std::runtime_error("This should never happen");
+			}
+		}
 	}
 }
 
-void PlaylistsModelQtAdapter::append(std::string radio_name, Playlist playlist)
+void PlaylistsModelQtAdapter::playlist_update_end(message::PlaylistUpdate update)
 {
-	if(should_update_view(radio_name)) {
-		beginInsertRows(QModelIndex(), rowCount(), rowCount() + playlist.size() - 1);
-	}
-
-	model->append(radio_name, playlist);
-
-	if(should_update_view(radio_name)) {
-		endInsertRows();
+	if(should_update_view(update.radio_name))
+	{
+		switch(update.action.type)
+		{
+			case message::PlaylistUpdate::Action::Type::Append:
+			{
+				endInsertRows();
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Update:
+			{
+				endResetModel();
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Insert:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Move:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::Reset:
+			{
+				endResetModel();
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::NoAction:
+			default:
+			{
+				throw std::runtime_error("This should never happen");
+			}
+		}
 	}
 }
 
-void PlaylistsModelQtAdapter::reset(std::string radio_name)
-{
-	if(should_update_view(radio_name)) {
-		beginResetModel();
-	}
-
-	model->reset(radio_name);
-
-	if(should_update_view(radio_name)) {
-		endResetModel();
-	}
-}
-
-auto PlaylistsModelQtAdapter::create_radio(std::string radio_name) -> decltype(model->create_radio(radio_name))
-{
-	model->create_radio(radio_name);
-}
-
-void PlaylistsModelQtAdapter::set_current_radio(std::string radio_name)
+void PlaylistsModelQtAdapter::set_radios_start()
 {
 	beginResetModel();
-	model->set_current_radio(radio_name);
+}
+
+void PlaylistsModelQtAdapter::set_radios_end()
+{
 	endResetModel();
 }

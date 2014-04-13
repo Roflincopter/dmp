@@ -142,21 +142,21 @@ void DmpClientGui::StopPressed()
 		this,          SLOT(PlayPauseToggled(bool))
 	);
 	
-	client->stop_radio(shared_radio_list->get_current_radio());
+	client->stop_radio();
 }
 
 void DmpClientGui::PlayPauseToggled(bool state)
 {
 	if(state) {
-		client->play_radio(shared_radio_list->get_current_radio());
+		client->play_radio();
 	} else {
-		client->pause_radio(shared_radio_list->get_current_radio());
+		client->pause_radio();
 	}
 }
 
 void DmpClientGui::NextPressed()
 {
-	client->next_radio(shared_radio_list->get_current_radio());
+	client->next_radio();
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)

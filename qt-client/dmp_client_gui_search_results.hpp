@@ -13,7 +13,7 @@ class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControlle
 	Q_OBJECT
 
 	std::shared_ptr<DmpClientInterface> client;
-	SearchResultModelQtAdapter model;
+	std::shared_ptr<SearchResultModelQtAdapter> model;
 	GuiItemDelegate delegate;
 
 	std::string current_active_radio;
@@ -24,8 +24,6 @@ public:
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
-	virtual void search_results(message::SearchResponse search_response) override final;
-	virtual void new_search(std::string query) override final;
 signals:
 
 public slots:

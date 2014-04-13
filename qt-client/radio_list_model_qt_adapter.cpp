@@ -27,16 +27,22 @@ QVariant RadioListModelQtAdapter::data(const QModelIndex& index, int role) const
 	return QVariant(QString::fromStdString(model->get_data(index.row())));
 }
 
-void RadioListModelQtAdapter::set_radio_names(std::vector<std::string> new_radio_names)
+void RadioListModelQtAdapter::set_radios_start()
 {
 	beginResetModel();
-	model->set_radio_names(new_radio_names);
+}
+
+void RadioListModelQtAdapter::set_radios_end()
+{
 	endResetModel();
 }
 
-void RadioListModelQtAdapter::add_radio(std::string radio_name)
+void RadioListModelQtAdapter::add_radio_start()
 {
-	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-	model->add_radio(radio_name);
+	beginInsertRows(QModelIndex(), model->row_count(), model->row_count());
+}
+
+void RadioListModelQtAdapter::add_radio_end()
+{
 	endInsertRows();
 }

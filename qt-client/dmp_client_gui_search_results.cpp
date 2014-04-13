@@ -5,9 +5,10 @@
 DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 : QTableView(parent)
 , client(nullptr)
-, model()
+, model(std::make_shared<SearchResultModelQtAdapter>())
+, delegate()
 {
-	setModel(&model);
+	setModel(model.get());
 	setItemDelegate(&delegate);
 	hideColumn(1);
 	hideColumn(3);
@@ -18,27 +19,13 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
-	model.set_model(client->get_search_result_model());
-}
-
-void DmpClientGuiSearchResults::search_results(message::SearchResponse search_response)
-{
-	if(search_response.query != current_query) {
-		return;
-	}
-	
-	model.add_search_response(search_response);
-}
-
-void DmpClientGuiSearchResults::new_search(std::string query)
-{
-	current_query = query;
-	model.clear();
+	model->set_model(client->get_search_result_model());
+	client->add_delegate(model);
 }
 
 void DmpClientGuiSearchResults::queueRequest(QModelIndex index)
 {
-	auto x = model.get_row_info(index.row());
+	auto x = model->get_row_info(index.row());
 	client->queue(current_active_radio, x.first, x.second);
 }
 

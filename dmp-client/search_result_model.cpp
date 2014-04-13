@@ -57,6 +57,16 @@ void SearchResultModel::clear()
 	search_results.clear();
 }
 
+void SearchResultModel::set_current_query(std::string query)
+{
+	current_query = query;
+}
+
+std::string SearchResultModel::get_current_query() const
+{
+	return current_query;
+}
+
 std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
 {
 	for(auto&p : search_results)

@@ -10,7 +10,7 @@ PlaylistsModel::PlaylistsModel()
 {
 }
 
-std::string PlaylistsModel::get_current_radio()
+std::string PlaylistsModel::get_current_radio() const
 {
 	return current_radio;
 }
@@ -83,6 +83,41 @@ void PlaylistsModel::reset(std::string radio_name)
 	}
 	
 	playlists[radio_name].clear();
+}
+
+void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
+{
+	switch(update_msg.action.type)
+	{
+		case message::PlaylistUpdate::Action::Type::Append:
+		{
+			append(update_msg.radio_name, update_msg.playlist);
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Update:
+		{
+			update(update_msg.radio_name, update_msg.playlist);
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Insert:
+		{
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Move:
+		{
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::Reset:
+		{
+			reset(update_msg.radio_name);
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::NoAction:
+		default:
+		{
+			throw std::runtime_error("This should never happen");
+		}
+	}
 }
 
 void PlaylistsModel::set_current_radio(std::string radio_name)

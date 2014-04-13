@@ -21,7 +21,7 @@ public:
 
 	typedef boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry> ElementType;
 	
-	std::string get_current_radio();
+	std::string get_current_radio() const;
 	
 	int row_count() const;
 	int column_count() const;
@@ -29,10 +29,12 @@ public:
 	std::string header_data(int section) const;
 	boost::any get_cell(int row, int column) const;
 
-	virtual void update(std::string radio_name, Playlist playlist);
-	virtual void append(std::string radio_name, Playlist playlist);
-	virtual void reset(std::string radio_name);
+	void update(std::string radio_name, Playlist playlist);
+	void append(std::string radio_name, Playlist playlist);
+	void reset(std::string radio_name);
+	
+	void handle_update(message::PlaylistUpdate update_msg);
 
-	virtual void set_current_radio(std::string radio_name);
-	virtual void create_radio(std::string radio_name);
+	void set_current_radio(std::string radio_name);
+	void create_radio(std::string radio_name);
 };

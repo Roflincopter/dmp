@@ -13,17 +13,13 @@ class DmpClientGuiPlaylists : public QTableView, public DmpClientUiDelegate, pub
 	Q_OBJECT
 
 	std::shared_ptr<DmpClientInterface> client;
-	PlaylistsModelQtAdapter model;
+	std::shared_ptr<PlaylistsModelQtAdapter> model;
 	GuiItemDelegate delegate;
 
 public:
 	explicit DmpClientGuiPlaylists(QWidget *parent = 0);
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
-
-	virtual void radios_update(message::Radios update) override final;
-	virtual void playlist_updated(message::PlaylistUpdate update) override final;
-	virtual void add_radio_succes(message::AddRadioResponse response) override final;
 
 signals:
 

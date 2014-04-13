@@ -10,14 +10,17 @@ class DmpClientGuiSearchBar : public QLineEdit, public DmpClientUiControllerInte
 	Q_OBJECT
 
 	std::shared_ptr<DmpClientInterface> client;
-	SearchBarModelQtAdapter model;
+	std::shared_ptr<SearchBarModelQtAdapter> model;
 
+	void set_line_edit_text_format(const std::vector<QTextLayout::FormatRange> formats);
+	void reset_error_state();
+	
 public:
 	explicit DmpClientGuiSearchBar(QWidget *parent = 0);
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
-
-	virtual void query_parse_error(dmp_library::ParseError e) override final;
+	
+	virtual void query_parse_error() override final;
 signals:
 
 public slots:

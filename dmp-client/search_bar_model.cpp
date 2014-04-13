@@ -4,18 +4,28 @@ SearchBarModel::SearchBarModel()
 {
 }
 
+void SearchBarModel::set_query(std::string new_query)
+{
+	query = new_query;
+}
+
 void SearchBarModel::set_data(std::string new_expected, size_t new_pivot)
 {
 	expected = new_expected;
 	pivot = new_pivot;
 }
 
-std::string& SearchBarModel::get_expected()
+std::string SearchBarModel::get_expected() const
 {
 	return expected;
 }
 
-size_t& SearchBarModel::get_pivot()
+size_t SearchBarModel::get_pivot() const
 {
 	return pivot;
+}
+
+size_t SearchBarModel::get_query_length() const
+{
+	return query.size();
 }

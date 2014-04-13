@@ -23,15 +23,19 @@ private:
 	
 	typedef std::pair<Client, dmp_library::Library::tracklist_t> SearchResultsElement;
 	std::vector<SearchResultsElement> search_results;
+	std::string current_query;
 
 public:
 	SearchResultModel();
 	
 	typedef boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client> ElementType;
 
-	virtual void add_search_response(message::SearchResponse);
-	virtual void clear();
-
+	void add_search_response(message::SearchResponse);
+	void clear();
+	
+	void set_current_query(std::string query);
+	std::string get_current_query() const;
+	
 	boost::any get_cell(int row, int column) const;
 	std::string header_data(int section) const;
 	int row_count() const;

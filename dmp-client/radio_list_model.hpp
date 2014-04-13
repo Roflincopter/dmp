@@ -13,6 +13,6 @@ public:
 	int row_count() const;
 	std::string get_data(int row) const;
 
-	virtual void set_radio_names(std::vector<std::string> new_radio_names);
-	virtual void add_radio(std::string radio_name);
+	void set_radio_names(std::vector<std::string> new_radio_names);
+	void add_radio(std::string radio_name);
 };

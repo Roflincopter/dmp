@@ -10,23 +10,6 @@ SearchResultModelQtAdapter::SearchResultModelQtAdapter()
 {
 }
 
-void SearchResultModelQtAdapter::add_search_response(message::SearchResponse search_response)
-{
-	if(search_response.results.size() == 0) {
-		return;
-	}
-	beginInsertRows(QModelIndex(), rowCount(), rowCount() + search_response.results.size() - 1);
-	model->add_search_response(search_response);
-	endInsertRows();
-}
-
-void SearchResultModelQtAdapter::clear()
-{
-	beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
-	model->clear();
-	endRemoveRows();
-}
-
 int SearchResultModelQtAdapter::rowCount(const QModelIndex&) const
 {
 	return model->row_count();
@@ -71,6 +54,26 @@ QVariant SearchResultModelQtAdapter::headerData(int section, Qt::Orientation ori
 	} catch(std::out_of_range e) {
 		return QVariant();
 	}
+}
+
+void SearchResultModelQtAdapter::new_search_begin()
+{
+	beginResetModel();
+}
+
+void SearchResultModelQtAdapter::new_search_end()
+{
+	endResetModel();
+}
+
+void SearchResultModelQtAdapter::search_results_start(message::SearchResponse response)
+{
+	beginInsertRows(QModelIndex(), model->row_count(), response.results.size() - 1);
+}
+
+void SearchResultModelQtAdapter::search_results_end()
+{
+	endInsertRows();
 }
 
 auto SearchResultModelQtAdapter::get_row_info(int index) -> decltype(model->get_row_info(index))

@@ -5,31 +5,7 @@
 SearchBarModelQtAdapter::SearchBarModelQtAdapter()
 {}
 
-void SearchBarModelQtAdapter::set_line_edit_text_format(QLineEdit *search_bar, const std::vector<QTextLayout::FormatRange> formats)
-{
-	if(!search_bar) {
-		return;
-	}
-
-	QList<QInputMethodEvent::Attribute> attributes;
-	for(const QTextLayout::FormatRange& fr : formats)
-	{
-		QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
-		int start = fr.start - search_bar->cursorPosition();
-		int length = fr.length;
-		QVariant value = fr.format;
-		attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
-	}
-	QInputMethodEvent event(QString(), attributes);
-	QCoreApplication::sendEvent(search_bar, &event);
-}
-
-void SearchBarModelQtAdapter::reset_error_state(QLineEdit* search_bar)
-{
-	set_line_edit_text_format(search_bar, {});
-}
-
-void SearchBarModelQtAdapter::set_error_state(QLineEdit *search_bar)
+std::vector<QTextLayout::FormatRange> SearchBarModelQtAdapter::get_error_formats()
 {
 	std::vector<QTextLayout::FormatRange> formats;
 
@@ -48,24 +24,17 @@ void SearchBarModelQtAdapter::set_error_state(QLineEdit *search_bar)
 
 	QTextLayout::FormatRange fr_incorrect;
 	fr_incorrect.start = model->get_pivot();
-	fr_incorrect.length = search_bar->text().length() - model->get_pivot();
+	fr_incorrect.length = model->get_query_length() - model->get_pivot();
 	fr_incorrect.format = incorrect;
 
 	//Set the text formats.
 	formats.push_back(fr_correct);
 	formats.push_back(fr_incorrect);
 
-	set_line_edit_text_format(search_bar, formats);
+	return formats;
 }
 
-void SearchBarModelQtAdapter::set_data(std::string new_expected, size_t new_pivot)
+bool SearchBarModelQtAdapter::should_reset_error_state(int cursor_pos)
 {
-	model->set_data(new_expected, new_pivot);
-}
-
-void SearchBarModelQtAdapter::model_check_state(int cursor_pos, QLineEdit* search_bar)
-{
-	if(cursor_pos < 0 || size_t(cursor_pos) < model->get_pivot() || cursor_pos == 0) {
-		reset_error_state(search_bar);
-	}
+	return cursor_pos < 0 || size_t(cursor_pos) < model->get_pivot() || cursor_pos == 0;
 }

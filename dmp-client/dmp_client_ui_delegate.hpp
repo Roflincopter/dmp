@@ -16,16 +16,25 @@ void call_on_delegates(T delegates, U member_ptr, Args... arguments)
 
 struct DmpClientUiDelegate
 {
-	virtual void query_parse_error(dmp_library::ParseError e){}
-	virtual void search_results(message::SearchResponse){}
+	virtual void query_parse_error(){}
 	virtual void client_stopped(){}
-	virtual void new_search(std::string query){}
 	virtual void add_radio_succes(message::AddRadioResponse){}
 	virtual void add_radio_failed(message::AddRadioResponse){}
-	virtual void test(std::string, int){}
-	virtual void radios_update(message::Radios){}
-	virtual void radio_added(message::AddRadio){}
-	virtual void playlist_updated(message::PlaylistUpdate){}
-
+	
+	virtual void search_results_start(message::SearchResponse){};
+	virtual void search_results_end(){}
+	
+	virtual void new_search_begin(){}
+	virtual void new_search_end(){}
+	
+	virtual void add_radio_start(){}
+	virtual void add_radio_end(){}
+	
+	virtual void set_radios_start(){}
+	virtual void set_radios_end(){}
+	
+	virtual void playlist_update_start(message::PlaylistUpdate){}
+	virtual void playlist_update_end(message::PlaylistUpdate){}
+	
 	virtual ~DmpClientUiDelegate(){}
 };

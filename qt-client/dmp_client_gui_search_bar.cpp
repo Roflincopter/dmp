@@ -1,30 +1,53 @@
 #include "dmp_client_gui_search_bar.hpp"
 
+void DmpClientGuiSearchBar::set_line_edit_text_format(const std::vector<QTextLayout::FormatRange> formats)
+{
+	QList<QInputMethodEvent::Attribute> attributes;
+	for(const QTextLayout::FormatRange& fr : formats)
+	{
+		QInputMethodEvent::AttributeType type = QInputMethodEvent::TextFormat;
+		int start = fr.start - cursorPosition();
+		int length = fr.length;
+		QVariant value = fr.format;
+		attributes.append(QInputMethodEvent::Attribute(type, start, length, value));
+	}
+	
+	QInputMethodEvent event(QString(), attributes);
+	QCoreApplication::sendEvent(this, &event);
+}
+
+void DmpClientGuiSearchBar::reset_error_state()
+{
+	set_line_edit_text_format({});
+}
+
 DmpClientGuiSearchBar::DmpClientGuiSearchBar(QWidget *parent)
 : QLineEdit(parent)
 , client(nullptr)
-, model()
+, model(std::make_shared<SearchBarModelQtAdapter>())
 {}
 
 void DmpClientGuiSearchBar::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	client = new_client;
-	model.set_model(client->get_search_bar_model());
+	model->set_model(client->get_search_bar_model());
 }
 
-void DmpClientGuiSearchBar::query_parse_error(dmp_library::ParseError e)
+void DmpClientGuiSearchBar::query_parse_error()
 {
-	model.set_data(e.expected, e.pivot);
-	model.set_error_state(this);
+	reset_error_state();
+	set_line_edit_text_format(model->get_error_formats());
 }
 
 void DmpClientGuiSearchBar::searchBarReturned()
 {
-	model.reset_error_state(this);
+	reset_error_state();
 	client->search(text().toStdString());
 }
 
 void DmpClientGuiSearchBar::cursorChanged(int old_pos, int new_pos)
 {
-	model.model_check_state(new_pos, this);
+	if(model->should_reset_error_state(new_pos)) {
+		reset_error_state();
+	}
 }
