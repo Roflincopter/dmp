@@ -90,6 +90,10 @@ void DmpRadio::next()
 {
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
+	if(playlist.empty()) {
+		return;
+	}
+	
 	PlaylistEntry entry = playlist.front();
 	auto sp = server.lock();
 	sp->order_stop(entry.owner, name);
