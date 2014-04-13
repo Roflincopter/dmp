@@ -9,9 +9,9 @@ void GStreamerBase::eos_reached()
 	std::cerr << "End of stream Reached." << std::endl;
 }
 
-void GStreamerBase::error_encountered(std::string pipeline, std::string element, GError err)
+void GStreamerBase::error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err)
 {
-	std::cerr << pipeline << ":" << element << " message: " << std::string(err.message) << std::endl;
+	std::cerr << pipeline << ":" << element << " message: " << std::string(err->message) << std::endl;
 }
 
 void GStreamerBase::buffer_high()
@@ -124,21 +124,20 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 
 	case GST_MESSAGE_ERROR: {
 		gchar  *debug_ptr;
-		GError *error_ptr;
+		GError *temp_error_ptr;
 	
-		gst_message_parse_error (msg, &error_ptr, &debug_ptr);
+		gst_message_parse_error (msg, &temp_error_ptr, &debug_ptr);
 		
-		GError error = *error_ptr;
+		std::unique_ptr<GError, GErrorDeleter> error_ptr(temp_error_ptr);
 		std::string debug(debug_ptr);
 		
 		g_free (debug_ptr);
-		g_error_free(error_ptr);
 		
 		char* x = gst_object_get_name(msg->src);
 		std::string element(x);
 		g_free(x);
 		
-		base->error_encountered(base->name, element, error);
+		base->error_encountered(base->name, element, std::move(error_ptr));
 		break;
 	}
 	

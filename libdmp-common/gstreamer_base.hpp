@@ -45,6 +45,12 @@ struct GStreamerEmptyDeleter {
 	void operator()(GstElement*) {}
 };
 
+struct GErrorDeleter {
+	void operator()(GError* ptr) {
+		g_error_free(ptr);
+	}
+};
+
 struct GStreamerBase { 
 	bool buffering;
 	
@@ -58,7 +64,7 @@ struct GStreamerBase {
 	guint gst_bus_watch_id;
 	
 	virtual void eos_reached();
-	virtual void error_encountered(std::string pipeline, std::string element, GError err);
+	virtual void error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err);
 	virtual void buffer_high();
 	virtual void buffer_low();
 	
