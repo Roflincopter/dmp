@@ -22,6 +22,8 @@ public:
 	DmpReceiver(DmpReceiver&&) = default;
 	DmpReceiver& operator=(DmpReceiver&&) = default;
 	
+	virtual void eos_reached() override final;
+	
 	void setup(std::string host, uint16_t port);
 	void play();
 };

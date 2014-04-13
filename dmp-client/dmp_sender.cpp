@@ -41,6 +41,12 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 }
 
+void DmpSender::eos_reached()
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	stop_loop();
+}
+
 void DmpSender::pause()
 {
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PAUSED)) {

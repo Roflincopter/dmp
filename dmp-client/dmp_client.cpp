@@ -221,16 +221,26 @@ void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
 }
 
 void DmpClient::handle_stream_request(message::StreamRequest sr)
-{	
-	senders.emplace(sr.radio_name, DmpSender());
+{
+	//remove this when todo is fixed
+	senders.erase(sr.radio_name);
+	auto result = senders.emplace(sr.radio_name, DmpSender());
+	
+	if(!result.second) {
+		std::cout << "emplace did not overwrite existing map entry" << std::endl;
+	}
+	
 	auto sender_runner = [this, sr]{
 		try {
 			senders.at(sr.radio_name).run_loop();
 		} catch(std::runtime_error e){
 			std::cout << "Sender crashed with message: " << e.what() << std::endl;
 		}
+		//TODO: fix this more generic by a templated struct with a std::thread and a T struct as mapped type.
+		//senders.erase(sr.radio_name);
 	};
 	std::thread t(sender_runner);
+	
 	t.detach();
 	
 	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
@@ -238,27 +248,31 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 
 void DmpClient::handle_radio_event(message::RadioEvent re)
 {
-	DmpSender& sender = senders.at(re.radio_name);
-	switch(re.action)
-	{
-		case message::RadioEvent::Action::Pause:
+	
+	auto sender_it = senders.find(re.radio_name);
+	if(sender_it != senders.end()) {
+		auto& sender = sender_it->second;
+		switch(re.action)
 		{
-			sender.pause();
-			break;
-		}
-		case message::RadioEvent::Action::Play:
-		{
-			sender.play();
-			break;
-		}
-		case message::RadioEvent::Action::Stop:
-		{
-			sender.stop();
-			break;
-		}
-		default:
-		{
-			throw std::runtime_error("RadioEvent with incompatible command found in dmp_client");
+			case message::RadioEvent::Action::Pause:
+			{
+				sender.pause();
+				break;
+			}
+			case message::RadioEvent::Action::Play:
+			{
+				sender.play();
+				break;
+			}
+			case message::RadioEvent::Action::Stop:
+			{
+				sender.stop();
+				break;
+			}
+			default:
+			{
+				throw std::runtime_error("RadioEvent with incompatible command found in dmp_client");
+			}
 		}
 	}
 }

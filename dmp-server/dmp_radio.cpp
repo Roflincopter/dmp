@@ -96,9 +96,19 @@ void DmpRadio::next()
 	
 	playlist.erase(playlist.begin());
 	entry = playlist.front();
+	
+	std::cout << "Ordering: " << entry.entry << std::endl;
+	
 	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
 	
 	sp->order_play(entry.owner, name);
+}
+
+void DmpRadio::eos_reached() {
+	
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+	next();
 }
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)

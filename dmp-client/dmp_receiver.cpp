@@ -35,6 +35,12 @@ DmpReceiver::DmpReceiver()
 	gst_element_link_many(converter.get(), resampler.get(), audiosink.get(), nullptr);
 }
 
+void DmpReceiver::eos_reached()
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+}
+
 void DmpReceiver::setup(std::string host, uint16_t port) {
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 	

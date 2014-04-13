@@ -21,6 +21,8 @@ public:
 
 	void setup(std::string host, uint16_t port, std::string file);
 	
+	virtual void eos_reached() override final;
+	
 	void pause();
 	void play();
 	void stop();

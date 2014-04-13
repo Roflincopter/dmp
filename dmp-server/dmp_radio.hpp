@@ -52,6 +52,8 @@ public:
 	void pause();
 	void next();
 	
+	virtual void eos_reached() override final;
+	
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
 };
 
