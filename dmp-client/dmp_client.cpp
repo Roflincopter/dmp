@@ -216,6 +216,7 @@ void DmpClient::handle_radios(message::Radios radios)
 	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_start);
 	for(auto&& radio : radios.radios)
 	{
+		radio_list_model->add_radio(radio.first);
 		playlists_model->update(radio.first, radio.second);
 	}
 	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_end);
