@@ -1,8 +1,8 @@
 #pragma once
 
-#include "dmp-library.hpp"
-#include "dmp_qt_meta_types.hpp"
 #include "friendly_fusion.hpp"
+#include "index_list.hpp"
+#include "dmp_qt_meta_types.hpp"
 
 #include <QVariant>
 
@@ -16,9 +16,8 @@ QVariant convert(boost::any const& x)
 	return QVariant::fromValue<value_type>(boost::any_cast<value_type>(x));
 }
 
-template <typename T, int n, int size>
-typename std::enable_if<(n < size) && boost::mpl::is_sequence<T>::value, QVariant>::type
-convert(boost::any const& x)
+template <typename T, int n>
+QVariant convert(boost::any const& x)
 {
 	typedef friendly_fusion::result_of::begin<T> begin;
 	typedef friendly_fusion::result_of::advance_c<typename begin::type, n> adv_it;
@@ -27,44 +26,43 @@ convert(boost::any const& x)
 	return convert<value_type>(x);
 }
 
-template <typename T, int n, int size>
-typename std::enable_if<(n < size) && !boost::mpl::is_sequence<T>::value, QVariant>::type
-convert(boost::any const&)
+#if defined( __GNUC__ ) && !defined( __clang__ )
+template <typename T, int index>
+std::function<QVariant(boost::any const&)> convert_lambda()
 {
-	
+	return [](boost::any const& any)
+	{
+		return convert<T, index>(any);
+	};
 }
 
-template <typename T, int n, int size>
-typename std::enable_if<!(n < size), QVariant>::type
-convert(boost::any const&)
+#endif //defined( __GNUC__ ) && !defined( __clang__ )
+
+template<typename T, int... Indices>
+QVariant to_qvariant(boost::any const& any, int index, indices<Indices...>)
 {
-	throw std::runtime_error("This should never happen, An out of bounds index for boost fusion was generated.");
+	typedef std::function<QVariant(boost::any const&)> element_type;
+	static element_type table[] =
+	{
+#if defined( __GNUC__ ) && !defined( __clang__ )
+		//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
+		convert_lambda<T, Indices>()
+		...
+#else
+		[](boost::any const& any){return convert<T, Indices>(any);}
+		...
+#endif //defined( __GNUC__ ) && !defined( __clang__ )
+	};
+
+	return table[index](any);
 }
+
 
 template <typename T>
 QVariant to_qvariant(boost::any const& x, int index)
 {
-	#define QVARIANT_CONVERSION(X) \
-	case X: \
-	{\
-		typedef typename friendly_fusion::result_of::size<T>::type size_type; \
-		return convert<T, X, size_type::value>(x); \
-	}
+	typedef typename friendly_fusion::result_of::size<T>::type seq_size;
+	typedef typename build_indices<seq_size::value>::type indices_type;
 
-	switch(index)
-	{
-		QVARIANT_CONVERSION(0 );
-		QVARIANT_CONVERSION(1 );
-		QVARIANT_CONVERSION(2 );
-		QVARIANT_CONVERSION(3 );
-		QVARIANT_CONVERSION(4 );
-		QVARIANT_CONVERSION(5 );
-		QVARIANT_CONVERSION(6 );
-		QVARIANT_CONVERSION(7 );
-		QVARIANT_CONVERSION(8 );
-		QVARIANT_CONVERSION(9 );
-		QVARIANT_CONVERSION(10);
-		default : throw std::runtime_error("Boost any to Qvariant conversion switch was too small.");
-	}
-	#undef QVARIANT_CONVERSION
+	return to_qvariant<T>(x, index, indices_type{});
 }
