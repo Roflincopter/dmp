@@ -27,6 +27,11 @@ QVariant RadioListModelQtAdapter::data(const QModelIndex& index, int role) const
 	return QVariant(QString::fromStdString(model->get_data(index.row())));
 }
 
+QModelIndex RadioListModelQtAdapter::get_model_index_for(int row)
+{
+	return createIndex(row, 0);
+}
+
 void RadioListModelQtAdapter::set_radios_start()
 {
 	beginResetModel();

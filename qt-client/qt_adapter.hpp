@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QModelIndex>
+#include <QItemSelectionModel>
+
 #include <memory>
 
 template <typename T>

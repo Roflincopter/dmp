@@ -18,6 +18,8 @@ public:
 	virtual int rowCount(const QModelIndex&) const override final;
 	virtual QVariant data(const QModelIndex& index, int role) const override final;
 
+	QModelIndex get_model_index_for(int row);
+	
 	virtual void set_radios_start() override final;
 	virtual void set_radios_end() override final;
 	

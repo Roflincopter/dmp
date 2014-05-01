@@ -20,6 +20,8 @@ public:
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 	
+	void set_selection(int row);
+	
 signals:
 	void currentlySelectedRadio(std::string);
 

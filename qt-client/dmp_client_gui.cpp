@@ -63,6 +63,8 @@ void DmpClientGui::test1()
 	client->index("/home/dennis/Music");
 #endif	
 	client->add_radio("Radio1");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	shared_radio_list->set_selection(0);
 	client->search("artist contains \"C\"");
 }
 
