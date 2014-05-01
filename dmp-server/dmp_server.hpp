@@ -30,8 +30,11 @@ public:
 	void handle_queue(message::Queue queue);
 	void handle_radio_event(message::RadioEvent re);
 	
+	void update_playlist(std::string radio_name, Playlist playlist) override final;
+	
 	virtual void order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port) override final;
 	virtual void order_pause(std::string client, std::string radio_name) override final;
 	virtual void order_play(std::string client, std::string radio_name) override final;
 	virtual void order_stop(std::string client, std::string radio_name) override final;
+	virtual void order_reset(std::string client, std::string radio_name) override final;
 };

@@ -1,10 +1,14 @@
 #pragma once
 
-#include "dmp-library.hpp"
 #include "dmp_server_interface.hpp"
-#include "playlist.hpp"
+#include "dmp_radio_endpoint.hpp"
+
 #include "number_pool.hpp"
 #include "gstreamer_base.hpp"
+#include "debug_macros.hpp"
+
+#include "dmp-library.hpp"
+#include "playlist.hpp"
 
 #include <boost/optional.hpp>
 
@@ -17,7 +21,25 @@
 
 class DmpRadio : public GStreamerBase
 {
-private:
+	struct TeeBranch {
+		std::string pad_name;
+		std::unique_ptr<GstPad, GStreamerRequestPadDeleter> pad;
+		DmpRadioEndpoint endpoint;
+		
+		TeeBranch(std::string pad_name, std::unique_ptr<GstPad, GStreamerRequestPadDeleter>&& pad, DmpRadioEndpoint&& endpoint)
+		: pad_name(pad_name)
+		, pad(std::move(pad))
+		, endpoint(std::move(endpoint))
+		{
+			DEBUG_COUT << this->endpoint.get_sink() << std::endl;
+		}
+		
+		TeeBranch(TeeBranch&&) = default;
+		
+		~TeeBranch()
+		{}
+	};
+	
 	std::string name;
 	std::weak_ptr<DmpServerInterface> server;
 	std::shared_ptr<NumberPool> port_pool;
@@ -25,14 +47,20 @@ private:
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> buffer;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> parser;
-	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> tee;
+//	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
+	
+	std::unique_ptr<GstPadTemplate, GStreamerObjectDeleter> tee_src_pad_template;
+	
+	std::map<std::string, TeeBranch> branches;
 	
 	std::unique_ptr<std::mutex> radio_mutex;
 
 	uint16_t recv_port;
-	uint16_t send_port;
 
 	Playlist playlist;
+	
+	void play_next_song();
 
 public:
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool);
@@ -41,9 +69,10 @@ public:
 	DmpRadio& operator=(DmpRadio&& r) = default;
 
 	void listen();
+	void add_listener(std::string name);
 	
 	uint16_t get_sender_port();
-	uint16_t get_receiver_port();
+	uint16_t get_receiver_port(std::string name);
 
 	Playlist get_playlist();
 	

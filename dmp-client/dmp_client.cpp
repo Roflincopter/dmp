@@ -292,6 +292,11 @@ void DmpClient::handle_radio_event(message::RadioEvent re)
 				sender.stop();
 				break;
 			}
+			case message::RadioEvent::Action::Reset:
+			{
+				sender.reset();
+				break;
+			}
 			default:
 			{
 				throw std::runtime_error("RadioEvent with incompatible command found in dmp_client");

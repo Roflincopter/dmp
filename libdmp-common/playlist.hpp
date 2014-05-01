@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dmp-library.hpp"
+
 #include <boost/fusion/adapted.hpp>
 
 #include <string>

@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "debug_macros.hpp"
+
 DmpSender::DmpSender()
 : GStreamerBase("sender")
 , source(gst_element_factory_make("filesrc", "file"))
@@ -43,8 +45,8 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 
 void DmpSender::eos_reached()
 {
+	DEBUG_COUT << "sender EOS REACHED" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	stop_loop();
 }
 
 void DmpSender::pause()
@@ -63,7 +65,12 @@ void DmpSender::play()
 
 void DmpSender::stop()
 {
-	if(!gst_element_set_state(pipeline.get(), GST_STATE_READY)) {
+	if(!gst_element_set_state(pipeline.get(), GST_STATE_NULL)) {
 		throw std::runtime_error("Could not stop the Sender pipeline");
 	}
+}
+
+void DmpSender::reset()
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }

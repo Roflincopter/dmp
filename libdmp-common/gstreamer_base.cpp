@@ -118,7 +118,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		std::string element(x);
 		g_free(x);
 		
-		std::cerr << base->name << ":" << element << " from: " << f(old_) << " to: " << f(new_) << " pending?: "  << f(pending) << std::endl;
+		//std::cerr << base->name << ":" << element << " from: " << f(old_) << " to: " << f(new_) << " pending?: "  << f(pending) << std::endl;
 		break;
 	}
 

@@ -369,7 +369,8 @@ struct RadioEvent {
 		Stop,
 		Pause,
 		Play,
-		Next
+		Next,
+		Reset
 	};
 	
 	Type type;

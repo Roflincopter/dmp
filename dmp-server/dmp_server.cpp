@@ -92,9 +92,10 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 		).first;
 		origin->forward(message::AddRadioResponse(ar.name, true, ""));
 		radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
-		origin->forward(message::ListenConnectionRequest(radio_it->second.second.get_receiver_port()));
 		
+		radio_it->second.second.add_listener(origin->get_name());
 		radio_it->second.second.listen();
+		origin->forward(message::ListenConnectionRequest(radio_it->second.second.get_receiver_port(origin->get_name())));
 		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));
@@ -110,6 +111,14 @@ void DmpServer::handle_queue(message::Queue queue)
 	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios.at(queue.radio).second.get_playlist()));
+	}
+}
+
+void DmpServer::update_playlist(std::string radio_name, Playlist playlist)
+{
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
+	for(auto& endpoint : connections) {
+		endpoint.second->forward(message::PlaylistUpdate(action, radio_name, playlist));
 	}
 }
 
@@ -164,4 +173,9 @@ void DmpServer::order_play(std::string client, std::string radio_name)
 void DmpServer::order_stop(std::string client, std::string radio_name)
 {
 	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Stop, {}));
+}
+
+void DmpServer::order_reset(std::string client, std::string radio_name)
+{
+	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Reset, {}));
 }

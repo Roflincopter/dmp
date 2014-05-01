@@ -39,6 +39,27 @@ struct GStreamerObjectDeleter {
 	void operator()(GstBus* ptr) {
 		gst_object_unref(ptr);
 	}
+	
+	void operator()(GstBin* ptr) {
+		gst_object_unref(ptr);
+	}
+	
+	void operator()(GstPadTemplate* ptr) {
+		gst_object_unref(ptr);
+	}
+};
+
+struct GStreamerRequestPadDeleter {
+	
+	GstElement* element;
+	
+	GStreamerRequestPadDeleter(GstElement* element)
+	: element(element)
+	{}
+	
+	void operator()(GstPad* ptr) {
+		gst_element_release_request_pad(element, ptr);
+	}
 };
 
 struct GStreamerEmptyDeleter {

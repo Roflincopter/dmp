@@ -2,6 +2,8 @@
 
 #include "friendly_fusion.hpp"
 
+#include "message.hpp"
+
 #include <boost/fusion/include/pair.hpp>
 #include <boost/fusion/include/map.hpp>
 #include <boost/fusion/include/vector.hpp>

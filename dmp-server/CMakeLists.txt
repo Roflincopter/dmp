@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 add_executable(dmp-server main.cpp
                           dmp_server.hpp dmp_server.cpp
                           dmp_radio.hpp dmp_radio.cpp
+                          dmp_radio_endpoint.hpp dmp_radio_endpoint.cpp
                           client_endpoint.hpp client_endpoint.cpp
                           dmp_server_interface.hpp
 )

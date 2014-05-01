@@ -26,4 +26,5 @@ public:
 	void pause();
 	void play();
 	void stop();
+	void reset();
 };
