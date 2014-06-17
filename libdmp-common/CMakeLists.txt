@@ -44,7 +44,7 @@ if(MINGW)
 		-lgzip
 		-lz
 	)
-endif(MIGNW)
+endif(MINGW)
 
 include_directories(../libdmp-library/include)
 
