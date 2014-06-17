@@ -9,6 +9,8 @@ class DmpSender : public GStreamerBase
 {	
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> converter;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> resampler;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> encoder;
 //	std::unique_ptr<GstElement, GStreamerEmptyDeleter> rtppay;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
