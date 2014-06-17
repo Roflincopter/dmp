@@ -143,7 +143,7 @@ struct get_nth_name_functor<boost::fusion::joint_view<T,U>>
 	template <int I>
 	static return_type call()
 	{
-		constexpr size_t size_of_T = friendly_fusion::result_of::size<T>::type::value;
+		constexpr int size_of_T = friendly_fusion::result_of::size<T>::type::value;
 		if(I < size_of_T){
 			return apply_functor_to_member<T, get_nth_name_functor>(I);
 		} else {

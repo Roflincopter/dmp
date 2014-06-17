@@ -39,6 +39,7 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 		std::cout << "fileref or audio_prop not valid for file: " << p.string() << std::endl;
 		return boost::optional<LibraryEntry>();
 	}
+	return boost::optional<LibraryEntry>();
 }
 
 Library build_library(filesystem::recursive_directory_iterator it)
