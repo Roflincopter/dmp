@@ -18,7 +18,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 //, sink(gst_element_factory_make("tcpserversink", "send"))
 , tee_src_pad_template(gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS(tee.get()), "src_%u"))
 , radio_mutex(new std::mutex)
-, recv_port(port_pool->AllocateNumber())
+, recv_port(port_pool->allocate_number())
 {
 	if (!source || !buffer || !parser || !tee)
 	{
@@ -56,7 +56,7 @@ void DmpRadio::add_listener(std::string name)
 		throw std::runtime_error(name + "was already listening to radio: " + this->name);
 	}
 	
-	DmpRadioEndpoint listener(name, port_pool->AllocateNumber());
+	DmpRadioEndpoint listener(name, port_pool->allocate_number());
 	DEBUG_COUT << listener.get_sink() << std::endl;
 	
 	GstPad* tee_pad = gst_element_request_pad(tee.get(), tee_src_pad_template.get(), nullptr, nullptr);
@@ -77,6 +77,7 @@ void DmpRadio::add_listener(std::string name)
 	
 	gst_bin_add(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
 	gst_pad_link(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
+	
 }
 
 //Reversing the logic here. The receiving end of the client is on the sender end of the radio and vice versa.

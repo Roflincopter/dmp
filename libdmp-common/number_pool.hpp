@@ -31,7 +31,7 @@ class NumberPool {
 
 public:
 	NumberPool(int lower, int upper);
-	int AllocateNumber();
-	void FreeNumber(int id);
+	int allocate_number();
+	void free_number(int id);
 
 };

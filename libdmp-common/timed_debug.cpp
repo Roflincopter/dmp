@@ -12,7 +12,7 @@ std::string timed_debug::add_call(std::function<void ()> f)
 {
 	boost::unique_lock<boost::mutex> l(calls_mutex);
 	
-	int nr = label_pool.AllocateNumber();
+	int nr = label_pool.allocate_number();
 	std::string label = std::to_string(nr);
 	
 	calls[label] = f;
@@ -28,7 +28,7 @@ void timed_debug::remove_call(std::string label)
 		calls.erase(it);
 		
 		int x = std::stoi(label);
-		label_pool.FreeNumber(x);
+		label_pool.free_number(x);
 		
 	} else {
 		throw std::runtime_error("timed_debug::remove_call called with invalid label");

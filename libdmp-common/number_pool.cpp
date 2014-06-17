@@ -5,7 +5,7 @@ NumberPool::NumberPool(int lower, int upper)
 	free.insert(NumberInterval(lower, upper));
 }
 
-int NumberPool::AllocateNumber()
+int NumberPool::allocate_number()
 {
 	NumberInterval first = *(free.begin());
 	int free_id = first.left();
@@ -16,7 +16,7 @@ int NumberPool::AllocateNumber()
 	return free_id;
 }
 
-void NumberPool::FreeNumber(int id)
+void NumberPool::free_number(int id)
 {
 	NumberIntervals_t::iterator it = free.find(NumberInterval(id,id));
 	if (it != free.end()  && it->left() <= id && it->right() > id) {
