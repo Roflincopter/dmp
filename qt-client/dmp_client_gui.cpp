@@ -1,5 +1,6 @@
 #include "dmp_client_gui.hpp"
 
+#include "debug_macros.hpp"
 #include "message_outputter.hpp"
 #include "connect.hpp"
 #include "dmp_client_connect_dialog.hpp"
@@ -159,6 +160,11 @@ void DmpClientGui::PlayPauseToggled(bool state)
 void DmpClientGui::NextPressed()
 {
 	client->next_radio();
+}
+
+void DmpClientGui::MuteToggled(bool state)
+{
+	client->mute_radio(state);
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)

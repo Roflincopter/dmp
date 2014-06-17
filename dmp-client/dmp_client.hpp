@@ -65,6 +65,7 @@ public:
 	virtual void play_radio() override final;
 	virtual void pause_radio() override final;
 	virtual void next_radio() override final;
+	virtual void mute_radio(bool state) override final;
 	
 	void handle_ping(message::Ping ping);
 	void handle_name_request(message::NameRequest name_req);
@@ -79,4 +80,5 @@ public:
 	void handle_playlist_update(message::PlaylistUpdate update);
 	void handle_stream_request(message::StreamRequest sr);
 	void handle_radio_event(message::RadioEvent re);
+	
 };

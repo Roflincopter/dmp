@@ -13,6 +13,7 @@ class DmpReceiver : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> converter;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> resampler;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> volume;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> audiosink;
 
 	void cleanup();
@@ -26,5 +27,6 @@ public:
 	
 	void setup(std::string host, uint16_t port);
 	void play();
+	void mute(bool mute);
 };
 

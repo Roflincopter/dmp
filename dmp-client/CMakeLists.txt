@@ -30,6 +30,8 @@ target_link_libraries(dmp-client ${Boost_LIBRARIES})
 find_package(GStreamer REQUIRED)
 include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(dmp-client ${GSTREAMER_LIBRARIES})
+include_directories(SYSTEM ${GSTREAMER_BASE_INCLUDE_DIRS})
+target_link_libraries(dmp-client ${GSTREAMER_BASE_LIBRARIES})
 
 find_package(GLIB2 REQUIRED)
 include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})

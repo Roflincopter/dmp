@@ -3,6 +3,7 @@
 #include "message_outputter.hpp"
 
 #include <QInputDialog>
+#include <QPushButton>
 
 DmpClientGuiRadioList::DmpClientGuiRadioList(QWidget *parent)
 : QListView(parent)
@@ -48,4 +49,6 @@ void DmpClientGuiRadioList::addRadio()
 
 	std::string radio_name = dialog.textValue().toStdString();
 	client->add_radio(radio_name);
+	
+	setIndexWidget(model->get_model_index_for(0), new QPushButton("Listen"));
 }

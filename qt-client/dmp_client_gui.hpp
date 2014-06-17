@@ -63,6 +63,7 @@ public slots:
 	void StopPressed();
 	void PlayPauseToggled(bool state);
 	void NextPressed();
+	void MuteToggled(bool state);
 
 private:
 	Ui::DmpClientGui ui;

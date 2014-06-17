@@ -97,7 +97,12 @@ void DmpClient::queue(std::string radio, std::string owner, dmp_library::Library
 
 void DmpClient::set_current_radio(std::string name)
 {
+	message::PlaylistUpdate::Action a(message::PlaylistUpdate::Action::Type::Reset, 0, 0);
+	message::PlaylistUpdate u(a, name, {});
+	
+	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_start, u);
 	playlists_model->set_current_radio(name);
+	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_end, u);
 }
 
 void DmpClient::handle_request(message::Type t)
@@ -149,6 +154,11 @@ void DmpClient::pause_radio()
 void DmpClient::next_radio()
 {
 	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Next, {}));
+}
+
+void DmpClient::mute_radio(bool state)
+{
+	receiver.mute(state);
 }
 
 void DmpClient::handle_ping(message::Ping ping)
