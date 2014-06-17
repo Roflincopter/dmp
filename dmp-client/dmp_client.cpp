@@ -121,7 +121,7 @@ void DmpClient::search(std::string query)
 	search_bar_model->set_query(query);
 	try {
 		dmp_library::parse_query(query);
-	} catch (dmp_library::ParseError err) {
+	} catch (dmp_library::ParseError &err) {
 		search_bar_model->set_data(err.expected, err.pivot);
 		call_on_delegates(delegates, &DmpClientUiDelegate::query_parse_error);
 		return;
@@ -266,7 +266,7 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	auto sender_runner = [this, sr]{
 		try {
 			senders.at(sr.radio_name).run_loop();
-		} catch(std::runtime_error e){
+		} catch(std::exception &e){
 			std::cout << "Sender crashed with message: " << e.what() << std::endl;
 		}
 		//TODO: fix this more generic by a templated struct with a std::thread and a T struct as mapped type.

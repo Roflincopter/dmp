@@ -26,7 +26,7 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 	if(t && audio_prop) {
 		try {
 			return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->length()));
-		} catch (std::runtime_error const& e) {
+		} catch (std::exception& e) {
 			std::cout << "Creating LibraryEntry failed: " << e.what() << std::endl;
 			for (auto&& id : possible_transliterator_ids()) {
 				std::cout << id << std::endl;
@@ -59,7 +59,7 @@ Library build_library(filesystem::recursive_directory_iterator it)
 				filemap.emplace(entry.get().id, (*it).path().string());
 			}
 		}
-		catch(std::runtime_error const& e)
+		catch(std::exception &e)
 		{
 			continue;
 		}

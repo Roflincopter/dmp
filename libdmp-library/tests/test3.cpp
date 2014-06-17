@@ -21,7 +21,7 @@ int main()
 	{
 		try {
 			dmp_library::parse_query(query);
-		} catch (dmp_library::ParseError err) {
+		} catch (dmp_library::ParseError &err) {
 			std::cout << err.what() << std::endl;
 			std::cout << query << std::endl << std::endl;
 			continue;

@@ -89,7 +89,7 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	{
 		try {
 			client->run();
-		} catch (std::runtime_error e) {
+		} catch (std::exception &e) {
 			std::cerr << "Connection to server lost with message: " << e.what() << std::endl;
 			client->stop();
 			client.reset();
