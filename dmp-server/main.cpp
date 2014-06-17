@@ -21,7 +21,11 @@ int main(int, char**) {
 	auto server = std::make_shared<DmpServer>();
 
 	std::function<void(dmp::Connection&&)> f = [&](dmp::Connection&& x){
-		server->add_connection(std::move(x));
+		try {
+			server->add_connection(std::move(x));
+		} catch(std::exception &e) {
+			std::cerr << "Failed to initialize connection: " << e.what() << std::endl;
+		}
 	};
 
 	std::thread server_thread(std::bind(&DmpServer::run, std::ref(*server)));
