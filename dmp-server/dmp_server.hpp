@@ -29,6 +29,7 @@ public:
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
 	void handle_queue(message::Queue queue);
 	void handle_radio_event(message::RadioEvent re);
+	void handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti);
 	
 	void update_playlist(std::string radio_name, Playlist playlist) override final;
 	

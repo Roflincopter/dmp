@@ -117,6 +117,8 @@ void DmpRadio::stop()
 	auto sp = server.lock();
 	DEBUG_COUT << "Ordering stop from: " << entry.owner << " of radio: " << name << std::endl;
 	sp->order_stop(entry.owner, name);
+	
+	stopped = true;
 }
 
 void DmpRadio::play()
@@ -129,6 +131,8 @@ void DmpRadio::play()
 	sp->order_play(entry.owner, name);
 	
 	make_debug_graph();
+	
+	stopped = false;
 }
 
 void DmpRadio::pause()
@@ -178,7 +182,10 @@ void DmpRadio::play_next_song()
 	auto sp = server.lock();
 	sp->update_playlist(name, playlist);
 	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
-	sp->order_play(entry.owner, name);
+	
+	if(!stopped) {
+		sp->order_play(entry.owner, name);
+	}
 }
 
 void DmpRadio::eos_reached()

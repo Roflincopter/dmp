@@ -31,6 +31,7 @@ enum class Type : Type_t {
 	PlaylistUpdate,
 	StreamRequest,
 	RadioEvent,
+	TuneIn,
 	LAST
 };
 
@@ -393,6 +394,22 @@ struct RadioEvent {
 	{}
 };
 
+struct TuneIn {
+	
+	Type type;
+	std::string radio_name;
+	
+	TuneIn()
+	: type(message::Type::TuneIn)
+	, radio_name()
+	{}
+	
+	TuneIn(std::string radio_name)
+	: type(message::Type::TuneIn)
+	, radio_name(radio_name)
+	{}
+};
+
 template <Type t>
 struct type_to_message
 {
@@ -422,6 +439,7 @@ TYPE_TO_MESSAGE_STRUCT(Queue)
 TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
 TYPE_TO_MESSAGE_STRUCT(StreamRequest)
 TYPE_TO_MESSAGE_STRUCT(RadioEvent)
+TYPE_TO_MESSAGE_STRUCT(TuneIn)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
@@ -559,4 +577,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, radio_name)
 	(message::RadioEvent::Action, action)
 	(std::vector<PlaylistEntry>, data)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::TuneIn,
+	(message::Type, type)
+	(std::string, radio_name)
 )

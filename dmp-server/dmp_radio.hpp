@@ -60,6 +60,8 @@ class DmpRadio : public GStreamerBase
 
 	Playlist playlist;
 	
+	bool stopped = true;
+	
 	void play_next_song();
 
 public:

@@ -18,6 +18,7 @@ void DmpClientGuiRadioList::selectionChanged(QItemSelection const& selected, QIt
 	auto variant = model->data(selected.indexes()[0], Qt::DisplayRole);
 	if(variant.isValid()) {
 		emit currentlySelectedRadio(variant.toString().toStdString());
+		client->tune_in(variant.toString().toStdString());
 	}
 	QListView::selectionChanged(selected, deselected);
 }
@@ -49,6 +50,4 @@ void DmpClientGuiRadioList::addRadio()
 
 	std::string radio_name = dialog.textValue().toStdString();
 	client->add_radio(radio_name);
-	
-	setIndexWidget(model->get_model_index_for(0), new QPushButton("Listen"));
 }

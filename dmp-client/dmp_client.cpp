@@ -110,6 +110,12 @@ void DmpClient::set_current_radio(std::string name)
 	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_end, u);
 }
 
+void DmpClient::tune_in(std::string radio)
+{
+	message::TuneIn ti(radio);
+	connection.send(ti);
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);

@@ -41,7 +41,8 @@ void DmpServer::add_connection(dmp::Connection&& c)
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
 		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
-		set(message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpServer::handle_radio_event, this, std::placeholders::_1)));
+		set(message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpServer::handle_radio_event, this, std::placeholders::_1))).
+		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
 		
 	connections[name_res.name] = cep;
 
@@ -93,9 +94,7 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 		origin->forward(message::AddRadioResponse(ar.name, true, ""));
 		radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
 		
-		radio_it->second.second.add_listener(origin->get_name());
 		radio_it->second.second.listen();
-		origin->forward(message::ListenConnectionRequest(radio_it->second.second.get_receiver_port(origin->get_name())));
 		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));
@@ -153,6 +152,18 @@ void DmpServer::handle_radio_event(message::RadioEvent re)
 		}
 		
 	}
+}
+
+void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti)
+{
+	auto& radio = radios.at(ti.radio_name);
+	try {
+		radio.second.add_listener(origin->get_name());
+	} catch(std::runtime_error const& e) {
+		std::cout << e.what() << std::endl;
+		return;
+	}
+	origin->forward(message::ListenConnectionRequest(radio.second.get_receiver_port(origin->get_name())));
 }
 
 void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
