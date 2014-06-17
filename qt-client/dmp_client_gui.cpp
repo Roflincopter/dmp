@@ -37,6 +37,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 
 	test1_key.setAutoRepeat(false);
 	test1_key.setContext(Qt::ApplicationShortcut);
+	setEnabled(false);
 }
 
 void DmpClientGui::update_ui_client_interface()
@@ -109,10 +110,14 @@ void DmpClientGui::connect_client(std::string name, std::string host, uint16_t p
 
 	set_client(client_sp);
 
-	ui.actionIndex_Folder->setEnabled(true);
-	ui.search_bar->setEnabled(true);
-	ui.addRadioButton->setEnabled(true);
-	ui.deleteRadioButton->setEnabled(true);
+	setEnabled(true);
+}
+
+void DmpClientGui::setEnabled(bool enabled) {
+	ui.actionIndex_Folder->setEnabled(enabled);
+	ui.search_bar->setEnabled(enabled);
+	ui.addRadioButton->setEnabled(enabled);
+	ui.deleteRadioButton->setEnabled(enabled);
 }
 
 void DmpClientGui::dmpConnect()

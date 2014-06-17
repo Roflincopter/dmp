@@ -41,7 +41,7 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	std::shared_ptr<DmpClientGuiPlaylists> shared_playlists;
 
 	void update_ui_client_interface();
-
+	void setEnabled(bool enabled);
 
 public:
 	explicit DmpClientGui(QWidget *parent = 0);
