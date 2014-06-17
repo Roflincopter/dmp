@@ -9,25 +9,29 @@ DmpSender::DmpSender()
 : GStreamerBase("sender")
 , source(gst_element_factory_make("filesrc", "file"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
+, converter(gst_element_factory_make("audioconvert", "converter"))
+, resampler(gst_element_factory_make("audioresample", "resampler"))
 , encoder(gst_element_factory_make("lamemp3enc", "encoder"))
 //, rtppay(gst_element_factory_make("rtpmpapay", "rtppay"))
 , sink(gst_element_factory_make("tcpclientsink", "send"))
 {
-	if (!source || !decoder || !encoder || /*!rtppay ||*/ !sink)
+	if (!source || !decoder || !converter || !resampler || !encoder || /*!rtppay ||*/ !sink)
 	{
 		CHECK_GSTREAMER_COMPONENT(source);
 		CHECK_GSTREAMER_COMPONENT(decoder);
+		CHECK_GSTREAMER_COMPONENT(converter);
+		CHECK_GSTREAMER_COMPONENT(resampler);
 		CHECK_GSTREAMER_COMPONENT(encoder);
 //		CHECK_GSTREAMER_COMPONENT(rtppay);
 		CHECK_GSTREAMER_COMPONENT(sink);
 		throw std::runtime_error("Could not create the pipeline components for this sender.");
 	}
 
-	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), decoder.get(), encoder.get(), /*rtppay.get(),*/ sink.get(), nullptr);
+	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), decoder.get(), converter.get(), resampler.get(), encoder.get(), /*rtppay.get(),*/ sink.get(), nullptr);
 	
 	gst_element_link_many(source.get(), decoder.get(), nullptr);
-	g_signal_connect(decoder.get(), "pad-added", G_CALLBACK(on_pad_added), encoder.get());
-	gst_element_link_many(encoder.get(), /*rtppay.get(),*/ sink.get(), nullptr);
+	g_signal_connect(decoder.get(), "pad-added", G_CALLBACK(on_pad_added), converter.get());
+	gst_element_link_many(converter.get(), resampler.get(), encoder.get(), /*rtppay.get(),*/ sink.get(), nullptr);
 }
 
 void DmpSender::setup(std::string host, uint16_t port, std::string file)
