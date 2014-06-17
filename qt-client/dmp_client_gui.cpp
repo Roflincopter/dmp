@@ -124,11 +124,15 @@ void DmpClientGui::timerEvent(QTimerEvent *event)
 
 void DmpClientGui::connect_client(std::string name, std::string host, uint16_t port)
 {
-	auto client_sp = std::make_shared<DmpClient>(name, host, port);
-
-	set_client(client_sp);
-
-	setEnabled(true);
+	try {
+		auto client_sp = std::make_shared<DmpClient>(name, host, port);
+		set_client(client_sp);
+		setEnabled(true);
+	} catch(std::exception &e) {
+		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());
+		dialog.exec();
+		setEnabled(false);
+	}
 }
 
 void DmpClientGui::setEnabled(bool enabled) {
