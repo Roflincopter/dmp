@@ -74,6 +74,11 @@ void DmpClient::run()
 	connection.io_service->run();
 }
 
+void DmpClient::destroy()
+{
+	connection.io_service->stop();
+}
+
 void DmpClient::stop()
 {
 	message::Bye b;

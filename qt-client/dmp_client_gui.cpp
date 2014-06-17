@@ -71,19 +71,16 @@ void DmpClientGui::test1()
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
-	if(!client) {
-		client = new_client;
-
-	} else {
+	if(client) {
 		if(client_thread.joinable()) {
+			client->destroy();
 			client_thread.join();
-
-			client = new_client;
-		}
-		else {
-			throw std::runtime_error("Tried to assign a new client when old client was still running.");
+		} else {
+			throw std::runtime_error("Tried to assign a new client when old client was invalidated.");
 		}
 	}
+
+	client = new_client;
 
 	auto client_runner = [this]
 	{

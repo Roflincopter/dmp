@@ -53,6 +53,7 @@ public:
 	void handle_request(message::Type t);
 	void listen_requests();
 
+	virtual void destroy() override final;
 	virtual void stop() override final;
 	virtual void run() override final;
 	virtual void search(std::string query) override final;
