@@ -4,6 +4,7 @@
 #include "message_outputter.hpp"
 #include "connect.hpp"
 #include "dmp_client_connect_dialog.hpp"
+#include "dmp_client_error_dialog.hpp"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -85,13 +86,16 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 
 	auto client_runner = [this]
 	{
+		std::string error = "Connection to server lost.";
 		try {
 			client->run();
 		} catch (std::exception &e) {
-			std::cerr << "Connection to server lost with message: " << e.what() << std::endl;
-			client->stop();
-			client.reset();
+			error = "Connection to server lost: " + std::string(e.what());
 		}
+		client->destroy();
+		// Notify the main thread about this
+		int index = this->startTimer(100);
+		setErrorIndex(index, error);
 	};
 
 	client_thread = std::thread(client_runner);
@@ -99,9 +103,23 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	update_ui_client_interface();
 }
 
-void DmpClientGui::client_stopped()
+void DmpClientGui::timerEvent(QTimerEvent *event)
 {
-	client.reset();
+	// We were notified about something by another thread, check our clients
+	if(!getErrorIndex(event->timerId()).empty()) {
+		setEnabled(false);
+		if(client) {
+			client->destroy();
+			client_thread.join();
+			client.reset();
+		}
+		std::string error = getErrorIndex(event->timerId());
+		clearErrorIndex(event->timerId());
+
+		DmpClientErrorDialog dialog(error);
+		dialog.exec();
+	}
+	killTimer(event->timerId());
 }
 
 void DmpClientGui::connect_client(std::string name, std::string host, uint16_t port)
@@ -180,4 +198,24 @@ void DmpClientGui::closeEvent(QCloseEvent*)
 	
 	client->stop();
 	client_thread.join();
+}
+
+void DmpClientGui::setErrorIndex(int index, std::string error) {
+	std::lock_guard<std::mutex> lock(error_indices_mutex);
+	error_indices[index] = error;
+}
+
+std::string DmpClientGui::getErrorIndex(int index) {
+	std::lock_guard<std::mutex> lock(error_indices_mutex);
+	auto it = error_indices.find(index);
+	if(it == error_indices.end()) {
+		return std::string();
+	} else {
+		return it->second;
+	}
+}
+
+void DmpClientGui::clearErrorIndex(int index) {
+	std::lock_guard<std::mutex> lock(error_indices_mutex);
+	error_indices.erase(index);
 }
