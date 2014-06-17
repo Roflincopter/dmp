@@ -56,8 +56,8 @@ void DmpServer::add_connection(dmp::Connection&& c)
 		{
 			try {
 				connections[name_res.name]->run();
-			} catch(std::runtime_error e) {
-				std::cerr << "Endpoint unexpectedly disconnected with message: " << e.what() << std::endl;
+			} catch(std::exception &e) {
+				std::cerr << "Endpoint unexpectedly raised exception: " << e.what() << std::endl;
 			}
 			connections.erase(name_res.name);
 		}
