@@ -124,6 +124,9 @@ void set_nth(T& x, int index, boost::any const& value)
 }
 
 template <typename T>
+std::string get_nth_name(int index);
+
+template <typename T>
 struct get_nth_name_functor 
 {
 	typedef std::string return_type;
@@ -145,9 +148,9 @@ struct get_nth_name_functor<boost::fusion::joint_view<T,U>>
 	{
 		constexpr int size_of_T = friendly_fusion::result_of::size<T>::type::value;
 		if(I < size_of_T){
-			return apply_functor_to_member<T, get_nth_name_functor>(I);
+			return get_nth_name<T>(I);
 		} else {
-			return apply_functor_to_member<U, get_nth_name_functor>(I - size_of_T);
+			return get_nth_name<U>(I - size_of_T);
 		}
 	}
 };
