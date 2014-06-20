@@ -18,6 +18,7 @@
 #include <thread>
 #include <memory>
 #include <map>
+#include <mutex>
 
 class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 {
