@@ -106,29 +106,53 @@ void DmpRadio::stop()
 	
 	PlaylistEntry entry = playlist.front();
 	
-	//For now insert the current song infront of the current song.
-	//When stopped we reset the sender state which triggers an EOS
-	//Which in turn triggers an EOS on the radio and receiver.
-	//This neatly resets the gstreamer internal clocks so a play works again.
-	//But this also skips the current song. So as a workaround untill I get 
-	//Multiple clients work this will need to do.
-	playlist.insert(playlist.begin(), entry);
-	
 	auto sp = server.lock();
 	DEBUG_COUT << "Ordering stop from: " << entry.owner << " of radio: " << name << std::endl;
-	sp->order_stop(entry.owner, name);
 	
+	for (auto&& branch : branches)
+	{
+		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Stop));
+	}
+	/*
+	gst_element_set_state(pipeline.get(), GST_STATE_READY);
+	
+	{
+		GstState state;
+		GstState pending;
+		//force state change to happen.
+		gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
+	}
+	*/
+	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Stop));
+
 	stopped = true;
 }
 
-void DmpRadio::play()
+void DmpRadio:: play()
 {
+	std::cout << "Play called on radio: " << name << std::endl;
 	std::unique_lock<std::mutex> l(*radio_mutex);
+	
+	if (playlist.empty()) {
+		return;
+	}
 	
 	PlaylistEntry entry = playlist.front();
 	auto sp = server.lock();
 	DEBUG_COUT << "Ordering play from: " << entry.owner << " of radio: " << name << std::endl;
-	sp->order_play(entry.owner, name);
+	DEBUG_COUT << "Current playlist: " << playlist;
+	
+	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
+	
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+	
+	for(auto&& branch : branches)
+	{
+		DEBUG_COUT << "Sending listens" << std::endl;
+		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Play));
+	}
+	
+	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Play));
 	
 	make_debug_graph();
 	
@@ -137,11 +161,22 @@ void DmpRadio::play()
 
 void DmpRadio::pause()
 {
+	std::cout << "Paused called on radio: " << name << std::endl;
+	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
-	PlaylistEntry entry = playlist.front();
 	auto sp = server.lock();
-	sp->order_pause(entry.owner, name);
+	PlaylistEntry entry = playlist.front();
+	
+	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Pause));
+	for(auto&& branch : branches)
+	{
+		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Pause));
+	}
+	
+	GstState state;
+	GstState pending;
+	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
 }
 
 void DmpRadio::next()
@@ -150,61 +185,49 @@ void DmpRadio::next()
 	
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
+	
+	
 	if(playlist.empty()) {
+		DEBUG_COUT << "Playlist after next was empty returning" << std::endl;
 		return;
 	}
 	
-	PlaylistEntry entry = playlist.front();
 	auto sp = server.lock();
-	sp->order_reset(entry.owner, name);
-
-	DEBUG_COUT << "after: " << playlist << std::endl;
-}
-
-void DmpRadio::play_next_song()
-{
-	std::unique_lock<std::mutex> l(*radio_mutex);
 	
-	if(playlist.empty()) {
-		return;
+	if(!stopped) {
+		sp->forward_sender_action(playlist.front().owner, message::SenderAction(name, message::PlaybackAction::Reset));
+		gst_element_set_state(pipeline.get(), GST_STATE_READY);
+		
+		{
+			GstState state;
+			GstState pending;
+			gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
+		}
 	}
 	
 	playlist.erase(playlist.begin());
 	
-	if(playlist.empty()) {
-		return;
+	DEBUG_COUT << "Stopped was: " << std::boolalpha << stopped << std::endl;
+	DEBUG_COUT << "after: " << playlist << std::endl;
+	
+	if(!stopped) { 
+		sp->update_playlist(name, playlist);
+		l.unlock();
+		play();
 	}
+
 	
-	auto entry = playlist.front();
-	
-	std::cout << "Ordering: " << entry.entry << std::endl;
-	
-	auto sp = server.lock();
-	sp->update_playlist(name, playlist);
-	sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
-	
-	if(!stopped) {
-		sp->order_play(entry.owner, name);
-	}
 }
 
 void DmpRadio::eos_reached()
-{	
+{
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
-	play_next_song();
+	DEBUG_COUT << "dmp_radio: EOS reached" << std::endl;
 }
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 {
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
-	bool queue_was_empty = playlist.empty();
 	playlist.push_back({queuer, owner, entry});
-	
-	if (queue_was_empty) {
-		PlaylistEntry entry = playlist.front();
-		auto sp = server.lock();
-		sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
-	}
 }

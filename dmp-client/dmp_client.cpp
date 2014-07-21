@@ -3,6 +3,7 @@
 #include "message_outputter.hpp"
 #include "connect.hpp"
 #include "timed_debug.hpp"
+#include "debug_macros.hpp"
 
 DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 : name(name)
@@ -39,7 +40,8 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
 		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, _1))},
 		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
-		{message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpClient::handle_radio_event, this, _1))}
+		{message::Type::SenderAction, std::function<void(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
+		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))}
 	};
 }
 
@@ -149,22 +151,27 @@ void DmpClient::search(std::string query)
 
 void DmpClient::stop_radio()
 {
-	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Stop, {}));
+	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Stop));
 }
 
 void DmpClient::play_radio()
 {
-	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Play, {}));
+	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Play));
 }
 
 void DmpClient::pause_radio()
 {
-	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Pause, {}));
+	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Pause));
 }
 
 void DmpClient::next_radio()
 {
-	connection.send(message::RadioEvent(playlists_model->get_current_radio(), message::RadioEvent::Action::Next, {}));
+	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Next));
+}
+
+void DmpClient::forward_radio_action(message::RadioAction re)
+{
+	connection.send(re);
 }
 
 void DmpClient::mute_radio(bool state)
@@ -228,7 +235,7 @@ void DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 		receiver_thread.join();
 	}
 	receiver_thread = std::thread(std::bind(&DmpReceiver::run_loop, std::ref(receiver)));
-	receiver.setup(host, req.port);
+	receiver.setup(req.radio_name, host, req.port);
 	receiver.play();
 }
 
@@ -268,7 +275,7 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	//remove this when todo is fixed
 	senders.erase(sr.radio_name);
-	auto result = senders.emplace(sr.radio_name, DmpSender());
+	auto result = senders.emplace(sr.radio_name, DmpSender(shared_from_this(), sr.radio_name));
 	
 	if(!result.second) {
 		std::cout << "emplace did not overwrite existing map entry" << std::endl;
@@ -290,38 +297,76 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
 }
 
-void DmpClient::handle_radio_event(message::RadioEvent re)
+void DmpClient::handle_sender_action(message::SenderAction sa)
 {
-	
-	auto sender_it = senders.find(re.radio_name);
+	auto sender_it = senders.find(sa.radio_name);
 	if(sender_it != senders.end()) {
 		auto& sender = sender_it->second;
-		switch(re.action)
+		switch(sa.action)
 		{
-			case message::RadioEvent::Action::Pause:
+			case message::PlaybackAction::Pause:
 			{
 				sender.pause();
 				break;
 			}
-			case message::RadioEvent::Action::Play:
+			case message::PlaybackAction::Play:
 			{
 				sender.play();
 				break;
 			}
-			case message::RadioEvent::Action::Stop:
+			case message::PlaybackAction::Stop:
 			{
 				sender.stop();
 				break;
 			}
-			case message::RadioEvent::Action::Reset:
+			case message::PlaybackAction::Reset:
 			{
 				sender.reset();
 				break;
 			}
+			//explicit falltrough.
+			case message::PlaybackAction::NoAction:
+			case message::PlaybackAction::Next:
+			case message::PlaybackAction::Listen:
 			default:
 			{
-				throw std::runtime_error("RadioEvent with incompatible command found in dmp_client");
+				throw std::runtime_error("SenderAction with incompatible command found in dmp_client, command was: " + std::to_string(static_cast<message::Type_t>(sa.action)));
 			}
+		}
+	}
+}
+
+void DmpClient::handle_receiver_action(message::ReceiverAction ra)
+{
+	switch(ra.action)
+	{
+		case message::PlaybackAction::Pause:
+		{
+			receiver.pause();
+			break;
+		}
+		case message::PlaybackAction::Listen:
+		{
+			receiver.play();
+			break;
+		}
+		case message::PlaybackAction::Play:
+		{
+			receiver.play();
+			break;
+		}
+		case message::PlaybackAction::Stop:
+		{
+			receiver.stop();
+			break;
+		}
+		//explicit falltrough
+		case message::PlaybackAction::Next:
+		case message::PlaybackAction::NoAction:
+		case message::PlaybackAction::Reset:
+		default:
+		{
+			throw std::runtime_error("ReceiverAction with incompatible command found in dmp_client, command was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
 	}
 }

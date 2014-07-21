@@ -4,6 +4,7 @@
 #include "dmp_sender.hpp"
 #include "dmp_receiver.hpp"
 #include "dmp_client_interface.hpp"
+#include "dmp_client_radio_interface.hpp"
 #include "dmp_client_ui_delegate.hpp"
 #include "playlists_model.hpp"
 
@@ -11,7 +12,7 @@
 
 #include <thread>
 
-class DmpClient : public DmpClientInterface
+class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, public std::enable_shared_from_this<DmpClientRadioInterface>
 {
 	std::string name;
 	std::string host;
@@ -69,6 +70,8 @@ public:
 	virtual void next_radio() override final;
 	virtual void mute_radio(bool state) override final;
 	
+	virtual void forward_radio_action(message::RadioAction re) override final;
+	
 	void handle_ping(message::Ping ping);
 	void handle_name_request(message::NameRequest name_req);
 	void handle_pong(message::Pong pong);
@@ -81,6 +84,6 @@ public:
 	void handle_add_radio(message::AddRadio added_radio);
 	void handle_playlist_update(message::PlaylistUpdate update);
 	void handle_stream_request(message::StreamRequest sr);
-	void handle_radio_event(message::RadioEvent re);
-	
+	void handle_sender_action(message::SenderAction sa);
+	void handle_receiver_action(message::ReceiverAction ra);
 };

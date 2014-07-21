@@ -24,6 +24,7 @@ GST_PLUGIN_STATIC_DECLARE(lame);
 
 void on_pad_added(_GstElement* element, _GstPad* pad, void* data);
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data);
+std::string gst_state_to_string(GstState x);
 
 struct GMainLoopDeleter {
 	void operator()(GMainLoop* ptr) {

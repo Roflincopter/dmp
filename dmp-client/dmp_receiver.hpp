@@ -16,17 +16,22 @@ class DmpReceiver : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> volume;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> audiosink;
 
+	std::string radio_name;
+	
 	void cleanup();
 public:
 	DmpReceiver();
+	DmpReceiver(std::string radio_name);
 	
 	DmpReceiver(DmpReceiver&&) = default;
 	DmpReceiver& operator=(DmpReceiver&&) = default;
 	
 	virtual void eos_reached() override final;
 	
-	void setup(std::string host, uint16_t port);
+	void setup(std::string name, std::string host, uint16_t port);
 	void play();
+	void pause();
+	void stop();
 	void mute(bool mute);
+	std::string radio_target();
 };
-

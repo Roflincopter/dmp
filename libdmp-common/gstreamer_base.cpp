@@ -103,22 +103,13 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		GstState new_;
 		GstState pending;
 		
-		auto f = [](GstState x) {
-			if(x == 0) return "GST_STATE_VOID_PENDING";
-			if(x == 1) return "GST_STATE_NULL";
-			if(x == 2) return "GST_STATE_READY";
-			if(x == 3) return "GST_STATE_PAUSED";
-			if(x == 4) return "GST_STATE_PLAYING";
-			return "<UNKNOWN>";
-		};
-		
 		gst_message_parse_state_changed(msg, &old_, &new_, &pending);
 		
 		char* x = gst_object_get_name(msg->src);
 		std::string element(x);
 		g_free(x);
 		
-		//std::cerr << base->name << ":" << element << " from: " << f(old_) << " to: " << f(new_) << " pending?: "  << f(pending) << std::endl;
+		//std::cerr << base->name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
 		break;
 	}
 
@@ -164,6 +155,35 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		}
 		
 	}
+	case GST_MESSAGE_UNKNOWN:
+	case GST_MESSAGE_WARNING:
+	case GST_MESSAGE_INFO:
+	case GST_MESSAGE_TAG:
+	case GST_MESSAGE_STATE_DIRTY:
+	case GST_MESSAGE_STEP_DONE:
+	case GST_MESSAGE_CLOCK_PROVIDE:
+	case GST_MESSAGE_CLOCK_LOST:
+	case GST_MESSAGE_NEW_CLOCK:
+	case GST_MESSAGE_STRUCTURE_CHANGE:
+	case GST_MESSAGE_STREAM_STATUS:
+	case GST_MESSAGE_APPLICATION:
+	case GST_MESSAGE_ELEMENT:
+	case GST_MESSAGE_SEGMENT_START:
+	case GST_MESSAGE_SEGMENT_DONE:
+	case GST_MESSAGE_DURATION_CHANGED:
+	case GST_MESSAGE_LATENCY:
+	case GST_MESSAGE_ASYNC_START:
+	case GST_MESSAGE_ASYNC_DONE:
+	case GST_MESSAGE_REQUEST_STATE:
+	case GST_MESSAGE_STEP_START:
+	case GST_MESSAGE_QOS:
+	case GST_MESSAGE_PROGRESS:
+	case GST_MESSAGE_TOC:
+	case GST_MESSAGE_RESET_TIME:
+	case GST_MESSAGE_STREAM_START:
+	case GST_MESSAGE_NEED_CONTEXT:
+	case GST_MESSAGE_HAVE_CONTEXT:
+	case GST_MESSAGE_ANY:
 	default:
 		break;
 	}
@@ -173,10 +193,22 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 
 void on_pad_added (GstElement* element, GstPad* pad, gpointer data)
 {
-  GstPad *sinkpad;
-  GstElement *decoder = (GstElement *) data;
+	GstPad *sinkpad;
+	GstElement *decoder = (GstElement *) data;
 
-  sinkpad = gst_element_get_static_pad (decoder, "sink");
-  gst_pad_link (pad, sinkpad);
-  gst_object_unref (sinkpad);
+	sinkpad = gst_element_get_static_pad (decoder, "sink");
+	gst_pad_link (pad, sinkpad);
+	gst_object_unref (sinkpad);
 }
+
+std::string gst_state_to_string(GstState x)
+{
+	if(x == GST_STATE_VOID_PENDING) return "GST_STATE_VOID_PENDING";
+	if(x == GST_STATE_NULL) return "GST_STATE_NULL";
+	if(x == GST_STATE_READY) return "GST_STATE_READY";
+	if(x == GST_STATE_PAUSED) return "GST_STATE_PAUSED";
+	if(x == GST_STATE_PLAYING) return "GST_STATE_PLAYING";
+	return "<UNKNOWN>";
+}
+
+

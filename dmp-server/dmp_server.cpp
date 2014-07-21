@@ -41,7 +41,7 @@ void DmpServer::add_connection(dmp::Connection&& c)
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
 		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
-		set(message::Type::RadioEvent, std::function<void(message::RadioEvent)>(std::bind(&DmpServer::handle_radio_event, this, std::placeholders::_1))).
+		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
 		
 	connections[name_res.name] = cep;
@@ -121,34 +121,39 @@ void DmpServer::update_playlist(std::string radio_name, Playlist playlist)
 	}
 }
 
-void DmpServer::handle_radio_event(message::RadioEvent re)
+void DmpServer::handle_radio_action(message::RadioAction ra)
 {
-	auto& radio = radios.at(re.radio_name);
-	switch(re.action) 
+	auto& radio = radios.at(ra.radio_name);
+	switch(ra.action)
 	{
-		case message::RadioEvent::Action::Next:
+		case message::PlaybackAction::Next:
 		{
+			DEBUG_COUT << "Next called on radio: " << ra.radio_name << std::endl;
 			radio.second.next();
 			break;
 		}
-		case message::RadioEvent::Action::Pause:
+		case message::PlaybackAction::Pause:
 		{
 			radio.second.pause();
 			break;
 		}
-		case message::RadioEvent::Action::Play:
+		case message::PlaybackAction::Play:
 		{
 			radio.second.play();
 			break;
 		}
-		case message::RadioEvent::Action::Stop:
+		case message::PlaybackAction::Stop:
 		{
 			radio.second.stop();
 			break;
 		}
+		//explicit falltrough.
+		case message::PlaybackAction::Listen:
+		case message::PlaybackAction::NoAction:
+		case message::PlaybackAction::Reset:
 		default:
 		{
-			throw std::runtime_error("Unknown RadioAction was passed to the Server.");
+			throw std::runtime_error("Unknown RadioAction was passed to the Server, action was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
 		
 	}
@@ -163,7 +168,7 @@ void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::
 		std::cout << e.what() << std::endl;
 		return;
 	}
-	origin->forward(message::ListenConnectionRequest(radio.second.get_receiver_port(origin->get_name())));
+	origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.second.get_receiver_port(origin->get_name())));
 }
 
 void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
@@ -171,22 +176,12 @@ void DmpServer::order_stream(std::string client, std::string radio_name, dmp_lib
 	connections[client]->forward(message::StreamRequest(radio_name, entry, port));
 }
 
-void DmpServer::order_pause(std::string client, std::string radio_name)
+void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)
 {
-	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Pause, {}));
+	connections[client]->forward(ra);
 }
 
-void DmpServer::order_play(std::string client, std::string radio_name)
+void DmpServer::forward_sender_action(std::string client, message::SenderAction sa)
 {
-	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Play, {}));
-}
-
-void DmpServer::order_stop(std::string client, std::string radio_name)
-{
-	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Stop, {}));
-}
-
-void DmpServer::order_reset(std::string client, std::string radio_name)
-{
-	connections[client]->forward(message::RadioEvent(radio_name, message::RadioEvent::Action::Reset, {}));
+	connections[client]->forward(sa);
 }

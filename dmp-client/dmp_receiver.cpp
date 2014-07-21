@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <cassert>
 
 DmpReceiver::DmpReceiver()
 : GStreamerBase("receiver")
@@ -15,6 +16,7 @@ DmpReceiver::DmpReceiver()
 , resampler(gst_element_factory_make("audioresample", "resampler"))
 , volume(gst_element_factory_make("volume", "volume"))
 , audiosink(gst_element_factory_make("autoaudiosink", "audiosink"))
+, radio_name()
 {
 	if (!source || /*!rtpdepay ||*/ !buffer || !decoder || !converter || !resampler || !volume || !audiosink)
 	{
@@ -41,11 +43,13 @@ DmpReceiver::DmpReceiver()
 
 void DmpReceiver::eos_reached()
 {
+	DEBUG_COUT << "DmpReceiver: EOS reached" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 }
 
-void DmpReceiver::setup(std::string host, uint16_t port) {
+void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
+	radio_name = name;
+	
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 	
 	g_object_set(G_OBJECT(source.get()), "host", host.c_str(), nullptr);
@@ -56,10 +60,29 @@ void DmpReceiver::setup(std::string host, uint16_t port) {
 
 void DmpReceiver::play()
 {
+	DEBUG_COUT << "Play called on receiver" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+}
+
+void DmpReceiver::pause()
+{
+	DEBUG_COUT << "Pause called on receiver" << std::endl;
+	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
+}
+
+void DmpReceiver::stop()
+{
+	DEBUG_COUT << "Stop called on receiver" << std::endl;
+	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 }
 
 void DmpReceiver::mute(bool mute)
 {
 	g_object_set(G_OBJECT(volume.get()), "mute", gboolean(mute), nullptr);
+}
+
+std::string DmpReceiver::radio_target()
+{
+	DEBUG_COUT << "Getting the radio target name: " << radio_name << std::endl;
+	return radio_name;
 }

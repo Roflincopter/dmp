@@ -30,7 +30,9 @@ struct DmpCallbacks {
 		, CB<message::Queue>
 		, CB<message::PlaylistUpdate>
 		, CB<message::StreamRequest>
-		, CB<message::RadioEvent>
+		, CB<message::RadioAction>
+		, CB<message::ReceiverAction>
+		, CB<message::SenderAction>
 		, CB<message::TuneIn>
 	>;
 	

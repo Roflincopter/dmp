@@ -62,8 +62,6 @@ class DmpRadio : public GStreamerBase
 	
 	bool stopped = true;
 	
-	void play_next_song();
-
 public:
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool);
 

@@ -30,7 +30,9 @@ enum class Type : Type_t {
 	Queue,
 	PlaylistUpdate,
 	StreamRequest,
-	RadioEvent,
+	RadioAction,
+	ReceiverAction,
+	SenderAction,
 	TuneIn,
 	LAST
 };
@@ -225,27 +227,22 @@ struct AddRadioResponse {
 
 struct ListenConnectionRequest {
 	Type type;
+	std::string radio_name;
 	uint16_t port;
 
 	ListenConnectionRequest()
 	: type(Type::ListenConnectionRequest)
+	, radio_name()
 	, port()
 	{}
 
-	ListenConnectionRequest(uint16_t port)
+	ListenConnectionRequest(std::string radio_name, uint16_t port)
 	: type(Type::ListenConnectionRequest)
+	, radio_name(radio_name)
 	, port(port)
 	{}
 };
-/*
-struct ListenConnectionRequestAck {
-	Type type;
 
-	ListenConnectionRequestAck()
-	: type(Type::ListenConnectionRequestAck)
-	{}
-};
-*/
 struct Radios {
 	Type type;
 	std::map<std::string, Playlist> radios;
@@ -260,15 +257,6 @@ struct Radios {
 	, radios(radios)
 	{}
 };
-/*
-struct RadiosAck {
-	Type type;
-
-	RadiosAck()
-	: type(Type::RadiosAck)
-	{}
-};
-*/
 
 struct Queue {
 	Type type;
@@ -364,33 +352,67 @@ struct StreamRequest {
 	{}
 };
 
-struct RadioEvent {
-	enum class Action {
-		NoAction,
-		Stop,
-		Pause,
-		Play,
-		Next,
-		Reset
-	};
-	
+enum class PlaybackAction {
+	NoAction,
+	Stop,
+	Pause,
+	Play,
+	Next,
+	Listen,
+	Reset
+};
+
+struct RadioAction {
 	Type type;
 	std::string radio_name;
-	Action action;
-	std::vector<PlaylistEntry> data;
+	PlaybackAction action;
 	
-	RadioEvent()
-	: type(Type::RadioEvent)
+	RadioAction()
+	: type(Type::RadioAction)
 	, radio_name()
-	, action(Action::NoAction)
-	, data()
+	, action(PlaybackAction::NoAction)
 	{}
 	
-	RadioEvent(std::string radio_name, Action action, std::vector<PlaylistEntry> data)
-	: type(Type::RadioEvent)
+	RadioAction(std::string radio_name, PlaybackAction action)
+	: type(Type::RadioAction)
 	, radio_name(radio_name)
 	, action(action)
-	, data(data)
+	{}
+};
+
+struct ReceiverAction {
+	Type type;
+	std::string radio_name;
+	PlaybackAction action;
+
+	ReceiverAction()
+	: type(Type::ReceiverAction)
+	, radio_name()
+	, action(PlaybackAction::NoAction)
+	{}
+
+	ReceiverAction(std::string radio_name, PlaybackAction action)
+	: type(Type::ReceiverAction)
+	, radio_name(radio_name)
+	, action(action)
+	{}
+};
+
+struct SenderAction {
+	Type type;
+	std::string radio_name;
+	PlaybackAction action;
+
+	SenderAction()
+	: type(Type::SenderAction)
+	, radio_name()
+	, action(PlaybackAction::NoAction)
+	{}
+
+	SenderAction(std::string radio_name, PlaybackAction action)
+	: type(Type::SenderAction)
+	, radio_name(radio_name)
+	, action(action)
 	{}
 };
 
@@ -438,7 +460,9 @@ TYPE_TO_MESSAGE_STRUCT(Radios)
 TYPE_TO_MESSAGE_STRUCT(Queue)
 TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
 TYPE_TO_MESSAGE_STRUCT(StreamRequest)
-TYPE_TO_MESSAGE_STRUCT(RadioEvent)
+TYPE_TO_MESSAGE_STRUCT(RadioAction)
+TYPE_TO_MESSAGE_STRUCT(SenderAction)
+TYPE_TO_MESSAGE_STRUCT(ReceiverAction)
 TYPE_TO_MESSAGE_STRUCT(TuneIn)
 
 #undef TYPE_TO_MESSAGE_STRUCT
@@ -516,6 +540,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::ListenConnectionRequest,
 	(message::Type, type)
+	(std::string, radio_name)
 	(uint16_t, port)
 )
 /*
@@ -572,11 +597,24 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	message::RadioEvent,
+	message::RadioAction,
 	(message::Type, type)
 	(std::string, radio_name)
-	(message::RadioEvent::Action, action)
-	(std::vector<PlaylistEntry>, data)
+	(message::PlaybackAction, action)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::ReceiverAction,
+	(message::Type, type)
+	(std::string, radio_name)
+	(message::PlaybackAction, action)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::SenderAction,
+	(message::Type, type)
+	(std::string, radio_name)
+	(message::PlaybackAction, action)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

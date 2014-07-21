@@ -28,14 +28,12 @@ public:
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
 	void handle_queue(message::Queue queue);
-	void handle_radio_event(message::RadioEvent re);
+	void handle_radio_action(message::RadioAction ra);
 	void handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti);
 	
 	void update_playlist(std::string radio_name, Playlist playlist) override final;
 	
+	virtual void forward_receiver_action(std::string client, message::ReceiverAction ra) override final;
+	virtual void forward_sender_action(std::string client, message::SenderAction sa) override final;
 	virtual void order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port) override final;
-	virtual void order_pause(std::string client, std::string radio_name) override final;
-	virtual void order_play(std::string client, std::string radio_name) override final;
-	virtual void order_stop(std::string client, std::string radio_name) override final;
-	virtual void order_reset(std::string client, std::string radio_name) override final;
 };

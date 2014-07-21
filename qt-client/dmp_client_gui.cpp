@@ -68,7 +68,7 @@ void DmpClientGui::test1()
 	client->add_radio("Radio1");
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	shared_radio_list->set_selection(0);
-	client->search("artist is \"Disclosure\"");
+	client->search("artist contains \"Alter\"");
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
