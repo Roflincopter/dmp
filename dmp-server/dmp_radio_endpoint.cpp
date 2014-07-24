@@ -6,6 +6,7 @@ DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 : name(name)
 , port(port)
 , bin(gst_bin_new((name + std::string("_sink_") + std::to_string(port)).c_str()))
+, buffer(gst_element_factory_make("queue2", "buffer"))
 , sink(gst_element_factory_make("tcpserversink", (name + "_sink").c_str()))
 {
 	DEBUG_COUT << "sink ptr: " << sink.get() << std::endl;
@@ -13,9 +14,14 @@ DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 	g_object_set(G_OBJECT(sink.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	
-	gst_bin_add_many(GST_BIN(bin.get()), sink.get(), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
+
+	gst_bin_add_many(GST_BIN(bin.get()), buffer.get(), sink.get(), nullptr);
 	
-	gst_element_add_pad(bin.get(), gst_ghost_pad_new("sink", gst_element_get_static_pad(sink.get(), "sink")));
+	gst_element_link_many(buffer.get(), sink.get(), nullptr);
+	
+	gst_element_add_pad(bin.get(), gst_ghost_pad_new("tee_sink", gst_element_get_static_pad(buffer.get(), "sink")));
 }
 
 void DmpRadioEndpoint::play()
@@ -30,7 +36,7 @@ GstElement*DmpRadioEndpoint::get_sink()
 
 GstPad* DmpRadioEndpoint::get_sink_pad()
 {
-	return gst_element_get_static_pad(bin.get(), "sink");
+	return gst_element_get_static_pad(bin.get(), "tee_sink");
 }
 
 GstElement* DmpRadioEndpoint::get_bin()

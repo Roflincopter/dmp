@@ -87,8 +87,8 @@ struct GStreamerBase {
 	
 	virtual void eos_reached();
 	virtual void error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err);
-	virtual void buffer_high();
-	virtual void buffer_low();
+	virtual void buffer_high(GstElement* src);
+	virtual void buffer_low(GstElement* src);
 	
 	GStreamerBase(std::string name);
 	
@@ -98,5 +98,6 @@ struct GStreamerBase {
 	
 	void run_loop();
 	void stop_loop();
-	void make_debug_graph();
+	void make_debug_graph(std::string prefix = "");
+	void wait_for_state_change();
 };

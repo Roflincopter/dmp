@@ -13,6 +13,8 @@ set(dmp-common-sources
 	friendly_fusion.hpp
 	playlist.hpp
 	message_switch.hpp
+	debug_macros.hpp
+	time_util.hpp time_util.cpp
 	number_pool.hpp number_pool.cpp
 	timed_debug.hpp timed_debug.cpp
 )

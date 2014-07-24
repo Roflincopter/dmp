@@ -82,7 +82,11 @@ public:
 	void next();
 	
 	virtual void eos_reached() override final;
+	virtual void buffer_high(GstElement* src) override final;
+	virtual void buffer_low(GstElement* src) override final;
 	
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
+
+	std::function<void()> event_callback;
 };
 

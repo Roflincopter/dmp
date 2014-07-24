@@ -31,6 +31,7 @@ enum class Type : Type_t {
 	PlaylistUpdate,
 	StreamRequest,
 	RadioAction,
+	SenderEvent,
 	ReceiverAction,
 	SenderAction,
 	TuneIn,
@@ -285,7 +286,7 @@ struct Queue {
 struct PlaylistUpdate {
 	struct Action
 	{
-		enum class Type
+		enum class Type : Type_t
 		{
 			NoAction,
 			Append,
@@ -352,14 +353,18 @@ struct StreamRequest {
 	{}
 };
 
-enum class PlaybackAction {
+enum class PlaybackAction : Type_t{
 	NoAction,
 	Stop,
 	Pause,
 	Play,
 	Next,
-	Listen,
 	Reset
+};
+
+enum class PlaybackEvent : Type_t {
+	NoEvent,
+	Paused
 };
 
 struct RadioAction {
@@ -416,6 +421,24 @@ struct SenderAction {
 	{}
 };
 
+struct SenderEvent {
+	Type type;
+	std::string radio_name;
+	PlaybackEvent event;
+
+	SenderEvent()
+	: type(Type::SenderEvent)
+	, radio_name()
+	, event(PlaybackEvent::NoEvent)
+	{}
+
+	SenderEvent(std::string radio_name, PlaybackEvent event)
+	: type(Type::SenderEvent)
+	, radio_name(radio_name)
+	, event(event)
+	{}
+};
+
 struct TuneIn {
 	
 	Type type;
@@ -462,6 +485,7 @@ TYPE_TO_MESSAGE_STRUCT(PlaylistUpdate)
 TYPE_TO_MESSAGE_STRUCT(StreamRequest)
 TYPE_TO_MESSAGE_STRUCT(RadioAction)
 TYPE_TO_MESSAGE_STRUCT(SenderAction)
+TYPE_TO_MESSAGE_STRUCT(SenderEvent)
 TYPE_TO_MESSAGE_STRUCT(ReceiverAction)
 TYPE_TO_MESSAGE_STRUCT(TuneIn)
 
@@ -615,6 +639,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 	(std::string, radio_name)
 	(message::PlaybackAction, action)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::SenderEvent,
+	(message::Type, type)
+	(std::string, radio_name)
+	(message::PlaybackEvent, event)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

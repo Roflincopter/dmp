@@ -1,5 +1,6 @@
 #include "dmp_server.hpp"
 #include "message_callbacks.hpp"
+#include "timed_debug.hpp"
 
 #include <boost/thread.hpp>
 
@@ -13,6 +14,12 @@ DmpServer::DmpServer()
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
 {
 	gst_init(0, nullptr);
+	timed_debug::add_call([this]{
+		for(auto&& radio : radios)
+		{
+			radio.second.second.make_debug_graph(radio.first);
+		}
+	});
 }
 
 void DmpServer::run()
@@ -42,8 +49,8 @@ void DmpServer::add_connection(dmp::Connection&& c)
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
 		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
 		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
+		set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
-		
 	connections[name_res.name] = cep;
 
 	std::map<std::string, Playlist> playlists;
@@ -148,14 +155,32 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 			break;
 		}
 		//explicit falltrough.
-		case message::PlaybackAction::Listen:
 		case message::PlaybackAction::NoAction:
 		case message::PlaybackAction::Reset:
 		default:
 		{
 			throw std::runtime_error("Unknown RadioAction was passed to the Server, action was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
-		
+	}
+}
+
+void DmpServer::handle_sender_event(message::SenderEvent se)
+{
+	DEBUG_COUT << "SenderEvent received." << std::endl;
+	auto& radio = radios.at(se.radio_name);
+	switch(se.event)
+	{
+		case message::PlaybackEvent::Paused:
+		{
+			DEBUG_COUT << "SenderEvent:Paused received." << std::endl;
+			radio.second.event_callback();
+			break;
+		}
+		case message::PlaybackEvent::NoEvent:
+		default:
+		{
+			throw std::runtime_error("Unknown SenderEvent was passed to the server, event was: " + std::to_string(static_cast<message::Type_t>(se.event)));
+		}
 	}
 }
 

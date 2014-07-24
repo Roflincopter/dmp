@@ -44,7 +44,7 @@ DmpReceiver::DmpReceiver()
 void DmpReceiver::eos_reached()
 {
 	DEBUG_COUT << "DmpReceiver: EOS reached" << std::endl;
-	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	//gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }
 
 void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
@@ -60,8 +60,14 @@ void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
 
 void DmpReceiver::play()
 {
+	DEBUG_COUT << this << std::endl;
 	DEBUG_COUT << "Play called on receiver" << std::endl;
-	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+	std::cout << "before playing" << std::endl;
+	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING))
+	{
+		throw std::runtime_error("Could not change receiver state to playing");
+	}
+	std::cout << "after playing" << std::endl;
 }
 
 void DmpReceiver::pause()

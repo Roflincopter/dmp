@@ -22,6 +22,13 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
 {
+	timed_debug::add_call([this, name]{receiver.make_debug_graph(name);});
+
+	timed_debug::add_call([this]{
+		for(auto&& sender : senders) {
+			sender.second.make_debug_graph(sender.first);
+		}
+	});
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
@@ -169,9 +176,14 @@ void DmpClient::next_radio()
 	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Next));
 }
 
-void DmpClient::forward_radio_action(message::RadioAction re)
+void DmpClient::forward_radio_action(message::RadioAction ra)
 {
-	connection.send(re);
+	connection.send(ra);
+}
+
+void DmpClient::forward_radio_event(message::SenderEvent se)
+{
+	connection.send(se);
 }
 
 void DmpClient::mute_radio(bool state)
@@ -230,13 +242,14 @@ void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 
 void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
 {
+	DEBUG_COUT << "Listening to radio req: " << req.radio_name << std::endl;
 	receiver.stop_loop();
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
 	receiver_thread = std::thread(std::bind(&DmpReceiver::run_loop, std::ref(receiver)));
 	receiver.setup(req.radio_name, host, req.port);
-	receiver.play();
+	receiver.pause();
 }
 
 void DmpClient::handle_radios(message::Radios radios)
@@ -327,7 +340,6 @@ void DmpClient::handle_sender_action(message::SenderAction sa)
 			//explicit falltrough.
 			case message::PlaybackAction::NoAction:
 			case message::PlaybackAction::Next:
-			case message::PlaybackAction::Listen:
 			default:
 			{
 				throw std::runtime_error("SenderAction with incompatible command found in dmp_client, command was: " + std::to_string(static_cast<message::Type_t>(sa.action)));
@@ -343,21 +355,19 @@ void DmpClient::handle_receiver_action(message::ReceiverAction ra)
 		case message::PlaybackAction::Pause:
 		{
 			receiver.pause();
-			break;
-		}
-		case message::PlaybackAction::Listen:
-		{
-			receiver.play();
+			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		case message::PlaybackAction::Play:
 		{
 			receiver.play();
+			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, true);
 			break;
 		}
 		case message::PlaybackAction::Stop:
 		{
 			receiver.stop();
+			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		//explicit falltrough

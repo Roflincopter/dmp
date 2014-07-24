@@ -33,6 +33,7 @@ struct DmpCallbacks {
 		, CB<message::RadioAction>
 		, CB<message::ReceiverAction>
 		, CB<message::SenderAction>
+		, CB<message::SenderEvent>
 		, CB<message::TuneIn>
 	>;
 	

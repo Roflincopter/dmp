@@ -19,6 +19,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , client(nullptr)
 , client_thread()
 , test1_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_A), this, SLOT(test1()))
+, test2_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Q), this, SLOT(test2()))
 , shared_main_window(nullptr)
 , shared_menu_bar(nullptr)
 , shared_search_bar(nullptr)
@@ -69,6 +70,11 @@ void DmpClientGui::test1()
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	shared_radio_list->set_selection(0);
 	client->search("artist contains \"Alter\"");
+}
+
+void DmpClientGui::test2()
+{
+	connect_client(boost::asio::ip::host_name() + "2", "127.0.0.1", 1337);
 }
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
@@ -179,6 +185,19 @@ void DmpClientGui::PlayPauseToggled(bool state)
 	} else {
 		client->pause_radio();
 	}
+}
+
+void DmpClientGui::set_play_paused_state(bool state)
+{
+	disconnect(
+		ui.actionPlay, SIGNAL(toggled(bool)),
+		this,          SLOT(PlayPauseToggled(bool))
+	);
+	ui.actionPlay->setChecked(state);
+	connect(
+		ui.actionPlay, SIGNAL(toggled(bool)),
+		this,          SLOT(PlayPauseToggled(bool))
+	);
 }
 
 void DmpClientGui::NextPressed()

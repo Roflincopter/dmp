@@ -1,8 +1,13 @@
 
 #include "gstreamer_base.hpp"
 
+#include "time_util.hpp"
+
 #include <iostream>
 #include <cassert>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
 
 void GStreamerBase::eos_reached()
 {
@@ -14,12 +19,12 @@ void GStreamerBase::error_encountered(std::string pipeline, std::string element,
 	std::cerr << pipeline << ":" << element << " message: " << std::string(err->message) << std::endl;
 }
 
-void GStreamerBase::buffer_high()
+void GStreamerBase::buffer_high(GstElement*)
 {
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 }
 
-void GStreamerBase::buffer_low()
+void GStreamerBase::buffer_low(GstElement*)
 {
 	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 }
@@ -82,9 +87,16 @@ void GStreamerBase::stop_loop()
 	g_main_loop_quit(loop.get());
 }
 
-void GStreamerBase::make_debug_graph()
+void GStreamerBase::make_debug_graph(std::string prefix)
 {
-	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, name.c_str());
+	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, (get_current_time() + "_" + prefix + (prefix.empty() ? "" : "_") + name).c_str());
+}
+
+void GStreamerBase::wait_for_state_change()
+{
+	GstState state;
+	GstState pending;
+	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
 }
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
@@ -105,7 +117,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		
 		gst_message_parse_state_changed(msg, &old_, &new_, &pending);
 		
-		char* x = gst_object_get_name(msg->src);
+		char* x = gst_object_get_name(GST_MESSAGE_SRC(msg));
 		std::string element(x);
 		g_free(x);
 		
@@ -124,7 +136,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		
 		g_free (debug_ptr);
 		
-		char* x = gst_object_get_name(msg->src);
+		char* x = gst_object_get_name(GST_MESSAGE_SRC(msg));
 		std::string element(x);
 		g_free(x);
 		
@@ -139,7 +151,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		
 		if(percent == 100) {
 			base->buffering = false;
-			base->buffer_high();
+			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 		} else {
 			
 			GstState state;
@@ -148,12 +160,12 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 			
 			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
 			
-			if (!base->buffering && state == GST_STATE_PLAYING) {
-				base->buffer_low();
+			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
+				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 			}
 			base->buffering = true;
 		}
-		
+		break;
 	}
 	case GST_MESSAGE_UNKNOWN:
 	case GST_MESSAGE_WARNING:
@@ -184,6 +196,9 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 	case GST_MESSAGE_NEED_CONTEXT:
 	case GST_MESSAGE_HAVE_CONTEXT:
 	case GST_MESSAGE_ANY:
+	case GST_MESSAGE_EXTENDED:
+	case GST_MESSAGE_DEVICE_ADDED:
+	case GST_MESSAGE_DEVICE_REMOVED:
 	default:
 		break;
 	}

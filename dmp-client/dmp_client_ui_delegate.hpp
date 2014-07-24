@@ -36,5 +36,7 @@ struct DmpClientUiDelegate
 	virtual void playlist_update_start(message::PlaylistUpdate){}
 	virtual void playlist_update_end(message::PlaylistUpdate){}
 	
+	virtual void set_play_paused_state(bool state){};
+	
 	virtual ~DmpClientUiDelegate(){}
 };

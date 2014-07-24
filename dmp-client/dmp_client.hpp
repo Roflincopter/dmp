@@ -70,8 +70,9 @@ public:
 	virtual void next_radio() override final;
 	virtual void mute_radio(bool state) override final;
 	
-	virtual void forward_radio_action(message::RadioAction re) override final;
-	
+	virtual void forward_radio_action(message::RadioAction ra) override final;
+	virtual void forward_radio_event(message::SenderEvent se) override final;
+
 	void handle_ping(message::Ping ping);
 	void handle_name_request(message::NameRequest name_req);
 	void handle_pong(message::Pong pong);
