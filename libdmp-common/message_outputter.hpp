@@ -66,11 +66,6 @@ operator<<(std::ostream& os, T x)
 	return std::Outputter::output(os, friendly_fusion::begin(x), friendly_fusion::end(x));
 }
 
-inline std::ostream& operator<<(std::ostream& os, message::Type t)
-{
-	return os << static_cast<message::Type_t>(t);
-}
-
 }
 
 

@@ -23,7 +23,7 @@ public:
 
 	void run();
 	void stop();
-	void add_connection(dmp::Connection&& c);
+	void add_connection(Connection&& c);
 
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);

@@ -32,7 +32,7 @@ void DmpServer::stop()
 	server_io_service.stop();
 }
 
-void DmpServer::add_connection(dmp::Connection&& c)
+void DmpServer::add_connection(Connection&& c)
 {
 	message::NameRequest name_req;
 	c.send(name_req);

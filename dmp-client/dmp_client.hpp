@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 #include "connection.hpp"
 #include "dmp_sender.hpp"
@@ -17,7 +17,7 @@ class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, pub
 	std::string name;
 	std::string host;
 	message::DmpCallbacks callbacks;
-	dmp::Connection connection;
+	Connection connection;
 	message::Ping last_sent_ping;
 	dmp_library::Library library;
 

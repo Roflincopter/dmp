@@ -5,7 +5,11 @@
 #include <cstdint>
 #include <vector>
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/placeholders.hpp>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -16,17 +20,13 @@
 #include "message_serializer.hpp"
 #include "message_callbacks.hpp"
 
-namespace dmp {
-
-using namespace boost::asio::ip;
-
 struct ReceiveProxy;
 
 class Connection {
 
 	friend class ReceiveProxy;
 
-	tcp::socket socket;
+	boost::asio::ip::tcp::socket socket;
 
 	std::vector<uint8_t> async_type_buffer{};
 	std::vector<uint8_t> async_size_buffer{};
@@ -38,7 +38,7 @@ class Connection {
 public:
 	std::shared_ptr<boost::asio::io_service> io_service;
 
-	Connection(std::shared_ptr<boost::asio::io_service> io_service, tcp::socket&& socket)
+	Connection(std::shared_ptr<boost::asio::io_service> io_service, boost::asio::ip::tcp::socket&& socket)
 	: socket(std::move(socket))
 	, io_service(io_service)
 	{}
@@ -69,6 +69,7 @@ public:
 		std::string content = oss.str();
 		uint32_t size = content.size();
 
+		static_assert(sizeof(decltype(x.type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
 		boost::asio::write(socket, boost::asio::buffer(&x.type, 4));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
 		boost::asio::write(socket, boost::asio::buffer(content.data(), size));
@@ -193,5 +194,3 @@ struct ReceiveProxy {
 		return t;
 	}
 };
-
-}

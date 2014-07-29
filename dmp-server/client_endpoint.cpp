@@ -2,7 +2,7 @@
 #include "message.hpp"
 #include "message_outputter.hpp"
 
-ClientEndpoint::ClientEndpoint(std::string name, dmp::Connection&& conn)
+ClientEndpoint::ClientEndpoint(std::string name, Connection&& conn)
 : name(name)
 , connection(std::move(conn))
 , ping_timer(new boost::asio::deadline_timer(*connection.io_service))

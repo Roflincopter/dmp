@@ -26,6 +26,7 @@ add_definitions(${warnings} -g3 -Wno-shadow)
 
 add_subdirectory(libdmp-library)
 add_subdirectory(libdmp-common)
+add_subdirectory(libdmp-net)
 
 add_subdirectory(dmp-server)
 add_subdirectory(dmp-client)

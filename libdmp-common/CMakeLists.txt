@@ -1,18 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 set(dmp-common-sources
-	connection.hpp connection.cpp
-	accept.hpp accept.cpp
-	connect.hpp connect.cpp
-	message.hpp
 	message_outputter.hpp
 	message_serializer.hpp
-	message_callbacks.hpp
 	gstreamer_base.hpp gstreamer_base.cpp
 	fusion_static_dispatch.hpp
 	friendly_fusion.hpp
 	playlist.hpp
-	message_switch.hpp
 	debug_macros.hpp
 	time_util.hpp time_util.cpp
 	number_pool.hpp number_pool.cpp
@@ -48,7 +42,7 @@ if(MINGW)
 	)
 endif(MINGW)
 
-include_directories(../libdmp-library/include)
+include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include/)
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})

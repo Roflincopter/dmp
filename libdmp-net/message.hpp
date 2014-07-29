@@ -38,6 +38,11 @@ enum class Type : Type_t {
 	LAST
 };
 
+inline std::ostream& operator<<(std::ostream& os, message::Type t)
+{
+	return os << static_cast<message::Type_t>(t);
+}
+
 struct NoMessage {
 	Type type;
 

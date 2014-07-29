@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QKeySequence>
 
+#include <boost/asio/ip/host_name.hpp>
+
 #include <iostream>
 #include <string>
 

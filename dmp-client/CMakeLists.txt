@@ -23,6 +23,9 @@ target_link_libraries(dmp-client dmp-library)
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
 target_link_libraries(dmp-client dmp-common)
 
+include_directories(${CMAKE_SOURCE_DIR}/libdmp-net)
+target_link_libraries(dmp-client dmp-net)
+
 find_package(Boost COMPONENTS system serialization program_options REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 target_link_libraries(dmp-client ${Boost_LIBRARIES})

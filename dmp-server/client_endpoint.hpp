@@ -12,7 +12,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 
 	//ping_timer depends on the io_service of the connection so the pings stop when the connection dies.
 	//Leave them in this order or make them independant.
-	dmp::Connection connection;
+	Connection connection;
 	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
 
 	message::Ping last_ping;
@@ -21,7 +21,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 
 public:
 
-	ClientEndpoint(std::string name, dmp::Connection&& conn);
+	ClientEndpoint(std::string name, Connection&& conn);
 
 	void run();
 	void keep_alive();
