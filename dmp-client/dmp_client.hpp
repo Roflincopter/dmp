@@ -30,8 +30,6 @@ class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, pub
 
 	MessageSwitch message_switch;
 	
-	boost::asio::deadline_timer debug_timer;
-	
 	std::shared_ptr<PlaylistsModel> playlists_model;
 	std::shared_ptr<RadioListModel> radio_list_model;
 	std::shared_ptr<SearchBarModel> search_bar_model;

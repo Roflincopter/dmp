@@ -30,9 +30,7 @@ class DmpRadio : public GStreamerBase
 		: pad_name(pad_name)
 		, pad(std::move(pad))
 		, endpoint(std::move(endpoint))
-		{
-			DEBUG_COUT << this->endpoint.get_sink() << std::endl;
-		}
+		{}
 		
 		TeeBranch(TeeBranch&&) = default;
 		
@@ -87,6 +85,6 @@ public:
 	
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
 
-	std::function<void()> event_callback;
+	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;
 };
 

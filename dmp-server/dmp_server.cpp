@@ -135,7 +135,6 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 	{
 		case message::PlaybackAction::Next:
 		{
-			DEBUG_COUT << "Next called on radio: " << ra.radio_name << std::endl;
 			radio.second.next();
 			break;
 		}
@@ -166,22 +165,8 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 
 void DmpServer::handle_sender_event(message::SenderEvent se)
 {
-	DEBUG_COUT << "SenderEvent received." << std::endl;
 	auto& radio = radios.at(se.radio_name);
-	switch(se.event)
-	{
-		case message::PlaybackEvent::Paused:
-		{
-			DEBUG_COUT << "SenderEvent:Paused received." << std::endl;
-			radio.second.event_callback();
-			break;
-		}
-		case message::PlaybackEvent::NoEvent:
-		default:
-		{
-			throw std::runtime_error("Unknown SenderEvent was passed to the server, event was: " + std::to_string(static_cast<message::Type_t>(se.event)));
-		}
-	}
+	radio.second.event_callbacks[se.event]();
 }
 
 void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti)

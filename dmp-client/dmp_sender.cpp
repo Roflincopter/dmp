@@ -56,10 +56,8 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 
 void DmpSender::eos_reached()
 {
-	DEBUG_COUT << "sender EOS REACHED" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 	if(!is_resetting) {
-		DEBUG_COUT << "Sender calling next because of EOS" << std::endl;
 		client.lock()->forward_radio_action(message::RadioAction(radio_name, message::PlaybackAction::Next));
 	}
 	is_resetting = false;
@@ -67,20 +65,17 @@ void DmpSender::eos_reached()
 
 void DmpSender::pause()
 {
-	DEBUG_COUT << "Pause called on sender" << std::endl;
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PAUSED)) {
 		throw std::runtime_error("Could not pause the Sender pipeline");
 	}
 	wait_for_state_change();
 
-	DEBUG_COUT << "Sending Paused event" << std::endl;
 	auto cp = client.lock();
 	cp->forward_radio_event(message::SenderEvent(radio_name, message::PlaybackEvent::Paused));
 }
 
 void DmpSender::play()
 {
-	DEBUG_COUT << "Play called on sender" << std::endl;
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING)) {
 		throw std::runtime_error("Could not play the Sender pipeline");
 	}
@@ -88,7 +83,6 @@ void DmpSender::play()
 
 void DmpSender::stop()
 {
-	DEBUG_COUT << "Stop called on sender" << std::endl;
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_NULL)) {
 		throw std::runtime_error("Could not stop the Sender pipeline");
 	}
@@ -97,6 +91,5 @@ void DmpSender::stop()
 void DmpSender::reset()
 {
 	is_resetting = true;
-	DEBUG_COUT << "Resetting sender" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }

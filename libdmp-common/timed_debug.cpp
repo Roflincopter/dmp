@@ -45,6 +45,8 @@ void timed_debug::run(unsigned int every_x_seconds)
 			throw std::runtime_error("something went wrong in timed_debug::run.");
 		}
 		
+		boost::unique_lock<boost::mutex> l(calls_mutex);
+
 		for(auto&& p : calls) {
 			p.second();
 		}

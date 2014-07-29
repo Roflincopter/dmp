@@ -13,6 +13,7 @@ struct timed_debug {
 	
 	~timed_debug()
 	{
+		boost::unique_lock<boost::mutex> l(calls_mutex);
 		timed_debug::io_service.stop();
 	}
 	

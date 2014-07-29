@@ -9,8 +9,6 @@ DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 , buffer(gst_element_factory_make("queue2", "buffer"))
 , sink(gst_element_factory_make("tcpserversink", (name + "_sink").c_str()))
 {
-	DEBUG_COUT << "sink ptr: " << sink.get() << std::endl;
-	
 	g_object_set(G_OBJECT(sink.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	

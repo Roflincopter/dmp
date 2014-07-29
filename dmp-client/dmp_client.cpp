@@ -16,7 +16,6 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , senders()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
-, debug_timer(*connection.io_service)
 , playlists_model(std::make_shared<PlaylistsModel>())
 , radio_list_model(std::make_shared<RadioListModel>())
 , search_bar_model(std::make_shared<SearchBarModel>())
@@ -242,7 +241,6 @@ void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 
 void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
 {
-	DEBUG_COUT << "Listening to radio req: " << req.radio_name << std::endl;
 	receiver.stop_loop();
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
@@ -291,14 +289,14 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 	auto result = senders.emplace(sr.radio_name, DmpSender(shared_from_this(), sr.radio_name));
 	
 	if(!result.second) {
-		std::cout << "emplace did not overwrite existing map entry" << std::endl;
+		DEBUG_COUT << "emplace did not overwrite existing map entry" << std::endl;
 	}
 	
 	auto sender_runner = [this, sr]{
 		try {
 			senders.at(sr.radio_name).run_loop();
 		} catch(std::exception &e){
-			std::cout << "Sender crashed with message: " << e.what() << std::endl;
+			DEBUG_COUT << "Sender crashed with message: " << e.what() << std::endl;
 		}
 		//TODO: fix this more generic by a templated struct with a std::thread and a T struct as mapped type.
 		//senders.erase(sr.radio_name);

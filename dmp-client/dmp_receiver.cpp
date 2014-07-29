@@ -43,8 +43,7 @@ DmpReceiver::DmpReceiver()
 
 void DmpReceiver::eos_reached()
 {
-	DEBUG_COUT << "DmpReceiver: EOS reached" << std::endl;
-	//gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }
 
 void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
@@ -60,8 +59,6 @@ void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
 
 void DmpReceiver::play()
 {
-	DEBUG_COUT << this << std::endl;
-	DEBUG_COUT << "Play called on receiver" << std::endl;
 	std::cout << "before playing" << std::endl;
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING))
 	{
@@ -72,13 +69,11 @@ void DmpReceiver::play()
 
 void DmpReceiver::pause()
 {
-	DEBUG_COUT << "Pause called on receiver" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 }
 
 void DmpReceiver::stop()
 {
-	DEBUG_COUT << "Stop called on receiver" << std::endl;
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 }
 
@@ -89,6 +84,5 @@ void DmpReceiver::mute(bool mute)
 
 std::string DmpReceiver::radio_target()
 {
-	DEBUG_COUT << "Getting the radio target name: " << radio_name << std::endl;
 	return radio_name;
 }

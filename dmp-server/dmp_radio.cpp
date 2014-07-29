@@ -19,7 +19,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , tee_src_pad_template(gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS(tee.get()), "src_%u"))
 , radio_mutex(new std::mutex)
 , recv_port(port_pool->allocate_number())
-, event_callback()
+, event_callbacks()
 {
 	if (!source || !buffer || !parser || !tee)
 	{
@@ -114,7 +114,6 @@ void DmpRadio::stop()
 
 	if(!playlist.empty()) {
 		PlaylistEntry entry = playlist.front();
-		DEBUG_COUT << "Ordering stop from: " << entry.owner << " of radio: " << name << std::endl;
 		sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Stop));
 	}
 
@@ -135,14 +134,6 @@ void DmpRadio:: play()
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 
-	{
-		DEBUG_COUT << "Waiting for senderside tcp socket." << std::endl;
-		GstState state;
-		GstState pending;
-		gst_element_get_state(source.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-		DEBUG_COUT << "Done waiting for senderside tcp socket." << std::endl;
-	}
-
 	if(stopped) {
 		sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
 	}
@@ -151,10 +142,7 @@ void DmpRadio:: play()
 
 	wait_for_state_change();
 
-	DEBUG_COUT << "Going to send plays to " << branches.size() << " branches." << std::endl;
-	for(auto&& branch : branches)
-	{
-		DEBUG_COUT << "Sending play to: " << branch.first << std::endl;
+	for(auto&& branch : branches) {
 		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Play));
 	}
 	
@@ -180,8 +168,8 @@ void DmpRadio::pause()
 	
 	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Pause));
 
-	event_callback = [this, sp]{
-		DEBUG_COUT << "Doing event callback." << std::endl;
+	event_callbacks.clear();
+	event_callbacks[message::PlaybackEvent::Paused] = [this, sp]{
 
 		for(auto&& branch : branches)
 		{
@@ -189,19 +177,14 @@ void DmpRadio::pause()
 		}
 
 		gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
-
-		DEBUG_COUT << "done with event callback." << std::endl;
 	};
 }
 
 void DmpRadio::next()
 {
-	DEBUG_COUT << "before: " << playlist << std::endl;
-	
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
 	if(playlist.empty()) {
-		DEBUG_COUT << "Playlist after next was empty returning" << std::endl;
 		return;
 	}
 	
@@ -220,9 +203,6 @@ void DmpRadio::next()
 	
 	playlist.erase(playlist.begin());
 	
-	DEBUG_COUT << "Stopped was: " << std::boolalpha << stopped << std::endl;
-	DEBUG_COUT << "after: " << playlist << std::endl;
-	
 	if(!stopped) { 
 		sp->update_playlist(name, playlist);
 		l.unlock();
@@ -237,20 +217,17 @@ void DmpRadio::next()
 
 void DmpRadio::eos_reached()
 {
-	//gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	DEBUG_COUT << "dmp_radio: EOS reached" << std::endl;
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }
 
 void DmpRadio::buffer_high(GstElement *src)
 {
-	DEBUG_COUT << "Buffer full playing: " << GST_ELEMENT_NAME(GST_ELEMENT_PARENT(src)) << std::endl;
 	gst_element_set_state(GST_ELEMENT_PARENT(src), GST_STATE_PLAYING);
 	wait_for_state_change();
 }
 
 void DmpRadio::buffer_low(GstElement *src)
 {
-	DEBUG_COUT << "Buffer underrun pausing: " << GST_ELEMENT_NAME(GST_ELEMENT_PARENT(src)) << std::endl;
 	gst_element_set_state(GST_ELEMENT_PARENT(src), GST_STATE_PAUSED);
 	wait_for_state_change();
 }

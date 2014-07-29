@@ -2,25 +2,16 @@
 #include "dmp_client.hpp"
 
 #include "dmp-library.hpp"
-#include "message.hpp"
-#include "message_serializer.hpp"
 #include "dmp_client_gui.hpp"
-#include "connect.hpp"
 
 #include <gst/gst.h>
 
 #include <boost/program_options.hpp>
-#include <boost/thread.hpp>
 
 #include <QApplication>
 
-#include <sstream>
 #include <iostream>
 #include <string>
-
-/* remove when finished with gstreamer testing */
-#include "dmp_sender.hpp"
-#include "dmp_receiver.hpp"
 
 int main(int argc, char* argv[]) {
 
@@ -30,7 +21,6 @@ int main(int argc, char* argv[]) {
 	boost::program_options::options_description desc;
 	desc.add_options()
 		("help,h", "produce help message")
-		//("sender", value<bool>(), "Sending or not.")
 		;
 
 	boost::program_options::positional_options_description pos_desc;
