@@ -8,34 +8,18 @@ add_executable(dmp-server main.cpp
                           dmp_server_interface.hpp
 )
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
-target_link_libraries(dmp-server dmp-library)
+find_package(Boost COMPONENTS thread system REQUIRED)
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
-target_link_libraries(dmp-server dmp-common)
+target_include_directories(dmp-server SYSTEM
+	PRIVATE ${Boost_INCLUDE_DIRS}
+)
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-net)
-target_link_libraries(dmp-server dmp-net)
-
-find_package(Boost COMPONENTS thread system serialization REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-target_link_libraries(dmp-server ${Boost_LIBRARIES})
-
-find_package(GStreamer REQUIRED)
-include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
-message(STATUS "GSTREAMER LIBRARIES: ${GSTREAMER_LIBRARIES}")
-target_link_libraries(dmp-server ${GSTREAMER_LIBRARIES})
-include_directories(SYSTEM ${GSTREAMER_BASE_INCLUDE_DIRS})
-message(STATUS "GSTREAMER_BASE LIBRARIES: ${GSTREAMER_BASE_LIBRARIES}")
-target_link_libraries(dmp-server ${GSTREAMER_BASE_LIBRARIES})
-
-find_package(GLIB2 REQUIRED)
-include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
-target_link_libraries(dmp-server ${GLIB2_LIBRARIES})
-
-find_package(GObject REQUIRED)
-include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
-target_link_libraries(dmp-server ${GOBJECT_LIBRARIES})
+target_link_libraries(dmp-server
+	dmp-library
+	dmp-common
+	dmp-net
+	${Boost_LIBRARIES}
+)
 
 if(USE_GPERF)
 	target_link_libraries(dmp-server "-lprofiler")

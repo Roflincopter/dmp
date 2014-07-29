@@ -16,14 +16,21 @@ else(MINGW)
 endif(MINGW)
 
 find_package(Boost COMPONENTS system REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
 target_link_libraries(dmp-net ${Boost_LIBRARIES})
-
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
 target_link_libraries(dmp-net dmp-library)
-
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
 target_link_libraries(dmp-net dmp-common)
+
+target_include_directories(dmp-net SYSTEM
+	PRIVATE ${Boost_INCLUDE_DIRS}
+)
+
+target_include_directories(dmp-net
+	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE ${CMAKE_SOURCE_DIR}/libdmp-library/include
+	PRIVATE ${CMAKE_SOURCE_DIR}/libdmp-common
+)
+
 
 if(USE_GPERF)
 	target_link_libraries(dmp-net "-lprofiler")

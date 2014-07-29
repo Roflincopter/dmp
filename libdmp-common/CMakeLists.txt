@@ -44,21 +44,29 @@ endif(MINGW)
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include/)
 
-find_package(Boost COMPONENTS system thread REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-target_link_libraries(dmp-common ${Boost_LIBRARIES})
-
+find_package(Boost COMPONENTS system serialization REQUIRED)
 find_package(GStreamer REQUIRED)
-include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
-target_link_libraries(dmp-common ${GSTREAMER_LIBRARIES} ${GSTREAMER_BASE_LIBRARIES})
-
 find_package(GLIB2 REQUIRED)
-include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
-target_link_libraries(dmp-common ${GLIB2_LIBRARIES})
-
 find_package(GObject REQUIRED)
-include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
-target_link_libraries(dmp-common ${GOBJECT_LIBRARIES})
+
+target_link_libraries(dmp-common
+	${GSTREAMER_LIBRARIES}
+	${GSTREAMER_BASE_LIBRARIES}
+	${GLIB2_LIBRARIES}
+	${GOBJECT_LIBRARIES}
+	${Boost_LIBRARIES}
+)
+
+target_include_directories(dmp-common SYSTEM
+	PUBLIC ${GSTREAMER_INCLUDE_DIRS}
+	PUBLIC ${GLIB2_INCLUDE_DIRS}
+	PRIVATE ${GOBJECT_INCLUDE_DIR}
+	PRIVATE ${Boost_INCLUDE_DIRS}
+)
+
+target_include_directories(dmp-common
+	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 if(USE_GPERF)
 	target_link_libraries(dmp-common "-lprofiler")

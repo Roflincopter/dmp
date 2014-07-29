@@ -77,62 +77,41 @@ set(DmpClientSources
 
 #set(DmpClientResources resources.qrc)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} "../dmp-client")
-
 add_executable(qt-client ${DmpClientSources} ${DmpClientResources})
-target_link_libraries(qt-client dmp-client)
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
-target_link_libraries(qt-client dmp-library)
-
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
-target_link_libraries(qt-client dmp-common)
-
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-net)
-target_link_libraries(qt-client dmp-net)
-
-find_package(Boost COMPONENTS system serialization program_options REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-target_link_libraries(qt-client ${Boost_LIBRARIES})
-
-find_package(GStreamer REQUIRED)
-include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
-target_link_libraries(qt-client ${GSTREAMER_LIBRARIES})
-
-find_package(GLIB2 REQUIRED)
-include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
-target_link_libraries(qt-client ${GLIB2_LIBRARIES})
-
-find_package(GObject REQUIRED)
-include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
-target_link_libraries(qt-client ${GOBJECT_LIBRARIES})
-
+find_package(Boost COMPONENTS system program_options REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-add_definitions(${Qt5Widgets_DEFINITIONS})
-include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
-
 find_package(Qt5Gui REQUIRED)
-add_definitions(${Qt5Gui_DEFINITIONS})
-include_directories(SYSTEM ${Qt5Gui_INCLUDE_DIRS})
-
 find_package(Qt5Core REQUIRED)
+
+add_definitions(${Qt5Widgets_DEFINITIONS})
+add_definitions(${Qt5Gui_DEFINITIONS})
 add_definitions(${Qt5Core_DEFINITIONS})
-include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
 
+target_include_directories(qt-client SYSTEM
+	PRIVATE ${Boost_INCLUDE_DIRS}
+	PRIVATE ${Qt5Widgets_INCLUDE_DIRS}
+	PRIVATE ${Qt5Gui_INCLUDE_DIRS}
+	PRIVATE ${Qt5Core_INCLUDE_DIRS}
+)
 
-set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
-if(MINGW)
-	set(Qt5Widgets_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES} jpeg png pcre16 ${Qt5Core_DIR}/../../../plugins/platforms/libqwindows.a)
-endif(MINGW)
-target_link_libraries(qt-client ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES})
+target_link_libraries(qt-client
+	${Qt5Widgets_LIBRARIES}
+	${Qt5Gui_LIBRARIES}
+	${Qt5Core_LIBRARIES}
+	${Boost_LIBRARIES}
+	dmp-client
+	dmp-library
+	dmp-common
+	dmp-net
+)
 
 if(USE_GPERF)
 	target_link_libraries(qt-client "-lprofiler")
 endif(USE_GPERF)
 
-qt5_use_modules(qt-client Widgets)
-
 if(MINGW)
 	add_definitions("-DBOOST_THREAD_USE_LIB=1 -mms-bitfields -DPCRE_STATIC")
 	target_link_libraries(qt-client pthread ws2_32 mswsock ffi imm32 opengl32 freetype bz2)
+	target_link_libraries(qt-client jpeg png pcre16 ${Qt5Core_DIR}/../../../plugins/platforms/libqwindows.a)
 endif(MINGW)

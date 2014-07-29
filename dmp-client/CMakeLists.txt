@@ -13,33 +13,14 @@ set(DmpClientSources
 	dmp_client_interface.hpp
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_library(dmp-client ${DmpClientSources} ${DmpClientResources})
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include)
-target_link_libraries(dmp-client dmp-library)
+target_include_directories(dmp-client
+	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-common)
-target_link_libraries(dmp-client dmp-common)
-
-include_directories(${CMAKE_SOURCE_DIR}/libdmp-net)
-target_link_libraries(dmp-client dmp-net)
-
-find_package(Boost COMPONENTS system serialization program_options REQUIRED)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-target_link_libraries(dmp-client ${Boost_LIBRARIES})
-
-find_package(GStreamer REQUIRED)
-include_directories(SYSTEM ${GSTREAMER_INCLUDE_DIRS})
-target_link_libraries(dmp-client ${GSTREAMER_LIBRARIES})
-include_directories(SYSTEM ${GSTREAMER_BASE_INCLUDE_DIRS})
-target_link_libraries(dmp-client ${GSTREAMER_BASE_LIBRARIES})
-
-find_package(GLIB2 REQUIRED)
-include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
-target_link_libraries(dmp-client ${GLIB2_LIBRARIES})
-
-find_package(GObject REQUIRED)
-include_directories(SYSTEM ${GOBJECT_INCLUDE_DIR})
-target_link_libraries(dmp-client ${GOBJECT_LIBRARIES})
+target_link_libraries(dmp-client
+	dmp-library
+	dmp-common
+	dmp-net
+)
