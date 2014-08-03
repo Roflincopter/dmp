@@ -1,7 +1,5 @@
 #pragma once
 
-#include "number_pool.hpp"
-
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/mutex.hpp>
@@ -19,7 +17,7 @@ struct timed_debug {
 	
 private:
 	static int interval;
-	static NumberPool label_pool;
+	static int next_label;
 	static boost::mutex calls_mutex;
 	static std::map<std::string, std::function<void()>> calls;
 	static boost::asio::io_service io_service;

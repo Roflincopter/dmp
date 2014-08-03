@@ -2,7 +2,7 @@
 #include "timed_debug.hpp"
 
 int timed_debug::interval(5);
-NumberPool timed_debug::label_pool(0, 1000);
+int timed_debug::next_label(0);
 boost::mutex timed_debug::calls_mutex;
 boost::asio::io_service timed_debug::io_service;
 boost::asio::deadline_timer timed_debug::timer(timed_debug::io_service);
@@ -12,8 +12,7 @@ std::string timed_debug::add_call(std::function<void ()> f)
 {
 	boost::unique_lock<boost::mutex> l(calls_mutex);
 	
-	int nr = label_pool.allocate_number();
-	std::string label = std::to_string(nr);
+	std::string label = std::to_string(next_label++);
 	
 	calls[label] = f;
 	return label;
@@ -26,10 +25,6 @@ void timed_debug::remove_call(std::string label)
 	auto const it = calls.find(label);
 	if(it != calls.cend()) {
 		calls.erase(it);
-		
-		int x = std::stoi(label);
-		label_pool.free_number(x);
-		
 	} else {
 		throw std::runtime_error("timed_debug::remove_call called with invalid label");
 	}

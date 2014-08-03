@@ -5,10 +5,7 @@ set(dmp-common-sources
 	message_serializer.hpp
 	gstreamer_base.hpp gstreamer_base.cpp
 	playlist.hpp
-	debug_macros.hpp
-	time_util.hpp time_util.cpp
 	number_pool.hpp number_pool.cpp
-	timed_debug.hpp timed_debug.cpp
 )
 
 add_library(dmp-common STATIC ${dmp-common-sources})
@@ -27,6 +24,7 @@ target_link_libraries(dmp-common
 	PRIVATE ${GOBJECT_LIBRARIES}
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE boost-fusion-utils
+	PRIVATE dbg
 )
 
 target_include_directories(dmp-common SYSTEM
