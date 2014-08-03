@@ -13,34 +13,7 @@ set(dmp-common-sources
 	timed_debug.hpp timed_debug.cpp
 )
 
-if(MINGW)
-	add_library(dmp-common STATIC ${dmp-common-sources})
-else(MINGW)
-	add_library(dmp-common SHARED ${dmp-common-sources})
-endif(MINGW)
-
-if(MINGW)
-	target_link_libraries(dmp-common 
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstcoreelements.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgsttcp.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstplayback.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstvolume.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstaudioconvert.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstaudioresample.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstaudioparsers.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstautodetect.a
-		/home/dennis/projects/mxe/usr/x86_64-w64-mingw32/lib/gstreamer-1.0/libgstlame.a
-		-lmp3lame
-		-lgsttag-1.0
-		-lgstvideo-1.0
-		-lgstpbutils-1.0
-		-lgstaudio-1.0
-		-lgio-2.0
-		-ldnsapi
-		-lgzip
-		-lz
-	)
-endif(MINGW)
+add_library(dmp-common STATIC ${dmp-common-sources})
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include/)
 
@@ -50,11 +23,12 @@ find_package(GLIB2 REQUIRED)
 find_package(GObject REQUIRED)
 
 target_link_libraries(dmp-common
-	${GSTREAMER_LIBRARIES}
-	${GSTREAMER_BASE_LIBRARIES}
-	${GLIB2_LIBRARIES}
-	${GOBJECT_LIBRARIES}
-	${Boost_LIBRARIES}
+	PRIVATE ${GSTREAMER_LIBRARIES}
+	PRIVATE ${GSTREAMER_BASE_LIBRARIES}
+	PRIVATE ${GLIB2_LIBRARIES}
+	PRIVATE ${GOBJECT_LIBRARIES}
+	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE boost-fusion-utils
 )
 
 target_include_directories(dmp-common SYSTEM

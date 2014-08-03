@@ -4,7 +4,7 @@
 #include "dmp-library.hpp"
 #include "accept.hpp"
 
-#include <boost/thread.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include <iostream>
 #include <string>
@@ -36,14 +36,15 @@ int main(int, char**) {
 	bool stop = false;
 	while(!stop)
 	{
-		std::string input;
+		/*std::string input;
 		std::getline(std::cin, input);
 
 		if (input == "stop")
 		{
 			stop = true;
 		}
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		*/
 	}
 
 	io_service.stop();

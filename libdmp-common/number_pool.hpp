@@ -1,6 +1,15 @@
 #pragma once
 
+#ifdef __MINGW64__
+#define __USE_ISOC99
+#endif
+
 #include <boost/numeric/interval.hpp>
+
+#ifdef __MINGW64__
+#undef __USE_ISOC99
+#endif
+
 #include <limits>
 #include <set>
 #include <iostream>

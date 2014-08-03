@@ -13,7 +13,7 @@ set(DmpClientSources
 	dmp_client_interface.hpp
 )
 
-add_library(dmp-client ${DmpClientSources} ${DmpClientResources})
+add_library(dmp-client STATIC ${DmpClientSources} ${DmpClientResources})
 
 target_include_directories(dmp-client
 	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}

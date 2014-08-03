@@ -9,17 +9,9 @@ set(dmp-net-sources
 	message_callbacks.hpp
 )
 
-if(MINGW)
-	add_library(dmp-net STATIC ${dmp-net-sources})
-else(MINGW)
-	add_library(dmp-net SHARED ${dmp-net-sources})
-endif(MINGW)
+add_library(dmp-net STATIC ${dmp-net-sources})
 
 find_package(Boost COMPONENTS system REQUIRED)
-
-target_link_libraries(dmp-net ${Boost_LIBRARIES})
-target_link_libraries(dmp-net dmp-library)
-target_link_libraries(dmp-net dmp-common)
 
 target_include_directories(dmp-net SYSTEM
 	PRIVATE ${Boost_INCLUDE_DIRS}
@@ -31,6 +23,18 @@ target_include_directories(dmp-net
 	PRIVATE ${CMAKE_SOURCE_DIR}/libdmp-common
 )
 
+target_link_libraries(dmp-net
+	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE dmp-library
+	PRIVATE boost-fusion-utils
+)
+
+if(WIN32)
+	target_link_libraries(dmp-net
+		PRIVATE wsock32
+		PRIVATE ws2_32
+	)
+endif()
 
 if(USE_GPERF)
 	target_link_libraries(dmp-net "-lprofiler")

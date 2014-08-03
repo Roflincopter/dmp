@@ -54,17 +54,6 @@ GStreamerBase::GStreamerBase(std::string name)
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
 , gst_bus_watch_id(gst_bus_add_watch(bus.get(), bus_call, this))
 {
-#ifdef __MINGW32__
-	// Call the init function of the plugin.
-	GST_PLUGIN_STATIC_REGISTER(coreelements);
-	GST_PLUGIN_STATIC_REGISTER(tcp);
-	GST_PLUGIN_STATIC_REGISTER(playback);
-	GST_PLUGIN_STATIC_REGISTER(audioconvert);
-	GST_PLUGIN_STATIC_REGISTER(audioresample);
-	GST_PLUGIN_STATIC_REGISTER(audioparsers);
-	GST_PLUGIN_STATIC_REGISTER(autodetect);
-	GST_PLUGIN_STATIC_REGISTER(lame);
-#endif
 }
 
 GStreamerBase::~GStreamerBase()
@@ -196,9 +185,11 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 	case GST_MESSAGE_NEED_CONTEXT:
 	case GST_MESSAGE_HAVE_CONTEXT:
 	case GST_MESSAGE_ANY:
+#if GST_VERSION_MAJOR >= 1 && GST_VERSION_MINOR >= 4
 	case GST_MESSAGE_EXTENDED:
 	case GST_MESSAGE_DEVICE_ADDED:
 	case GST_MESSAGE_DEVICE_REMOVED:
+#endif
 	default:
 		break;
 	}
