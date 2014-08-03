@@ -4,7 +4,7 @@
 
 #include <boost/thread.hpp>
 
-#include "message_outputter.hpp"
+#include "fusion_outputter.hpp"
 
 DmpServer::DmpServer()
 : server_io_service()

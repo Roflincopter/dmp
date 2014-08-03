@@ -1,8 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 set(boost-fusion-utils-sources
+	boost_tuple_serialization.hpp
 	fusion_static_dispatch.hpp
 	friendly_fusion.hpp
+	fusion_outputter.hpp
+	fusion_serializer.hpp
 )
 
 add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})

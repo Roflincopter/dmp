@@ -17,7 +17,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "message.hpp"
-#include "message_serializer.hpp"
+#include "fusion_serializer.hpp"
 #include "message_callbacks.hpp"
 
 struct ReceiveProxy;

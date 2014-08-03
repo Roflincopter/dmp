@@ -1,6 +1,6 @@
 #include "dmp_client.hpp"
 
-#include "message_outputter.hpp"
+#include "fusion_outputter.hpp"
 #include "connect.hpp"
 #include "timed_debug.hpp"
 #include "debug_macros.hpp"

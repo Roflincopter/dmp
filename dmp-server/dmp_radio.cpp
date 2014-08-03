@@ -1,7 +1,7 @@
 #include "dmp_radio.hpp"
 
 #include "debug_macros.hpp"
-#include "message_outputter.hpp"
+#include "fusion_outputter.hpp"
 
 #include <string>
 #include <tuple>

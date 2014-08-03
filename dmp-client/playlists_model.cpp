@@ -1,7 +1,7 @@
 #include "playlists_model.hpp"
 
 #include "fusion_static_dispatch.hpp"
-#include "message_outputter.hpp"
+#include "fusion_outputter.hpp"
 
 #include <boost/mpl/joint_view.hpp>
 #include <boost/fusion/sequence.hpp>

@@ -1,7 +1,6 @@
 #include "dmp_client_gui.hpp"
 
 #include "debug_macros.hpp"
-#include "message_outputter.hpp"
 #include "connect.hpp"
 #include "dmp_client_connect_dialog.hpp"
 #include "dmp_client_error_dialog.hpp"

@@ -1,7 +1,5 @@
 #include "dmp_client_gui_radio_list.hpp"
 
-#include "message_outputter.hpp"
-
 #include <QInputDialog>
 #include <QPushButton>
 

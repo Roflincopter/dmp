@@ -1,11 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 set(dmp-common-sources
-	message_outputter.hpp
-	message_serializer.hpp
 	gstreamer_base.hpp gstreamer_base.cpp
-	playlist.hpp
 	number_pool.hpp number_pool.cpp
+	playlist.hpp
 )
 
 add_library(dmp-common STATIC ${dmp-common-sources})
