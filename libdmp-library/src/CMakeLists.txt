@@ -40,5 +40,7 @@ target_link_libraries(dmp-library
 )
 
 if(USE_GPERF)
-    target_link_libraries(dmp-library "-lprofiler")
+	target_link_libraries(dmp-library
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)

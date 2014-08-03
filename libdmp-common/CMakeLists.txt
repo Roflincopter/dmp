@@ -37,5 +37,7 @@ target_include_directories(dmp-common
 )
 
 if(USE_GPERF)
-	target_link_libraries(dmp-common "-lprofiler")
+	target_link_libraries(dmp-common
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)

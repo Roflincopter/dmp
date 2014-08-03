@@ -20,7 +20,13 @@ target_include_directories(dmp-client
 )
 
 target_link_libraries(dmp-client
-	dmp-library
-	dmp-common
-	dmp-net
+	PRIVATE dmp-library
+	PRIVATE dmp-common
+	PRIVATE dmp-net
 )
+
+if(USE_GPERF)
+	target_link_libraries(dmp-client
+		PRIVATE "-lprofiler"
+	)
+endif(USE_GPERF)

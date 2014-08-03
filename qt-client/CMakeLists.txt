@@ -96,18 +96,20 @@ target_include_directories(qt-client SYSTEM
 )
 
 target_link_libraries(qt-client
-	${Qt5Widgets_LIBRARIES}
-	${Qt5Gui_LIBRARIES}
-	${Qt5Core_LIBRARIES}
-	${Boost_LIBRARIES}
-	dmp-client
-	dmp-library
-	dmp-common
-	dmp-net
+	PRIVATE ${Qt5Widgets_LIBRARIES}
+	PRIVATE ${Qt5Gui_LIBRARIES}
+	PRIVATE ${Qt5Core_LIBRARIES}
+	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE dmp-client
+	PRIVATE dmp-library
+	PRIVATE dmp-common
+	PRIVATE dmp-net
 )
 
 if(USE_GPERF)
-	target_link_libraries(qt-client "-lprofiler")
+	target_link_libraries(qt-client
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)
 
 if(MINGW)

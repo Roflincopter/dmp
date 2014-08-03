@@ -15,14 +15,16 @@ target_include_directories(dmp-server SYSTEM
 )
 
 target_link_libraries(dmp-server
-	dmp-library
-	dmp-common
-	dmp-net
-	${Boost_LIBRARIES}
+	PRIVATE dmp-library
+	PRIVATE dmp-common
+	PRIVATE dmp-net
+	PRIVATE ${Boost_LIBRARIES}
 )
 
 if(USE_GPERF)
-	target_link_libraries(dmp-server "-lprofiler")
+	target_link_libraries(dmp-server
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)
 
 if(MINGW)

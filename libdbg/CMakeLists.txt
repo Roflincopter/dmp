@@ -13,5 +13,7 @@ target_include_directories(dbg
 )
 
 if(USE_GPERF)
-	target_link_libraries(dbg "-lprofiler")
+	target_link_libraries(dbg
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)

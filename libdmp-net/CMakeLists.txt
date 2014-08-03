@@ -37,5 +37,7 @@ if(WIN32)
 endif()
 
 if(USE_GPERF)
-	target_link_libraries(dmp-net "-lprofiler")
+	target_link_libraries(dmp-net
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)
