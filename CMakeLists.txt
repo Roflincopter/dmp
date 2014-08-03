@@ -25,6 +25,7 @@ ENDIF(UNIX AND NOT APPLE)
 add_definitions(${warnings} -g3 -Wno-shadow)
 
 add_subdirectory(libdmp-library)
+add_subdirectory(libboost-fusion-utils)
 add_subdirectory(libdmp-common)
 add_subdirectory(libdmp-net)
 

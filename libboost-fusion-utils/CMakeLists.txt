@@ -1,0 +1,28 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+set(boost-fusion-utils-sources
+	fusion_static_dispatch.hpp
+	friendly_fusion.hpp
+)
+
+add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})
+
+set_target_properties(boost-fusion-utils PROPERTIES LINKER_LANGUAGE C)
+
+find_package(Boost REQUIRED)
+
+target_link_libraries(boost-fusion-utils
+	PRIVATE ${Boost_LIBRARIES}
+)
+
+target_include_directories(boost-fusion-utils SYSTEM
+	PRIVATE ${Boost_INCLUDE_DIRS}
+)
+
+target_include_directories(boost-fusion-utils
+	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if(USE_GPERF)
+	target_link_libraries(boost-fusion-utils "-lprofiler")
+endif(USE_GPERF)

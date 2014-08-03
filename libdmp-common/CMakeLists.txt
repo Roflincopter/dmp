@@ -4,8 +4,6 @@ set(dmp-common-sources
 	message_outputter.hpp
 	message_serializer.hpp
 	gstreamer_base.hpp gstreamer_base.cpp
-	fusion_static_dispatch.hpp
-	friendly_fusion.hpp
 	playlist.hpp
 	debug_macros.hpp
 	time_util.hpp time_util.cpp
