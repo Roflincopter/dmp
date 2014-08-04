@@ -20,6 +20,7 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 
 public:
 	DmpServer();
+	~DmpServer();
 
 	void run();
 	void stop();

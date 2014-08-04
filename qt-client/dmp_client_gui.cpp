@@ -21,6 +21,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , client_thread()
 , test1_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_A), this, SLOT(test1()))
 , test2_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Q), this, SLOT(test2()))
+, test3_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Z), this, SLOT(test3()))
 , shared_main_window(nullptr)
 , shared_menu_bar(nullptr)
 , shared_search_bar(nullptr)
@@ -62,11 +63,9 @@ void DmpClientGui::update_ui_client_interface()
 void DmpClientGui::test1()
 {
 	connect_client(boost::asio::ip::host_name(), "127.0.0.1", 1337);
-#ifdef __MINGW32__
-	client->index("E:\\");
-#else
+
 	client->index("/home/dennis/Music");
-#endif	
+
 	client->add_radio("Radio1");
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	shared_radio_list->set_selection(0);
@@ -77,6 +76,17 @@ void DmpClientGui::test2()
 {
 	connect_client(boost::asio::ip::host_name() + "2", "127.0.0.1", 1337);
 }
+
+void DmpClientGui::test3()
+{
+	connect_client(boost::asio::ip::host_name(), "192.168.0.104", 1337);
+
+	client->index("/home/dennis/Music");
+
+	client->add_radio("Radio1");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	shared_radio_list->set_selection(0);
+	client->search("artist contains \"Alter\"");}
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
@@ -147,6 +157,7 @@ void DmpClientGui::setEnabled(bool enabled) {
 	ui.search_bar->setEnabled(enabled);
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);
+	ui.tuneInRadioButton->setEnabled(enabled);
 }
 
 void DmpClientGui::dmpConnect()

@@ -13,6 +13,8 @@ class DmpClientGuiRadioList : public QListView, public DmpClientUiControllerInte
 	std::shared_ptr<DmpClientInterface> client;
 	std::shared_ptr<RadioListModelQtAdapter> model;
 
+	std::string current_selected_radio;
+
 public:
 	explicit DmpClientGuiRadioList(QWidget *parent = 0);
 
@@ -27,5 +29,5 @@ signals:
 
 public slots:
 	void addRadio();
-
+	void tuneIn(bool state);
 };

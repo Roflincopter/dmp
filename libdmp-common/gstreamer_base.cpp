@@ -8,6 +8,7 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <cstdlib>
 
 void GStreamerBase::eos_reached()
 {
@@ -16,7 +17,14 @@ void GStreamerBase::eos_reached()
 
 void GStreamerBase::error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err)
 {
-	std::cerr << pipeline << ":" << element << " message: " << std::string(err->message) << std::endl;
+	std::string message = std::string(err->message);
+	std::cerr << pipeline << ":" << element << " message: " << message << std::endl;
+
+	if(getenv("GST_DEBUG_DUMP_DOT_DIR"))
+	{
+		std::string filename = make_debug_graph(message);
+		std::cout << "debug_dot_file_created at: " << filename << std::endl;
+	}
 }
 
 void GStreamerBase::buffer_high(GstElement*)
@@ -76,9 +84,11 @@ void GStreamerBase::stop_loop()
 	g_main_loop_quit(loop.get());
 }
 
-void GStreamerBase::make_debug_graph(std::string prefix)
+std::string GStreamerBase::make_debug_graph(std::string prefix)
 {
-	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, (get_current_time() + "_" + prefix + (prefix.empty() ? "" : "_") + name).c_str());
+	std::string filename = get_current_time() + "_" + prefix + (prefix.empty() ? "" : "_") + name;
+	GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline.get()), GST_DEBUG_GRAPH_SHOW_ALL, filename.c_str());
+	return filename;
 }
 
 void GStreamerBase::wait_for_state_change()

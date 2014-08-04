@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>DmpClientGui</class>
  <widget class="QMainWindow" name="DmpClientGui">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -35,6 +38,12 @@
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
             <item>
              <widget class="QToolButton" name="addRadioButton">
               <property name="enabled">
@@ -44,7 +53,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string/>
+               <string>Add</string>
               </property>
               <property name="iconSize">
                <size>
@@ -54,15 +63,44 @@
               </property>
              </widget>
             </item>
-            <item alignment="Qt::AlignLeft">
+            <item>
              <widget class="QToolButton" name="deleteRadioButton">
               <property name="enabled">
                <bool>false</bool>
               </property>
               <property name="text">
-               <string/>
+               <string>Remove</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="tuneInRadioButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>TuneIn</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Minimum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -144,7 +182,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -274,6 +312,7 @@
     <signal>currentlySelectedRadio(std::string)</signal>
     <slot>addRadio()</slot>
     <slot>radioSelected(QModelIndex)</slot>
+    <slot>tuneIn(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -492,6 +531,22 @@
     <hint type="destinationlabel">
      <x>639</x>
      <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tuneInRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radio_list</receiver>
+   <slot>tuneIn(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>159</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>139</x>
+     <y>238</y>
     </hint>
    </hints>
   </connection>

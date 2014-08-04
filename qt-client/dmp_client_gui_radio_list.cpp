@@ -1,5 +1,7 @@
 #include "dmp_client_gui_radio_list.hpp"
 
+#include "debug_macros.hpp"
+
 #include <QInputDialog>
 #include <QPushButton>
 
@@ -15,8 +17,8 @@ void DmpClientGuiRadioList::selectionChanged(QItemSelection const& selected, QIt
 {
 	auto variant = model->data(selected.indexes()[0], Qt::DisplayRole);
 	if(variant.isValid()) {
-		emit currentlySelectedRadio(variant.toString().toStdString());
-		client->tune_in(variant.toString().toStdString());
+		current_selected_radio = variant.toString().toStdString();
+		emit currentlySelectedRadio(current_selected_radio);
 	}
 	QListView::selectionChanged(selected, deselected);
 }
@@ -48,4 +50,10 @@ void DmpClientGuiRadioList::addRadio()
 
 	std::string radio_name = dialog.textValue().toStdString();
 	client->add_radio(radio_name);
+}
+
+void DmpClientGuiRadioList::tuneIn(bool state)
+{
+	DEBUG_COUT << "tuneIn slot called" << std::endl;
+	client->tune_in(current_selected_radio, state);
 }

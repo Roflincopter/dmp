@@ -24,6 +24,7 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 
 	QShortcut test1_key;
 	QShortcut test2_key;
+	QShortcut test3_key;
 
 	/* these variables hold non-owning shared pointers to the raw pointers
 	*  provided by the QtDesigner generated code. Be very cautious what you
@@ -63,6 +64,7 @@ public:
 private slots:
 	void test1();
 	void test2();
+	void test3();
 
 public slots:
 	void dmpConnect();

@@ -36,7 +36,7 @@ int main(int, char**) {
 	bool stop = false;
 	while(!stop)
 	{
-		/*std::string input;
+		std::string input;
 		std::getline(std::cin, input);
 
 		if (input == "stop")
@@ -44,7 +44,6 @@ int main(int, char**) {
 			stop = true;
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		*/
 	}
 
 	io_service.stop();

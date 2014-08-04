@@ -15,8 +15,10 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , buffer(gst_element_factory_make("queue2", "buffer"))
 , parser(gst_element_factory_make("mpegaudioparse", "parser"))
 , tee(gst_element_factory_make("tee", "tee"))
-//, sink(gst_element_factory_make("tcpserversink", "send"))
 , tee_src_pad_template(gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS(tee.get()), "src_%u"))
+, fake_pad(gst_element_request_pad(tee.get(), tee_src_pad_template.get(), nullptr, nullptr), GStreamerRequestPadDeleter(tee.get()))
+, fake_buffer(gst_element_factory_make("queue2", "fake_buffer"))
+, fake_sink(gst_element_factory_make("fakesink", "fakesink"))
 , radio_mutex(new std::mutex)
 , recv_port(port_pool->allocate_number())
 , event_callbacks()
@@ -39,10 +41,27 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	
 	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
-	
-	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), /*buffer.get(),*/ parser.get(), tee.get(), nullptr);
-	if(!gst_element_link_many(source.get(), /*buffer.get(),*/ parser.get(), tee.get(), nullptr)) {
+
+	g_object_set(G_OBJECT(fake_sink.get()), "sync", gboolean(true), nullptr);
+
+	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), buffer.get(), parser.get(), tee.get(), fake_buffer.get(), fake_sink.get(), nullptr);
+
+	if(!gst_element_add_pad(fake_buffer.get(), gst_ghost_pad_new("tee_fake_sink", gst_element_get_static_pad(fake_buffer.get(), "sink"))))
+	{
+		throw std::runtime_error("Adding ghost pad failed");
+	}
+
+	if(!gst_element_link_many(source.get(), buffer.get(), parser.get(), tee.get(), nullptr)) {
 		throw std::runtime_error("Linking the elements failed");
+	}
+
+	if(!gst_element_link_many(fake_buffer.get(), fake_sink.get(), nullptr)) {
+		throw std::runtime_error("Linking the fake elements failed");
+	}
+
+	if(gst_pad_link(fake_pad.get(), gst_element_get_static_pad(fake_buffer.get(), "tee_fake_sink")) != GST_PAD_LINK_OK) {
+		make_debug_graph("pad_issue");
+		throw std::runtime_error("Linking the fakesink tee pads failed");
 	}
 }
 
@@ -53,6 +72,7 @@ void DmpRadio::listen()
 
 void DmpRadio::add_listener(std::string name)
 {
+	std::unique_lock<std::mutex> l(*radio_mutex);
 	if(branches.find(name) != branches.end()) {
 		throw std::runtime_error(name + "was already listening to radio: " + this->name);
 	}
@@ -74,6 +94,32 @@ void DmpRadio::add_listener(std::string name)
 	
 	gst_bin_add(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
 	gst_pad_link(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
+}
+
+void DmpRadio::remove_listener(std::string name)
+{
+	std::unique_lock<std::mutex> l(*radio_mutex);
+
+	auto branch_it = branches.find(name);
+	if(branch_it == branches.end()) {
+		throw std::runtime_error(name + "wasn't listening to radio: " + this->name);
+	}
+
+	gst_pad_unlink(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
+	gst_element_set_state(branch_it->second.endpoint.get_bin(), GST_STATE_NULL);
+
+	{
+		GstState state;
+		GstState pending;
+		gst_element_get_state(branch_it->second.endpoint.get_bin(), &state, &pending, GST_CLOCK_TIME_NONE);
+	}
+
+	gst_bin_remove(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
+
+	port_pool->free_number(branch_it->second.endpoint.get_port());
+
+	branches.erase(branch_it);
+	make_debug_graph("After_removing_listener");
 }
 
 //Reversing the logic here. The receiving end of the client is on the sender end of the radio and vice versa.

@@ -10,7 +10,7 @@ class DmpRadioEndpoint
 	std::string name;
 	uint16_t port;
 	
-	std::unique_ptr<GstElement, GStreamerObjectDeleter> bin;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> bin;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> buffer;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
 	

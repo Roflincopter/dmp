@@ -446,17 +446,26 @@ struct SenderEvent {
 
 struct TuneIn {
 	
+	enum class Action {
+		NoAction,
+		TuneIn,
+		TuneOff
+	};
+
 	Type type;
 	std::string radio_name;
+	Action action;
 	
 	TuneIn()
 	: type(message::Type::TuneIn)
 	, radio_name()
+	, action(TuneIn::Action::NoAction)
 	{}
 	
-	TuneIn(std::string radio_name)
+	TuneIn(std::string radio_name, Action action)
 	: type(message::Type::TuneIn)
 	, radio_name(radio_name)
+	, action(action)
 	{}
 };
 
@@ -572,12 +581,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, radio_name)
 	(uint16_t, port)
 )
-/*
-BOOST_FUSION_ADAPT_STRUCT(
-	message::ListenConnectionRequestAck,
-	(message::Type, type)
-)
-*/
+
 //To not confuse the macro expansion about macro parameters.
 typedef std::map<std::string, Playlist> radios_type;
 
@@ -586,12 +590,6 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 	(radios_type, radios)
 )
-/*
-BOOST_FUSION_ADAPT_STRUCT(
-	message::RadiosAck,
-	(message::Type, type)
-)
-*/
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Queue,
@@ -657,4 +655,5 @@ BOOST_FUSION_ADAPT_STRUCT(
 	message::TuneIn,
 	(message::Type, type)
 	(std::string, radio_name)
+	(message::TuneIn::Action, action)
 )

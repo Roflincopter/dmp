@@ -83,6 +83,6 @@ struct GStreamerBase {
 	
 	void run_loop();
 	void stop_loop();
-	void make_debug_graph(std::string prefix = "");
+	std::string make_debug_graph(std::string prefix = "");
 	void wait_for_state_change();
 };

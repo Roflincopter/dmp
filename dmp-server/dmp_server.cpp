@@ -14,12 +14,14 @@ DmpServer::DmpServer()
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
 {
 	gst_init(0, nullptr);
-	timed_debug::add_call([this]{
-		for(auto&& radio : radios)
-		{
-			radio.second.second.make_debug_graph(radio.first);
-		}
-	});
+}
+
+DmpServer::~DmpServer()
+{
+	for(auto&& radio : radios) {
+		radio.second.second.stop_loop();
+		radio.second.first.join();
+	}
 }
 
 void DmpServer::run()
@@ -171,14 +173,22 @@ void DmpServer::handle_sender_event(message::SenderEvent se)
 
 void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti)
 {
+	DEBUG_COUT << "Tune in message received: handling" << std::endl;
 	auto& radio = radios.at(ti.radio_name);
-	try {
-		radio.second.add_listener(origin->get_name());
-	} catch(std::runtime_error const& e) {
-		std::cout << e.what() << std::endl;
-		return;
+
+	if(ti.action == message::TuneIn::Action::TuneIn) {
+		try {
+			radio.second.add_listener(origin->get_name());
+		} catch(std::runtime_error const& e) {
+			std::cout << e.what() << std::endl;
+			return;
+		}
+		origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.second.get_receiver_port(origin->get_name())));
+	} else if(ti.action == message::TuneIn::Action::TuneOff) {
+		radio.second.remove_listener(origin->get_name());
+	} else {
+		throw std::runtime_error("Received a TuneIn message with unhandled action");
 	}
-	origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.second.get_receiver_port(origin->get_name())));
 }
 
 void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)

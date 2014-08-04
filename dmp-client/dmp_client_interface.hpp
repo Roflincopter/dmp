@@ -19,7 +19,7 @@ struct DmpClientInterface {
 	virtual void run() = 0;
 	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) = 0;
 	virtual void set_current_radio(std::string name) = 0;
-	virtual void tune_in(std::string radio) = 0;
+	virtual void tune_in(std::string radio, bool tune_in) = 0;
 
 	virtual void stop_radio() = 0;
 	virtual void pause_radio() = 0;

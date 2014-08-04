@@ -46,9 +46,12 @@ class DmpRadio : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> buffer;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> parser;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> tee;
-//	std::unique_ptr<GstElement, GStreamerEmptyDeleter> sink;
-	
+
 	std::unique_ptr<GstPadTemplate, GStreamerObjectDeleter> tee_src_pad_template;
+
+	std::unique_ptr<GstPad, GStreamerRequestPadDeleter> fake_pad;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> fake_buffer;
+	std::unique_ptr<GstElement, GStreamerEmptyDeleter> fake_sink;
 	
 	std::map<std::string, TeeBranch> branches;
 	
@@ -68,6 +71,7 @@ public:
 
 	void listen();
 	void add_listener(std::string name);
+	void remove_listener(std::string name);
 	
 	uint16_t get_sender_port();
 	uint16_t get_receiver_port(std::string name);
