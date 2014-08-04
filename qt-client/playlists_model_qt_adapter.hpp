@@ -22,6 +22,9 @@ public:
 
 	virtual void playlist_update_start(message::PlaylistUpdate update) override final;
 	virtual void playlist_update_end(message::PlaylistUpdate update) override final;
+
+	virtual void current_radio_change_start() override final;
+	virtual void current_radio_change_end() override final;
 	
 	virtual void set_radios_start() override final;
 	virtual void set_radios_end() override final;

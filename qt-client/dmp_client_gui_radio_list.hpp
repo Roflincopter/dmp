@@ -25,6 +25,7 @@ public:
 	void set_selection(int row);
 	
 signals:
+	void setTuneInChecked(bool);
 	void currentlySelectedRadio(std::string);
 
 public slots:

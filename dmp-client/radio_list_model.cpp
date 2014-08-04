@@ -23,3 +23,13 @@ void RadioListModel::add_radio(std::string radio_name)
 {
 	radio_names.push_back(radio_name);
 }
+
+std::string RadioListModel::get_tuned_in_radio() const
+{
+	return tuned_in_radio;
+}
+
+void RadioListModel::set_tuned_in_radio(std::string radio_name)
+{
+	tuned_in_radio = radio_name;
+}

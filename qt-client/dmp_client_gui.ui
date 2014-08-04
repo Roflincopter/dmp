@@ -310,6 +310,7 @@
    <header>dmp_client_gui_radio_list.hpp</header>
    <slots>
     <signal>currentlySelectedRadio(std::string)</signal>
+    <signal>setTuneInChecked(bool)</signal>
     <slot>addRadio()</slot>
     <slot>radioSelected(QModelIndex)</slot>
     <slot>tuneIn(bool)</slot>
@@ -488,7 +489,7 @@
   </connection>
   <connection>
    <sender>actionPlay</sender>
-   <signal>toggled(bool)</signal>
+   <signal>triggered(bool)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>PlayPauseToggled(bool)</slot>
    <hints>
@@ -520,7 +521,7 @@
   </connection>
   <connection>
    <sender>actionMute</sender>
-   <signal>toggled(bool)</signal>
+   <signal>triggered(bool)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>MuteToggled(bool)</slot>
    <hints>
@@ -536,7 +537,7 @@
   </connection>
   <connection>
    <sender>tuneInRadioButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>radio_list</receiver>
    <slot>tuneIn(bool)</slot>
    <hints>
@@ -547,6 +548,22 @@
     <hint type="destinationlabel">
      <x>139</x>
      <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_list</sender>
+   <signal>setTuneInChecked(bool)</signal>
+   <receiver>tuneInRadioButton</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>

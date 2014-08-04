@@ -173,7 +173,6 @@ void DmpServer::handle_sender_event(message::SenderEvent se)
 
 void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti)
 {
-	DEBUG_COUT << "Tune in message received: handling" << std::endl;
 	auto& radio = radios.at(ti.radio_name);
 
 	if(ti.action == message::TuneIn::Action::TuneIn) {

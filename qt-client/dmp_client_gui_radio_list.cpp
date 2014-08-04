@@ -18,7 +18,9 @@ void DmpClientGuiRadioList::selectionChanged(QItemSelection const& selected, QIt
 	auto variant = model->data(selected.indexes()[0], Qt::DisplayRole);
 	if(variant.isValid()) {
 		current_selected_radio = variant.toString().toStdString();
+		emit setTuneInChecked(current_selected_radio == client->get_tuned_in_radio());
 		emit currentlySelectedRadio(current_selected_radio);
+		client->set_current_radio(current_selected_radio);
 	}
 	QListView::selectionChanged(selected, deselected);
 }
@@ -54,6 +56,10 @@ void DmpClientGuiRadioList::addRadio()
 
 void DmpClientGuiRadioList::tuneIn(bool state)
 {
-	DEBUG_COUT << "tuneIn slot called" << std::endl;
+	std::string current_tuned_in_radio = model->model->get_tuned_in_radio();
+
+	if(state && !current_tuned_in_radio.empty()) {
+		client->tune_in(current_tuned_in_radio, false);
+	}
 	client->tune_in(current_selected_radio, state);
 }

@@ -61,6 +61,7 @@ public:
 	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) override final;
 	virtual void set_current_radio(std::string name) override final;
 	virtual void tune_in(std::string radio, bool tune_in) override final;
+	virtual std::string get_tuned_in_radio() override final;
 
 	virtual void stop_radio() override final;
 	virtual void play_radio() override final;

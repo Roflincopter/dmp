@@ -110,21 +110,32 @@ void DmpClient::queue(std::string radio, std::string owner, dmp_library::Library
 
 void DmpClient::set_current_radio(std::string name)
 {
-	message::PlaylistUpdate::Action a(message::PlaylistUpdate::Action::Type::Reset, 0, 0);
-	message::PlaylistUpdate u(a, name, {});
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Reset, 0, 0);
+	message::PlaylistUpdate update(action, name, {});
 	
-	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_start, u);
+	call_on_delegates(delegates, &DmpClientUiDelegate::current_radio_change_start);
 	playlists_model->set_current_radio(name);
-	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_end, u);
+	call_on_delegates(delegates, &DmpClientUiDelegate::current_radio_change_end);
 }
 
 void DmpClient::tune_in(std::string radio, bool tune_in)
 {
-	DEBUG_COUT << "Going to send tune_in message to server." << std::endl;
 	using Action = message::TuneIn::Action;
-	Action action = tune_in ? Action::TuneIn : Action::TuneOff;
+	Action action = Action::NoAction;
+	if(tune_in) {
+		action = Action::TuneIn;
+		radio_list_model->set_tuned_in_radio(radio);
+	} else {
+		action = Action::TuneOff;
+		radio_list_model->set_tuned_in_radio("");
+	}
 	message::TuneIn ti(radio, action);
 	connection.send(ti);
+}
+
+std::string DmpClient::get_tuned_in_radio()
+{
+	return receiver.radio_target();
 }
 
 void DmpClient::handle_request(message::Type t)

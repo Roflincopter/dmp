@@ -74,7 +74,7 @@ void DmpRadio::add_listener(std::string name)
 {
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	if(branches.find(name) != branches.end()) {
-		throw std::runtime_error(name + "was already listening to radio: " + this->name);
+		throw std::runtime_error(name + " was already listening to radio: " + this->name);
 	}
 	
 	DmpRadioEndpoint listener(name, port_pool->allocate_number());
@@ -102,7 +102,7 @@ void DmpRadio::remove_listener(std::string name)
 
 	auto branch_it = branches.find(name);
 	if(branch_it == branches.end()) {
-		throw std::runtime_error(name + "wasn't listening to radio: " + this->name);
+		throw std::runtime_error(name + " wasn't listening to radio: " + this->name);
 	}
 
 	gst_pad_unlink(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());

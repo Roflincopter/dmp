@@ -177,16 +177,7 @@ void DmpClientGui::dmpConnect()
 
 void DmpClientGui::StopPressed()
 {
-	disconnect(
-		ui.actionPlay, SIGNAL(toggled(bool)),
-		this,          SLOT(PlayPauseToggled(bool))
-	);
 	ui.actionPlay->setChecked(false);
-	connect(
-		ui.actionPlay, SIGNAL(toggled(bool)),
-		this,          SLOT(PlayPauseToggled(bool))
-	);
-	
 	client->stop_radio();
 }
 
@@ -201,15 +192,7 @@ void DmpClientGui::PlayPauseToggled(bool state)
 
 void DmpClientGui::set_play_paused_state(bool state)
 {
-	disconnect(
-		ui.actionPlay, SIGNAL(toggled(bool)),
-		this,          SLOT(PlayPauseToggled(bool))
-	);
 	ui.actionPlay->setChecked(state);
-	connect(
-		ui.actionPlay, SIGNAL(toggled(bool)),
-		this,          SLOT(PlayPauseToggled(bool))
-	);
 }
 
 void DmpClientGui::NextPressed()
