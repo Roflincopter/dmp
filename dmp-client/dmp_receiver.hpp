@@ -8,7 +8,6 @@
 class DmpReceiver : public GStreamerBase
 {	
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> source;
-//	std::unique_ptr<GstElement, GStreamerEmptyDeleter> rtpdepay;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> buffer;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> decoder;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> converter;

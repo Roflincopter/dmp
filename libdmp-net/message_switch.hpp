@@ -5,7 +5,6 @@
 
 struct MessageSwitch
 {
-	#ifdef __GNUC__
 	template <int index, typename Conn>
 	std::function<void()> create_message_receiver(message::DmpCallbacks& cbs, Conn& conn)
 	{
@@ -16,32 +15,18 @@ struct MessageSwitch
 			return;
 		};
 	}
-	#endif //__GNUC__
 
 	std::array<std::function<void()>, static_cast<message::Type_t>(message::Type::LAST)> table;
 
 	template<typename Conn, int... Indices>
 	MessageSwitch(message::DmpCallbacks& cbs, indices<Indices...>, Conn& conn)
 		: table(
-		#ifdef __GNUC__
+			//not using labda because of gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 			{
-				//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 				MessageSwitch::create_message_receiver<Indices>(cbs, conn)
 				...
 			}
-		#else
-			{
-				[&conn, &cbs]
-				{
-					typedef typename message::type_to_message<static_cast<message::Type>(Indices)>::type message_t;
-					conn.template async_receive<message_t>(cbs);
-					return;
-				}
-				...
-			}
-		#endif //__GNUC__
 		)
-
 	{}
 
 	void handle_message(message::Type index) {

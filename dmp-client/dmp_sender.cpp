@@ -14,7 +14,6 @@ DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string 
 , converter(gst_element_factory_make("audioconvert", "converter"))
 , resampler(gst_element_factory_make("audioresample", "resampler"))
 , encoder(gst_element_factory_make("lamemp3enc", "encoder"))
-//, rtppay(gst_element_factory_make("rtpmpapay", "rtppay"))
 , buffer(gst_element_factory_make("queue2", "buffer"))
 , sink(gst_element_factory_make("tcpclientsink", "send"))
 {
@@ -25,7 +24,6 @@ DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string 
 		CHECK_GSTREAMER_COMPONENT(converter);
 		CHECK_GSTREAMER_COMPONENT(resampler);
 		CHECK_GSTREAMER_COMPONENT(encoder);
-//		CHECK_GSTREAMER_COMPONENT(rtppay);
 		CHECK_GSTREAMER_COMPONENT(buffer);
 		CHECK_GSTREAMER_COMPONENT(sink);
 		throw std::runtime_error("Could not create the pipeline components for this sender.");

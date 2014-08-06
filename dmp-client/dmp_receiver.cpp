@@ -9,7 +9,6 @@
 DmpReceiver::DmpReceiver()
 : GStreamerBase("receiver")
 , source(gst_element_factory_make("tcpclientsrc", "stream"))
-//, rtpdepay(gst_element_factory_make("rtpmpadepay", "rtpdepay"))
 , buffer(gst_element_factory_make("queue2", "buffer"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
 , converter(gst_element_factory_make("audioconvert", "converter"))
@@ -18,10 +17,9 @@ DmpReceiver::DmpReceiver()
 , audiosink(gst_element_factory_make("autoaudiosink", "audiosink"))
 , radio_name()
 {
-	if (!source || /*!rtpdepay ||*/ !buffer || !decoder || !converter || !resampler || !volume || !audiosink)
+	if (!source || !buffer || !decoder || !converter || !resampler || !volume || !audiosink)
 	{
 		CHECK_GSTREAMER_COMPONENT(source);
-//		CHECK_GSTREAMER_COMPONENT(rtpdepay);
 		CHECK_GSTREAMER_COMPONENT(buffer);
 		CHECK_GSTREAMER_COMPONENT(decoder);
 		CHECK_GSTREAMER_COMPONENT(converter);

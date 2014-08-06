@@ -29,7 +29,8 @@ BOOST_FUSION_ADAPT_STRUCT (
 	PlaylistEntry,
 	(std::string, queuer)
 	(std::string, owner)
-//	(dmp_library::LibraryEntry, entry)
+	//Not adapting entry, because we do not have a flatten operation yet.
+	//The flatten operation is emulated in playlistmodel.
 )
 
 typedef std::vector<PlaylistEntry> Playlist;

@@ -146,12 +146,7 @@ void DmpRadio::stop()
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 
-	{
-		GstState state;
-		GstState pending;
-		//force state change to happen.
-		gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-	}
+	wait_for_state_change();
 
 	for (auto&& branch : branches)
 	{
@@ -200,12 +195,10 @@ void DmpRadio:: play()
 void DmpRadio::pause()
 {
 	std::cout << "Paused called on radio: " << name << std::endl;
-	//gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 	std::unique_lock<std::mutex> l(*radio_mutex);
 	
 	auto sp = server.lock();
 
-	//Defensive check
 	if(playlist.empty()) {
 		throw std::runtime_error("Playlist was empty but client was in playing state and attempted to pause.");
 	}

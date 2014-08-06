@@ -120,7 +120,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		std::string element(x);
 		g_free(x);
 		
-		//std::cerr << base->name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
+		std::cout << "State change: " << base->name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
 		break;
 	}
 

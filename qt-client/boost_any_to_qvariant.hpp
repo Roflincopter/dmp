@@ -26,7 +26,6 @@ QVariant convert(boost::any const& x)
 	return convert<value_type>(x);
 }
 
-#if defined( __GNUC__ ) && !defined( __clang__ )
 template <typename T, int index>
 std::function<QVariant(boost::any const&)> convert_lambda()
 {
@@ -36,22 +35,15 @@ std::function<QVariant(boost::any const&)> convert_lambda()
 	};
 }
 
-#endif //defined( __GNUC__ ) && !defined( __clang__ )
-
 template<typename T, int... Indices>
 QVariant to_qvariant(boost::any const& any, int index, indices<Indices...>)
 {
 	typedef std::function<QVariant(boost::any const&)> element_type;
 	static element_type table[] =
 	{
-#if defined( __GNUC__ ) && !defined( __clang__ )
-		//Workaround for gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
+		//not using lambda because of gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 		convert_lambda<T, Indices>()
 		...
-#else
-		[](boost::any const& any){return convert<T, Indices>(any);}
-		...
-#endif //defined( __GNUC__ ) && !defined( __clang__ )
 	};
 
 	return table[index](any);

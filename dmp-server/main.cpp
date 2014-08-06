@@ -14,10 +14,6 @@
 
 int main(int, char**) {
 
-	//std::cout << "Dmp server starting." << std::endl;
-	//DmpRadio radio(2000, 2001);
-	//return 0;
-
 	auto server = std::make_shared<DmpServer>();
 
 	std::function<void(Connection&&)> f = [&](Connection&& x){

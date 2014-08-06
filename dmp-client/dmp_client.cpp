@@ -298,7 +298,6 @@ void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
 }
 void DmpClient::handle_stream_request(message::StreamRequest sr)
 {
-	//remove this when todo is fixed
 	senders.erase(sr.radio_name);
 	auto result = senders.emplace(sr.radio_name, DmpSender(shared_from_this(), sr.radio_name));
 	
@@ -312,8 +311,6 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 		} catch(std::exception &e){
 			DEBUG_COUT << "Sender crashed with message: " << e.what() << std::endl;
 		}
-		//TODO: fix this more generic by a templated struct with a std::thread and a T struct as mapped type.
-		//senders.erase(sr.radio_name);
 	};
 	std::thread t(sender_runner);
 	
