@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 set(DmpClientSources
 	dmp_client.hpp dmp_client.cpp
@@ -23,6 +23,8 @@ target_link_libraries(dmp-client
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
+	PUBLIC boost-fusion-utils
+	PRIVATE dbg
 )
 
 if(USE_GPERF)

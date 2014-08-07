@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 
 #Made my "own" QT5_WRAP_UI because the official one outputs the generated file in the binary dir.
 #I'm not a big fan of in source-builds and don't want to add my binary dir to my include path...
@@ -104,6 +104,7 @@ target_link_libraries(qt-client
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
+	PRIVATE dbg
 )
 
 if(USE_GPERF)

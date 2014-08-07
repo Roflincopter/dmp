@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 set(boost-fusion-utils-sources
 	boost_tuple_serialization.hpp
@@ -23,7 +23,7 @@ target_include_directories(boost-fusion-utils SYSTEM
 )
 
 target_include_directories(boost-fusion-utils
-	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(USE_GPERF)

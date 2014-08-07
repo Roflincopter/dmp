@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 add_executable(dmp-server main.cpp
                           dmp_server.hpp dmp_server.cpp
@@ -15,10 +15,12 @@ target_include_directories(dmp-server SYSTEM
 )
 
 target_link_libraries(dmp-server
+	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE dmp-library
 	PRIVATE dmp-common
-	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE dmp-net
+	PRIVATE boost-fusion-utils
+	PRIVATE dbg
 )
 
 if(USE_GPERF)

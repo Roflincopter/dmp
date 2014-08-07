@@ -1,4 +1,4 @@
-include_directories("../include")
+cmake_minimum_required(VERSION 2.8.12)
 
 file(GLOB dmp-library-sources *.cpp)
 file(GLOB dmp-library-headers ../include/*.hpp)
@@ -30,7 +30,7 @@ target_include_directories(dmp-library SYSTEM
 )
 
 target_include_directories(dmp-library
-	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../include
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 target_link_libraries(dmp-library
