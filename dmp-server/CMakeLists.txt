@@ -17,8 +17,8 @@ target_include_directories(dmp-server SYSTEM
 target_link_libraries(dmp-server
 	PRIVATE dmp-library
 	PRIVATE dmp-common
-	PRIVATE dmp-net
 	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE dmp-net
 )
 
 if(USE_GPERF)

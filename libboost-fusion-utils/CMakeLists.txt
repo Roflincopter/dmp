@@ -10,7 +10,7 @@ set(boost-fusion-utils-sources
 
 add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})
 
-set_target_properties(boost-fusion-utils PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(boost-fusion-utils PROPERTIES LINKER_LANGUAGE CXX)
 
 find_package(Boost REQUIRED)
 

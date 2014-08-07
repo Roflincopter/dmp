@@ -20,15 +20,7 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , radio_list_model(std::make_shared<RadioListModel>())
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
-{
-	timed_debug::add_call([this, name]{receiver.make_debug_graph(name);});
-
-	timed_debug::add_call([this]{
-		for(auto&& sender : senders) {
-			sender.second.make_debug_graph(sender.first);
-		}
-	});
-}
+{}
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 {
