@@ -39,7 +39,8 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, _1))},
 		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
 		{message::Type::SenderAction, std::function<void(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
-		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))}
+		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
+		{message::Type::RadioStates, std::function<void(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))}
 	};
 }
 
@@ -220,7 +221,9 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
 {
 	dmp_library::LibrarySearcher searcher(library);
 	message::SearchResponse response(search_req.query, searcher.search(search_req.query), name);
-	connection.send(response);
+	if(!response.results.empty()) {
+		connection.send(response);
+	}
 }
 
 void DmpClient::handle_search_response(message::SearchResponse search_res)
@@ -380,4 +383,23 @@ void DmpClient::handle_receiver_action(message::ReceiverAction ra)
 			throw std::runtime_error("ReceiverAction with incompatible command found in dmp_client, command was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
 	}
+}
+
+void DmpClient::handle_radio_states(message::RadioStates rs)
+{
+	switch(rs.action) {
+		case message::RadioStates::Action::Set:
+		{
+			radio_list_model->set_radio_states(rs.states);
+			call_on_delegates(delegates, &DmpClientUiDelegate::set_radio_states);
+			break;
+		}
+		case message::RadioStates::Action::NoAction:
+		default:
+		{
+			throw std::runtime_error("Received a RadioStates message with unhandled action: " + std::to_string(static_cast<message::Type_t>(rs.action)));
+		}
+	}
+
+	
 }

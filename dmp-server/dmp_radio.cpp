@@ -19,7 +19,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , fake_pad(gst_element_request_pad(tee.get(), tee_src_pad_template.get(), nullptr, nullptr), GStreamerRequestPadDeleter(tee.get()))
 , fake_buffer(gst_element_factory_make("queue2", "fake_buffer"))
 , fake_sink(gst_element_factory_make("fakesink", "fakesink"))
-, radio_mutex(new std::mutex)
+, radio_mutex(new std::recursive_mutex)
 , recv_port(port_pool->allocate_number())
 , event_callbacks()
 {
@@ -67,12 +67,12 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 
 void DmpRadio::listen()
 {
-	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
+	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 }
 
 void DmpRadio::add_listener(std::string name)
 {
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	if(branches.find(name) != branches.end()) {
 		throw std::runtime_error(name + " was already listening to radio: " + this->name);
 	}
@@ -98,7 +98,7 @@ void DmpRadio::add_listener(std::string name)
 
 void DmpRadio::remove_listener(std::string name)
 {
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 
 	auto branch_it = branches.find(name);
 	if(branch_it == branches.end()) {
@@ -122,6 +122,48 @@ void DmpRadio::remove_listener(std::string name)
 	make_debug_graph("After_removing_listener");
 }
 
+void DmpRadio::disconnect(std::string endpoint_name)
+{
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	
+	DEBUG_COUT << "Removing endpoint: " << endpoint_name << std::endl;
+	if(branches.find(endpoint_name) != branches.end()) {
+		remove_listener(endpoint_name);
+	}
+	
+	DEBUG_COUT << "Getting current state" << std::endl;
+	GstState old_state;
+	GstState pending;
+	gst_element_get_state(pipeline.get(), &old_state, &pending, GST_CLOCK_TIME_NONE);
+	
+	DEBUG_COUT << "Removing all queued songs owned by: " << endpoint_name << std::endl;
+	auto it = playlist.begin();
+	while(it != playlist.end())
+	{
+		if(it->owner == endpoint_name) {
+			if(it == playlist.begin()) {
+				DEBUG_COUT << "Stopping because the current song is owned by the leaving endpoint" << std::endl;
+				stop();
+			}
+			DEBUG_COUT << "Removing song from playlist" << std::endl;
+			it = playlist.erase(it);
+		} else {
+			DEBUG_COUT << "not removing song" << std::endl;
+			++it;
+		}
+	}
+	
+	auto sp = server.lock();
+	
+	DEBUG_COUT << "Updating playlist" << std::endl;
+	sp->update_playlist(name, playlist);
+	
+	if(old_state == GST_STATE_PLAYING) {
+		DEBUG_COUT << "previous state was playing so we play" << std::endl;
+		play();
+	}
+}
+
 //Reversing the logic here. The receiving end of the client is on the sender end of the radio and vice versa.
 uint16_t DmpRadio::get_sender_port()
 {
@@ -140,7 +182,7 @@ Playlist DmpRadio::get_playlist()
 
 void DmpRadio::stop()
 {
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	
 	auto sp = server.lock();
 	
@@ -164,7 +206,7 @@ void DmpRadio::stop()
 void DmpRadio:: play()
 {
 	std::cout << "Play called on radio: " << name << std::endl;
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	
 	if (playlist.empty()) {
 		return;
@@ -195,7 +237,7 @@ void DmpRadio:: play()
 void DmpRadio::pause()
 {
 	std::cout << "Paused called on radio: " << name << std::endl;
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	
 	auto sp = server.lock();
 
@@ -221,7 +263,7 @@ void DmpRadio::pause()
 
 void DmpRadio::next()
 {
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	
 	if(playlist.empty()) {
 		return;
@@ -244,14 +286,11 @@ void DmpRadio::next()
 	
 	if(!stopped) { 
 		sp->update_playlist(name, playlist);
-		l.unlock();
 		stop();
 		if(!playlist.empty()) {
 			play();
 		}
 	}
-
-	
 }
 
 void DmpRadio::eos_reached()
@@ -273,7 +312,20 @@ void DmpRadio::buffer_low(GstElement *src)
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 {
-	std::unique_lock<std::mutex> l(*radio_mutex);
+	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
 	
 	playlist.push_back({queuer, owner, entry});
+}
+
+RadioState DmpRadio::get_state()
+{
+	make_debug_graph("hanging");
+
+	GstState state;
+	GstState pending;
+	DEBUG_COUT << "Getting radio state for radio: " << name << std::endl;
+	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
+	DEBUG_COUT << "Got radio state." << std::endl;
+
+	return RadioState(state == GST_STATE_PLAYING);
 }

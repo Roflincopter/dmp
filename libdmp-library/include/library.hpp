@@ -26,6 +26,14 @@ struct Library
 	{
 		ar & tracklist & filemap;
 	}
+
+	friend std::ostream& operator<< (std::ostream& os, Library const& l)
+	{
+		for(auto&& e : l.tracklist) {
+			os << l.filemap.at(e.id) << std::endl << e << std::endl;
+		}
+		return os;
+	}
 	
 	std::string get_filename(LibraryEntry entry) const;
 };

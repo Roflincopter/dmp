@@ -22,10 +22,13 @@ public:
 
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 	
+	virtual void set_radio_states() override final;
+	
 	void set_selection(int row);
 	
 signals:
 	void setTuneInChecked(bool);
+	void setPlayingChecked(bool);
 	void currentlySelectedRadio(std::string);
 
 public slots:

@@ -75,6 +75,7 @@ void DmpClientGui::test1()
 void DmpClientGui::test2()
 {
 	connect_client(boost::asio::ip::host_name() + "2", "127.0.0.1", 1337);
+	client->index("/home/dennis/Music");
 }
 
 void DmpClientGui::test3()

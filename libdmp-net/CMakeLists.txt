@@ -34,6 +34,8 @@ target_link_libraries(dmp-net
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE dmp-library
 	PRIVATE boost-fusion-utils
+	PUBLIC pthread
+	PRIVATE dbg
 )
 
 if(WIN32)

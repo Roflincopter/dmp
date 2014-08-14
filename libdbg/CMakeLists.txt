@@ -4,6 +4,7 @@ set(dbg-sources
 	debug_macros.hpp
 	time_util.hpp time_util.cpp
 	timed_debug.hpp timed_debug.cpp
+	core_dump.hpp core_dump.cpp
 )
 
 add_library(dbg STATIC ${dbg-sources})

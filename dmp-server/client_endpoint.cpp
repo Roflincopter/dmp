@@ -1,6 +1,9 @@
 #include "client_endpoint.hpp"
+
 #include "message.hpp"
 #include "fusion_outputter.hpp"
+
+#include "debug_macros.hpp"
 
 ClientEndpoint::ClientEndpoint(std::string name, Connection&& conn)
 : name(name)

@@ -32,6 +32,11 @@ void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_c
 	client->add_delegate(model);
 }
 
+void DmpClientGuiRadioList::set_radio_states()
+{
+	emit setPlayingChecked(model->model->get_radio_states()[current_selected_radio].playing);
+}
+
 void DmpClientGuiRadioList::set_selection(int row)
 {
 	auto index = model->get_model_index_for(row);

@@ -2,6 +2,7 @@
 
 #include "dmp-library.hpp"
 #include "playlist.hpp"
+#include "radio_state.hpp"
 
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/serialization/vector.hpp>
@@ -35,6 +36,7 @@ enum class Type : Type_t {
 	ReceiverAction,
 	SenderAction,
 	TuneIn,
+	RadioStates,
 	LAST
 };
 
@@ -469,6 +471,29 @@ struct TuneIn {
 	{}
 };
 
+struct RadioStates {
+	enum class Action {
+		NoAction,
+		Set,
+	};
+
+	Type type;
+	Action action;
+	std::map<std::string, RadioState> states;
+
+	RadioStates()
+	: type(message::Type::RadioStates)
+	, action(RadioStates::Action::NoAction)
+	, states()
+	{}
+
+	RadioStates(RadioStates::Action action, std::map<std::string, RadioState> states)
+	: type(message::Type::RadioStates)
+	, action(action)
+	, states(states)
+	{}
+};
+
 template <Type t>
 struct type_to_message
 {
@@ -502,6 +527,7 @@ TYPE_TO_MESSAGE_STRUCT(SenderAction)
 TYPE_TO_MESSAGE_STRUCT(SenderEvent)
 TYPE_TO_MESSAGE_STRUCT(ReceiverAction)
 TYPE_TO_MESSAGE_STRUCT(TuneIn)
+TYPE_TO_MESSAGE_STRUCT(RadioStates)
 
 #undef TYPE_TO_MESSAGE_STRUCT
 
@@ -583,12 +609,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 //To not confuse the macro expansion about macro parameters.
-typedef std::map<std::string, Playlist> radios_type;
+typedef std::map<std::string, Playlist> RadiosType;
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Radios,
 	(message::Type, type)
-	(radios_type, radios)
+	(RadiosType, radios)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -656,4 +682,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(message::Type, type)
 	(std::string, radio_name)
 	(message::TuneIn::Action, action)
+)
+
+//To not confuse the macro expansion about macro parameters.
+typedef std::map<std::string, RadioState> RadioStatesType;
+BOOST_FUSION_ADAPT_STRUCT(
+	message::RadioStates,
+	(message::Type, type)
+	(message::RadioStates::Action, action)
+	(RadioStatesType, states)
 )

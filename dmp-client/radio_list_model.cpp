@@ -33,3 +33,13 @@ void RadioListModel::set_tuned_in_radio(std::string radio_name)
 {
 	tuned_in_radio = radio_name;
 }
+
+void RadioListModel::set_radio_states(std::map<std::string, RadioState> states)
+{
+	radio_states = states;
+}
+
+std::map<std::string, RadioState> RadioListModel::get_radio_states() const
+{
+	return radio_states;
+}

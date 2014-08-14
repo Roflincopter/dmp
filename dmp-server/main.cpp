@@ -1,18 +1,17 @@
 
 #include "dmp_server.hpp"
-
-#include "dmp-library.hpp"
 #include "accept.hpp"
+
+#include "core_dump.hpp"
 
 #include <boost/asio/io_service.hpp>
 
 #include <iostream>
 #include <string>
 
-
-#include "dmp_radio.hpp"
-
 int main(int, char**) {
+
+	signal(SIGINT, core_dump);
 
 	auto server = std::make_shared<DmpServer>();
 

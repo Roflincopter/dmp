@@ -9,6 +9,7 @@
 
 #include "dmp-library.hpp"
 #include "playlist.hpp"
+#include "radio_state.hpp"
 
 #include <boost/optional.hpp>
 
@@ -55,7 +56,7 @@ class DmpRadio : public GStreamerBase
 	
 	std::map<std::string, TeeBranch> branches;
 	
-	std::unique_ptr<std::mutex> radio_mutex;
+	std::unique_ptr<std::recursive_mutex> radio_mutex;
 
 	uint16_t recv_port;
 
@@ -72,6 +73,7 @@ public:
 	void listen();
 	void add_listener(std::string name);
 	void remove_listener(std::string name);
+	void disconnect(std::string name);
 	
 	uint16_t get_sender_port();
 	uint16_t get_receiver_port(std::string name);
@@ -88,6 +90,7 @@ public:
 	virtual void buffer_low(GstElement* src) override final;
 	
 	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
+	RadioState get_state();
 
 	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;
 };

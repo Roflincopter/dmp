@@ -1,12 +1,18 @@
 #pragma once
 
+#include "radio_state.hpp"
+
 #include <vector>
 #include <string>
+#include <map>
 
 class RadioListModel
 {
 	std::vector<std::string> radio_names;
 	std::string tuned_in_radio;
+	
+	std::map<std::string, RadioState> radio_states;
+
 public:
 	RadioListModel();
 
@@ -17,4 +23,7 @@ public:
 	void add_radio(std::string radio_name);
 	std::string get_tuned_in_radio() const;
 	void set_tuned_in_radio(std::string radio_name);
+	
+	void set_radio_states(std::map<std::string, RadioState> states);
+	std::map<std::string, RadioState> get_radio_states() const;
 };

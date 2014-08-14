@@ -4,6 +4,8 @@
 #include "message_callbacks.hpp"
 #include "message_switch.hpp"
 
+#include "debug_macros.hpp"
+
 #include <boost/asio/deadline_timer.hpp>
 
 class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>

@@ -182,7 +182,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>29</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -311,6 +311,7 @@
    <slots>
     <signal>currentlySelectedRadio(std::string)</signal>
     <signal>setTuneInChecked(bool)</signal>
+    <signal>setPlayingChecked(bool)</signal>
     <slot>addRadio()</slot>
     <slot>radioSelected(QModelIndex)</slot>
     <slot>tuneIn(bool)</slot>
@@ -564,6 +565,22 @@
     <hint type="destinationlabel">
      <x>159</x>
      <y>89</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radio_list</sender>
+   <signal>setPlayingChecked(bool)</signal>
+   <receiver>actionPlay</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

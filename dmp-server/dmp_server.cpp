@@ -1,6 +1,8 @@
 #include "dmp_server.hpp"
 #include "message_callbacks.hpp"
 #include "timed_debug.hpp"
+#include "playlist.hpp"
+#include "radio_state.hpp"
 
 #include <boost/thread.hpp>
 
@@ -56,10 +58,16 @@ void DmpServer::add_connection(Connection&& c)
 	connections[name_res.name] = cep;
 
 	std::map<std::string, Playlist> playlists;
-	for(auto& radio : radios) {
+	for(auto&& radio : radios) {
 		playlists.emplace(radio.first, radio.second.second.get_playlist());
 	}
 	connections[name_res.name]->forward(message::Radios(playlists));
+
+	std::map<std::string, RadioState> states;
+	for(auto&& radio : radios) {
+		states.emplace(radio.first, std::move(radio.second.second.get_state()));
+	}
+	connections[name_res.name]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 
 	std::thread execthread = std::thread(
 		[this, name_res]()
@@ -69,7 +77,14 @@ void DmpServer::add_connection(Connection&& c)
 			} catch(std::exception &e) {
 				std::cerr << "Endpoint unexpectedly raised exception: " << e.what() << std::endl;
 			}
+			DEBUG_COUT << "disconnecting: " << name_res.name << std::endl;
+			for(auto&& radio : radios)
+			{
+				radio.second.second.disconnect(name_res.name);
+			}
+			DEBUG_COUT << "disconnected: " << name_res.name << " from the radio endpoints" << std::endl;
 			connections.erase(name_res.name);
+			DEBUG_COUT << "erased the connection with: " << name_res.name << std::endl;
 		}
 	);
 	execthread.detach();
@@ -78,6 +93,7 @@ void DmpServer::add_connection(Connection&& c)
 void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr)
 {
 	std::function<void(message::SearchResponse)> cb = std::bind(&ClientEndpoint::forward<message::SearchResponse>, origin.get(), std::placeholders::_1);
+
 	for(auto const& x : connections)
 	{
 		x.second->search(cb, sr);

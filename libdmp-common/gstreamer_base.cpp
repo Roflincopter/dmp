@@ -2,6 +2,7 @@
 #include "gstreamer_base.hpp"
 
 #include "time_util.hpp"
+#include "debug_macros.hpp"
 
 #include <iostream>
 #include <cassert>
@@ -95,7 +96,9 @@ void GStreamerBase::wait_for_state_change()
 {
 	GstState state;
 	GstState pending;
-	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
+	gst_element_get_state(pipeline.get(), &state, &pending, 5000000000);
+	DEBUG_COUT << "State change did not complete within 5s. Making debug dot." << std::endl;
+	make_debug_graph("StateChangeTimeout");
 }
 
 gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)

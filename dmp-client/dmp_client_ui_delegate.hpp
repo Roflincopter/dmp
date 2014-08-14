@@ -39,6 +39,8 @@ struct DmpClientUiDelegate
 	virtual void current_radio_change_start(){}
 	virtual void current_radio_change_end(){}
 	
+	virtual void set_radio_states(){}
+	
 	virtual void set_play_paused_state(bool state){}
 	
 	virtual ~DmpClientUiDelegate(){}

@@ -16,6 +16,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
+#include "debug_macros.hpp"
 #include "message.hpp"
 #include "fusion_serializer.hpp"
 #include "message_callbacks.hpp"

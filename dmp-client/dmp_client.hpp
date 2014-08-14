@@ -86,4 +86,5 @@ public:
 	void handle_stream_request(message::StreamRequest sr);
 	void handle_sender_action(message::SenderAction sa);
 	void handle_receiver_action(message::ReceiverAction ra);
+	void handle_radio_states(message::RadioStates rs);
 };

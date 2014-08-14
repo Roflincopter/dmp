@@ -1,6 +1,7 @@
 #include "search_result_model.hpp"
 #include "fusion_static_dispatch.hpp"
 #include "fusion_outputter.hpp"
+#include "debug_macros.hpp"
 
 #include <string>
 #include <iostream>
