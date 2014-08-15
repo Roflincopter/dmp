@@ -209,15 +209,19 @@ void DmpServer::handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::
 
 void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
 {
-	connections[client]->forward(message::StreamRequest(radio_name, entry, port));
+	connections.at(client)->forward(message::StreamRequest(radio_name, entry, port));
 }
 
 void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)
 {
-	connections[client]->forward(ra);
+	if(connections.find(client) != connections.end()) {
+		connections.at(client)->forward(ra);
+	}
 }
 
 void DmpServer::forward_sender_action(std::string client, message::SenderAction sa)
 {
-	connections[client]->forward(sa);
+	if(connections.find(client) != connections.end()) {
+		connections.at(client)->forward(sa);
+	}
 }
