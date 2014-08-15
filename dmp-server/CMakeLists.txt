@@ -31,5 +31,10 @@ endif(USE_GPERF)
 
 if(MINGW)
 	add_definitions("-DBOOST_THREAD_USE_LIB=1 -mms-bitfields -DPCRE_STATIC")
-	target_link_libraries(dmp-server pthread ws2_32 mswsock ffi /home/dennis/projects/mxe/usr/x86_64-w64-mingw32.shared/lib/gstreamer-1.0/libgsttcp.dll.a)
+	target_link_libraries(dmp-server
+		PRIVATE pthread
+		PRIVATE ws2_32
+		PRIVATE mswsock
+		PRIVATE ffi
+	)
 endif(MINGW)

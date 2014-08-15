@@ -11,8 +11,9 @@
 
 int main(int, char**) {
 
+#ifdef __linux
 	signal(SIGINT, core_dump);
-
+#endif
 	auto server = std::make_shared<DmpServer>();
 
 	std::function<void(Connection&&)> f = [&](Connection&& x){
