@@ -60,7 +60,6 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	}
 
 	if(gst_pad_link(fake_pad.get(), gst_element_get_static_pad(fake_buffer.get(), "tee_fake_sink")) != GST_PAD_LINK_OK) {
-		make_debug_graph("pad_issue");
 		throw std::runtime_error("Linking the fakesink tee pads failed");
 	}
 }
@@ -119,47 +118,38 @@ void DmpRadio::remove_listener(std::string name)
 	port_pool->free_number(branch_it->second.endpoint.get_port());
 
 	branches.erase(branch_it);
-	make_debug_graph("After_removing_listener");
 }
 
 void DmpRadio::disconnect(std::string endpoint_name)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
-	DEBUG_COUT << "Removing endpoint: " << endpoint_name << std::endl;
 	if(branches.find(endpoint_name) != branches.end()) {
 		remove_listener(endpoint_name);
 	}
 	
-	DEBUG_COUT << "Getting current state" << std::endl;
 	GstState old_state;
 	GstState pending;
 	gst_element_get_state(pipeline.get(), &old_state, &pending, GST_CLOCK_TIME_NONE);
 	
-	DEBUG_COUT << "Removing all queued songs owned by: " << endpoint_name << std::endl;
 	auto it = playlist.begin();
 	while(it != playlist.end())
 	{
 		if(it->owner == endpoint_name) {
 			if(it == playlist.begin()) {
-				DEBUG_COUT << "Stopping because the current song is owned by the leaving endpoint" << std::endl;
 				stop();
 			}
-			DEBUG_COUT << "Removing song from playlist" << std::endl;
 			it = playlist.erase(it);
 		} else {
-			DEBUG_COUT << "not removing song" << std::endl;
 			++it;
 		}
 	}
 	
 	auto sp = server.lock();
 	
-	DEBUG_COUT << "Updating playlist" << std::endl;
 	sp->update_playlist(name, playlist);
 	
 	if(old_state == GST_STATE_PLAYING) {
-		DEBUG_COUT << "previous state was playing so we play" << std::endl;
 		play();
 	}
 }
@@ -228,8 +218,6 @@ void DmpRadio:: play()
 	for(auto&& branch : branches) {
 		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Play));
 	}
-	
-	make_debug_graph();
 	
 	stopped = false;
 }
@@ -319,13 +307,9 @@ void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::Library
 
 RadioState DmpRadio::get_state()
 {
-	make_debug_graph("hanging");
-
 	GstState state;
 	GstState pending;
-	DEBUG_COUT << "Getting radio state for radio: " << name << std::endl;
 	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-	DEBUG_COUT << "Got radio state." << std::endl;
 
 	return RadioState(state == GST_STATE_PLAYING);
 }
