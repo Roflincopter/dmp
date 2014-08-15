@@ -42,10 +42,12 @@ struct DmpCallbacks {
 	
 	Callbacks_t callbacks;
 	std::function<void()> refresher;
+	bool stop;
 
 	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks)
 	: callbacks(initial_callbacks)
 	, refresher(refresher)
+	, stop(false)
 	{}
 
 	template <typename T>
@@ -56,7 +58,9 @@ struct DmpCallbacks {
 		if (it != callbacks.cend()) {
 			auto f = boost::get<CB<T>>(it->second);
 			f(message);
-			refresher();
+			if(!stop) {
+				refresher();
+			}
 		} else {
 			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message.type)));
 		}
@@ -67,6 +71,11 @@ struct DmpCallbacks {
 	{
 		callbacks[t] = x;
 		return *this;
+	}
+
+	void stop_refresh()
+	{
+		stop = true;
 	}
 };
 

@@ -3,19 +3,30 @@
 #include "timed_debug.hpp"
 #include "playlist.hpp"
 #include "radio_state.hpp"
+#include "accept.hpp"
 
 #include <boost/thread.hpp>
 
 #include "fusion_outputter.hpp"
 
-DmpServer::DmpServer()
-: server_io_service()
+DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
+: server_io_service(ios)
 , connections()
 , radios()
-, debug_timer(server_io_service)
+, debug_timer(*server_io_service)
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
 {
 	gst_init(0, nullptr);
+
+	std::function<void(Connection&&)> f = [this](Connection&& x){
+		try {
+			add_connection(std::move(x));
+		} catch(std::exception &e) {
+			std::cerr << "Failed to initialize connection: " << e.what() << std::endl;
+		}
+	};
+
+	accept_loop(1337, server_io_service, f);
 }
 
 DmpServer::~DmpServer()
@@ -28,12 +39,12 @@ DmpServer::~DmpServer()
 
 void DmpServer::run()
 {
-	server_io_service.run();
+	server_io_service->run();
 }
 
 void DmpServer::stop()
 {
-	server_io_service.stop();
+	server_io_service->stop();
 }
 
 void DmpServer::add_connection(Connection&& c)
@@ -46,7 +57,7 @@ void DmpServer::add_connection(Connection&& c)
 	}
 	message::NameResponse name_res = c.receive();
 
-	auto cep = std::make_shared<ClientEndpoint>(name_res.name, std::move(c));
+	auto cep = std::make_shared<ClientEndpoint>(name_res.name, std::move(c), std::bind(&DmpServer::remove_connection, this, name_res.name));
 
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
@@ -68,26 +79,16 @@ void DmpServer::add_connection(Connection&& c)
 		states.emplace(radio.first, std::move(radio.second.second.get_state()));
 	}
 	connections[name_res.name]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+}
 
-	std::thread execthread = std::thread(
-		[this, name_res]()
-		{
-			try {
-				connections[name_res.name]->run();
-			} catch(std::exception &e) {
-				std::cerr << "Endpoint unexpectedly raised exception: " << e.what() << std::endl;
-			}
-			DEBUG_COUT << "disconnecting: " << name_res.name << std::endl;
-			for(auto&& radio : radios)
-			{
-				radio.second.second.disconnect(name_res.name);
-			}
-			DEBUG_COUT << "disconnected: " << name_res.name << " from the radio endpoints" << std::endl;
-			connections.erase(name_res.name);
-			DEBUG_COUT << "erased the connection with: " << name_res.name << std::endl;
-		}
-	);
-	execthread.detach();
+void DmpServer::remove_connection(std::string name)
+{
+	connections.at(name)->cancel_pending_asio();
+	connections.erase(name);
+	for(auto&& radio : radios)
+	{
+		radio.second.second.disconnect(name);
+	}
 }
 
 void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr)

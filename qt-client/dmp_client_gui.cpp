@@ -216,6 +216,7 @@ void DmpClientGui::closeEvent(QCloseEvent*)
 	}
 	
 	client->stop();
+	client->destroy();
 	client_thread.join();
 }
 

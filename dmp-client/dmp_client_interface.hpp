@@ -21,6 +21,7 @@ struct DmpClientInterface {
 	virtual void set_current_radio(std::string name) = 0;
 	virtual void tune_in(std::string radio, bool tune_in) = 0;
 	virtual std::string get_tuned_in_radio() = 0;
+	virtual void send_bye() = 0;
 
 	virtual void stop_radio() = 0;
 	virtual void pause_radio() = 0;

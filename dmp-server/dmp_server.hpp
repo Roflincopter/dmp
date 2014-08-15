@@ -12,19 +12,20 @@
 
 class DmpServer : public DmpServerInterface, public std::enable_shared_from_this<DmpServerInterface>
 {
-	boost::asio::io_service server_io_service;
+	std::shared_ptr<boost::asio::io_service> server_io_service;
 	std::map<std::string, std::shared_ptr<ClientEndpoint>> connections;
 	std::map<std::string, std::pair<std::thread, DmpRadio>> radios;
 	boost::asio::deadline_timer debug_timer;
 	std::shared_ptr<NumberPool> port_pool;
 
 public:
-	DmpServer();
+	DmpServer(std::shared_ptr<boost::asio::io_service> ios);
 	~DmpServer();
 
 	void run();
 	void stop();
 	void add_connection(Connection&& c);
+	void remove_connection(std::string name);
 
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);

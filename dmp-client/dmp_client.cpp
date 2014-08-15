@@ -131,6 +131,11 @@ std::string DmpClient::get_tuned_in_radio()
 	return receiver.radio_target();
 }
 
+void DmpClient::send_bye()
+{
+	connection.send(message::Bye());
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);
