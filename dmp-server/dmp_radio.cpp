@@ -72,7 +72,7 @@ void DmpRadio::listen()
 
 void DmpRadio::add_listener(std::string name)
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	if(branches.find(name) != branches.end()) {
 		throw std::runtime_error(name + " was already listening to radio: " + this->name);
 	}
@@ -98,7 +98,7 @@ void DmpRadio::add_listener(std::string name)
 
 void DmpRadio::remove_listener(std::string name)
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 
 	auto branch_it = branches.find(name);
 	if(branch_it == branches.end()) {
@@ -124,7 +124,7 @@ void DmpRadio::remove_listener(std::string name)
 
 void DmpRadio::disconnect(std::string endpoint_name)
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	DEBUG_COUT << "Removing endpoint: " << endpoint_name << std::endl;
 	if(branches.find(endpoint_name) != branches.end()) {
@@ -182,7 +182,7 @@ Playlist DmpRadio::get_playlist()
 
 void DmpRadio::stop()
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	auto sp = server.lock();
 	
@@ -206,7 +206,7 @@ void DmpRadio::stop()
 void DmpRadio:: play()
 {
 	std::cout << "Play called on radio: " << name << std::endl;
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	if (playlist.empty()) {
 		return;
@@ -237,7 +237,7 @@ void DmpRadio:: play()
 void DmpRadio::pause()
 {
 	std::cout << "Paused called on radio: " << name << std::endl;
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	auto sp = server.lock();
 
@@ -263,7 +263,7 @@ void DmpRadio::pause()
 
 void DmpRadio::next()
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	if(playlist.empty()) {
 		return;
@@ -312,7 +312,7 @@ void DmpRadio::buffer_low(GstElement *src)
 
 void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 {
-	std::unique_lock<std::recursive_mutex> l(*radio_mutex);
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	playlist.push_back({queuer, owner, entry});
 }

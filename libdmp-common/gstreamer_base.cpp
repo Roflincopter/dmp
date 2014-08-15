@@ -39,7 +39,8 @@ void GStreamerBase::buffer_low(GstElement*)
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: buffering(false)
+: gstreamer_mutex(std::move(base.gstreamer_mutex))
+, buffering(false)
 , name(std::move(base.name))
 , loop(std::move(base.loop))
 , pipeline(std::move(base.pipeline))
@@ -56,8 +57,10 @@ GStreamerBase::GStreamerBase(GStreamerBase&& base)
 	gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
 }
 
-GStreamerBase::GStreamerBase(std::string name) 
-: name(name)
+GStreamerBase::GStreamerBase(std::string name)
+: gstreamer_mutex(new std::recursive_mutex())
+, buffering(false)
+, name(name)
 , loop(g_main_loop_new(nullptr, false))
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
@@ -102,7 +105,7 @@ void GStreamerBase::wait_for_state_change()
 	}
 }
 
-gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
+gboolean GStreamerBase::bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 {
 	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 	
@@ -155,6 +158,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		if(percent == 100) {
 			base->buffering = false;
 			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+			base->gstreamer_mutex->unlock();
 		} else {
 			
 			GstState state;
@@ -164,6 +168,7 @@ gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
 			
 			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
+				base->gstreamer_mutex->lock();
 				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 			}
 			base->buffering = true;

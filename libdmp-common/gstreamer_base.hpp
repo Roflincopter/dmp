@@ -4,11 +4,11 @@
 
 #include <string>
 #include <memory>
+#include <mutex>
 
 #define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
 
 void on_pad_added(_GstElement* element, _GstPad* pad, void* data);
-gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data);
 std::string gst_state_to_string(GstState x);
 
 struct GMainLoopDeleter {
@@ -58,7 +58,13 @@ struct GErrorDeleter {
 	}
 };
 
-struct GStreamerBase { 
+class GStreamerBase {
+protected:
+	std::unique_ptr<std::recursive_mutex> gstreamer_mutex;
+
+	static gboolean bus_call (GstBus* bus, GstMessage* msg, gpointer data);
+
+public:
 	bool buffering;
 	
 	std::string name;
