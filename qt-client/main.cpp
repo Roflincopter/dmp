@@ -3,6 +3,7 @@
 
 #include "dmp-library.hpp"
 #include "dmp_client_gui.hpp"
+#include "core_dump.hpp"
 
 #include <gst/gst.h>
 
@@ -14,6 +15,10 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
+
+#ifdef __linux
+	signal(SIGINT, core_dump);
+#endif
 
 	gst_init(0, nullptr);
 
