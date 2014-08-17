@@ -3,12 +3,17 @@
 #include "message.hpp"
 #include "playlist.hpp"
 #include "friendly_fusion.hpp"
+#include "playlist_ui_delegate.hpp"
+#include "delegator.hpp"
 
 #include "dmp-library.hpp"
 
 #include <boost/any.hpp>
 
-class PlaylistsModel
+#include <memory>
+#include <vector>
+
+class PlaylistsModel : public Delegator<PlaylistUiDelegate>
 {
 	static constexpr size_t number_of_library_entry_members = friendly_fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
 	static constexpr size_t number_of_playlist_entry_members = friendly_fusion::result_of::size<PlaylistEntry>::type::value;

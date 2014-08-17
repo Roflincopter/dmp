@@ -11,6 +11,8 @@ set(DmpClientSources
 	dmp_client_ui_controller_interface.hpp
 	dmp_client_ui_delegate.hpp
 	dmp_client_interface.hpp
+	delegator.hpp
+	playlist_ui_delegate.hpp
 )
 
 add_library(dmp-client STATIC ${DmpClientSources} ${DmpClientResources})

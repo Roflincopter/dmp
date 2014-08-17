@@ -3,10 +3,11 @@
 #include "qt_adapter.hpp"
 #include "playlists_model.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "playlist_ui_delegate.hpp"
 
 #include <QAbstractTableModel>
 
-class PlaylistsModelQtAdapter : public DmpClientUiDelegate, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
+class PlaylistsModelQtAdapter : public PlaylistUiDelegate, public std::enable_shared_from_this<PlaylistsModelQtAdapter>, public DmpClientUiDelegate, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
 {
 private:
 	bool should_update_view(std::string radio_name);

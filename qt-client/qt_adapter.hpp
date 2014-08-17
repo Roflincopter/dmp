@@ -8,13 +8,13 @@
 template <typename T>
 struct QtAdapter
 {
-	std::shared_ptr<const T> model;
+	std::shared_ptr<T> model;
 	
 	QtAdapter()
-	: model(std::make_shared<const T>())
+	: model(std::make_shared<T>())
 	{}
 	
-	void set_model(std::shared_ptr<const T> new_model)
+	void set_model(std::shared_ptr<T> new_model)
 	{
 		model = new_model;
 	}

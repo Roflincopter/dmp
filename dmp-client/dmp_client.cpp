@@ -8,6 +8,10 @@
 DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 : name(name)
 , host(host)
+, playlists_model(std::make_shared<PlaylistsModel>())
+, radio_list_model(std::make_shared<RadioListModel>())
+, search_bar_model(std::make_shared<SearchBarModel>())
+, search_result_model(std::make_shared<SearchResultModel>())
 , callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
 , connection(connect(host, port))
 , last_sent_ping()
@@ -16,10 +20,6 @@ DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
 , senders()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
-, playlists_model(std::make_shared<PlaylistsModel>())
-, radio_list_model(std::make_shared<RadioListModel>())
-, search_bar_model(std::make_shared<SearchBarModel>())
-, search_result_model(std::make_shared<SearchResultModel>())
 {}
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
@@ -36,7 +36,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, _1))},
 		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, _1))},
 		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
-		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpClient::handle_playlist_update, this, _1))},
+		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&PlaylistsModel::handle_update, playlists_model.get(), _1))},
 		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
 		{message::Type::SenderAction, std::function<void(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
 		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
@@ -290,12 +290,6 @@ void DmpClient::handle_add_radio(message::AddRadio added_radio)
 	call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_end);
 }
 
-void DmpClient::handle_playlist_update(message::PlaylistUpdate update)
-{
-	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_start, update);
-	playlists_model->handle_update(update);
-	call_on_delegates(delegates, &DmpClientUiDelegate::playlist_update_end, update);
-}
 void DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	senders.erase(sr.radio_name);

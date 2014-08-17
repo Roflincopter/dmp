@@ -87,6 +87,7 @@ void PlaylistsModel::reset(std::string radio_name)
 
 void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 {
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_start, update_msg);
 	switch(update_msg.action.type)
 	{
 		case message::PlaylistUpdate::Action::Type::Append:
@@ -118,6 +119,7 @@ void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 			throw std::runtime_error("This should never happen");
 		}
 	}
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_end, update_msg);
 }
 
 void PlaylistsModel::set_current_radio(std::string radio_name)

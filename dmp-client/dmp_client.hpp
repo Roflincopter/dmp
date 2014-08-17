@@ -16,6 +16,14 @@ class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, pub
 {
 	std::string name;
 	std::string host;
+
+public:
+	std::shared_ptr<PlaylistsModel> playlists_model;
+	std::shared_ptr<RadioListModel> radio_list_model;
+	std::shared_ptr<SearchBarModel> search_bar_model;
+	std::shared_ptr<SearchResultModel> search_result_model;
+
+private:
 	message::DmpCallbacks callbacks;
 	Connection connection;
 	message::Ping last_sent_ping;
@@ -29,11 +37,6 @@ class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, pub
 	DmpReceiver receiver;
 
 	MessageSwitch message_switch;
-	
-	std::shared_ptr<PlaylistsModel> playlists_model;
-	std::shared_ptr<RadioListModel> radio_list_model;
-	std::shared_ptr<SearchBarModel> search_bar_model;
-	std::shared_ptr<SearchResultModel> search_result_model;
 
 public:
 
@@ -83,7 +86,6 @@ public:
 	void handle_listener_connection_request(message::ListenConnectionRequest req);
 	void handle_radios(message::Radios radios);
 	void handle_add_radio(message::AddRadio added_radio);
-	void handle_playlist_update(message::PlaylistUpdate update);
 	void handle_stream_request(message::StreamRequest sr);
 	void handle_sender_action(message::SenderAction sa);
 	void handle_receiver_action(message::ReceiverAction ra);

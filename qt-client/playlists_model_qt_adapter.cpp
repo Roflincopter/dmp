@@ -9,6 +9,7 @@ PlaylistsModelQtAdapter::PlaylistsModelQtAdapter()
 void PlaylistsModelQtAdapter::set_model(std::shared_ptr<PlaylistsModel> new_model)
 {
 	model = new_model;
+	model->add_delegate<PlaylistUiDelegate>(shared_from_this());
 }
 
 int PlaylistsModelQtAdapter::rowCount(QModelIndex const&) const
