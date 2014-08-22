@@ -53,7 +53,7 @@ struct DmpCallbacks {
 	template <typename T>
 	void operator()(T message) const
 	{
-		auto it = callbacks.find(message.type);
+		auto it = callbacks.find(message_to_type(message));
 
 		if (it != callbacks.cend()) {
 			auto f = boost::get<CB<T>>(it->second);
@@ -62,7 +62,7 @@ struct DmpCallbacks {
 				refresher();
 			}
 		} else {
-			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message.type)));
+			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message_to_type(message))));
 		}
 	}
 

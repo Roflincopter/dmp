@@ -70,8 +70,9 @@ public:
 		std::string content = oss.str();
 		uint32_t size = content.size();
 
-		static_assert(sizeof(decltype(x.type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
-		boost::asio::write(socket, boost::asio::buffer(&x.type, 4));
+		auto type = message::message_to_type(x);
+		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
+		boost::asio::write(socket, boost::asio::buffer(&type, 4));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
 		boost::asio::write(socket, boost::asio::buffer(content.data(), size));
 	}

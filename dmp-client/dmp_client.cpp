@@ -27,7 +27,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 	using std::placeholders::_1;
 	return {
 		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
-		{message::Type::Pong, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_pong, this, _1))},
+		{message::Type::Pong, std::function<void(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
 		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, _1))},
 		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
 		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
@@ -204,7 +204,7 @@ void DmpClient::mute_radio(bool state)
 
 void DmpClient::handle_ping(message::Ping ping)
 {
-	message::Pong pong(ping);
+	message::Pong pong(ping.payload);
 	connection.send(pong);
 }
 
@@ -225,7 +225,7 @@ void DmpClient::handle_name_request(message::NameRequest name_req)
 void DmpClient::handle_search_request(message::SearchRequest search_req)
 {
 	dmp_library::LibrarySearcher searcher(library);
-	message::SearchResponse response(search_req.query, searcher.search(search_req.query), name);
+	message::SearchResponse response(name, search_req.query, searcher.search(search_req.query));
 	if(!response.results.empty()) {
 		connection.send(response);
 	}
