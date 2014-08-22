@@ -149,8 +149,7 @@ public:
 				std::istringstream iss(content);
 				boost::archive::text_iarchive iar(iss);
 
-				T t;
-				message::serialize(iar, t);
+				T t = message::serialize<T>(iar);
 				cb(t);
 			};
 
@@ -190,8 +189,7 @@ struct ReceiveProxy {
 		std::istringstream iss(content);
 		boost::archive::text_iarchive iar(iss);
 
-		T t;
-		message::serialize(iar, t);
+		T t = message::serialize<T>(iar);
 
 		return t;
 	}

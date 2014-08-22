@@ -93,8 +93,6 @@ struct Pong
 {
 	std::string payload;
 
-	Pong() = default;
-
 	Pong(std::string payload)
 	: payload(payload)
 	{}
@@ -107,8 +105,6 @@ struct NameResponse
 {
 	std::string name;
 
-	NameResponse() = default;
-
 	NameResponse(std::string name)
 	: name(name)
 	{}
@@ -117,8 +113,6 @@ struct NameResponse
 struct SearchRequest
 {
 	std::string query;
-
-	SearchRequest() = default;
 
 	SearchRequest(std::string query)
 	: query(query)
@@ -130,8 +124,6 @@ struct SearchResponse
 	std::string origin;
 	std::string query;
 	std::vector<dmp_library::LibraryEntry> results;
-
-	SearchResponse() = default;
 
 	SearchResponse(std::string origin, std::string query, std::vector<dmp_library::LibraryEntry> results)
 	: origin(origin)
@@ -149,8 +141,6 @@ struct ByeAck
 struct AddRadio {
 	std::string name;
 
-	AddRadio() = default;
-
 	AddRadio(std::string name)
 	: name(name)
 	{}
@@ -160,8 +150,6 @@ struct AddRadioResponse {
 	std::string radio_name;
 	bool succes;
 	std::string reason;
-
-	AddRadioResponse() = default;
 
 	AddRadioResponse(std::string radio_name, bool succes, std::string reason="")
 	: radio_name(radio_name)
@@ -174,8 +162,6 @@ struct ListenConnectionRequest {
 	std::string radio_name;
 	uint16_t port;
 
-	ListenConnectionRequest() = default;
-
 	ListenConnectionRequest(std::string radio_name, uint16_t port)
 	: radio_name(radio_name)
 	, port(port)
@@ -184,8 +170,6 @@ struct ListenConnectionRequest {
 
 struct Radios {
 	std::map<std::string, Playlist> radios;
-
-	Radios() = default;
 
 	Radios(std::map<std::string, Playlist> radios)
 	: radios(radios)
@@ -197,8 +181,6 @@ struct Queue {
 	std::string queuer;
 	std::string owner;
 	dmp_library::LibraryEntry entry;
-
-	Queue() = default;
 
 	Queue(std::string radio, std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
 	: radio(radio)
@@ -242,8 +224,6 @@ struct PlaylistUpdate {
 	std::string radio_name;
 	Playlist playlist;
 
-	PlaylistUpdate() = default;
-
 	PlaylistUpdate(Action action, std::string radio_name, Playlist playlist)
 	: action(action)
 	, radio_name(radio_name)
@@ -255,8 +235,6 @@ struct StreamRequest {
 	std::string radio_name;
 	dmp_library::LibraryEntry entry;
 	uint16_t port;
-
-	StreamRequest() = default;
 	
 	StreamRequest(std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
 	: radio_name(radio_name)
@@ -282,8 +260,6 @@ enum class PlaybackEvent : Type_t {
 struct RadioAction {
 	std::string radio_name;
 	PlaybackAction action;
-	
-	RadioAction() = default;
 
 	RadioAction(std::string radio_name, PlaybackAction action)
 	: radio_name(radio_name)
@@ -295,8 +271,6 @@ struct ReceiverAction {
 	std::string radio_name;
 	PlaybackAction action;
 
-	ReceiverAction() = default;
-
 	ReceiverAction(std::string radio_name, PlaybackAction action)
 	: radio_name(radio_name)
 	, action(action)
@@ -307,8 +281,6 @@ struct SenderAction {
 	std::string radio_name;
 	PlaybackAction action;
 
-	SenderAction() = default;
-
 	SenderAction(std::string radio_name, PlaybackAction action)
 	: radio_name(radio_name)
 	, action(action)
@@ -318,8 +290,6 @@ struct SenderAction {
 struct SenderEvent {
 	std::string radio_name;
 	PlaybackEvent event;
-
-	SenderEvent() = default;
 
 	SenderEvent(std::string radio_name, PlaybackEvent event)
 	: radio_name(radio_name)
@@ -337,8 +307,6 @@ struct TuneIn {
 
 	std::string radio_name;
 	Action action;
-	
-	TuneIn() = default;
 
 	TuneIn(std::string radio_name, Action action)
 	: radio_name(radio_name)
@@ -354,8 +322,6 @@ struct RadioStates {
 
 	Action action;
 	std::map<std::string, RadioState> states;
-
-	RadioStates() = default;
 
 	RadioStates(RadioStates::Action action, std::map<std::string, RadioState> states)
 	: action(action)

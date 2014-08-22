@@ -2,6 +2,7 @@
 
 #include "friendly_fusion.hpp"
 #include "boost_tuple_serialization.hpp"
+#include "fusion_static_dispatch.hpp"
 
 #include <boost/archive/basic_text_iarchive.hpp>
 #include <boost/archive/basic_text_oarchive.hpp>
@@ -45,6 +46,76 @@ typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, void>::t
 serialize(Archive& ar, T& x)
 {
 	Serialize::serialize(ar, friendly_fusion::begin(x), friendly_fusion::end(x));
+}
+
+template <typename T, typename Archive>
+typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value && std::is_default_constructible<T>::value, T>::type
+serialize(Archive& ar)
+{
+	T x;
+	Serialize::serialize(ar, friendly_fusion::begin(x), friendly_fusion::end(x));
+	return x;
+}
+
+//Base case of unpack for fusion adapted member
+template <typename T, int Index, typename Archive>
+typename std::enable_if<
+	friendly_fusion::traits::is_sequence<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>::value,
+	typename friendly_fusion::utils::DecayedTypeOfAtIndex<T,Index>::type
+>::type
+serialize(Archive& ar);
+
+//Base case of unpack for non-fusion adapted member
+template <typename T, int Index, typename Archive>
+typename std::enable_if<
+	!friendly_fusion::traits::is_sequence<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>::value,
+	typename friendly_fusion::utils::DecayedTypeOfAtIndex<T,Index>::type
+>::type
+serialize(Archive& ar);
+
+//Unpacker.
+template <typename T, typename Archive, int... Indices>
+typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, T>::type
+serialize(Archive& ar, indices<Indices...>);
+
+//Setup for unpack.
+template <typename T, typename Archive>
+typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value && !std::is_default_constructible<T>::value, T>::type
+serialize(Archive& ar)
+{
+	  return serialize<T>(ar, typename IndicesOf<T>::type{});
+}
+
+//Unpacker impl.
+template <typename T, typename Archive, int... Indices>
+typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, T>::type
+serialize(Archive& ar, indices<Indices...>)
+{
+	  return T(serialize<T, Indices>(ar)...);
+}
+
+//Base case for fusion impl
+template <typename T, int Index, typename Archive>
+typename std::enable_if<
+	friendly_fusion::traits::is_sequence<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>::value,
+	typename friendly_fusion::utils::DecayedTypeOfAtIndex<T,Index>::type
+>::type
+serialize(Archive& ar)
+{
+	  return serialize<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>(ar);
+}
+
+//Base case for non-fusion impl
+template <typename T, int Index, typename Archive>
+typename std::enable_if<
+	!friendly_fusion::traits::is_sequence<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>::value,
+	typename friendly_fusion::utils::DecayedTypeOfAtIndex<T,Index>::type
+>::type
+serialize(Archive& ar)
+{
+	typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type t;
+	ar & t;
+	return t;
 }
 
 }
