@@ -158,7 +158,7 @@ gboolean GStreamerBase::bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 		if(percent == 100) {
 			base->buffering = false;
 			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-			base->gstreamer_mutex->unlock();
+			//base->gstreamer_mutex->unlock();
 		} else {
 			
 			GstState state;
@@ -168,7 +168,7 @@ gboolean GStreamerBase::bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
 			
 			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
-				base->gstreamer_mutex->lock();
+				//base->gstreamer_mutex->lock();
 				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 			}
 			base->buffering = true;
