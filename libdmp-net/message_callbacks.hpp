@@ -17,8 +17,8 @@ struct DmpCallbacks {
 	using CallBackType = boost::variant<
 		  CB<message::Ping>
 		, CB<message::Pong>
-		, CB<message::NameRequest>
-		, CB<message::NameResponse>
+		, CB<message::LoginRequest>
+		, CB<message::LoginResponse>
 		, CB<message::SearchRequest>
 		, CB<message::SearchResponse>
 		, CB<message::Bye>

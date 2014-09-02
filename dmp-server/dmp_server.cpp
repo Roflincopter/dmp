@@ -4,10 +4,41 @@
 #include "playlist.hpp"
 #include "radio_state.hpp"
 #include "accept.hpp"
+#include "database.hpp"
+
+#include "user-odb.hpp"
+#include <odb/core.hxx>
+#include <odb/database.hxx>
 
 #include <boost/thread.hpp>
 
 #include "fusion_outputter.hpp"
+
+struct Authenticator
+{
+	struct loginResult {
+		bool succes;
+		std::string reason;
+	};
+
+	static loginResult login(std::string username, std::string password)
+	{
+		auto db = initialize_database();
+
+		{
+			odb::transaction t(db->begin());
+
+			auto user = db->find<User>(username);
+			if(!user) {
+				return {false, "Username not found in database"};
+			} else if(password == user->get_password()) {
+				return {true, ""};
+			} else {
+				return {false, "Wrong password"};
+			}
+		}
+	}
+};
 
 DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
 : server_io_service(ios)
@@ -18,7 +49,7 @@ DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
 {
 	gst_init(0, nullptr);
 
-	std::function<void(Connection&&)> f = [this](Connection&& x){
+	auto f = [this](Connection&& x){
 		try {
 			add_connection(std::move(x));
 		} catch(std::exception &e) {
@@ -49,15 +80,21 @@ void DmpServer::stop()
 
 void DmpServer::add_connection(Connection&& c)
 {
-	message::NameRequest name_req;
-	c.send(name_req);
+	message::LoginRequest login_req;
+	c.send(login_req);
 	message::Type t = c.receive_type();
-	if(t != message::Type::NameResponse) {
+	if(t != message::Type::LoginResponse) {
 		return;
 	}
-	message::NameResponse name_res = c.receive();
+	message::LoginResponse login_res = c.receive();
 
-	auto cep = std::make_shared<ClientEndpoint>(name_res.name, std::move(c), std::bind(&DmpServer::remove_connection, this, name_res.name));
+	auto login_resp = Authenticator::login(login_res.name, login_res.passwd);
+	if(!login_resp.succes) {
+		c.send(message::LoginFailed(login_resp.reason));
+		return;
+	}
+
+	auto cep = std::make_shared<ClientEndpoint>(login_res.name, std::move(c), std::bind(&DmpServer::remove_connection, this, login_res.name));
 
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
@@ -66,19 +103,19 @@ void DmpServer::add_connection(Connection&& c)
 		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
-	connections[name_res.name] = cep;
+	connections[login_res.name] = cep;
 
 	std::map<std::string, Playlist> playlists;
 	for(auto&& radio : radios) {
 		playlists.emplace(radio.first, radio.second.second.get_playlist());
 	}
-	connections[name_res.name]->forward(message::Radios(playlists));
+	connections[login_res.name]->forward(message::Radios(playlists));
 
 	std::map<std::string, RadioState> states;
 	for(auto&& radio : radios) {
 		states.emplace(radio.first, std::move(radio.second.second.get_state()));
 	}
-	connections[name_res.name]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+	connections[login_res.name]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 }
 
 void DmpServer::remove_connection(std::string name)

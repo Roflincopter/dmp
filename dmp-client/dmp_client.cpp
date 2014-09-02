@@ -28,7 +28,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 	return {
 		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
 		{message::Type::Pong, std::function<void(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
-		{message::Type::NameRequest, std::function<void(message::NameRequest)>(std::bind(&DmpClient::handle_name_request, this, _1))},
+		{message::Type::LoginRequest, std::function<void(message::LoginRequest)>(std::bind(&DmpClient::handle_name_request, this, _1))},
 		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
 		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
 		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, _1))},
@@ -216,9 +216,9 @@ void DmpClient::handle_pong(message::Pong pong)
 	}
 }
 
-void DmpClient::handle_name_request(message::NameRequest name_req)
+void DmpClient::handle_name_request(message::LoginRequest name_req)
 {
-	message::NameResponse name_res(name);
+	message::LoginResponse name_res(name, "password");
 	connection.send(name_res);
 }
 

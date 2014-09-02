@@ -1,6 +1,10 @@
 
 #include "time_util.hpp"
 
+#include <boost/date_time.hpp>
+
+#include <sstream>
+
 std::string get_current_time()
 {
 	namespace pt = boost::posix_time;

@@ -8,6 +8,8 @@
 #include "message_callbacks.hpp"
 #include "number_pool.hpp"
 
+#include "user-odb.hpp"
+
 #include <thread>
 
 class DmpServer : public DmpServerInterface, public std::enable_shared_from_this<DmpServerInterface>
