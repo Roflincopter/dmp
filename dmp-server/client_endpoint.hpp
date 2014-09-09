@@ -24,14 +24,16 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 
 public:
 
-	ClientEndpoint(std::string name, Connection&& conn, std::function<void()> terminate_connection);
+	ClientEndpoint(Connection&& conn, std::function<void()> terminate_connection);
 
 	void run();
 	void keep_alive();
 	void listen_requests();
 	void cancel_pending_asio();
 
+	void set_terminate_connection(std::function<void()> f);
 	std::string get_name() {return name;}
+	void set_name(std::string name) {this->name = name;}
 
 	message::DmpCallbacks& get_callbacks();
 

@@ -54,13 +54,17 @@ public:
 	explicit DmpClientGui(QWidget *parent = 0);
 	~DmpClientGui() = default;
 
-	void connect_client(std::string name, std::string host, uint16_t port);
+	bool connect_client(std::string host, uint16_t port);
+	void login_client(std::string username, std::string password);
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
 
 	void closeEvent(QCloseEvent*) override final;
 	
 	void set_play_paused_state(bool state) override final;
+	
+	void login_succeeded() override final;
+	void login_failed(std::string reason) override final;
 private slots:
 	void test1();
 	void test2();

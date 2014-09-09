@@ -16,16 +16,6 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 	ui.PortEdit->setValidator(&port_validator);
 }
 
-void DmpClientConnectDialog::set_default_name(std::string name)
-{
-	ui.NameEdit->setText(QString::fromStdString(name));
-}
-
-std::string DmpClientConnectDialog::get_name()
-{
-	return ui.NameEdit->text().toStdString();
-}
-
 std::string DmpClientConnectDialog::get_host()
 {
 	return ui.HostEdit->text().toStdString();
@@ -44,10 +34,9 @@ void DmpClientConnectDialog::updateOkButton()
 	// port is validated by the QValidator on the field
 	// name is just something that must not be empty.
 
-	bool const name_valid = !get_name().empty();
 	bool const host_valid = !get_host().empty();
 	bool const port_valid = !ui.PortEdit->text().isEmpty();
-	bool const ok_enabled = name_valid && host_valid && port_valid;
+	bool const ok_enabled = host_valid && port_valid;
 
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enabled);
 }

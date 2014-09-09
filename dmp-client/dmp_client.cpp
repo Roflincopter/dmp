@@ -5,8 +5,8 @@
 #include "timed_debug.hpp"
 #include "debug_macros.hpp"
 
-DmpClient::DmpClient(std::string name, std::string host, uint16_t port)
-: name(name)
+DmpClient::DmpClient(std::string host, uint16_t port)
+: name()
 , host(host)
 , playlists_model(std::make_shared<PlaylistsModel>())
 , radio_list_model(std::make_shared<RadioListModel>())
@@ -26,9 +26,9 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 {
 	using std::placeholders::_1;
 	return {
+		{message::Type::LoginResponse, std::function<void(message::LoginResponse)>(std::bind(&DmpClient::handle_login_response, this, _1))},
 		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
 		{message::Type::Pong, std::function<void(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
-		{message::Type::LoginRequest, std::function<void(message::LoginRequest)>(std::bind(&DmpClient::handle_name_request, this, _1))},
 		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
 		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
 		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, _1))},
@@ -136,6 +136,13 @@ void DmpClient::send_bye()
 	connection.send(message::Bye());
 }
 
+void DmpClient::send_login(std::string username, std::string password)
+{
+	DEBUG_COUT << username << " " << password << std::endl;
+	name = username;
+	connection.send(message::LoginRequest(username, password));
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);
@@ -197,6 +204,16 @@ void DmpClient::forward_radio_event(message::SenderEvent se)
 	connection.send(se);
 }
 
+void DmpClient::handle_login_response(message::LoginResponse lr)
+{
+	if(lr.succes) {
+		call_on_delegates(delegates, &DmpClientUiDelegate::login_succeeded);
+	} else {
+		call_on_delegates(delegates, &DmpClientUiDelegate::login_failed, lr.reason);
+		name = "";
+	}
+}
+
 void DmpClient::mute_radio(bool state)
 {
 	receiver.mute(state);
@@ -214,12 +231,6 @@ void DmpClient::handle_pong(message::Pong pong)
 	if (last_sent_ping.payload != pong.payload) {
 		stop();
 	}
-}
-
-void DmpClient::handle_name_request(message::LoginRequest name_req)
-{
-	message::LoginResponse name_res(name, "password");
-	connection.send(name_res);
 }
 
 void DmpClient::handle_search_request(message::SearchRequest search_req)

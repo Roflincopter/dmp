@@ -3,6 +3,7 @@
 #include "debug_macros.hpp"
 #include "connect.hpp"
 #include "dmp_client_connect_dialog.hpp"
+#include "dmp_client_login_dialog.hpp"
 #include "dmp_client_error_dialog.hpp"
 
 #include <QFileDialog>
@@ -15,6 +16,7 @@
 #include <string>
 
 DmpClientGui::DmpClientGui(QWidget *parent)
+
 : QMainWindow(parent)
 , search_result_model()
 , client(nullptr)
@@ -62,7 +64,7 @@ void DmpClientGui::update_ui_client_interface()
 
 void DmpClientGui::test1()
 {
-	connect_client(boost::asio::ip::host_name(), "127.0.0.1", 1337);
+	connect_client("127.0.0.1", 1337);
 
 	client->index("/home/dennis/Music");
 
@@ -74,13 +76,13 @@ void DmpClientGui::test1()
 
 void DmpClientGui::test2()
 {
-	connect_client(boost::asio::ip::host_name() + "2", "127.0.0.1", 1337);
+	connect_client("127.0.0.1", 1337);
 	client->index("/home/dennis/Music");
 }
 
 void DmpClientGui::test3()
 {
-	connect_client(boost::asio::ip::host_name(), "192.168.0.104", 1337);
+	connect_client("192.168.0.104", 1337);
 
 	client->index("/home/dennis/Music");
 
@@ -140,17 +142,24 @@ void DmpClientGui::timerEvent(QTimerEvent *event)
 	killTimer(event->timerId());
 }
 
-void DmpClientGui::connect_client(std::string name, std::string host, uint16_t port)
+bool DmpClientGui::connect_client(std::string host, uint16_t port)
 {
 	try {
-		auto client_sp = std::make_shared<DmpClient>(name, host, port);
+		auto client_sp = std::make_shared<DmpClient>(host, port);
 		set_client(client_sp);
-		setEnabled(true);
 	} catch(std::exception &e) {
 		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());
 		dialog.exec();
 		setEnabled(false);
+		return false;
 	}
+	return true;
+}
+
+void DmpClientGui::login_client(std::string username, std::string password)
+{
+	DEBUG_COUT << username << " " << password << std::endl;
+	client->send_login(username, password);
 }
 
 void DmpClientGui::setEnabled(bool enabled) {
@@ -164,16 +173,23 @@ void DmpClientGui::setEnabled(bool enabled) {
 void DmpClientGui::dmpConnect()
 {
 	DmpClientConnectDialog connect;
-
-	connect.set_default_name(boost::asio::ip::host_name());
-
 	int result = connect.exec();
 
 	if(result != QDialog::Accepted) {
 		return;
 	}
 
-	connect_client(connect.get_name(), connect.get_host(), connect.get_port());
+	if(connect_client(connect.get_host(), connect.get_port())) {
+	
+		DmpClientLoginDialog login;
+		result = login.exec();
+		
+		if(result != QDialog::Accepted) {
+			return;
+		}
+		
+		login_client(login.get_username(), login.get_password());
+	}
 }
 
 void DmpClientGui::StopPressed()
@@ -194,6 +210,17 @@ void DmpClientGui::PlayPauseToggled(bool state)
 void DmpClientGui::set_play_paused_state(bool state)
 {
 	ui.actionPlay->setChecked(state);
+}
+
+void DmpClientGui::login_succeeded()
+{
+	setEnabled(true);
+}
+
+void DmpClientGui::login_failed(std::string reason)
+{
+	int index = this->startTimer(100);
+	setErrorIndex(index, reason);
 }
 
 void DmpClientGui::NextPressed()

@@ -40,7 +40,7 @@ private:
 
 public:
 
-	DmpClient(std::string name, std::string host, uint16_t port);
+	DmpClient(std::string host, uint16_t port);
 	DmpClient(DmpClient&&) = default;
 	virtual ~DmpClient();
 
@@ -66,6 +66,7 @@ public:
 	virtual void tune_in(std::string radio, bool tune_in) override final;
 	virtual std::string get_tuned_in_radio() override final;
 	virtual void send_bye() override final;
+	virtual void send_login(std::string username, std::string password) override final;
 
 	virtual void stop_radio() override final;
 	virtual void play_radio() override final;
@@ -76,8 +77,8 @@ public:
 	virtual void forward_radio_action(message::RadioAction ra) override final;
 	virtual void forward_radio_event(message::SenderEvent se) override final;
 
+	void handle_login_response(message::LoginResponse lr);
 	void handle_ping(message::Ping ping);
-	void handle_name_request(message::LoginRequest name_req);
 	void handle_pong(message::Pong pong);
 	void handle_search_request(message::SearchRequest search_req);
 	void handle_search_response(message::SearchResponse search_res);

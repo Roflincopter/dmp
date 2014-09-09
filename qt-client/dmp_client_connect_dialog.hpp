@@ -13,9 +13,6 @@ class DmpClientConnectDialog : public QDialog
 public:
 	explicit DmpClientConnectDialog(QWidget *parent = 0);
 
-	void set_default_name(std::string name);
-
-	std::string get_name();
 	std::string get_host();
 	uint16_t get_port();
 

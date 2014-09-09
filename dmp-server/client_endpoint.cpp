@@ -5,8 +5,8 @@
 
 #include "debug_macros.hpp"
 
-ClientEndpoint::ClientEndpoint(std::string name, Connection&& conn, std::function<void()> terminate_connection)
-: name(name)
+ClientEndpoint::ClientEndpoint(Connection&& conn, std::function<void()> terminate_connection)
+: name()
 , connection(std::move(conn))
 , ping_timer(new boost::asio::deadline_timer(*connection.io_service))
 , last_ping()
@@ -16,8 +16,7 @@ ClientEndpoint::ClientEndpoint(std::string name, Connection&& conn, std::functio
 {
 	callbacks.
 		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1))).
-		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1)))
-;
+		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1)));
 	
 	listen_requests();
 	keep_alive();
@@ -56,6 +55,11 @@ void ClientEndpoint::cancel_pending_asio()
 {
 	callbacks.stop_refresh();
 	ping_timer->cancel();
+}
+
+void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
+{
+	terminate_connection = f;
 }
 
 void ClientEndpoint::handle_bye(message::Bye)

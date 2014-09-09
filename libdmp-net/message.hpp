@@ -20,7 +20,7 @@ enum class Type : Type_t {
 	Pong,
 	LoginRequest,
 	LoginResponse,
-	LoginFailed,
+	Register,
 	SearchRequest,
 	SearchResponse,
 	Bye,
@@ -100,25 +100,35 @@ struct Pong
 };
 
 struct LoginRequest
-{};
-
-struct LoginResponse
 {
-	std::string name;
-	std::string passwd;
+	std::string username;
+	std::string password;
 
-	LoginResponse(std::string name, std::string passwd)
-	: name(name)
-	, passwd(passwd)
+	LoginRequest(std::string username, std::string password)
+	: username(username)
+	, password(password)
 	{}
 };
 
-struct LoginFailed
+struct LoginResponse
 {
+	bool succes;
 	std::string reason;
+	
+	LoginResponse(bool succes, std::string reason)
+	: succes(succes)
+	, reason(reason)
+	{}
+};
 
-	LoginFailed(std::string reason)
-	: reason(reason)
+struct Register 
+{
+	std::string username;
+	std::string password;
+	
+	Register(std::string username, std::string password)
+	: username(username)
+	, password(password)
 	{}
 };
 
@@ -368,7 +378,7 @@ MESSAGE_TYPE_CONVERSION(Ping)
 MESSAGE_TYPE_CONVERSION(Pong)
 MESSAGE_TYPE_CONVERSION(LoginRequest)
 MESSAGE_TYPE_CONVERSION(LoginResponse)
-MESSAGE_TYPE_CONVERSION(LoginFailed)
+MESSAGE_TYPE_CONVERSION(Register)
 MESSAGE_TYPE_CONVERSION(SearchRequest)
 MESSAGE_TYPE_CONVERSION(SearchResponse)
 MESSAGE_TYPE_CONVERSION(Bye)
@@ -407,17 +417,20 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::LoginRequest,
+	(std::string, username)
+	(std::string, password)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::LoginResponse,
-	(std::string, name)
-	(std::string, passwd)
+	(bool, succes)
+	(std::string, reason)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	message::LoginFailed,
-	(std::string, reason)
+	message::Register,
+	(std::string, username)
+	(std::string, password)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

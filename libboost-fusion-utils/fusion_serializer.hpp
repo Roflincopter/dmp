@@ -83,7 +83,7 @@ template <typename T, typename Archive>
 typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value && !std::is_default_constructible<T>::value, T>::type
 serialize(Archive& ar)
 {
-	  return serialize<T>(ar, typename IndicesOf<T>::type{});
+	return serialize<T>(ar, typename IndicesOf<T>::type{});
 }
 
 //Unpacker impl.
@@ -91,7 +91,9 @@ template <typename T, typename Archive, int... Indices>
 typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, T>::type
 serialize(Archive& ar, indices<Indices...>)
 {
-	  return T(serialize<T, Indices>(ar)...);
+	//force the right order of evalutaion.
+	std::tuple<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Indices>::type...> tuple{serialize<T, Indices>(ar)...};
+	return T(std::get<Indices>(tuple)...);
 }
 
 //Base case for fusion impl
@@ -102,7 +104,7 @@ typename std::enable_if<
 >::type
 serialize(Archive& ar)
 {
-	  return serialize<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>(ar);
+	return serialize<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Index>::type>(ar);
 }
 
 //Base case for non-fusion impl

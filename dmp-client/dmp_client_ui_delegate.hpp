@@ -39,6 +39,9 @@ struct DmpClientUiDelegate
 	virtual void set_radio_states(){}
 
 	virtual void set_play_paused_state(bool state){}
+	
+	virtual void login_succeeded(){}
+	virtual void login_failed(std::string reason){}
 
 	virtual ~DmpClientUiDelegate(){}
 };

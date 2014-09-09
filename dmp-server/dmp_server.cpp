@@ -14,31 +14,62 @@
 
 #include "fusion_outputter.hpp"
 
-struct Authenticator
+Authenticator::Authenticator()
+: db(initialize_database())
+{}
+
+Authenticator::LoginResult Authenticator::login(std::string username, std::string password)
 {
-	struct loginResult {
-		bool succes;
-		std::string reason;
-	};
+	odb::transaction t(db->begin());
+	
+	Authenticator::LoginResult lr;
+	
+	auto user = db->find<User>(username);
+	if(!user) {
+		lr = {false, "Username not found in database"};
+	} else if(password == user->get_password()) {
+		lr = {true, ""};
+	} else {
+		lr = {false, "Wrong password"};
+	}
+	
+	t.commit();
+	return lr;
+}
 
-	static loginResult login(std::string username, std::string password)
-	{
-		auto db = initialize_database();
+Authenticator::RegisterResult Authenticator::register_username(std::string username, std::string password)
+{
+	odb::transaction t(db->begin());
+	User user(username, password);
+	
+	Authenticator::RegisterResult rr;
+	
+	try {
+		t.tracer (odb::stderr_tracer);
+		db->persist(user);
+		t.commit();
+		rr = {true, ""};
+	} catch(odb::exception const& e) {
+		rr = {false, e.what()};
+	}
+	return rr;
+}
 
-		{
-			odb::transaction t(db->begin());
-
-			auto user = db->find<User>(username);
-			if(!user) {
-				return {false, "Username not found in database"};
-			} else if(password == user->get_password()) {
-				return {true, ""};
-			} else {
-				return {false, "Wrong password"};
-			}
+template <typename T>
+void remove_element(T container, typename T::value_type const& element){
+	container.erase(element);
+}
+	
+template<typename V>
+void remove_element(std::vector<V>& vector, V const& element) {
+	auto const_end = vector.cend();
+	for(auto it = vector.cbegin(); it != const_end; ++it) {
+		if(*it == element) {
+			vector.erase(it);
+			break;
 		}
 	}
-};
+}
 
 DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
 : server_io_service(ios)
@@ -46,12 +77,13 @@ DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
 , radios()
 , debug_timer(*server_io_service)
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
+, auth()
 {
 	gst_init(0, nullptr);
-
+	
 	auto f = [this](Connection&& x){
 		try {
-			add_connection(std::move(x));
+			add_pending_connection(std::move(x));
 		} catch(std::exception &e) {
 			std::cerr << "Failed to initialize connection: " << e.what() << std::endl;
 		}
@@ -78,23 +110,47 @@ void DmpServer::stop()
 	server_io_service->stop();
 }
 
-void DmpServer::add_connection(Connection&& c)
+void DmpServer::add_pending_connection(Connection&& c)
 {
-	message::LoginRequest login_req;
-	c.send(login_req);
-	message::Type t = c.receive_type();
-	if(t != message::Type::LoginResponse) {
-		return;
-	}
-	message::LoginResponse login_res = c.receive();
+	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
+		std::move(c), 
+		[this, cep](){
+			cep->cancel_pending_asio();
+			remove_element(pending_connections, cep);
+		}
+	);
+	
+	pending_connections.push_back(cep);
+	
+	cep->get_callbacks().
+		set(message::Type::LoginRequest, [this, cep](message::LoginRequest lr) {
+			DEBUG_COUT << lr.username << " " << lr.password << std::endl;
+			auto result = auth.login(lr.username, lr.password);
+			DEBUG_COUT << (result.succes ? "login_succes" : "login_failed: " + result.reason) << std::endl;
+			if(!result.succes) {
+				cep->forward(message::LoginResponse(result.succes, result.reason));
+				return;
+			} else {
+				cep->set_name(lr.username);
+				cep->get_callbacks().
+					unset(message::Type::LoginRequest).
+					unset(message::Type::Register);
+				add_permanent_connection(cep);
+				remove_element(pending_connections, cep);
+				cep->forward(message::LoginResponse(result.succes, ""));
+			}
+		}).
+		set(message::Type::Register, [this, cep](message::Register r) {
+			auto result = auth.register_username(r.username, r.password);
+			DEBUG_COUT << (result.succes ? "register_succes" : "register_failed: " + result.reason) << std::endl;
+		});
+}
 
-	auto login_resp = Authenticator::login(login_res.name, login_res.passwd);
-	if(!login_resp.succes) {
-		c.send(message::LoginFailed(login_resp.reason));
-		return;
-	}
-
-	auto cep = std::make_shared<ClientEndpoint>(login_res.name, std::move(c), std::bind(&DmpServer::remove_connection, this, login_res.name));
+void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
+{
+	auto username = cep->get_name();
+	
+	cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
@@ -103,19 +159,19 @@ void DmpServer::add_connection(Connection&& c)
 		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
-	connections[login_res.name] = cep;
+	connections[username] = cep;
 
 	std::map<std::string, Playlist> playlists;
 	for(auto&& radio : radios) {
 		playlists.emplace(radio.first, radio.second.second.get_playlist());
 	}
-	connections[login_res.name]->forward(message::Radios(playlists));
+	connections[username]->forward(message::Radios(playlists));
 
 	std::map<std::string, RadioState> states;
 	for(auto&& radio : radios) {
 		states.emplace(radio.first, std::move(radio.second.second.get_state()));
 	}
-	connections[login_res.name]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+	connections[username]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 }
 
 void DmpServer::remove_connection(std::string name)
@@ -262,3 +318,4 @@ void DmpServer::forward_sender_action(std::string client, message::SenderAction 
 		connections.at(client)->forward(sa);
 	}
 }
+

@@ -19,6 +19,7 @@ struct DmpCallbacks {
 		, CB<message::Pong>
 		, CB<message::LoginRequest>
 		, CB<message::LoginResponse>
+		, CB<message::Register>
 		, CB<message::SearchRequest>
 		, CB<message::SearchResponse>
 		, CB<message::Bye>
@@ -72,10 +73,21 @@ struct DmpCallbacks {
 		callbacks[t] = x;
 		return *this;
 	}
+	
+	DmpCallbacks& unset(message::Type t)
+	{
+		callbacks.erase(t);
+		return *this;
+	}
 
 	void stop_refresh()
 	{
 		stop = true;
+	}
+	
+	void clear()
+	{
+		callbacks.clear();
 	}
 };
 

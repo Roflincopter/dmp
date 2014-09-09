@@ -40,12 +40,14 @@ find_package(Qt5Widgets REQUIRED)
 my_qt5_wrap_ui(QtGeneratedHeaders
 	dmp_client_gui.ui
 	dmp_client_connect_dialog.ui
+	dmp_client_login_dialog.ui
 	dmp_client_error_dialog.ui
 )
 
 qt5_wrap_cpp(QtGeneratedSources
 	dmp_client_gui.hpp
 	dmp_client_connect_dialog.hpp
+	dmp_client_login_dialog.hpp
 	dmp_client_error_dialog.hpp
 	dmp_client_gui_search_bar.hpp
 	dmp_client_gui_menu_bar.hpp
@@ -63,6 +65,7 @@ set(DmpClientSources
 	playlists_model_qt_adapter.hpp playlists_model_qt_adapter.cpp
 	dmp_client_gui.hpp dmp_client_gui.cpp
 	dmp_client_connect_dialog.hpp dmp_client_connect_dialog.cpp
+	dmp_client_login_dialog.hpp dmp_client_login_dialog.cpp
 	dmp_client_error_dialog.hpp dmp_client_error_dialog.cpp
 	dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
 	dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp

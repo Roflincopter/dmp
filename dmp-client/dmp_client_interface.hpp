@@ -22,6 +22,7 @@ struct DmpClientInterface {
 	virtual void tune_in(std::string radio, bool tune_in) = 0;
 	virtual std::string get_tuned_in_radio() = 0;
 	virtual void send_bye() = 0;
+	virtual void send_login(std::string username, std::string password) = 0;
 
 	virtual void stop_radio() = 0;
 	virtual void pause_radio() = 0;

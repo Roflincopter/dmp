@@ -61,15 +61,11 @@ function(ODB_compile outfiles)
 		get_filename_component(_infile ${it} ABSOLUTE)
 		get_filename_component(_outfile ${it} NAME_WE)
 
-		message(STATUS "infile: ${_infile}")
-
-		message(STATUS "sourcedir: ${CMAKE_CURRENT_SOURCE_DIR}")
-
 		set(_outfile1 ${_outfile}-odb.hpp)
 		add_custom_command(
 			OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile1}
-			COMMAND ""
-			ARGS ""
+			COMMAND ${ODBc++_COMPILER}
+			ARGS ${_our_args}
 			DEPENDS ${_infile}
 			VERBATIM
 		)
@@ -77,8 +73,8 @@ function(ODB_compile outfiles)
 		set(_outfile2 ${_outfile}-odb.cpp)
 		add_custom_command(
 			OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile2}
-			COMMAND ""
-			ARGS ""
+			COMMAND ${ODBc++_COMPILER}
+			ARGS ${_our_args}
 			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile1}
 			VERBATIM
 		)
@@ -103,7 +99,6 @@ function(ODB_compile outfiles)
 		#)
 
 		list(APPEND ${outfiles} ${_outfile1} ${_outfile2} ${_outfile3} ${_outfile4})
-		message(STATUS "list: ${${outfiles}}")
 	endforeach()
 	
 	set(${outfiles} ${${outfiles}} PARENT_SCOPE)
