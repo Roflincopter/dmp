@@ -114,7 +114,7 @@ void DmpServer::add_pending_connection(Connection&& c)
 {
 	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
 		std::move(c), 
-		[this, cep](){
+		[this, &cep](){
 			cep->cancel_pending_asio();
 			remove_element(pending_connections, cep);
 		}
