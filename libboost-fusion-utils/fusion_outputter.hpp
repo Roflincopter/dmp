@@ -2,8 +2,6 @@
 
 #include "friendly_fusion.hpp"
 
-#include "message.hpp"
-
 #include <boost/fusion/include/pair.hpp>
 #include <boost/fusion/include/map.hpp>
 #include <boost/fusion/include/vector.hpp>
@@ -33,8 +31,6 @@ struct Outputter
 	{
 		return os;
 	}
-
-
 };
 
 template <typename T, typename U>
@@ -54,6 +50,17 @@ std::ostream& operator<<(std::ostream& os, std::vector<T> vec)
 	os << "{";
 	for (auto&& x : vec) {
 		os << "\t" << x;
+	}
+	os << "}" << std::endl;
+	return os;
+}
+
+template <>
+inline std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> vec)
+{
+	os << "{";
+	for (auto&& x : vec) {
+		os << (unsigned int)(x) << ",";
 	}
 	os << "}" << std::endl;
 	return os;

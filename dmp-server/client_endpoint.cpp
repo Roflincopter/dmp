@@ -30,7 +30,7 @@ message::DmpCallbacks& ClientEndpoint::get_callbacks()
 void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr)
 {
 	callbacks.set(message::Type::SearchResponse, cb);
-	connection.send(sr);
+	connection.send_encrypted(sr);
 }
 
 void ClientEndpoint::handle_request(message::Type t)
@@ -48,7 +48,7 @@ void ClientEndpoint::handle_pong(message::Pong p)
 void ClientEndpoint::listen_requests()
 {
 	std::function<void(message::Type)> cb = std::bind(&ClientEndpoint::handle_request, this, std::placeholders::_1);
-	connection.async_receive_type(cb);
+	connection.async_receive_encrypted_type(cb);
 }
 
 void ClientEndpoint::cancel_pending_asio()
@@ -80,7 +80,7 @@ void ClientEndpoint::keep_alive()
 		}
 
 		last_ping = message::Ping();
-		connection.send(last_ping);
+		connection.send_encrypted(last_ping);
 		keep_alive();
 	};
 	ping_timer->async_wait(cb);

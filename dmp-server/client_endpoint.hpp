@@ -40,7 +40,7 @@ public:
 	template <typename T>
 	void forward(T x)
 	{
-		connection.send(x);
+		connection.send_encrypted(x);
 	}
 
 	void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);

@@ -1,9 +1,13 @@
 #pragma once
 
-#include <sstream>
-#include <memory>
-#include <cstdint>
-#include <vector>
+#include "debug_macros.hpp"
+#include "message.hpp"
+#include "message_callbacks.hpp"
+
+#include "fusion_serializer.hpp"
+#include "fusion_outputter.hpp"
+
+#include <sodium.h>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
@@ -16,42 +20,152 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
-#include "debug_macros.hpp"
-#include "message.hpp"
-#include "fusion_serializer.hpp"
-#include "message_callbacks.hpp"
-
-struct ReceiveProxy;
+#include <sstream>
+#include <iomanip>
+#include <memory>
+#include <cstdint>
+#include <vector>
 
 class Connection {
 
-	friend class ReceiveProxy;
+	struct ReceiveProxy {
+		Connection& c;
+
+		template <typename T>
+		operator T()
+		{
+			uint32_t size;
+			{
+				std::vector<uint8_t> buf(sizeof(decltype(size)));
+				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
+				assert(read_bytes == buf.size());
+				uint8_t* data = buf.data();
+				size = *reinterpret_cast<const uint32_t*>(data);
+			}
+
+			std::string content;
+			{
+				std::vector<uint8_t> buf(size);
+				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
+				assert(read_bytes == size);
+				uint8_t* data = buf.data();
+				content = std::string(reinterpret_cast<const char*>(data), size);
+			}
+
+			std::istringstream iss(content);
+			boost::archive::text_iarchive iar(iss);
+
+			T t = message::serialize<T>(iar);
+
+			return t;
+		}
+	};
+
+	struct ReceiveEncryptedProxy {
+		Connection& c;
+
+		template <typename T>
+		operator T()
+		{
+			std::vector<uint8_t> nonce;
+			{
+				nonce.resize(crypto_box_noncebytes(), 0);
+				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(nonce));
+				assert(read_bytes == nonce.size());
+			}
+
+			uint32_t size;
+			{
+				std::vector<uint8_t> buf(sizeof(decltype(size)));
+				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
+				assert(read_bytes == buf.size());
+				uint8_t* data = buf.data();
+				size = *reinterpret_cast<const uint32_t*>(data);
+			}
+
+			std::vector<uint8_t> content;
+			{
+				content.resize(size, 0);
+				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(content));
+				assert(read_bytes == content.size());
+			}
+
+			std::vector<uint8_t> data(size - crypto_box_macbytes(), 0);
+			bool succes = !crypto_box_open_easy(
+				&data[0],
+				content.data(),
+				content.size(),
+				nonce.data(),
+				c.other_public_key.data(),
+				c.private_key.data()
+			);
+
+			if(!succes) {
+				throw std::runtime_error("Failed to decrypt message");
+			}
+		}
+	};
 
 	boost::asio::ip::tcp::socket socket;
 
-	std::vector<uint8_t> async_type_buffer{};
-	std::vector<uint8_t> async_size_buffer{};
-	std::vector<uint8_t> async_mess_buffer{};
-	
-	boost::mutex send_mutex;
+	std::vector<uint8_t> async_type_nonce_buffer;
+	std::vector<uint8_t> async_type_buffer;
+	std::vector<uint8_t> async_mess_nonce_buffer;
+	std::vector<uint8_t> async_size_buffer;
+	std::vector<uint8_t> async_mess_buffer;
 
+	std::vector<uint8_t> private_key;
+	std::vector<uint8_t> public_key;
+	std::vector<uint8_t> other_public_key;
+
+	boost::mutex send_mutex;
 
 public:
 	std::shared_ptr<boost::asio::io_service> io_service;
 
 	Connection(std::shared_ptr<boost::asio::io_service> io_service, boost::asio::ip::tcp::socket&& socket)
 	: socket(std::move(socket))
+	, async_type_nonce_buffer()
+	, async_type_buffer()
+	, async_mess_nonce_buffer()
+	, async_size_buffer()
+	, async_mess_buffer()
+	, private_key(crypto_box_secretkeybytes())
+	, public_key(crypto_box_publickeybytes())
+	, other_public_key(crypto_box_publickeybytes())
+	, send_mutex()
 	, io_service(io_service)
-	{}
+	{
+		crypto_box_keypair(&public_key[0], &private_key[0]);
+		send(message::PublicKey(public_key));
+		auto type = receive_type();
+		message::PublicKey x = receive();
+		other_public_key = x.key;
+		DEBUG_COUT << "private key: " << private_key << std::endl;
+		DEBUG_COUT << "public key:" << public_key << std::endl;
+		DEBUG_COUT << "others public key: " << other_public_key << std::endl;
+	}
 
 	Connection(Connection&& that)
 	: socket(std::move(that.socket))
+	, async_type_nonce_buffer()
+	, async_type_buffer()
+	, async_mess_nonce_buffer()
+	, async_size_buffer()
+	, async_mess_buffer()
+	, private_key(std::move(that.private_key))
+	, public_key(std::move(that.public_key))
+	, other_public_key(std::move(that.other_public_key))
+	, send_mutex()
 	, io_service(std::move(that.io_service))
 	{}
 
 	Connection& operator=(Connection&& that){
 		std::swap(socket, that.socket);
 		std::swap(io_service, that.io_service);
+		std::swap(private_key, that.private_key);
+		std::swap(public_key, that.public_key);
+		std::swap(other_public_key, that.other_public_key);
 		return *this;
 	}
 
@@ -74,7 +188,68 @@ public:
 		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
 		boost::asio::write(socket, boost::asio::buffer(&type, 4));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
-		boost::asio::write(socket, boost::asio::buffer(content.data(), size));
+		boost::asio::write(socket, boost::asio::buffer(content));
+	}
+
+	template <typename T>
+	void send_encrypted(T x)
+	{
+		boost::interprocess::scoped_lock<boost::mutex> l(send_mutex);
+
+		auto type = message::message_to_type(x);
+		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
+
+		std::vector<uint8_t> type_cypher(sizeof(decltype(type)) + crypto_box_macbytes());
+		std::vector<uint8_t> nonce1(crypto_box_noncebytes());
+
+		randombytes(&nonce1[0], nonce1.size());
+
+		bool succes1 = !crypto_box_easy(
+			&type_cypher[0],
+			reinterpret_cast<uint8_t*>(&type),
+			sizeof(decltype(type)),
+			nonce1.data(),
+			other_public_key.data(),
+			private_key.data()
+		);
+
+		if(!succes1) {
+			throw std::runtime_error("failed to encrypt type");
+		}
+
+		boost::asio::write(socket, boost::asio::buffer(nonce1));
+		boost::asio::write(socket, boost::asio::buffer(type_cypher));
+
+		std::stringstream ss;
+		boost::archive::text_oarchive oar(ss);
+		message::serialize(oar, x);
+
+		std::string tmp_str = ss.str();
+		std::vector<uint8_t> content(tmp_str.begin(), tmp_str.end());
+
+		std::vector<uint8_t> message_cypher(content.size() + crypto_box_macbytes());
+		std::vector<uint8_t> nonce2(crypto_box_noncebytes());
+
+		randombytes(&nonce2[0], nonce2.size());
+
+		bool succes2 = !crypto_box_easy(
+			&message_cypher[0],
+			content.data(),
+			content.size(),
+			nonce2.data(),
+			other_public_key.data(),
+			private_key.data()
+		);
+
+		if(!succes2) {
+			throw std::runtime_error("failed to encrypt message");
+		}
+
+		uint32_t size = message_cypher.size();
+
+		boost::asio::write(socket, boost::asio::buffer(nonce2));
+		boost::asio::write(socket, boost::asio::buffer(&size, 4));
+		boost::asio::write(socket, boost::asio::buffer(message_cypher));
 	}
 
 	message::Type receive_type()
@@ -90,6 +265,46 @@ public:
 		assert(read_bytes == 4);
 		uint8_t const* data = buf.data();
 		type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
+		return type;
+	}
+
+	message::Type receive_encrypted_type()
+	{
+		boost::system::error_code ec;
+
+		std::vector<uint8_t> nonce(crypto_box_noncebytes());
+		size_t read_bytes1 = boost::asio::read(socket, boost::asio::buffer(nonce));
+		if(ec) {
+			throw std::runtime_error("receive_type: nonce retreival failed");
+		}
+		assert(read_bytes1 == nonce.size());
+
+		ec.clear();
+
+		message::Type type = message::Type::NoMessage;
+		std::vector<uint8_t> cypherbuf(sizeof(decltype(type)) + crypto_box_macbytes());
+		size_t read_bytes2 = boost::asio::read(socket, boost::asio::buffer(cypherbuf), ec);
+		if(ec) {
+			throw std::runtime_error("Receive type failed");
+		}
+		assert(read_bytes2 == cypherbuf.size());
+
+		std::vector<uint8_t> content(sizeof(decltype(type)));
+
+		bool succes = 0 == crypto_box_open_easy(
+			&content[0],
+			cypherbuf.data(),
+			cypherbuf.size(),
+			nonce.data(),
+			other_public_key.data(),
+			private_key.data()
+		);
+
+		if(!succes) {
+			throw std::runtime_error("failed to decrypt type");
+		}
+
+		type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(content.data()));
 		return type;
 	}
 
@@ -113,10 +328,61 @@ public:
 			assert(type != message::Type::NoMessage);
 			cb(type);
 		};
-		
+
 		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), read_cb);
 	}
 
+	template <typename Callable>
+	void async_receive_encrypted_type(Callable const& cb)
+	{
+		auto type_nonce_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+		{
+			if(ec) {
+				throw std::runtime_error("Failed to receive nonce of type");
+			}
+
+			assert(bytes_transfered == async_type_nonce_buffer.size());
+
+			auto type_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+			{
+				message::Type type = message::Type::NoMessage;
+
+				if(ec) {
+					throw std::runtime_error("Failed to receive type");
+				}
+
+				assert(bytes_transfered == async_type_buffer.size());
+
+				std::vector<uint8_t> type_buf(sizeof(message::Type_t));
+
+				bool succes = !crypto_box_open_easy(
+					&type_buf[0],
+					async_type_buffer.data(),
+					async_type_buffer.size(),
+					async_type_nonce_buffer.data(),
+					other_public_key.data(),
+					private_key.data()
+				);
+
+				if(!succes) {
+					throw std::runtime_error("failed to decrypt the type");
+				}
+
+				uint8_t const* data = type_buf.data();
+				type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
+				assert(type != message::Type::NoMessage);
+				cb(type);
+			};
+
+			async_type_buffer.resize(sizeof(message::Type_t) + crypto_box_macbytes(), 0);
+			boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), type_cb);
+		};
+
+		async_type_nonce_buffer.resize(crypto_box_noncebytes(), 0);
+		boost::asio::async_read(socket, boost::asio::buffer(async_type_nonce_buffer), type_nonce_cb);
+	}
+
+	ReceiveEncryptedProxy receive_encrypted();
 	ReceiveProxy receive();
 
 	template <typename T, typename Callable>
@@ -160,37 +426,70 @@ public:
 		async_size_buffer.resize(4, 0);
 		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), size_cb);
 	}
-};
 
-struct ReceiveProxy {
-	Connection& c;
-
-	template <typename T>
-	operator T()
+	template <typename T, typename Callable>
+	void async_receive_encrypted(Callable const& cb)
 	{
-		uint32_t size;
-		std::string content;
-
+		auto nonce_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
 		{
-			std::vector<uint8_t> buf(4);
-			size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
-			assert(read_bytes == 4);
-			const unsigned char* data = buf.data();
-			size = *reinterpret_cast<const uint32_t*>(data);
-		}
-		{
-			std::vector<uint8_t> buf(size);
-			size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
-			assert(read_bytes == size);
-			const unsigned char* data = buf.data();
-			content = std::string(reinterpret_cast<const char*>(data), size);
-		}
+			if (ec) {
+				throw std::runtime_error("Error receiving message nonce");
+			}
 
-		std::istringstream iss(content);
-		boost::archive::text_iarchive iar(iss);
+			assert(bytes_transfered == async_mess_nonce_buffer.size());
 
-		T t = message::serialize<T>(iar);
+			auto size_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
+			{
+				if (ec) {
+					throw std::runtime_error("Error receiving size in size_cb lambda");
+				}
 
-		return t;
+				assert(bytes_transfered == 4);
+
+				uint8_t const* data = async_size_buffer.data();
+				uint32_t size = *reinterpret_cast<const uint32_t*>(data);
+
+				auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t bytes_transfered)
+				{
+					if (ec) {
+						throw std::runtime_error("Error receiving size in content_cb lambda");
+					}
+
+					assert(bytes_transfered == size);
+
+					std::vector<uint8_t> data(size - crypto_box_macbytes());
+
+					bool succes = 0 == crypto_box_open_easy(
+						&data[0],
+						async_mess_buffer.data(),
+						async_mess_buffer.size(),
+						async_mess_nonce_buffer.data(),
+						other_public_key.data(),
+						private_key.data()
+					);
+
+					if(!succes) {
+						throw std::runtime_error("Failed to decrypt message");
+					}
+
+					std::string content = std::string(reinterpret_cast<const char*>(data.data()), data.size());
+
+					std::istringstream iss(content);
+					boost::archive::text_iarchive iar(iss);
+
+					T t = message::serialize<T>(iar);
+					cb(t);
+				};
+
+				async_mess_buffer.resize(size, 0);
+				boost::asio::async_read(socket, boost::asio::buffer(async_mess_buffer), content_cb);
+			};
+
+			async_size_buffer.resize(4, 0);
+			boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), size_cb);
+		};
+
+		async_mess_nonce_buffer.resize(crypto_box_noncebytes(), 0);
+		boost::asio::async_read(socket, boost::asio::buffer(async_mess_nonce_buffer), nonce_cb);
 	}
 };

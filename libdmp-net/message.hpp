@@ -16,6 +16,7 @@ typedef uint32_t Type_t;
 
 enum class Type : Type_t {
 	NoMessage,
+	PublicKey,
 	Ping,
 	Pong,
 	LoginRequest,
@@ -51,6 +52,14 @@ struct NoMessage {
 	{
 		throw std::runtime_error("No NoMessage struct should be made ever.");
 	}
+};
+
+struct PublicKey {
+	std::vector<uint8_t> key;
+
+	PublicKey(std::vector<uint8_t> key)
+	: key(key)
+	{}
 };
 
 struct Ping {
@@ -374,6 +383,7 @@ inline Type message_to_type(X) \
 	return Type::X; \
 }
 
+MESSAGE_TYPE_CONVERSION(PublicKey)
 MESSAGE_TYPE_CONVERSION(Ping)
 MESSAGE_TYPE_CONVERSION(Pong)
 MESSAGE_TYPE_CONVERSION(LoginRequest)
@@ -403,6 +413,11 @@ MESSAGE_TYPE_CONVERSION(RadioStates)
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::NoMessage,
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::PublicKey,
+	(std::vector<uint8_t>, key)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

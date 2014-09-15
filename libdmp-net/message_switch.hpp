@@ -11,7 +11,7 @@ struct MessageSwitch
 		return [&conn, &cbs]
 		{
 			typedef typename message::type_to_message<static_cast<message::Type>(index)>::type message_t;
-			conn.template async_receive<message_t>(cbs);
+			conn.template async_receive_encrypted<message_t>(cbs);
 			return;
 		};
 	}

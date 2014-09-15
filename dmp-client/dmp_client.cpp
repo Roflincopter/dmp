@@ -83,7 +83,7 @@ void DmpClient::destroy()
 void DmpClient::stop()
 {
 	message::Bye b;
-	connection.send(b);
+	connection.send_encrypted(b);
 }
 
 void DmpClient::index(std::string path)
@@ -93,12 +93,12 @@ void DmpClient::index(std::string path)
 
 void DmpClient::add_radio(std::string radio_name)
 {
-	connection.send(message::AddRadio(radio_name));
+	connection.send_encrypted(message::AddRadio(radio_name));
 }
 
 void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
 {
-	connection.send(message::Queue(radio, name, owner, entry));
+	connection.send_encrypted(message::Queue(radio, name, owner, entry));
 }
 
 void DmpClient::set_current_radio(std::string name)
@@ -123,7 +123,7 @@ void DmpClient::tune_in(std::string radio, bool tune_in)
 		radio_list_model->set_tuned_in_radio("");
 	}
 	message::TuneIn ti(radio, action);
-	connection.send(ti);
+	connection.send_encrypted(ti);
 }
 
 std::string DmpClient::get_tuned_in_radio()
@@ -133,14 +133,14 @@ std::string DmpClient::get_tuned_in_radio()
 
 void DmpClient::send_bye()
 {
-	connection.send(message::Bye());
+	connection.send_encrypted(message::Bye());
 }
 
 void DmpClient::send_login(std::string username, std::string password)
 {
 	DEBUG_COUT << username << " " << password << std::endl;
 	name = username;
-	connection.send(message::LoginRequest(username, password));
+	connection.send_encrypted(message::LoginRequest(username, password));
 }
 
 void DmpClient::handle_request(message::Type t)
@@ -151,7 +151,7 @@ void DmpClient::handle_request(message::Type t)
 void DmpClient::listen_requests()
 {
 	std::function<void(message::Type)> cb = std::bind(&DmpClient::handle_request, this, std::placeholders::_1);
-	connection.async_receive_type(cb);
+	connection.async_receive_encrypted_type(cb);
 }
 
 void DmpClient::search(std::string query)
@@ -171,37 +171,37 @@ void DmpClient::search(std::string query)
 	call_on_delegates(delegates, &DmpClientUiDelegate::new_search_end);
 	
 	message::SearchRequest q(query);
-	connection.send(q);
+	connection.send_encrypted(q);
 }
 
 void DmpClient::stop_radio()
 {
-	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Stop));
+	connection.send_encrypted(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Stop));
 }
 
 void DmpClient::play_radio()
 {
-	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Play));
+	connection.send_encrypted(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Play));
 }
 
 void DmpClient::pause_radio()
 {
-	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Pause));
+	connection.send_encrypted(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Pause));
 }
 
 void DmpClient::next_radio()
 {
-	connection.send(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Next));
+	connection.send_encrypted(message::RadioAction(playlists_model->get_current_radio(), message::PlaybackAction::Next));
 }
 
 void DmpClient::forward_radio_action(message::RadioAction ra)
 {
-	connection.send(ra);
+	connection.send_encrypted(ra);
 }
 
 void DmpClient::forward_radio_event(message::SenderEvent se)
 {
-	connection.send(se);
+	connection.send_encrypted(se);
 }
 
 void DmpClient::handle_login_response(message::LoginResponse lr)
@@ -222,7 +222,7 @@ void DmpClient::mute_radio(bool state)
 void DmpClient::handle_ping(message::Ping ping)
 {
 	message::Pong pong(ping.payload);
-	connection.send(pong);
+	connection.send_encrypted(pong);
 }
 
 void DmpClient::handle_pong(message::Pong pong)
@@ -238,7 +238,7 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
 	dmp_library::LibrarySearcher searcher(library);
 	message::SearchResponse response(name, search_req.query, searcher.search(search_req.query));
 	if(!response.results.empty()) {
-		connection.send(response);
+		connection.send_encrypted(response);
 	}
 }
 

@@ -12,6 +12,7 @@ set(dmp-net-sources
 add_library(dmp-net STATIC ${dmp-net-sources})
 
 find_package(Boost COMPONENTS system REQUIRED)
+find_package(Sodium)
 
 #appearantly Boost 1.56 Variant still uses the MPL library so we still need to increase the MPL list size.
 if(NOT (${Boost_MAJOR_VERSION} GREATER 0 AND ${Boost_MINOR_VERSION} GREATER 56))
@@ -25,13 +26,14 @@ target_include_directories(dmp-net SYSTEM
 
 target_include_directories(dmp-net
 	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-	PRIVATE ${CMAKE_SOURCE_DIR}/libdmp-library/include
-	PRIVATE ${CMAKE_SOURCE_DIR}/libdmp-common
+	PRIVATE ${Sodium_INCLUDE_DIRECTORIES}
 )
 
 target_link_libraries(dmp-net
 	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE ${Sodium_LIBRARIES}
 	PRIVATE dmp-library
+	PRIVATE dmp-common
 	PRIVATE boost-fusion-utils
 	PUBLIC pthread
 	PRIVATE dbg
