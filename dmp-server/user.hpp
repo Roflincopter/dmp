@@ -8,9 +8,14 @@
 
 #include <string>
 
+class SuperAdmin;
+class Admin;
+
 class User
 {
 	friend class odb::access;
+	friend class SuperAdmin;
+	friend class Admin;
 
 	User();
 

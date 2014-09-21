@@ -1,11 +1,9 @@
-#ifndef ODB_COMPILER
-	#pragma once
-#endif
+#pragma once
 
 #include <odb/core.hxx>
 
-#define DATABASE_BASE_VERSION 1
-#define DATABASE_VERSION 1
+#define DATABASE_BASE_VERSION 2
+#define DATABASE_VERSION 2
 
 constexpr odb::schema_version database_base_version = DATABASE_BASE_VERSION;
 constexpr odb::schema_version current_database_version = DATABASE_VERSION;

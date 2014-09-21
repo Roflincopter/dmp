@@ -94,4 +94,3 @@ public:
 
 	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;
 };
-

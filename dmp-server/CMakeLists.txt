@@ -5,6 +5,8 @@ find_package(ODBc++ COMPONENTS sqlite REQUIRED)
 
 ODB_compile(odb_sources
 	user.hpp
+	radio.hpp
+	radio_admin.hpp
 )
 
 add_executable(dmp-server
@@ -18,6 +20,8 @@ add_executable(dmp-server
 	database_version.hpp
 	database_migration.hpp
 	user.hpp user.cpp
+	radio.hpp radio.cpp
+	radio_admin.hpp radio_admin.cpp
 	${odb_sources}
 )
 

@@ -1,0 +1,44 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="sqlite" version="1">
+  <model version="2">
+    <table name="SuperAdmin" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="user" type="TEXT" null="false"/>
+      <column name="radio" type="TEXT" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="user_fk" deferrable="DEFERRED">
+        <column name="user"/>
+        <references table="User">
+          <column name="username"/>
+        </references>
+      </foreign-key>
+      <foreign-key name="radio_fk" deferrable="DEFERRED">
+        <column name="radio"/>
+        <references table="Radio">
+          <column name="name"/>
+        </references>
+      </foreign-key>
+    </table>
+    <table name="Admin" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="user" type="TEXT" null="false"/>
+      <column name="radio" type="TEXT" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="user_fk" deferrable="DEFERRED">
+        <column name="user"/>
+        <references table="User">
+          <column name="username"/>
+        </references>
+      </foreign-key>
+      <foreign-key name="radio_fk" deferrable="DEFERRED">
+        <column name="radio"/>
+        <references table="Radio">
+          <column name="name"/>
+        </references>
+      </foreign-key>
+    </table>
+  </model>
+</changelog>
