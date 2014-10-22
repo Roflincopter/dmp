@@ -3,10 +3,12 @@
 #include "dmp-library.hpp"
 #include "message.hpp"
 #include "friendly_fusion.hpp"
+#include "delegator.hpp"
+#include "search_result_ui_delegate.hpp"
 
 #include <boost/any.hpp>
 
-class SearchResultModel
+class SearchResultModel : public Delegator<SearchResultUiDelegate>
 {
 public:
 	struct Client

@@ -21,7 +21,8 @@ enum class Type : Type_t {
 	Pong,
 	LoginRequest,
 	LoginResponse,
-	Register,
+	RegisterRequest,
+	RegisterResponse,
 	SearchRequest,
 	SearchResponse,
 	Bye,
@@ -130,14 +131,25 @@ struct LoginResponse
 	{}
 };
 
-struct Register 
+struct RegisterRequest
 {
 	std::string username;
 	std::string password;
 	
-	Register(std::string username, std::string password)
+	RegisterRequest(std::string username, std::string password)
 	: username(username)
 	, password(password)
+	{}
+};
+
+struct RegisterResponse
+{
+	bool succes;
+	std::string reason;
+	
+	RegisterResponse(bool succes, std::string reason)
+	: succes(succes)
+	, reason(reason)
 	{}
 };
 
@@ -283,6 +295,8 @@ enum class PlaybackAction : Type_t{
 	Reset
 };
 
+std::ostream& operator<<(std::ostream& os, PlaybackAction const& a);
+
 enum class PlaybackEvent : Type_t {
 	NoEvent,
 	Paused
@@ -388,7 +402,8 @@ MESSAGE_TYPE_CONVERSION(Ping)
 MESSAGE_TYPE_CONVERSION(Pong)
 MESSAGE_TYPE_CONVERSION(LoginRequest)
 MESSAGE_TYPE_CONVERSION(LoginResponse)
-MESSAGE_TYPE_CONVERSION(Register)
+MESSAGE_TYPE_CONVERSION(RegisterRequest)
+MESSAGE_TYPE_CONVERSION(RegisterResponse)
 MESSAGE_TYPE_CONVERSION(SearchRequest)
 MESSAGE_TYPE_CONVERSION(SearchResponse)
 MESSAGE_TYPE_CONVERSION(Bye)
@@ -443,9 +458,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	message::Register,
+	message::RegisterRequest,
 	(std::string, username)
 	(std::string, password)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::RegisterResponse,
+	(bool, succes)
+	(std::string, reason)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

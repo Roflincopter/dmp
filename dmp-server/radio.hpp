@@ -21,7 +21,9 @@ class Radio
 
 	std::string name;	
 public:
+	Radio(std::string name);
 	
+	std::string get_name();
 };
 
 #ifdef ODB_COMPILER

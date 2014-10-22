@@ -13,7 +13,9 @@ SearchResultModel::SearchResultModel()
 
 void SearchResultModel::add_search_response(message::SearchResponse response)
 {
+	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_start, response);
 	search_results.push_back(std::make_pair(Client(response.origin), response.results));
+	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_end);
 }
 
 int SearchResultModel::row_count() const
@@ -61,7 +63,11 @@ void SearchResultModel::clear()
 
 void SearchResultModel::set_current_query(std::string query)
 {
+	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::new_search_begin);
+	clear();
 	current_query = query;
+	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::new_search_end);
+	
 }
 
 std::string SearchResultModel::get_current_query() const

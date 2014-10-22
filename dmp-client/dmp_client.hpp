@@ -12,7 +12,7 @@
 
 #include <thread>
 
-class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, public std::enable_shared_from_this<DmpClientRadioInterface>
+class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, public std::enable_shared_from_this<DmpClientRadioInterface>, public Delegator<DmpClientUiDelegate>
 {
 	std::string name;
 	std::string host;
@@ -28,8 +28,6 @@ private:
 	Connection connection;
 	message::Ping last_sent_ping;
 	dmp_library::Library library;
-
-	std::vector<std::weak_ptr<DmpClientUiDelegate>> delegates;
 	
 	std::map<std::string, DmpSender> senders;
 	
@@ -46,11 +44,11 @@ public:
 
 	message::DmpCallbacks::Callbacks_t initial_callbacks();
 	
-	void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate);
 	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() override final;
 	virtual std::shared_ptr<RadioListModel> get_radio_list_model() override final;
 	virtual std::shared_ptr<SearchBarModel> get_search_bar_model() override final;
 	virtual std::shared_ptr<SearchResultModel> get_search_result_model() override final;
+	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate) override final;
 
 	void handle_request(message::Type t);
 	void listen_requests();
@@ -67,6 +65,7 @@ public:
 	virtual std::string get_tuned_in_radio() override final;
 	virtual void send_bye() override final;
 	virtual void send_login(std::string username, std::string password) override final;
+	virtual void register_user(std::string username, std::string password) override final;
 
 	virtual void stop_radio() override final;
 	virtual void play_radio() override final;
@@ -78,6 +77,7 @@ public:
 	virtual void forward_radio_event(message::SenderEvent se) override final;
 
 	void handle_login_response(message::LoginResponse lr);
+	void handle_register_response(message::RegisterResponse rr);
 	void handle_ping(message::Ping ping);
 	void handle_pong(message::Pong pong);
 	void handle_search_request(message::SearchRequest search_req);

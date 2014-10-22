@@ -141,9 +141,6 @@ public:
 		auto type = receive_type();
 		message::PublicKey x = receive();
 		other_public_key = x.key;
-		DEBUG_COUT << "private key: " << private_key << std::endl;
-		DEBUG_COUT << "public key:" << public_key << std::endl;
-		DEBUG_COUT << "others public key: " << other_public_key << std::endl;
 	}
 
 	Connection(Connection&& that)

@@ -41,6 +41,7 @@ my_qt5_wrap_ui(QtGeneratedHeaders
 	dmp_client_gui.ui
 	dmp_client_connect_dialog.ui
 	dmp_client_login_dialog.ui
+	dmp_client_register_dialog.ui
 	dmp_client_error_dialog.ui
 )
 
@@ -48,6 +49,7 @@ qt5_wrap_cpp(QtGeneratedSources
 	dmp_client_gui.hpp
 	dmp_client_connect_dialog.hpp
 	dmp_client_login_dialog.hpp
+	dmp_client_register_dialog.hpp
 	dmp_client_error_dialog.hpp
 	dmp_client_gui_search_bar.hpp
 	dmp_client_gui_menu_bar.hpp
@@ -66,12 +68,14 @@ set(DmpClientSources
 	dmp_client_gui.hpp dmp_client_gui.cpp
 	dmp_client_connect_dialog.hpp dmp_client_connect_dialog.cpp
 	dmp_client_login_dialog.hpp dmp_client_login_dialog.cpp
+	dmp_client_register_dialog.hpp dmp_client_register_dialog.cpp
 	dmp_client_error_dialog.hpp dmp_client_error_dialog.cpp
 	dmp_client_gui_search_bar.hpp dmp_client_gui_search_bar.cpp
 	dmp_client_gui_menu_bar.hpp dmp_client_gui_menu_bar.cpp
 	dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
 	dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
 	dmp_client_gui_playlists.hpp dmp_client_gui_playlists.cpp
+	call_event.hpp call_event.cpp
 	qt_adapter.hpp
 	boost_any_to_qvariant.hpp
 	gui_item_delegate.hpp gui_item_delegate.cpp

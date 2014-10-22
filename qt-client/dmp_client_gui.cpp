@@ -5,6 +5,9 @@
 #include "dmp_client_connect_dialog.hpp"
 #include "dmp_client_login_dialog.hpp"
 #include "dmp_client_error_dialog.hpp"
+#include "dmp_client_register_dialog.hpp"
+#include "call_event.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -49,17 +52,12 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 void DmpClientGui::update_ui_client_interface()
 {
 	client->add_delegate(shared_main_window);
-
+	
 	shared_menu_bar->set_client(client);
-	client->add_delegate(shared_menu_bar);
 	shared_search_bar->set_client(client);
-	client->add_delegate(shared_search_bar);
 	shared_search_results->set_client(client);
-	client->add_delegate(shared_search_results);
 	shared_radio_list->set_client(client);
-	client->add_delegate(shared_radio_list);
 	shared_playlists->set_client(client);
-	client->add_delegate(shared_playlists);
 }
 
 void DmpClientGui::test1()
@@ -77,6 +75,7 @@ void DmpClientGui::test1()
 void DmpClientGui::test2()
 {
 	connect_client("127.0.0.1", 1337);
+	client->send_login("ex_username", "ex_password");
 	client->index("/home/dennis/Music");
 }
 
@@ -158,7 +157,6 @@ bool DmpClientGui::connect_client(std::string host, uint16_t port)
 
 void DmpClientGui::login_client(std::string username, std::string password)
 {
-	DEBUG_COUT << username << " " << password << std::endl;
 	client->send_login(username, password);
 }
 
@@ -168,6 +166,38 @@ void DmpClientGui::setEnabled(bool enabled) {
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);
 	ui.tuneInRadioButton->setEnabled(enabled);
+}
+
+void DmpClientGui::register_user()
+{
+	DmpClientRegisterDialog register_acc;
+	int result = register_acc.exec();
+	
+	if(result == QDialog::Rejected) {
+		login_user();
+	}
+	
+	if(result == QDialog::Accepted) {
+		client->register_user(register_acc.get_username(), register_acc.get_password());
+	}
+}
+
+void DmpClientGui::login_user()
+{
+	DmpClientLoginDialog login;
+	int result = login.exec();
+	
+	if(result == QDialog::Rejected) {
+		return;
+	}
+	
+	if(result == DmpClientLoginDialog::Register) {
+		register_user();
+	}
+	
+	if(result == QDialog::Accepted) {
+		login_client(login.get_username(), login.get_password());
+	}
 }
 
 void DmpClientGui::dmpConnect()
@@ -180,15 +210,7 @@ void DmpClientGui::dmpConnect()
 	}
 
 	if(connect_client(connect.get_host(), connect.get_port())) {
-	
-		DmpClientLoginDialog login;
-		result = login.exec();
-		
-		if(result != QDialog::Accepted) {
-			return;
-		}
-		
-		login_client(login.get_username(), login.get_password());
+		login_user();
 	}
 }
 
@@ -221,6 +243,17 @@ void DmpClientGui::login_failed(std::string reason)
 {
 	int index = this->startTimer(100);
 	setErrorIndex(index, reason);
+}
+
+void DmpClientGui::register_succeeded()
+{
+	QApplication::postEvent(this, new CallEvent([this]{login_user();}));
+}
+
+void DmpClientGui::register_failed(std::string reason)
+{
+	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
+	QApplication::postEvent(this, new CallEvent([this]{register_user();}));
 }
 
 void DmpClientGui::NextPressed()
@@ -265,4 +298,17 @@ std::string DmpClientGui::getErrorIndex(int index) {
 void DmpClientGui::clearErrorIndex(int index) {
 	std::lock_guard<std::mutex> lock(error_indices_mutex);
 	error_indices.erase(index);
+}
+
+void DmpClientGui::error(std::string error) {
+	DmpClientErrorDialog(error, this).exec();
+}
+
+bool DmpClientGui::event(QEvent *event) {
+	if(CallEvent* call = dynamic_cast<CallEvent*>(event)) {
+		(*call)();
+		return true;
+	} else {
+		return QObject::event(event);
+	}
 }

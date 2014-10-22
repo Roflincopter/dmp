@@ -4,7 +4,7 @@ set(dmp-net-sources
 	connection.hpp connection.cpp
 	accept.hpp accept.cpp
 	connect.hpp connect.cpp
-	message.hpp
+	message.hpp message.cpp
 	message_switch.hpp
 	message_callbacks.hpp
 )

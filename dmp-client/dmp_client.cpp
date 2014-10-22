@@ -4,6 +4,7 @@
 #include "connect.hpp"
 #include "timed_debug.hpp"
 #include "debug_macros.hpp"
+#include "dmp_client_ui_delegate.hpp"
 
 DmpClient::DmpClient(std::string host, uint16_t port)
 : name()
@@ -16,7 +17,6 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , connection(connect(host, port))
 , last_sent_ping()
 , library()
-, delegates()
 , senders()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
@@ -27,6 +27,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 	using std::placeholders::_1;
 	return {
 		{message::Type::LoginResponse, std::function<void(message::LoginResponse)>(std::bind(&DmpClient::handle_login_response, this, _1))},
+		{message::Type::RegisterResponse, std::function<void(message::RegisterResponse)>(std::bind(&DmpClient::handle_register_response, this, _1))},
 		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
 		{message::Type::Pong, std::function<void(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
 		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
@@ -42,11 +43,6 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
 		{message::Type::RadioStates, std::function<void(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))}
 	};
-}
-
-void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
-{
-	delegates.push_back(delegate);
 }
 
 std::shared_ptr<PlaylistsModel> DmpClient::get_playlists_model()
@@ -67,6 +63,11 @@ std::shared_ptr<SearchBarModel> DmpClient::get_search_bar_model()
 std::shared_ptr<SearchResultModel> DmpClient::get_search_result_model()
 {
 	return search_result_model;
+}
+
+void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
+{
+	Delegator::add_delegate<DmpClientUiDelegate>(delegate);
 }
 
 void DmpClient::run()
@@ -106,9 +107,7 @@ void DmpClient::set_current_radio(std::string name)
 	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Reset, 0, 0);
 	message::PlaylistUpdate update(action, name, {});
 	
-	call_on_delegates(delegates, &DmpClientUiDelegate::current_radio_change_start);
 	playlists_model->set_current_radio(name);
-	call_on_delegates(delegates, &DmpClientUiDelegate::current_radio_change_end);
 }
 
 void DmpClient::tune_in(std::string radio, bool tune_in)
@@ -138,9 +137,13 @@ void DmpClient::send_bye()
 
 void DmpClient::send_login(std::string username, std::string password)
 {
-	DEBUG_COUT << username << " " << password << std::endl;
-	name = username;
 	connection.send_encrypted(message::LoginRequest(username, password));
+	name = username;
+}
+
+void DmpClient::register_user(std::string username, std::string password)
+{
+	connection.send_encrypted(message::RegisterRequest(username, password));
 }
 
 void DmpClient::handle_request(message::Type t)
@@ -161,14 +164,10 @@ void DmpClient::search(std::string query)
 		dmp_library::parse_query(query);
 	} catch (dmp_library::ParseError &err) {
 		search_bar_model->set_data(err.expected, err.pivot);
-		call_on_delegates(delegates, &DmpClientUiDelegate::query_parse_error);
 		return;
 	}
 
-	call_on_delegates(delegates, &DmpClientUiDelegate::new_search_begin);
-	search_result_model->clear();
 	search_result_model->set_current_query(query);
-	call_on_delegates(delegates, &DmpClientUiDelegate::new_search_end);
 	
 	message::SearchRequest q(query);
 	connection.send_encrypted(q);
@@ -207,10 +206,19 @@ void DmpClient::forward_radio_event(message::SenderEvent se)
 void DmpClient::handle_login_response(message::LoginResponse lr)
 {
 	if(lr.succes) {
-		call_on_delegates(delegates, &DmpClientUiDelegate::login_succeeded);
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::login_succeeded);
 	} else {
-		call_on_delegates(delegates, &DmpClientUiDelegate::login_failed, lr.reason);
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::login_failed, lr.reason);
 		name = "";
+	}
+}
+
+void DmpClient::handle_register_response(message::RegisterResponse rr)
+{
+	if(rr.succes) {
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::register_succeeded);
+	} else {
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::register_failed, rr.reason);
 	}
 }
 
@@ -244,23 +252,21 @@ void DmpClient::handle_search_request(message::SearchRequest search_req)
 
 void DmpClient::handle_search_response(message::SearchResponse search_res)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::search_results_start, search_res);
 	search_result_model->add_search_response(search_res);
-	call_on_delegates(delegates, &DmpClientUiDelegate::search_results_end);
 }
 
 void DmpClient::handle_bye_ack(message::ByeAck)
 {
 	connection.io_service->stop();
-	call_on_delegates(delegates, &DmpClientUiDelegate::client_stopped);
+	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::client_stopped);
 }
 
 void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 {
 	if(response.succes) {
-		call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_succes, response);
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::add_radio_succes, response);
 	} else {
-		call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_failed, response);
+		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::add_radio_failed, response);
 	}
 }
 
@@ -277,13 +283,11 @@ void DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 
 void DmpClient::handle_radios(message::Radios radios)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_start);
 	for(auto&& radio : radios.radios)
 	{
 		radio_list_model->add_radio(radio.first);
 		playlists_model->update(radio.first, radio.second);
 	}
-	call_on_delegates(delegates, &DmpClientUiDelegate::set_radios_end);
 }
 
 DmpClient::~DmpClient() {
@@ -295,10 +299,8 @@ DmpClient::~DmpClient() {
 
 void DmpClient::handle_add_radio(message::AddRadio added_radio)
 {
-	call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_start);
 	radio_list_model->add_radio(added_radio.name);
 	playlists_model->create_radio(added_radio.name);
-	call_on_delegates(delegates, &DmpClientUiDelegate::add_radio_end);
 }
 
 void DmpClient::handle_stream_request(message::StreamRequest sr)
@@ -369,19 +371,19 @@ void DmpClient::handle_receiver_action(message::ReceiverAction ra)
 		case message::PlaybackAction::Pause:
 		{
 			receiver.pause();
-			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, false);
+			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		case message::PlaybackAction::Play:
 		{
 			receiver.play();
-			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, true);
+			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, true);
 			break;
 		}
 		case message::PlaybackAction::Stop:
 		{
 			receiver.stop();
-			call_on_delegates(delegates, &DmpClientUiDelegate::set_play_paused_state, false);
+			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		//explicit falltrough
@@ -401,7 +403,6 @@ void DmpClient::handle_radio_states(message::RadioStates rs)
 		case message::RadioStates::Action::Set:
 		{
 			radio_list_model->set_radio_states(rs.states);
-			call_on_delegates(delegates, &DmpClientUiDelegate::set_radio_states);
 			break;
 		}
 		case message::RadioStates::Action::NoAction:

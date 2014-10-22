@@ -9,6 +9,10 @@ class DmpClientLoginDialog : public QDialog
 public:
 	explicit DmpClientLoginDialog(QWidget *parent = 0);
 	
+	enum {
+		Register = 2
+	};
+	
 	std::string get_username();
 	std::string get_password();
 	

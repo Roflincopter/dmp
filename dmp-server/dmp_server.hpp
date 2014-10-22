@@ -27,7 +27,7 @@ public:
 		std::string reason;
 	};
 	
-	Authenticator();
+	Authenticator(std::shared_ptr<odb::database> db);
 
 	LoginResult login(std::string username, std::string password);
 	
@@ -42,6 +42,7 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 	std::map<std::string, std::pair<std::thread, DmpRadio>> radios;
 	boost::asio::deadline_timer debug_timer;
 	std::shared_ptr<NumberPool> port_pool;
+	std::shared_ptr<odb::database> db;
 	Authenticator auth;
 
 public:
@@ -51,9 +52,12 @@ public:
 	void run();
 	void stop();
 	
+	void read_database();
+	
 	void add_pending_connection(Connection&& c);
 	void add_permanent_connection(std::shared_ptr<ClientEndpoint> c);
 	void remove_connection(std::string name);
+	void add_radio(std::string);
 
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);

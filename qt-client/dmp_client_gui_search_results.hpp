@@ -3,12 +3,16 @@
 #include "search_result_model_qt_adapter.hpp"
 #include "dmp_client_interface.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
-#include "dmp_client_ui_delegate.hpp"
+#include "search_result_ui_delegate.hpp"
 #include "gui_item_delegate.hpp"
 
 #include <QTableView>
 
-class DmpClientGuiSearchResults : public QTableView, public DmpClientUiControllerInterface, public DmpClientUiDelegate
+class DmpClientGuiSearchResults
+: public QTableView
+, public DmpClientUiControllerInterface
+, public SearchResultUiDelegate
+, public std::enable_shared_from_this<SearchResultUiDelegate>
 {
 	Q_OBJECT
 

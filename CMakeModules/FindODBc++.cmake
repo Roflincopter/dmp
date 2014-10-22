@@ -45,6 +45,7 @@ function(ODB_compile outfiles)
 		"-DODB_COMPILER"
 		"--generate-query"
 		"--generate-schema"
+		"--default-pointer" "std::shared_ptr"
 		"-d" "sqlite"
 		"--output-dir" "${CMAKE_CURRENT_SOURCE_DIR}"
 		"--hxx-suffix" ".hpp"

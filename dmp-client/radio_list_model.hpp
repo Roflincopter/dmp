@@ -1,12 +1,14 @@
 #pragma once
 
 #include "radio_state.hpp"
+#include "radio_list_ui_delegate.hpp"
+#include "delegator.hpp"
 
 #include <vector>
 #include <string>
 #include <map>
 
-class RadioListModel
+class RadioListModel : public Delegator<RadioListUiDelegate>
 {
 	std::vector<std::string> radio_names;
 	std::string tuned_in_radio;

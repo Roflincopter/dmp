@@ -21,7 +21,9 @@ void RadioListModel::set_radio_names(std::vector<std::string> new_radio_names)
 
 void RadioListModel::add_radio(std::string radio_name)
 {
+	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::set_radios_start);
 	radio_names.push_back(radio_name);
+	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::set_radios_end);
 }
 
 std::string RadioListModel::get_tuned_in_radio() const
@@ -37,6 +39,7 @@ void RadioListModel::set_tuned_in_radio(std::string radio_name)
 void RadioListModel::set_radio_states(std::map<std::string, RadioState> states)
 {
 	radio_states = states;
+	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::set_radio_states);
 }
 
 std::map<std::string, RadioState> RadioListModel::get_radio_states() const

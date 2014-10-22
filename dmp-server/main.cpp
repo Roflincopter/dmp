@@ -16,6 +16,7 @@ int main(int, char**) {
 
 	auto io_service = std::make_shared<boost::asio::io_service>();
 	auto server = std::make_shared<DmpServer>(io_service);
+	server->read_database();
 
 	std::thread server_thread(std::bind(&DmpServer::run, server.get()));
 

@@ -20,7 +20,8 @@ void DmpClientGuiPlaylists::set_client(std::shared_ptr<DmpClientInterface> new_c
 {
 	client = new_client;
 	model->set_model(client->get_playlists_model());
-	client->add_delegate(model);
+	client->get_playlists_model()->add_delegate<PlaylistUiDelegate>(shared_from_this());
+	client->get_playlists_model()->add_delegate<PlaylistUiDelegate>(model);
 }
 
 void DmpClientGuiPlaylists::currentRadioChanged(std::string name)

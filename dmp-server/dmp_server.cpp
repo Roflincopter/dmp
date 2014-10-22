@@ -7,15 +7,18 @@
 #include "database.hpp"
 
 #include "user-odb.hpp"
+#include "radio-odb.hpp"
+#include "radio_admin-odb.hpp"
 #include <odb/core.hxx>
 #include <odb/database.hxx>
+#include <odb/result.hxx>
 
 #include <boost/thread.hpp>
 
 #include "fusion_outputter.hpp"
 
-Authenticator::Authenticator()
-: db(initialize_database())
+Authenticator::Authenticator(std::shared_ptr<odb::database> db)
+: db(db)
 {}
 
 Authenticator::LoginResult Authenticator::login(std::string username, std::string password)
@@ -49,9 +52,12 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 		db->persist(user);
 		t.commit();
 		rr = {true, ""};
-	} catch(odb::exception const& e) {
-		rr = {false, e.what()};
+	} catch(odb::object_already_persistent const& e) {
+		rr = {false, "Username already exists in database"};
+	} catch(...) {
+		DEBUG_COUT << "You caught the wrong \"exception\"" << std::endl;
 	}
+
 	return rr;
 }
 
@@ -77,7 +83,8 @@ DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
 , radios()
 , debug_timer(*server_io_service)
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
-, auth()
+, db(initialize_database())
+, auth(db)
 {
 	gst_init(0, nullptr);
 	
@@ -100,6 +107,20 @@ DmpServer::~DmpServer()
 	}
 }
 
+void DmpServer::read_database()
+{
+	odb::transaction t(db->begin());
+	
+	try {
+		odb::result<Radio> radios(db->query<Radio>());
+		for(auto&& radio : radios) {
+			add_radio(radio.get_name());
+		}
+	} catch(odb::exception& e) {
+		DEBUG_COUT << e.what() << std::endl;
+	}
+}
+
 void DmpServer::run()
 {
 	server_io_service->run();
@@ -113,20 +134,19 @@ void DmpServer::stop()
 void DmpServer::add_pending_connection(Connection&& c)
 {
 	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
-		std::move(c), 
-		[this, &cep](){
-			cep->cancel_pending_asio();
-			remove_element(pending_connections, cep);
-		}
+		std::move(c)
 	);
+	
+	cep->set_terminate_connection([this, cep](){
+		cep->cancel_pending_asio();
+		remove_element(pending_connections, cep);
+	});
 	
 	pending_connections.push_back(cep);
 	
 	cep->get_callbacks().
 		set(message::Type::LoginRequest, [this, cep](message::LoginRequest lr) {
-			DEBUG_COUT << lr.username << " " << lr.password << std::endl;
 			auto result = auth.login(lr.username, lr.password);
-			DEBUG_COUT << (result.succes ? "login_succes" : "login_failed: " + result.reason) << std::endl;
 			if(!result.succes) {
 				cep->forward(message::LoginResponse(result.succes, result.reason));
 				return;
@@ -134,15 +154,15 @@ void DmpServer::add_pending_connection(Connection&& c)
 				cep->set_name(lr.username);
 				cep->get_callbacks().
 					unset(message::Type::LoginRequest).
-					unset(message::Type::Register);
+					unset(message::Type::RegisterRequest);
 				add_permanent_connection(cep);
 				remove_element(pending_connections, cep);
 				cep->forward(message::LoginResponse(result.succes, ""));
 			}
 		}).
-		set(message::Type::Register, [this, cep](message::Register r) {
+		set(message::Type::RegisterRequest, [this, cep](message::RegisterRequest r) {
 			auto result = auth.register_username(r.username, r.password);
-			DEBUG_COUT << (result.succes ? "register_succes" : "register_failed: " + result.reason) << std::endl;
+			cep->forward(message::RegisterResponse(result.succes, result.reason));
 		});
 }
 
@@ -194,29 +214,48 @@ void DmpServer::handle_search(std::shared_ptr<ClientEndpoint> origin, message::S
 	}
 }
 
+void DmpServer::add_radio(std::string radio_name) {
+	auto radio_it = radios.emplace(
+		std::make_pair(
+			radio_name, 
+			std::make_pair(
+				std::thread(), 
+				DmpRadio(
+					radio_name, 
+					shared_from_this(),
+					port_pool
+				)
+			)
+		)
+	).first;
+	
+	radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
+	
+	radio_it->second.second.listen();
+}
+
 void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
 {
 	if(radios.find(ar.name) == radios.end()) {
-		auto radio_it = radios.emplace(
-			std::make_pair(
-				ar.name, 
-				std::make_pair(
-					std::thread(), 
-					DmpRadio(
-						ar.name, 
-						shared_from_this(),
-						port_pool
-					)
-				)
-			)
-		).first;
-		origin->forward(message::AddRadioResponse(ar.name, true, ""));
-		radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
 		
-		radio_it->second.second.listen();
+		add_radio(ar.name);
+		
+		origin->forward(message::AddRadioResponse(ar.name, true, ""));
 		
 		for(auto connection : connections) {
 			connection.second->forward(message::AddRadio(ar.name));
+		}
+		
+		{
+			odb::transaction t(db->begin());
+		
+			Radio r(ar.name);
+			db->persist(r);
+		
+			SuperAdmin admin(db->find<User>(origin->get_name()), db->find<Radio>(ar.name));
+			db->persist(admin);
+		
+			t.commit();
 		}
 	} else {
 		origin->forward(message::AddRadioResponse(ar.name, false, "Radio with name " + ar.name + " already exists"));

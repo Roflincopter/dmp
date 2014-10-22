@@ -5,14 +5,14 @@
 
 #include "debug_macros.hpp"
 
-ClientEndpoint::ClientEndpoint(Connection&& conn, std::function<void()> terminate_connection)
+ClientEndpoint::ClientEndpoint(Connection&& conn)
 : name()
 , connection(std::move(conn))
 , ping_timer(new boost::asio::deadline_timer(*connection.io_service))
 , last_ping()
 , callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{})
 , message_switch(make_message_switch(callbacks, connection))
-, terminate_connection(terminate_connection)
+, terminate_connection()
 {
 	callbacks.
 		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1))).

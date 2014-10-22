@@ -8,7 +8,11 @@
 
 #include <QTableView>
 
-class DmpClientGuiPlaylists : public QTableView, public DmpClientUiDelegate, public DmpClientUiControllerInterface
+class DmpClientGuiPlaylists 
+: public QTableView
+, public DmpClientUiControllerInterface
+, public PlaylistUiDelegate
+, public std::enable_shared_from_this<PlaylistUiDelegate>
 {
 	Q_OBJECT
 

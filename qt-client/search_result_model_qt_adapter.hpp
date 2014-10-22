@@ -3,10 +3,11 @@
 #include "qt_adapter.hpp"
 #include "search_result_model.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "search_result_ui_delegate.hpp"
 
 #include <QAbstractTableModel>
 
-class SearchResultModelQtAdapter : public DmpClientUiDelegate, public QtAdapter<SearchResultModel>, public QAbstractTableModel
+class SearchResultModelQtAdapter : public QtAdapter<SearchResultModel>, public QAbstractTableModel, public SearchResultUiDelegate
 {
 public:
 	SearchResultModelQtAdapter();

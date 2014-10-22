@@ -1,12 +1,18 @@
 #pragma once
 
-#include <QListView>
-
 #include "dmp_client_ui_delegate.hpp"
+#include "radio_list_ui_delegate.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
 #include "radio_list_model_qt_adapter.hpp"
 
-class DmpClientGuiRadioList : public QListView, public DmpClientUiControllerInterface, public DmpClientUiDelegate
+#include <QListView>
+
+
+class DmpClientGuiRadioList
+: public QListView
+, public DmpClientUiControllerInterface
+, public RadioListUiDelegate
+, public std::enable_shared_from_this<RadioListUiDelegate>
 {
 	Q_OBJECT
 

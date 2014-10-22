@@ -2,10 +2,15 @@
 
 #include "dmp_client_ui_controller_interface.hpp"
 #include "search_bar_model_qt_adapter.hpp"
+#include "search_bar_ui_delegate.hpp"
 
 #include <QLineEdit>
 
-class DmpClientGuiSearchBar : public QLineEdit, public DmpClientUiControllerInterface, public DmpClientUiDelegate
+class DmpClientGuiSearchBar
+: public QLineEdit
+, public DmpClientUiControllerInterface
+, public SearchBarUiDelegate
+, public std::enable_shared_from_this<SearchBarUiDelegate>
 {
 	Q_OBJECT
 

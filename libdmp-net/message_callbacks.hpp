@@ -19,7 +19,8 @@ struct DmpCallbacks {
 		, CB<message::Pong>
 		, CB<message::LoginRequest>
 		, CB<message::LoginResponse>
-		, CB<message::Register>
+		, CB<message::RegisterRequest>
+		, CB<message::RegisterResponse>
 		, CB<message::SearchRequest>
 		, CB<message::SearchResponse>
 		, CB<message::Bye>

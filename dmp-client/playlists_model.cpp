@@ -62,7 +62,10 @@ boost::any PlaylistsModel::get_cell(int row, int column) const
 
 void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 {
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_start);
 	playlists[radio_name] = playlist;
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_end);
+	
 }
 
 void PlaylistsModel::append(std::string radio_name, Playlist playlist)
@@ -124,10 +127,14 @@ void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 
 void PlaylistsModel::set_current_radio(std::string radio_name)
 {
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::current_radio_change_start);
 	current_radio = radio_name;
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::current_radio_change_end);
 }
 
 void PlaylistsModel::create_radio(std::string radio_name)
 {
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::add_radio_start);
 	playlists[radio_name] = {};
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::add_radio_end);
 }

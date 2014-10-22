@@ -13,6 +13,7 @@ void SearchBarModel::set_data(std::string new_expected, size_t new_pivot)
 {
 	expected = new_expected;
 	pivot = new_pivot;
+	call_on_delegates<SearchBarUiDelegate>(&SearchBarUiDelegate::query_parse_error);
 }
 
 std::string SearchBarModel::get_expected() const

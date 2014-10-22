@@ -2,20 +2,22 @@
 
 #include "debug_macros.hpp"
 
+#include <QPushButton>
+
 DmpClientLoginDialog::DmpClientLoginDialog(QWidget *parent)
 : QDialog(parent)
 {
 	ui.setupUi(this);
+	auto button = ui.buttonBox->addButton("Register", QDialogButtonBox::ButtonRole::ActionRole);
+	connect(button, &QAbstractButton::clicked, [this](){done(Register);});
 }
 
 std::string DmpClientLoginDialog::get_username()
 {
-	DEBUG_COUT << ui.Username->text().toStdString() << std::endl;
 	return ui.Username->text().toStdString();
 }
 
 std::string DmpClientLoginDialog::get_password()
 {
-	DEBUG_COUT << ui.Password->text().toStdString() << std::endl;
 	return ui.Password->text().toStdString();
 }

@@ -29,7 +29,7 @@ void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_c
 {
 	client = new_client;
 	model->set_model(client->get_radio_list_model());
-	client->add_delegate(model);
+	client->get_radio_list_model()->add_delegate<RadioListUiDelegate>(shared_from_this());
 }
 
 void DmpClientGuiRadioList::set_radio_states()

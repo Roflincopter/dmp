@@ -20,7 +20,8 @@ void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> n
 {
 	client = new_client;
 	model->set_model(client->get_search_result_model());
-	client->add_delegate(model);
+	client->get_search_result_model()->add_delegate<SearchResultUiDelegate>(shared_from_this());
+	client->get_search_result_model()->add_delegate<SearchResultUiDelegate>(model);
 }
 
 void DmpClientGuiSearchResults::queueRequest(QModelIndex index)

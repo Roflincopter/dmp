@@ -1,5 +1,10 @@
 #pragma once
 
+#include "debug_macros.hpp"
+
+#include <vector>
+#include <memory>
+
 template <typename Delegate>
 struct Delegator_impl
 {
@@ -23,13 +28,13 @@ struct Delegator : protected Delegator_impl_gen<Delegates...>
 	template <typename Delegate>
 	void add_delegate(std::weak_ptr<Delegate> delegate)
 	{
-		static_cast<Delegator_impl<Delegate>*>(this)->observers.push_back(delegate);
+		Delegator_impl<Delegate>::template observers.push_back(delegate);
 	}
 
 	template <typename Delegate>
 	void remove_delegates(std::weak_ptr<Delegate> delegate)
 	{
-		auto delegates = static_cast<Delegator_impl<Delegate>*>(this)->observers;
+		auto delegates = Delegator_impl<Delegate>::template observers;
 		if(auto it = delegates.find(delegate.lock()) != delegates.end())
 		{
 			delegates.erase(it);
@@ -39,7 +44,7 @@ struct Delegator : protected Delegator_impl_gen<Delegates...>
 	template <typename Delegate, typename U, typename... Args>
 	void call_on_delegates(U member_fun, Args... args)
 	{
-		for(auto&& delegate : static_cast<Delegator_impl<Delegate>*>(this)->observers)
+		for(auto&& delegate : Delegator_impl<Delegate>::template observers)
 		{
 			auto s = delegate.lock();
 			((*s).*member_fun)(args...);

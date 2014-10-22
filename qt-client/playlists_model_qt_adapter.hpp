@@ -7,7 +7,7 @@
 
 #include <QAbstractTableModel>
 
-class PlaylistsModelQtAdapter : public PlaylistUiDelegate, public std::enable_shared_from_this<PlaylistsModelQtAdapter>, public DmpClientUiDelegate, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
+class PlaylistsModelQtAdapter : public PlaylistUiDelegate, public std::enable_shared_from_this<PlaylistsModelQtAdapter>, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
 {
 private:
 	bool should_update_view(std::string radio_name);

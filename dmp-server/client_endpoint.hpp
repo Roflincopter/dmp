@@ -24,7 +24,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 
 public:
 
-	ClientEndpoint(Connection&& conn, std::function<void()> terminate_connection);
+	ClientEndpoint(Connection&& conn);
 
 	void run();
 	void keep_alive();

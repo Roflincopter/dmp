@@ -1,9 +1,13 @@
 #pragma once
 
+#include "delegator.hpp"
+#include "search_bar_ui_delegate.hpp"
+
 #include <string>
 #include <cstdint>
 
 class SearchBarModel
+: public Delegator<SearchBarUiDelegate>
 {
 	std::string query;
 	std::string expected;

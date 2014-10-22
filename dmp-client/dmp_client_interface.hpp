@@ -23,6 +23,7 @@ struct DmpClientInterface {
 	virtual std::string get_tuned_in_radio() = 0;
 	virtual void send_bye() = 0;
 	virtual void send_login(std::string username, std::string password) = 0;
+	virtual void register_user(std::string username, std::string password) = 0;
 
 	virtual void stop_radio() = 0;
 	virtual void pause_radio() = 0;
@@ -30,7 +31,7 @@ struct DmpClientInterface {
 	virtual void next_radio() = 0;
 	virtual void mute_radio(bool state) = 0;
 
-	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate) = 0;
+	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate>) = 0;
 	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() = 0;
 	virtual std::shared_ptr<RadioListModel> get_radio_list_model() = 0;
 	virtual std::shared_ptr<SearchBarModel> get_search_bar_model() = 0;

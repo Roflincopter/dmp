@@ -54,10 +54,18 @@ public:
 	explicit DmpClientGui(QWidget *parent = 0);
 	~DmpClientGui() = default;
 
+	void error(std::string error);
+
+	// reimplementation of event to route custom events to the gui main thread.
+	bool event(QEvent* event) override final;
+
 	bool connect_client(std::string host, uint16_t port);
 	void login_client(std::string username, std::string password);
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
+
+	void register_user();
+	void login_user();
 
 	void closeEvent(QCloseEvent*) override final;
 	
@@ -65,6 +73,10 @@ public:
 	
 	void login_succeeded() override final;
 	void login_failed(std::string reason) override final;
+	
+	void register_succeeded() override final;
+	void register_failed(std::string reason) override final;
+	
 private slots:
 	void test1();
 	void test2();

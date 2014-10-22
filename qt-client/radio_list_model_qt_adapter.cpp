@@ -7,6 +7,7 @@ RadioListModelQtAdapter::RadioListModelQtAdapter()
 void RadioListModelQtAdapter::set_model(std::shared_ptr<RadioListModel> new_model)
 {
 	model = new_model;
+	model->add_delegate<RadioListUiDelegate>(shared_from_this());
 }
 
 int RadioListModelQtAdapter::rowCount(const QModelIndex&) const

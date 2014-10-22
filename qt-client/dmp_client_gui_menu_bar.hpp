@@ -1,13 +1,12 @@
 #pragma once
 
-#include "dmp_client_ui_delegate.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
 
 #include <QMenuBar>
 
 #include <memory>
 
-class DmpClientGuiMenuBar : public QMenuBar, public DmpClientUiControllerInterface, public DmpClientUiDelegate
+class DmpClientGuiMenuBar : public QMenuBar, public DmpClientUiControllerInterface
 {
 	Q_OBJECT
 

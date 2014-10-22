@@ -15,13 +15,15 @@ class SuperAdmin
 {
 	friend class odb::access;
 
+	SuperAdmin();
+
 	uint32_t id;
 
 	std::shared_ptr<User> user;
 	std::shared_ptr<Radio> radio;
 
 public:
-	SuperAdmin();
+	SuperAdmin(std::shared_ptr<User> user, std::shared_ptr<Radio> radio);
 };
 
 #ifdef ODB_COMPILER
@@ -35,13 +37,15 @@ class Admin
 {
 	friend class odb::access;
 
+	Admin();
+
 	uint32_t id;
 
 	std::shared_ptr<User> user;
 	std::shared_ptr<Radio> radio;
 
 public:
-	Admin();
+	Admin(std::shared_ptr<User> user, std::shared_ptr<Radio> radio);
 };
 
 #ifdef ODB_COMPILER

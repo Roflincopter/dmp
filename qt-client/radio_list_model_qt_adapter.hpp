@@ -8,7 +8,7 @@
 
 #include <memory>
 
-class RadioListModelQtAdapter : public DmpClientUiDelegate, public QtAdapter<RadioListModel>, public QAbstractListModel
+class RadioListModelQtAdapter : public QtAdapter<RadioListModel>, public QAbstractListModel, public RadioListUiDelegate, public std::enable_shared_from_this<RadioListUiDelegate>
 {
 public:
 	RadioListModelQtAdapter();

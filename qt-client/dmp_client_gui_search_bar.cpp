@@ -31,6 +31,7 @@ void DmpClientGuiSearchBar::set_client(std::shared_ptr<DmpClientInterface> new_c
 {
 	client = new_client;
 	model->set_model(client->get_search_bar_model());
+	client->get_search_bar_model()->add_delegate<SearchBarUiDelegate>(shared_from_this());
 }
 
 void DmpClientGuiSearchBar::query_parse_error()
