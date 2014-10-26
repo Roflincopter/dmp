@@ -39,16 +39,7 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	std::shared_ptr<DmpClientGuiPlaylists> shared_playlists;
 
 	void update_ui_client_interface();
-	virtual void timerEvent(QTimerEvent*);
 	void setEnabled(bool enabled);
-
-	// Facilitate error reporting between threads
-	// (these methods are thread-safe)
-	std::mutex error_indices_mutex;
-	std::map<int, std::string> error_indices;
-	void setErrorIndex(int index, std::string error);
-	std::string getErrorIndex(int index);
-	void clearErrorIndex(int index);
 
 public:
 	explicit DmpClientGui(QWidget *parent = 0);

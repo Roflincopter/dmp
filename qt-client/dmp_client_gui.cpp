@@ -105,40 +105,18 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 
 	auto client_runner = [this]
 	{
-		std::string error = "Connection to server lost.";
 		try {
 			client->run();
 		} catch (std::exception &e) {
-			error = "Connection to server lost: " + std::string(e.what());
+			QApplication::postEvent(this, new CallEvent([this, &e]{error(e.what());}));
 		}
 		client->destroy();
-		// Notify the main thread about this
-		int index = this->startTimer(100);
-		setErrorIndex(index, error);
+		
 	};
 
 	client_thread = std::thread(client_runner);
 
 	update_ui_client_interface();
-}
-
-void DmpClientGui::timerEvent(QTimerEvent *event)
-{
-	// We were notified about something by another thread, check our clients
-	if(!getErrorIndex(event->timerId()).empty()) {
-		setEnabled(false);
-		if(client) {
-			client->destroy();
-			client_thread.join();
-			client.reset();
-		}
-		std::string error = getErrorIndex(event->timerId());
-		clearErrorIndex(event->timerId());
-
-		DmpClientErrorDialog dialog(error);
-		dialog.exec();
-	}
-	killTimer(event->timerId());
 }
 
 bool DmpClientGui::connect_client(std::string host, uint16_t port)
@@ -241,8 +219,7 @@ void DmpClientGui::login_succeeded()
 
 void DmpClientGui::login_failed(std::string reason)
 {
-	int index = this->startTimer(100);
-	setErrorIndex(index, reason);
+	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
 }
 
 void DmpClientGui::register_succeeded()
@@ -268,6 +245,9 @@ void DmpClientGui::MuteToggled(bool state)
 
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
+	DEBUG_COUT << "Closing" << std::endl;
+	DEBUG_COUT << client.get() << std::endl;
+	
 	if(!client) {
 		if(client_thread.joinable()) {
 			client_thread.join();
@@ -280,26 +260,6 @@ void DmpClientGui::closeEvent(QCloseEvent*)
 	client_thread.join();
 }
 
-void DmpClientGui::setErrorIndex(int index, std::string error) {
-	std::lock_guard<std::mutex> lock(error_indices_mutex);
-	error_indices[index] = error;
-}
-
-std::string DmpClientGui::getErrorIndex(int index) {
-	std::lock_guard<std::mutex> lock(error_indices_mutex);
-	auto it = error_indices.find(index);
-	if(it == error_indices.end()) {
-		return std::string();
-	} else {
-		return it->second;
-	}
-}
-
-void DmpClientGui::clearErrorIndex(int index) {
-	std::lock_guard<std::mutex> lock(error_indices_mutex);
-	error_indices.erase(index);
-}
-
 void DmpClientGui::error(std::string error) {
 	DmpClientErrorDialog(error, this).exec();
 }
@@ -307,8 +267,9 @@ void DmpClientGui::error(std::string error) {
 bool DmpClientGui::event(QEvent *event) {
 	if(CallEvent* call = dynamic_cast<CallEvent*>(event)) {
 		(*call)();
+		call->accept();
 		return true;
 	} else {
-		return QObject::event(event);
+		return QMainWindow::event(event);
 	}
 }
