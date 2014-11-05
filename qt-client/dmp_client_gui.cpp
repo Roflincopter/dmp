@@ -108,7 +108,8 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 		try {
 			client->run();
 		} catch (std::exception &e) {
-			QApplication::postEvent(this, new CallEvent([this, &e]{error(e.what());}));
+			std::string message = e.what();
+			QApplication::postEvent(this, new CallEvent([this, message]{error(message);}));
 		}
 		client->destroy();
 		
