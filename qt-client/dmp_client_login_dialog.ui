@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>398</width>
-    <height>130</height>
+    <height>118</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,13 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>90</y>
+     <y>80</y>
      <width>341</width>
      <height>32</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::TabFocus</enum>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -38,13 +41,20 @@
      <x>9</x>
      <y>9</y>
      <width>381</width>
-     <height>71</height>
+     <height>61</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
     <property name="fieldGrowthPolicy">
      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
     </property>
+    <item row="0" column="0">
+     <widget class="QLabel" name="UsernameLabel">
+      <property name="text">
+       <string>username</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="1">
      <widget class="QLineEdit" name="Username"/>
     </item>
@@ -62,16 +72,14 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="UsernameLabel">
-      <property name="text">
-       <string>username</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>Username</tabstop>
+  <tabstop>Password</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
