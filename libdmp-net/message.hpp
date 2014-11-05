@@ -28,6 +28,7 @@ enum class Type : Type_t {
 	Bye,
 	ByeAck,
 	AddRadio,
+	RemoveRadio,
 	AddRadioResponse,
 	ListenConnectionRequest,
 	Radios,
@@ -185,6 +186,14 @@ struct AddRadio {
 	std::string name;
 
 	AddRadio(std::string name)
+	: name(name)
+	{}
+};
+
+struct RemoveRadio {
+	std::string name;
+	
+	RemoveRadio(std::string name)
 	: name(name)
 	{}
 };
@@ -409,6 +418,7 @@ MESSAGE_TYPE_CONVERSION(SearchResponse)
 MESSAGE_TYPE_CONVERSION(Bye)
 MESSAGE_TYPE_CONVERSION(ByeAck)
 MESSAGE_TYPE_CONVERSION(AddRadio)
+MESSAGE_TYPE_CONVERSION(RemoveRadio)
 MESSAGE_TYPE_CONVERSION(AddRadioResponse)
 MESSAGE_TYPE_CONVERSION(ListenConnectionRequest)
 MESSAGE_TYPE_CONVERSION(Radios)
@@ -491,6 +501,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	message::AddRadio,
+	(std::string, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::RemoveRadio,
 	(std::string, name)
 )
 

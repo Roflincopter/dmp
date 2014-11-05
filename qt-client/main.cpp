@@ -17,7 +17,7 @@
 int main(int argc, char* argv[]) {
 
 #ifdef __linux
-	signal(SIGINT, core_dump);
+	//signal(SIGINT, core_dump);
 #endif
 
 	gst_init(0, nullptr);

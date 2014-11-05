@@ -11,7 +11,7 @@
 int main(int, char**) {
 
 #ifdef __linux
-	signal(SIGINT, core_dump);
+	//signal(SIGINT, core_dump);
 #endif
 
 	auto io_service = std::make_shared<boost::asio::io_service>();

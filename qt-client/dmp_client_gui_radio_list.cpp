@@ -59,6 +59,11 @@ void DmpClientGuiRadioList::addRadio()
 	client->add_radio(radio_name);
 }
 
+void DmpClientGuiRadioList::removeRadio()
+{
+	client->remove_radio(current_selected_radio);
+}
+
 void DmpClientGuiRadioList::tuneIn(bool state)
 {
 	std::string current_tuned_in_radio = model->model->get_tuned_in_radio();

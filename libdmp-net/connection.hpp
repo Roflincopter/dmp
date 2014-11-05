@@ -120,6 +120,7 @@ class Connection {
 	std::vector<uint8_t> other_public_key;
 
 	boost::mutex send_mutex;
+	std::function<void()> terminate_connection = []{};
 
 public:
 	std::shared_ptr<boost::asio::io_service> io_service;
@@ -128,6 +129,10 @@ public:
 	Connection(Connection&& that);
 	Connection& operator=(Connection&& that);
 	~Connection();
+	
+	void set_terminate_connection(std::function<void()> function) {
+		terminate_connection = function;
+	}
 
 	template <typename T>
 	void send(T x)
@@ -240,6 +245,7 @@ public:
 		auto type_nonce_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
 		{
 			if(ec) {
+				terminate_connection();
 				throw std::runtime_error("Failed to receive nonce of type");
 			}
 

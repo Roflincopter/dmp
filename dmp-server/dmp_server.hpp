@@ -58,9 +58,11 @@ public:
 	void add_permanent_connection(std::shared_ptr<ClientEndpoint> c);
 	void remove_connection(std::string name);
 	void add_radio(std::string);
+	void remove_radio(std::string);
 
 	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
 	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
+	void handle_remove_radio(std::shared_ptr<ClientEndpoint> origin, message::RemoveRadio rr);
 	void handle_queue(message::Queue queue);
 	void handle_radio_action(message::RadioAction ra);
 	void handle_sender_event(message::SenderEvent se);

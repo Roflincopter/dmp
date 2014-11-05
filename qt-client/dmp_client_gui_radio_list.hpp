@@ -39,5 +39,6 @@ signals:
 
 public slots:
 	void addRadio();
+	void removeRadio();
 	void tuneIn(bool state);
 };

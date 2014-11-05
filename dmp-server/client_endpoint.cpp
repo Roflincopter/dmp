@@ -60,6 +60,7 @@ void ClientEndpoint::cancel_pending_asio()
 void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
 {
 	terminate_connection = f;
+	connection.set_terminate_connection(f);
 }
 
 void ClientEndpoint::handle_bye(message::Bye)

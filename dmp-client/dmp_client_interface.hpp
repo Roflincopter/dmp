@@ -14,6 +14,7 @@ struct DmpClientInterface {
 	virtual void search(std::string str) = 0;
 	virtual void index(std::string str) = 0;
 	virtual void add_radio(std::string str) = 0;
+	virtual void remove_radio(std::string str) = 0;
 	virtual void destroy() = 0;
 	virtual void stop() = 0;
 	virtual void run() = 0;

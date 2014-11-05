@@ -26,6 +26,7 @@ struct DmpCallbacks {
 		, CB<message::Bye>
 		, CB<message::ByeAck>
 		, CB<message::AddRadio>
+		, CB<message::RemoveRadio>
 		, CB<message::AddRadioResponse>
 		, CB<message::ListenConnectionRequest>
 		, CB<message::Radios>

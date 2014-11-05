@@ -97,6 +97,11 @@ void DmpClient::add_radio(std::string radio_name)
 	connection.send_encrypted(message::AddRadio(radio_name));
 }
 
+void DmpClient::remove_radio(std::string str)
+{
+	connection.send_encrypted(message::RemoveRadio(str));
+}
+
 void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
 {
 	connection.send_encrypted(message::Queue(radio, name, owner, entry));

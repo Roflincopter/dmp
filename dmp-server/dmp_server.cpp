@@ -12,6 +12,7 @@
 #include <odb/core.hxx>
 #include <odb/database.hxx>
 #include <odb/result.hxx>
+#include <odb/query.hxx>
 
 #include <boost/thread.hpp>
 
@@ -123,7 +124,12 @@ void DmpServer::read_database()
 
 void DmpServer::run()
 {
-	server_io_service->run();
+	try {
+		server_io_service->run();
+	} catch (std::runtime_error& e) {
+		DEBUG_COUT << e.what() << std::endl;
+		run();
+	}
 }
 
 void DmpServer::stop()
@@ -175,6 +181,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 	cep->get_callbacks().
 		set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, cep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, cep, std::placeholders::_1))).
+		set(message::Type::RemoveRadio, std::function<void(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, cep, std::placeholders::_1))).
 		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
 		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
@@ -234,6 +241,13 @@ void DmpServer::add_radio(std::string radio_name) {
 	radio_it->second.second.listen();
 }
 
+void DmpServer::remove_radio(std::string radio_name)
+{
+	std::pair<std::thread, DmpRadio>& radio_pair = radios.at(radio_name);
+	radio_pair.second.stop_loop();
+	radio_pair.first.join();
+}
+
 void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
 {
 	if(radios.find(ar.name) == radios.end()) {
@@ -259,6 +273,40 @@ void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message
 		}
 	} else {
 		origin->forward(message::AddRadioResponse(ar.name, false, "Radio with name " + ar.name + " already exists"));
+	}
+}
+
+void DmpServer::handle_remove_radio(std::shared_ptr<ClientEndpoint> origin, message::RemoveRadio rr) {
+	if(radios.find(rr.name) != radios.end()) {
+		
+		{
+			odb::transaction t(db->begin());
+			
+			auto user = db->find<User>(origin->get_name());
+			auto radio = db->find<Radio>(rr.name);
+			
+			using query = odb::query<SuperAdmin>;
+			auto result = db->query<SuperAdmin>(query::user == user->get_username()&& query::radio == radio->get_name());
+			
+			if(!result.empty()) {
+				
+				for(auto&& x : result) {
+					db->erase(x);
+				}
+				
+				using query = odb::query<Admin>;
+				for(auto&& x : db->query<Admin>(query::radio == radio->get_name())) {
+					db->erase(x);
+				}
+				
+				db->erase(*radio);
+				
+				remove_radio(radio->get_name());
+			} else {
+				DEBUG_COUT << "Unrightfull delete attempted" << std::endl;
+			}
+			t.commit();
+		}
 	}
 }
 
