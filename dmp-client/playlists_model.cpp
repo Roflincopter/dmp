@@ -138,3 +138,10 @@ void PlaylistsModel::create_radio(std::string radio_name)
 	playlists[radio_name] = {};
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::add_radio_end);
 }
+
+void PlaylistsModel::remove_radio(std::string radio_name)
+{
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::remove_radio_start);
+	playlists.erase(radio_name);
+	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::remove_radio_end);
+}

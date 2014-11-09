@@ -52,3 +52,13 @@ void RadioListModelQtAdapter::add_radio_end()
 {
 	endInsertRows();
 }
+
+void RadioListModelQtAdapter::remove_radio_start()
+{
+	beginResetModel();
+}
+
+void RadioListModelQtAdapter::remove_radio_end()
+{
+	endResetModel();
+}

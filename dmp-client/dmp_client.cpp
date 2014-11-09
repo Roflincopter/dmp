@@ -37,6 +37,7 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, _1))},
 		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, _1))},
 		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
+		{message::Type::RemoveRadio, std::function<void(message::RemoveRadio)>(std::bind(&DmpClient::handle_remove_radio, this, _1))},
 		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&PlaylistsModel::handle_update, playlists_model.get(), _1))},
 		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
 		{message::Type::SenderAction, std::function<void(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
@@ -273,6 +274,12 @@ void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 	} else {
 		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::add_radio_failed, response);
 	}
+}
+
+void DmpClient::handle_remove_radio(message::RemoveRadio rr)
+{
+	radio_list_model->remove_radio(rr.name);
+	playlists_model->remove_radio(rr.name);
 }
 
 void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)

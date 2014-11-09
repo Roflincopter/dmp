@@ -7,6 +7,7 @@
 #include "connection.hpp"
 #include "message_callbacks.hpp"
 #include "number_pool.hpp"
+#include "container_manipulations.hpp"
 
 #include "user-odb.hpp"
 

@@ -13,4 +13,7 @@ struct PlaylistUiDelegate
 	
 	virtual void add_radio_start(){}
 	virtual void add_radio_end(){}
+
+	virtual void remove_radio_start(){}
+	virtual void remove_radio_end(){}
 };

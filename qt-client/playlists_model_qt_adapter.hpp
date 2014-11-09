@@ -29,4 +29,7 @@ public:
 	
 	virtual void set_radios_start() override final;
 	virtual void set_radios_end() override final;
+
+	virtual void remove_radio_start() override final;
+	virtual void remove_radio_end() override final;
 };

@@ -42,4 +42,5 @@ public:
 
 	void set_current_radio(std::string radio_name);
 	void create_radio(std::string radio_name);
+	void remove_radio(std::string radio_name);
 };

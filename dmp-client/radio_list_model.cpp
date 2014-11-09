@@ -1,5 +1,7 @@
 #include "radio_list_model.hpp"
 
+#include "container_manipulations.hpp"
+
 RadioListModel::RadioListModel()
 {
 }
@@ -24,6 +26,13 @@ void RadioListModel::add_radio(std::string radio_name)
 	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::set_radios_start);
 	radio_names.push_back(radio_name);
 	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::set_radios_end);
+}
+
+void RadioListModel::remove_radio(std::string radio_name)
+{
+	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::remove_radio_start);
+	remove_element(radio_names, radio_name);
+	call_on_delegates<RadioListUiDelegate>(&RadioListUiDelegate::remove_radio_end);
 }
 
 std::string RadioListModel::get_tuned_in_radio() const

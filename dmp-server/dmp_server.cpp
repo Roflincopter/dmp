@@ -243,9 +243,10 @@ void DmpServer::add_radio(std::string radio_name) {
 
 void DmpServer::remove_radio(std::string radio_name)
 {
-	std::pair<std::thread, DmpRadio>& radio_pair = radios.at(radio_name);
-	radio_pair.second.stop_loop();
-	radio_pair.first.join();
+	auto radio_it = radios.find(radio_name);
+	radio_it->second.second.stop_loop();
+	radio_it->second.first.join();
+	radios.erase(radio_it);
 }
 
 void DmpServer::handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar)
@@ -307,6 +308,7 @@ void DmpServer::handle_remove_radio(std::shared_ptr<ClientEndpoint> origin, mess
 			}
 			t.commit();
 		}
+		origin->forward(message::RemoveRadio(rr.name));
 	}
 }
 

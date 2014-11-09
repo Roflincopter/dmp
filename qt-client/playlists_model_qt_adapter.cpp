@@ -144,3 +144,13 @@ void PlaylistsModelQtAdapter::set_radios_end()
 {
 	endResetModel();
 }
+
+void PlaylistsModelQtAdapter::remove_radio_start()
+{
+	beginResetModel();
+}
+
+void PlaylistsModelQtAdapter::remove_radio_end()
+{
+	endResetModel();
+}

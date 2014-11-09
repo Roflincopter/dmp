@@ -23,6 +23,7 @@ public:
 
 	void set_radio_names(std::vector<std::string> new_radio_names);
 	void add_radio(std::string radio_name);
+	void remove_radio(std::string radio_name);
 	std::string get_tuned_in_radio() const;
 	void set_tuned_in_radio(std::string radio_name);
 	
