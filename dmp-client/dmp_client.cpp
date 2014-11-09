@@ -13,8 +13,9 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , radio_list_model(std::make_shared<RadioListModel>())
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
+, io_service(std::make_shared<boost::asio::io_service>())
 , callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
-, connection(connect(host, port))
+, connection(connect(host, port, io_service))
 , last_sent_ping()
 , library()
 , senders()
@@ -74,12 +75,12 @@ void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 void DmpClient::run()
 {
 	listen_requests();
-	connection.io_service->run();
+	io_service->run();
 }
 
 void DmpClient::destroy()
 {
-	connection.io_service->stop();
+	io_service->stop();
 }
 
 void DmpClient::stop()
@@ -263,7 +264,7 @@ void DmpClient::handle_search_response(message::SearchResponse search_res)
 
 void DmpClient::handle_bye_ack(message::ByeAck)
 {
-	connection.io_service->stop();
+	io_service->stop();
 	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::client_stopped);
 }
 

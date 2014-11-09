@@ -2,6 +2,7 @@
 #include "dmp_server.hpp"
 
 #include "core_dump.hpp"
+#include "debug_macros.hpp"
 
 #include <boost/asio/io_service.hpp>
 
@@ -14,8 +15,7 @@ int main(int, char**) {
 	//signal(SIGINT, core_dump);
 #endif
 
-	auto io_service = std::make_shared<boost::asio::io_service>();
-	auto server = std::make_shared<DmpServer>(io_service);
+	auto server = std::make_shared<DmpServer>();
 	server->read_database();
 
 	std::thread server_thread(std::bind(&DmpServer::run, server.get()));

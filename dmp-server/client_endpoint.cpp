@@ -5,10 +5,10 @@
 
 #include "debug_macros.hpp"
 
-ClientEndpoint::ClientEndpoint(Connection&& conn)
+ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios)
 : name()
 , connection(std::move(conn))
-, ping_timer(new boost::asio::deadline_timer(*connection.io_service))
+, ping_timer(new boost::asio::deadline_timer(*ios.lock()))
 , last_ping()
 , callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{})
 , message_switch(make_message_switch(callbacks, connection))

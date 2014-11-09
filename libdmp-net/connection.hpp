@@ -123,9 +123,8 @@ class Connection {
 	std::function<void()> terminate_connection = []{};
 
 public:
-	std::shared_ptr<boost::asio::io_service> io_service;
 
-	Connection(std::shared_ptr<boost::asio::io_service> io_service, boost::asio::ip::tcp::socket&& socket);
+	Connection(boost::asio::ip::tcp::socket&& socket);
 	Connection(Connection&& that);
 	Connection& operator=(Connection&& that);
 	~Connection();

@@ -9,10 +9,9 @@
 using tcp = boost::asio::ip::tcp;
 using io_service = boost::asio::io_service;
 
-Connection connect(std::string hostname, uint16_t port)
+Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asio::io_service> ios)
 {
-	std::shared_ptr<io_service> ios = std::make_shared<io_service>();
-	boost::asio::ip::basic_resolver<tcp> resolver(*ios);
+	boost::asio::ip::basic_resolver<tcp> resolver(*ios.lock());
 	std::string portstr;
 	{
 		std::stringstream ss;
@@ -22,7 +21,7 @@ Connection connect(std::string hostname, uint16_t port)
 
 	boost::asio::ip::basic_resolver_query<tcp> query(hostname, portstr);
 	boost::asio::ip::basic_endpoint<tcp> endpoint;
-	boost::asio::ip::tcp::socket socket(*ios);
+	boost::asio::ip::tcp::socket socket(*ios.lock());
 
 	for(boost::asio::ip::tcp::resolver::iterator it = resolver.resolve(query);
 		it != boost::asio::ip::tcp::resolver::iterator();
@@ -37,7 +36,7 @@ Connection connect(std::string hostname, uint16_t port)
 		}
 		else
 		{
-			return Connection(ios, std::move(socket));
+			return Connection(std::move(socket));
 		}
 	}
 

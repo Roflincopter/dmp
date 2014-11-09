@@ -1,6 +1,6 @@
 #include "connection.hpp"
 
-Connection::Connection(std::shared_ptr<boost::asio::io_service> io_service, boost::asio::ip::tcp::socket &&socket)
+Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 	: socket(std::move(socket))
 	, async_type_nonce_buffer()
 	, async_type_buffer()
@@ -11,7 +11,6 @@ Connection::Connection(std::shared_ptr<boost::asio::io_service> io_service, boos
 	, public_key(crypto_box_publickeybytes())
 	, other_public_key(crypto_box_publickeybytes())
 	, send_mutex()
-	, io_service(io_service)
 {
 	crypto_box_keypair(&public_key[0], &private_key[0]);
 	send(message::PublicKey(public_key));
@@ -37,12 +36,10 @@ Connection::Connection(Connection&& that)
 	, public_key(std::move(that.public_key))
 	, other_public_key(std::move(that.other_public_key))
 	, send_mutex()
-	, io_service(std::move(that.io_service))
 {}
 
 Connection& Connection::operator=(Connection&& that){
 	std::swap(socket, that.socket);
-	std::swap(io_service, that.io_service);
 	std::swap(private_key, that.private_key);
 	std::swap(public_key, that.public_key);
 	std::swap(other_public_key, that.other_public_key);

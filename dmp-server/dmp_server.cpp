@@ -62,27 +62,10 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 	return rr;
 }
 
-template <typename T>
-void remove_element(T container, typename T::value_type const& element){
-	container.erase(element);
-}
-	
-template<typename V>
-void remove_element(std::vector<V>& vector, V const& element) {
-	auto const_end = vector.cend();
-	for(auto it = vector.cbegin(); it != const_end; ++it) {
-		if(*it == element) {
-			vector.erase(it);
-			break;
-		}
-	}
-}
-
-DmpServer::DmpServer(std::shared_ptr<boost::asio::io_service> ios)
-: server_io_service(ios)
+DmpServer::DmpServer()
+: server_io_service(std::make_shared<boost::asio::io_service>())
 , connections()
 , radios()
-, debug_timer(*server_io_service)
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
 , db(initialize_database())
 , auth(db)
@@ -140,7 +123,8 @@ void DmpServer::stop()
 void DmpServer::add_pending_connection(Connection&& c)
 {
 	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
-		std::move(c)
+		std::move(c),
+		server_io_service
 	);
 	
 	cep->set_terminate_connection([this, cep](){

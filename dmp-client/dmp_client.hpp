@@ -24,6 +24,7 @@ public:
 	std::shared_ptr<SearchResultModel> search_result_model;
 
 private:
+	std::shared_ptr<boost::asio::io_service> io_service;
 	message::DmpCallbacks callbacks;
 	Connection connection;
 	message::Ping last_sent_ping;

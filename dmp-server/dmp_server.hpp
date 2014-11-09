@@ -41,13 +41,12 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 	std::vector<std::shared_ptr<ClientEndpoint>> pending_connections;
 	std::map<std::string, std::shared_ptr<ClientEndpoint>> connections;
 	std::map<std::string, std::pair<std::thread, DmpRadio>> radios;
-	boost::asio::deadline_timer debug_timer;
 	std::shared_ptr<NumberPool> port_pool;
 	std::shared_ptr<odb::database> db;
 	Authenticator auth;
 
 public:
-	DmpServer(std::shared_ptr<boost::asio::io_service> ios);
+	DmpServer();
 	~DmpServer();
 
 	void run();
