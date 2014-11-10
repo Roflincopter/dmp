@@ -244,7 +244,9 @@ public:
 		auto type_nonce_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
 		{
 			if(ec) {
-				terminate_connection();
+				if(ec.value() == boost::system::errc::operation_canceled) {
+					return;
+				}
 				throw std::runtime_error("Failed to receive nonce of type");
 			}
 

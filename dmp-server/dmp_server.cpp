@@ -127,9 +127,13 @@ void DmpServer::add_pending_connection(Connection&& c)
 		server_io_service
 	);
 	
-	cep->set_terminate_connection([this, cep](){
-		cep->cancel_pending_asio();
-		remove_element(pending_connections, cep);
+	std::weak_ptr<ClientEndpoint> wcep = cep;
+	cep->set_terminate_connection([this, wcep] {
+		std::shared_ptr<ClientEndpoint> cep = wcep.lock();
+		if(cep) {
+			cep->cancel_pending_asio();
+			remove_element(pending_connections, cep);
+		}
 	});
 	
 	pending_connections.push_back(cep);
@@ -153,6 +157,11 @@ void DmpServer::add_pending_connection(Connection&& c)
 		set(message::Type::RegisterRequest, [this, cep](message::RegisterRequest r) {
 			auto result = auth.register_username(r.username, r.password);
 			cep->forward(message::RegisterResponse(result.succes, result.reason));
+		}).
+		set(message::Type::Bye, [this, cep](message::Bye c) {
+			cep->forward(message::ByeAck());
+			remove_element(pending_connections, cep);
+			cep->get_callbacks().clear();
 		});
 }
 

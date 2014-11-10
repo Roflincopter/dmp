@@ -88,7 +88,8 @@ void DmpClientGui::test3()
 	client->add_radio("Radio1");
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	shared_radio_list->set_selection(0);
-	client->search("artist contains \"Alter\"");}
+	client->search("artist contains \"Alter\"");
+}
 
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
@@ -112,7 +113,7 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 			QApplication::postEvent(this, new CallEvent([this, message]{error(message);}));
 		}
 		client->destroy();
-		
+		client.reset();
 	};
 
 	client_thread = std::thread(client_runner);
@@ -167,7 +168,7 @@ void DmpClientGui::login_user()
 	int result = login.exec();
 	
 	if(result == QDialog::Rejected) {
-		return;
+		client->send_bye();
 	}
 	
 	if(result == DmpClientLoginDialog::Register) {
