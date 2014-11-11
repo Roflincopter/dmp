@@ -59,7 +59,7 @@ public:
 	void login_user();
 
 	void closeEvent(QCloseEvent*) override final;
-	
+
 	void set_play_paused_state(bool state) override final;
 	
 	void login_succeeded() override final;

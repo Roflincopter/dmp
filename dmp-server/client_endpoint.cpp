@@ -15,8 +15,7 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 , terminate_connection()
 {
 	callbacks.
-		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1))).
-		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, this, std::placeholders::_1)));
+		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1)));
 	
 	listen_requests();
 	keep_alive();
@@ -60,11 +59,11 @@ void ClientEndpoint::cancel_pending_asio()
 void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
 {
 	terminate_connection = f;
-	connection.set_terminate_connection(f);
 }
 
 void ClientEndpoint::handle_bye(message::Bye)
 {
+	connection.send_encrypted(message::ByeAck());
 	terminate_connection();
 }
 

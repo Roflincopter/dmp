@@ -265,6 +265,7 @@ void DmpClient::handle_search_response(message::SearchResponse search_res)
 void DmpClient::handle_bye_ack(message::ByeAck)
 {
 	io_service->stop();
+	callbacks.stop_refresh();
 }
 
 void DmpClient::handle_add_radio_response(message::AddRadioResponse response)

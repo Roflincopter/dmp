@@ -247,18 +247,14 @@ void DmpClientGui::MuteToggled(bool state)
 
 void DmpClientGui::closeEvent(QCloseEvent*)
 {
-	DEBUG_COUT << "Closing" << std::endl;
-	DEBUG_COUT << client.get() << std::endl;
-	
 	if(!client) {
 		if(client_thread.joinable()) {
 			client_thread.join();
 		}
 		return;
 	}
-	
+
 	client->stop();
-	client->destroy();
 	client_thread.join();
 }
 

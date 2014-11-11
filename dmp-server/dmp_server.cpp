@@ -127,15 +127,6 @@ void DmpServer::add_pending_connection(Connection&& c)
 		server_io_service
 	);
 	
-	std::weak_ptr<ClientEndpoint> wcep = cep;
-	cep->set_terminate_connection([this, wcep] {
-		std::shared_ptr<ClientEndpoint> cep = wcep.lock();
-		if(cep) {
-			cep->cancel_pending_asio();
-			remove_element(pending_connections, cep);
-		}
-	});
-	
 	pending_connections.push_back(cep);
 	
 	cep->get_callbacks().
@@ -178,7 +169,8 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		set(message::Type::Queue, std::function<void(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
 		set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
-		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1)));
+		set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, cep, std::placeholders::_1))).
+		set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1)));
 	connections[username] = cep;
 
 	std::map<std::string, Playlist> playlists;

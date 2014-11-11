@@ -120,7 +120,6 @@ class Connection {
 	std::vector<uint8_t> other_public_key;
 
 	boost::mutex send_mutex;
-	std::function<void()> terminate_connection = []{};
 
 public:
 
@@ -128,10 +127,6 @@ public:
 	Connection(Connection&& that);
 	Connection& operator=(Connection&& that);
 	~Connection();
-	
-	void set_terminate_connection(std::function<void()> function) {
-		terminate_connection = function;
-	}
 
 	template <typename T>
 	void send(T x)
