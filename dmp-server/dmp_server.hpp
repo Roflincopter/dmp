@@ -60,13 +60,13 @@ public:
 	void add_radio(std::string);
 	void remove_radio(std::string);
 
-	void handle_search(std::shared_ptr<ClientEndpoint> origin, message::SearchRequest sr);
-	void handle_add_radio(std::shared_ptr<ClientEndpoint> origin, message::AddRadio ar);
-	void handle_remove_radio(std::shared_ptr<ClientEndpoint> origin, message::RemoveRadio rr);
-	void handle_queue(message::Queue queue);
-	void handle_radio_action(message::RadioAction ra);
-	void handle_sender_event(message::SenderEvent se);
-	void handle_tune_in(std::shared_ptr<ClientEndpoint> origin, message::TuneIn ti);
+	bool handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr);
+	bool handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar);
+	bool handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::RemoveRadio rr);
+	bool handle_queue(message::Queue queue);
+	bool handle_radio_action(message::RadioAction ra);
+	bool handle_sender_event(message::SenderEvent se);
+	bool handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti);
 	
 	void update_playlist(std::string radio_name, Playlist playlist) override final;
 	

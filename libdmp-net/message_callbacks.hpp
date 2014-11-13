@@ -12,7 +12,7 @@
 namespace message {
 
 struct DmpCallbacks {
-	template <typename T> using CB = std::function<void(T)>;
+	template <typename T> using CB = std::function<bool(T)>;
 	
 	using CallBackType = boost::variant<
 		  CB<message::Ping>
@@ -45,12 +45,10 @@ struct DmpCallbacks {
 	
 	Callbacks_t callbacks;
 	std::function<void()> refresher;
-	bool stop;
 
 	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks)
 	: callbacks(initial_callbacks)
 	, refresher(refresher)
-	, stop(false)
 	{}
 
 	template <typename T>
@@ -60,8 +58,7 @@ struct DmpCallbacks {
 
 		if (it != callbacks.cend()) {
 			auto f = boost::get<CB<T>>(it->second);
-			f(message);
-			if(!stop) {
+			if(f(message)) {
 				refresher();
 			}
 		} else {
@@ -80,11 +77,6 @@ struct DmpCallbacks {
 	{
 		callbacks.erase(t);
 		return *this;
-	}
-
-	void stop_refresh()
-	{
-		stop = true;
 	}
 	
 	void clear()

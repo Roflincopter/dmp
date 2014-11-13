@@ -38,7 +38,7 @@ public:
 	void append(std::string radio_name, Playlist playlist);
 	void reset(std::string radio_name);
 	
-	void handle_update(message::PlaylistUpdate update_msg);
+	bool handle_update(message::PlaylistUpdate update_msg);
 
 	void set_current_radio(std::string radio_name);
 	void create_radio(std::string radio_name);

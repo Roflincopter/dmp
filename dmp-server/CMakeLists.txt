@@ -22,6 +22,7 @@ add_executable(dmp-server
 	user.hpp user.cpp
 	radio.hpp radio.cpp
 	radio_admin.hpp radio_admin.cpp
+	server_exceptions.hpp server_exceptions.cpp
 	${odb_sources}
 )
 

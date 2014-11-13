@@ -14,7 +14,6 @@ int main(int, char**) {
 #ifdef __linux
 	//signal(SIGINT, core_dump);
 #endif
-
 	auto server = std::make_shared<DmpServer>();
 	server->read_database();
 
@@ -35,6 +34,5 @@ int main(int, char**) {
 
 	server->stop();
 	server_thread.join();
-
 	return 0;
 }

@@ -88,7 +88,7 @@ void PlaylistsModel::reset(std::string radio_name)
 	playlists[radio_name].clear();
 }
 
-void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
+bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 {
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_start, update_msg);
 	switch(update_msg.action.type)
@@ -123,6 +123,7 @@ void PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 		}
 	}
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_end, update_msg);
+	return true;
 }
 
 void PlaylistsModel::set_current_radio(std::string radio_name)

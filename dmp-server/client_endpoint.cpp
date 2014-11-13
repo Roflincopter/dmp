@@ -15,7 +15,7 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 , terminate_connection()
 {
 	callbacks.
-		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1)));
+		set(message::Type::Pong, std::function<bool(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1)));
 	
 	listen_requests();
 	keep_alive();
@@ -28,20 +28,22 @@ message::DmpCallbacks& ClientEndpoint::get_callbacks()
 
 void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr)
 {
-	callbacks.set(message::Type::SearchResponse, cb);
+	callbacks.set(message::Type::SearchResponse, [cb](message::SearchResponse sr){cb(sr); return true;});
 	connection.send_encrypted(sr);
 }
 
 void ClientEndpoint::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);
+
 }
 
-void ClientEndpoint::handle_pong(message::Pong p)
+bool ClientEndpoint::handle_pong(message::Pong p)
 {
 	if(p.payload != last_ping.payload) {
 		terminate_connection();
 	}
+	return true;
 }
 
 void ClientEndpoint::listen_requests()
@@ -50,21 +52,17 @@ void ClientEndpoint::listen_requests()
 	connection.async_receive_encrypted_type(cb);
 }
 
-void ClientEndpoint::cancel_pending_asio()
-{
-	callbacks.stop_refresh();
-	ping_timer->cancel();
-}
-
 void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
 {
 	terminate_connection = f;
 }
 
-void ClientEndpoint::handle_bye(message::Bye)
+bool ClientEndpoint::handle_bye(message::Bye)
 {
 	connection.send_encrypted(message::ByeAck());
+	ping_timer->cancel();
 	terminate_connection();
+	return false;
 }
 
 void ClientEndpoint::keep_alive()

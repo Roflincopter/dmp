@@ -29,7 +29,6 @@ public:
 	void run();
 	void keep_alive();
 	void listen_requests();
-	void cancel_pending_asio();
 
 	void set_terminate_connection(std::function<void()> f);
 	std::string get_name() {return name;}
@@ -46,6 +45,6 @@ public:
 	void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);
 
 	void handle_request(message::Type t);
-	void handle_pong(message::Pong p);
-	void handle_bye(message::Bye);
+	bool handle_pong(message::Pong p);
+	bool handle_bye(message::Bye);
 };
