@@ -7,9 +7,9 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 	, async_mess_nonce_buffer()
 	, async_size_buffer()
 	, async_mess_buffer()
-	, private_key(crypto_box_secretkeybytes())
-	, public_key(crypto_box_publickeybytes())
-	, other_public_key(crypto_box_publickeybytes())
+	, private_key(crypto_box_secretkeybytes(), 0)
+	, public_key(crypto_box_publickeybytes(), 0)
+	, other_public_key(crypto_box_publickeybytes(), 0)
 	, send_mutex()
 {
 	crypto_box_keypair(&public_key[0], &private_key[0]);
@@ -18,11 +18,9 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 	if(type != message::Type::PublicKey) {
 		throw std::runtime_error("Failed to setup a secure connection");
 	}
+
 	message::PublicKey x = receive();
-	other_public_key = x.key;
-	DEBUG_COUT << "private key: " << private_key << std::endl;
-	DEBUG_COUT << "public key:" << public_key << std::endl;
-	DEBUG_COUT << "others public key: " << other_public_key << std::endl;
+	other_public_key.swap(x.key);
 }
 
 Connection::Connection(Connection&& that)
@@ -91,7 +89,7 @@ message::Type Connection::receive_encrypted_type()
 	std::vector<uint8_t> content(sizeof(decltype(type)));
 
 	bool succes = 0 == crypto_box_open_easy(
-				&content[0],
+			&content[0],
 			cypherbuf.data(),
 			cypherbuf.size(),
 			nonce.data(),

@@ -154,13 +154,13 @@ public:
 		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
 
 		std::vector<uint8_t> type_cypher(sizeof(decltype(type)) + crypto_box_macbytes());
-		std::vector<uint8_t> nonce1(crypto_box_noncebytes());
+		std::vector<uint8_t> nonce1(crypto_box_noncebytes(), 0);
 
 		randombytes(&nonce1[0], nonce1.size());
 
 		bool succes1 = !crypto_box_easy(
 			&type_cypher[0],
-			reinterpret_cast<uint8_t*>(&type),
+			reinterpret_cast<const uint8_t*>(&type),
 			sizeof(decltype(type)),
 			nonce1.data(),
 			other_public_key.data(),
@@ -182,7 +182,7 @@ public:
 		std::vector<uint8_t> content(tmp_str.begin(), tmp_str.end());
 
 		std::vector<uint8_t> message_cypher(content.size() + crypto_box_macbytes());
-		std::vector<uint8_t> nonce2(crypto_box_noncebytes());
+		std::vector<uint8_t> nonce2(crypto_box_noncebytes(), 0);
 
 		randombytes(&nonce2[0], nonce2.size());
 
@@ -200,6 +200,8 @@ public:
 		}
 
 		uint32_t size = message_cypher.size();
+
+		static_assert(sizeof(decltype(size)) == 4, "Size of uint32_t is assumed to be 4 bytes, but is not.");
 
 		boost::asio::write(socket, boost::asio::buffer(nonce2));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
@@ -257,7 +259,7 @@ public:
 
 				assert(bytes_transfered == async_type_buffer.size());
 
-				std::vector<uint8_t> type_buf(sizeof(message::Type_t));
+				std::vector<uint8_t> type_buf(sizeof(message::Type_t), 0);
 
 				bool succes = !crypto_box_open_easy(
 					&type_buf[0],
