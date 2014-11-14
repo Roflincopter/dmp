@@ -15,6 +15,8 @@
 #include <odb/result.hxx>
 #include <odb/query.hxx>
 
+#include "sodium.h"
+
 #include <boost/thread.hpp>
 
 #include "fusion_outputter.hpp"
@@ -32,10 +34,19 @@ Authenticator::LoginResult Authenticator::login(std::string username, std::strin
 	auto user = db->find<User>(username);
 	if(!user) {
 		lr = {false, "Username not found in database"};
-	} else if(password == user->get_password()) {
-		lr = {true, ""};
 	} else {
-		lr = {false, "Wrong password"};
+		std::string hashed_password(user->get_password());
+		bool succes = !crypto_pwhash_scryptsalsa208sha256_str_verify(
+			&hashed_password[0],
+			password.data(),
+			password.size()
+		);
+
+		if(succes) {
+			lr = {true, ""};
+		} else {
+			lr = {false, "Wrong password"};
+		}
 	}
 	
 	t.commit();
@@ -45,7 +56,22 @@ Authenticator::LoginResult Authenticator::login(std::string username, std::strin
 Authenticator::RegisterResult Authenticator::register_username(std::string username, std::string password)
 {
 	odb::transaction t(db->begin());
-	User user(username, password);
+
+	std::string hashed_password(crypto_pwhash_scryptsalsa208sha256_strbytes(), '\0');
+
+	bool succes = !crypto_pwhash_scryptsalsa208sha256_str(
+		&hashed_password[0],
+		password.data(),
+		password.size(),
+		crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(),
+		crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
+	);
+
+	if(!succes) {
+		throw std::runtime_error("Out of memory for password hashing");
+	}
+
+	User user(username, hashed_password);
 	
 	Authenticator::RegisterResult rr;
 	
