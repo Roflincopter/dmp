@@ -34,6 +34,7 @@ target_include_directories(dmp-library
 )
 
 target_link_libraries(dmp-library
+	PUBLIC boost-fusion-utils
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE ${TAGLIB_LIBRARIES}
 	PRIVATE ${ICU_LIBRARIES}

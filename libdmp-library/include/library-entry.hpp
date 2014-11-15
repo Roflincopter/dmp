@@ -1,6 +1,7 @@
 #pragma once
 
 #include "icu-ascii-transliterator.hpp"
+#include "fusion_lexicographical_compare.hpp"
 
 #include <iostream>
 #include <string>
@@ -21,6 +22,10 @@ struct LibraryEntry
 		
 		Duration() = default;
 		
+		friend bool operator<(Duration const& lh, Duration const& rh) {
+			return lexicographical_compare(lh, rh);
+		}
+
 		Duration(std::uint32_t duration)
 		: hours(duration / (60 * 60))
 		, minutes((duration / 60) % 60)

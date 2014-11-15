@@ -6,9 +6,10 @@ DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 : QTableView(parent)
 , client(nullptr)
 , model(std::make_shared<SearchResultModelQtAdapter>())
+, proxy_model(std::make_shared<SearchResultSortProxyModel>(model))
 , delegate()
 {
-	setModel(model.get());
+	setModel(proxy_model.get());
 	setItemDelegate(&delegate);
 	hideColumn(1);
 	hideColumn(3);

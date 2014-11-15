@@ -6,6 +6,7 @@ set(boost-fusion-utils-sources
 	friendly_fusion.hpp
 	fusion_outputter.hpp
 	fusion_serializer.hpp
+	fusion_lexicographical_compare.hpp
 )
 
 add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})

@@ -75,7 +75,7 @@ void DmpClientGui::test1()
 void DmpClientGui::test2()
 {
 	connect_client("127.0.0.1", 1337);
-	client->send_login("ex_username", "ex_password");
+	client->send_login("dennis", "password");
 	client->index("/home/dennis/Music");
 }
 

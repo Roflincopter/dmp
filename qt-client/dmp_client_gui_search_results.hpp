@@ -1,6 +1,7 @@
 #pragma once
 
 #include "search_result_model_qt_adapter.hpp"
+#include "search_result_sort_proxy_model.hpp"
 #include "dmp_client_interface.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
 #include "search_result_ui_delegate.hpp"
@@ -18,6 +19,7 @@ class DmpClientGuiSearchResults
 
 	std::shared_ptr<DmpClientInterface> client;
 	std::shared_ptr<SearchResultModelQtAdapter> model;
+	std::shared_ptr<SearchResultSortProxyModel> proxy_model;
 	GuiItemDelegate delegate;
 
 	std::string current_active_radio;

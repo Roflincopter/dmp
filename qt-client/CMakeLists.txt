@@ -62,6 +62,7 @@ qt5_wrap_cpp(QtGeneratedSources
 set(DmpClientSources
 	main.cpp
 	search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp
+	search_result_sort_proxy_model.hpp search_result_sort_proxy_model.cpp
 	search_bar_model_qt_adapter.hpp search_bar_model_qt_adapter.cpp
 	radio_list_model_qt_adapter.hpp radio_list_model_qt_adapter.cpp
 	playlists_model_qt_adapter.hpp playlists_model_qt_adapter.cpp
