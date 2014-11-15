@@ -21,18 +21,7 @@ struct LibraryEntry
 		uint32_t seconds;
 		
 		Duration() = default;
-		
-		friend bool operator<(Duration const& lh, Duration const& rh) {
-			return lexicographical_compare(lh, rh);
-		}
-
-		Duration(std::uint32_t duration)
-		: hours(duration / (60 * 60))
-		, minutes((duration / 60) % 60)
-		, seconds(duration % 60)
-		{
-			
-		}
+		Duration(std::uint32_t duration);
 		
 		std::string to_string() const;
 		
@@ -73,6 +62,8 @@ private:
 
 std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
 std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur);
+
+bool operator<(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
 
 bool operator==(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
 bool operator==(LibraryEntry const& lh, LibraryEntry const& rh);

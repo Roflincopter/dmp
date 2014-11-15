@@ -74,6 +74,18 @@ std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur)
 	return os << dur.to_string();
 }
 
+bool operator<(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh) {
+	return lexicographical_compare(lh, rh);
+}
+
+LibraryEntry::Duration::Duration(std::uint32_t duration)
+	: hours(duration / (60 * 60))
+	, minutes((duration / 60) % 60)
+	, seconds(duration % 60)
+{
+
+}
+
 string LibraryEntry::Duration::to_string() const
 {
 	std::stringstream ss;
