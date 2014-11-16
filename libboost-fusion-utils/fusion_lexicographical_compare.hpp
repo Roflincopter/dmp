@@ -4,7 +4,7 @@
 
 namespace ff = friendly_fusion;
 
-struct lexicographical_compare
+struct LexicographicalCompare
 {
 	template <typename I1, typename E, typename I2>
 	static typename std::enable_if<!std::is_same<I1,E>::value, bool>::type
@@ -14,7 +14,7 @@ struct lexicographical_compare
 			return true;
 		}
 		if(ff::deref(it1) == ff::deref(it2)) {
-			return lexicographical_compare::less_than(ff::advance_c<1>(it1), end, ff::advance_c<1>(it2));
+			return LexicographicalCompare::less_than(ff::advance_c<1>(it1), end, ff::advance_c<1>(it2));
 		}
 		return false;
 	}
@@ -31,5 +31,5 @@ struct lexicographical_compare
 template <typename T>
 bool lexicographical_compare(T const& lh, T const& rh)
 {
-	return lexicographical_compare::less_than(ff::begin(lh), ff::end(lh), ff::begin(rh));
+	return LexicographicalCompare::less_than(ff::begin(lh), ff::end(lh), ff::begin(rh));
 }
