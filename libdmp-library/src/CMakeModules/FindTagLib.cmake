@@ -65,13 +65,13 @@ ELSE()
         ${INCLUDE_INSTALL_DIR}
       )
 
-      #find_library_with_debug(TAGLIB_LIBRARIES
-      #  WIN32_DEBUG_POSTFIX d
-      #  NAMES tag
-      #  PATHS
-      #  ${KDE4_LIB_DIR}
-      #  ${LIB_INSTALL_DIR}
-      #)
+      find_library(TAGLIB_LIBRARIES
+        WIN32_DEBUG_POSTFIX d
+        NAMES tag
+        PATHS
+        ${KDE4_LIB_DIR}
+        ${LIB_INSTALL_DIR}
+      )
       
       find_package_handle_standard_args(Taglib DEFAULT_MSG 
                                         TAGLIB_INCLUDES TAGLIB_LIBRARIES)
