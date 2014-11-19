@@ -120,20 +120,3 @@ if(USE_GPERF)
 		PRIVATE "-lprofiler"
 	)
 endif(USE_GPERF)
-
-if(MINGW)
-	add_definitions("-DBOOST_THREAD_USE_LIB=1 -mms-bitfields -DPCRE_STATIC")
-	target_link_libraries(qt-client
-		PRIVATE pthread
-		PRIVATE ws2_32
-		PRIVATE mswsock
-		PRIVATE ffi
-		PRIVATE imm32
-		PRIVATE opengl32
-		PRIVATE freetype
-		PRIVATE bz2
-		PRIVATE jpeg
-		PRIVATE png
-		PRIVATE pcre16
-	)
-endif(MINGW)
