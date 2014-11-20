@@ -36,6 +36,16 @@ QVariant PlaylistsModelQtAdapter::headerData(int section, Qt::Orientation orient
 	return QVariant(QString::fromStdString(model->header_data(section)));
 }
 
+Qt::ItemFlags PlaylistsModelQtAdapter::flags(QModelIndex const& index) const
+{
+	 Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+	 if (index.isValid())
+		 return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+	 else
+		 return Qt::ItemIsDropEnabled | defaultFlags;
+}
+
 QVariant PlaylistsModelQtAdapter::data(QModelIndex const& index, int role) const
 {
 	if(role != Qt::DisplayRole) {

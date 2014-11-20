@@ -21,6 +21,8 @@ public:
 	QVariant data(const QModelIndex &index, int role) const override final;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
 
+	Qt::ItemFlags flags(QModelIndex const& index) const override final;
+
 	virtual void playlist_update_start(message::PlaylistUpdate update) override final;
 	virtual void playlist_update_end(message::PlaylistUpdate update) override final;
 
