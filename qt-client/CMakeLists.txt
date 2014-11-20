@@ -78,7 +78,7 @@ set(DmpClientSources
 	dmp_client_gui_playlists.hpp dmp_client_gui_playlists.cpp
 	call_event.hpp call_event.cpp
 	qt_adapter.hpp
-	boost_any_to_qvariant.hpp
+	boost_any_qvariant_convert.hpp
 	gui_item_delegate.hpp gui_item_delegate.cpp
 	${QtGeneratedHeaders} ${QtGeneratedSources}
 )

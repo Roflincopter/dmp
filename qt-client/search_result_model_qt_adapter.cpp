@@ -1,5 +1,6 @@
 #include "search_result_model_qt_adapter.hpp"
-#include "boost_any_to_qvariant.hpp"
+#include "dmp_qt_meta_types.hpp"
+#include "boost_any_qvariant_convert.hpp"
 
 #include <boost/any.hpp>
 

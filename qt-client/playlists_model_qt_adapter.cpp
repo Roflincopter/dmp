@@ -1,6 +1,7 @@
 #include "playlists_model_qt_adapter.hpp"
 
-#include "boost_any_to_qvariant.hpp"
+#include "dmp_qt_meta_types.hpp"
+#include "boost_any_qvariant_convert.hpp"
 
 PlaylistsModelQtAdapter::PlaylistsModelQtAdapter()
 {
