@@ -1,4 +1,4 @@
-# - Try to find LibDMP-library
+# - Try to find Sodium
 # Once done this wil define
 # Sodium_FOUND
 # Sodium_INCLUDE_DIRS
@@ -13,11 +13,11 @@ set(Sodium_INCLUDE_DIRS ${Sodium_INCLUDE_DIR})
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Sodium REQUIRED_VARS Sodium_LIBRARY Sodium_INCLUDE_DIR)
 
-set(Sodium_FOUND ${ODBC++_FOUND})
+set(Sodium_FOUND ${SODIUM_FOUND})
 
 if(NOT Sodium_FOUND)
 	IF (Sodium_FIND_REQUIRED)
-		message(SEND_ERROR "Unable to find Sodium cryptop library")
+		message(SEND_ERROR "Unable to find Sodium crypto library")
 	ENDIF(Sodium_FIND_REQUIRED)
 endif(NOT Sodium_FOUND)
 
