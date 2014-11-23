@@ -16,8 +16,8 @@ public:
 
 	int rowCount(const QModelIndex & = QModelIndex()) const override final;
 	int columnCount(const QModelIndex &) const override final;
-	QVariant data(const QModelIndex &index, int role) const override final;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
+	virtual QVariant data(const QModelIndex &index, int role) const override final;
+	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
 
 	virtual void new_search_begin() override final;
 	virtual void new_search_end() override final;

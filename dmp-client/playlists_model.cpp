@@ -57,7 +57,27 @@ boost::any PlaylistsModel::get_cell(int row, int column) const
 	}
 
 	auto data = datalist[row];
-	return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry, PlaylistEntry>(data.entry, data), column);
+	return get_nth(ElementType(data.entry, data), column);
+}
+
+void PlaylistsModel::set_cell(boost::any const& value, int row, int column)
+{
+	auto it = playlists.find(current_radio);
+	if(it == playlists.end()) {
+		std::runtime_error("internally selected current radio does not exist.");
+	}
+
+	Playlist& datalist = it->second;
+
+	if(row < 0 || size_t(row) >= datalist.size()) {
+		throw std::out_of_range("Row index was out of range.");
+	}
+
+	if(column < 0 || size_t(column) >= number_of_library_entry_members + number_of_playlist_entry_members) {
+		throw std::out_of_range("Column index was out of range.");
+	}
+	auto& data = datalist[row];
+	set_nth(ElementType(data.entry, data), column, value);
 }
 
 void PlaylistsModel::update(std::string radio_name, Playlist playlist)

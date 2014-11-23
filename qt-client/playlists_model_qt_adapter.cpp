@@ -36,6 +36,20 @@ QVariant PlaylistsModelQtAdapter::headerData(int section, Qt::Orientation orient
 	return QVariant(QString::fromStdString(model->header_data(section)));
 }
 
+bool PlaylistsModelQtAdapter::setData(QModelIndex const& index, QVariant const& value, int role)
+{
+	if(!index.isValid()) {
+		return false;
+	}
+
+	if(role != Qt::DisplayRole) {
+		return true;
+	}
+
+	model->set_cell(to_boost_any<PlaylistsModel::ElementType>(value, index.column()), index.row(), index.column());
+	return true;
+}
+
 Qt::ItemFlags PlaylistsModelQtAdapter::flags(QModelIndex const& index) const
 {
 	 Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
@@ -48,6 +62,10 @@ Qt::ItemFlags PlaylistsModelQtAdapter::flags(QModelIndex const& index) const
 
 QVariant PlaylistsModelQtAdapter::data(QModelIndex const& index, int role) const
 {
+	if(!index.isValid()) {
+		return QVariant();
+	}
+
 	if(role != Qt::DisplayRole) {
 		return QVariant();
 	}

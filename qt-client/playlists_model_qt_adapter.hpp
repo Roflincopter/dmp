@@ -18,10 +18,12 @@ public:
 
 	int rowCount(const QModelIndex & = QModelIndex()) const override final;
 	int columnCount(const QModelIndex &) const override final;
-	QVariant data(const QModelIndex &index, int role) const override final;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
+	virtual QVariant data(const QModelIndex &index, int role) const override final;
+	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override final;
 
-	Qt::ItemFlags flags(QModelIndex const& index) const override final;
+	virtual bool setData(QModelIndex const& index, QVariant const& value, int role) override final;
+
+	virtual Qt::ItemFlags flags(QModelIndex const& index) const override final;
 
 	virtual void playlist_update_start(message::PlaylistUpdate update) override final;
 	virtual void playlist_update_end(message::PlaylistUpdate update) override final;

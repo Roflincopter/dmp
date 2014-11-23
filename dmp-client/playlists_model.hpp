@@ -34,6 +34,8 @@ public:
 	std::string header_data(int section) const;
 	boost::any get_cell(int row, int column) const;
 
+	void set_cell(const boost::any &value, int row, int column);
+
 	void update(std::string radio_name, Playlist playlist);
 	void append(std::string radio_name, Playlist playlist);
 	void reset(std::string radio_name);
