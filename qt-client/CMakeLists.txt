@@ -76,6 +76,7 @@ set(DmpClientSources
 	dmp_client_gui_search_results.hpp dmp_client_gui_search_results.cpp
 	dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
 	dmp_client_gui_playlists.hpp dmp_client_gui_playlists.cpp
+	dmp_qt_meta_types.hpp
 	call_event.hpp call_event.cpp
 	qt_adapter.hpp
 	boost_any_qvariant_convert.hpp

@@ -1,6 +1,6 @@
 
+#include "dmp_qt_meta_types.hpp"
 #include "dmp_client.hpp"
-
 #include "dmp-library.hpp"
 #include "dmp_client_gui.hpp"
 #include "core_dump.hpp"
@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
 	{
 		int x = 0;
 		QApplication qapp(x, nullptr);
+		init_meta_types();
 
 		auto gui = std::make_shared<DmpClientGui>();
 
