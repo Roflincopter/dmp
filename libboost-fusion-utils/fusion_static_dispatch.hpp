@@ -118,7 +118,7 @@ struct set_nth_functor
 };
 
 template <typename T>
-void set_nth(T& x, int index, boost::any const& value)
+void set_nth(T&& x, int index, boost::any const& value)
 {
 	apply_functor_to_member<set_nth_functor>(index, x, value);
 }
