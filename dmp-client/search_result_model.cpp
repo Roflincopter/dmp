@@ -20,7 +20,7 @@ void SearchResultModel::add_search_response(message::SearchResponse response)
 
 int SearchResultModel::row_count() const
 {
-	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement rh){return acc + rh.second.size();});
+	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement const& rh){return acc + rh.second.size();});
 }
 
 int SearchResultModel::column_count() const
@@ -34,14 +34,14 @@ boost::any SearchResultModel::get_cell(int row, int column) const
 		throw std::out_of_range("Column index was out of range.");
 	}
 
-	for(SearchResultsElement p : search_results)
+	for(SearchResultsElement const& p : search_results)
 	{
 		if(row > 0 && size_t(row) >= p.second.size()) {
 			row -= p.second.size();
 			continue;
 		}
 		
-		return get_nth(boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client>(p.second.at(row), p.first), column);
+		return get_nth(boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type const, Client const>(p.second.at(row), p.first), column);
 	}
 
 	throw std::out_of_range("Row index was out of range.");
