@@ -114,6 +114,7 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 		}
 		client->destroy();
 		client.reset();
+		setEnabled(false);
 	};
 
 	client_thread = std::thread(client_runner);
@@ -146,6 +147,12 @@ void DmpClientGui::setEnabled(bool enabled) {
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);
 	ui.tuneInRadioButton->setEnabled(enabled);
+	
+	ui.actionStop->setEnabled(enabled);
+	ui.actionPlay->setEnabled(enabled);
+	ui.actionNext->setEnabled(enabled);
+	ui.actionMute->setEnabled(enabled);
+	
 }
 
 void DmpClientGui::register_user()
