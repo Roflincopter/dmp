@@ -59,7 +59,10 @@ message::Type Connection::receive_type()
 	if(ec) {
 		throw std::runtime_error("Receive type failed");
 	}
-	assert(read_bytes == 4);
+	
+	if(read_bytes != buf.size()) {
+		throw std::runtime_error("Unexpected number of bytes read");
+	}
 	uint8_t const* data = buf.data();
 	type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 	return type;
@@ -74,7 +77,10 @@ message::Type Connection::receive_encrypted_type()
 	if(ec) {
 		throw std::runtime_error("receive_type: nonce retreival failed");
 	}
-	assert(read_bytes1 == nonce.size());
+	
+	if(read_bytes1 != nonce.size()) {
+		throw std::runtime_error("Unexpected number of bytes read");
+	}
 
 	ec.clear();
 
@@ -84,7 +90,10 @@ message::Type Connection::receive_encrypted_type()
 	if(ec) {
 		throw std::runtime_error("Receive type failed");
 	}
-	assert(read_bytes2 == cypherbuf.size());
+	
+	if(read_bytes2 != cypherbuf.size()) {
+		throw std::runtime_error("Unexpected number of bytes read");
+	}
 
 	std::vector<uint8_t> content(sizeof(decltype(type)));
 

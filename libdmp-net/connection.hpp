@@ -38,7 +38,9 @@ class Connection {
 			{
 				std::vector<uint8_t> buf(sizeof(decltype(size)));
 				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
-				assert(read_bytes == buf.size());
+				if(read_bytes != buf.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 				uint8_t* data = buf.data();
 				size = *reinterpret_cast<const uint32_t*>(data);
 			}
@@ -47,7 +49,9 @@ class Connection {
 			{
 				std::vector<uint8_t> buf(size);
 				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
-				assert(read_bytes == size);
+				if(read_bytes != size) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 				uint8_t* data = buf.data();
 				content = std::string(reinterpret_cast<const char*>(data), size);
 			}
@@ -71,14 +75,18 @@ class Connection {
 			{
 				nonce.resize(crypto_box_noncebytes(), 0);
 				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(nonce));
-				assert(read_bytes == nonce.size());
+				if(read_bytes != nonce.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 			}
 
 			uint32_t size;
 			{
 				std::vector<uint8_t> buf(sizeof(decltype(size)));
 				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(buf));
-				assert(read_bytes == buf.size());
+				if(read_bytes != buf.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 				uint8_t* data = buf.data();
 				size = *reinterpret_cast<const uint32_t*>(data);
 			}
@@ -87,7 +95,9 @@ class Connection {
 			{
 				content.resize(size, 0);
 				size_t read_bytes = boost::asio::read(c.socket, boost::asio::buffer(content));
-				assert(read_bytes == content.size());
+				if(read_bytes != content.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 			}
 
 			std::vector<uint8_t> data(size - crypto_box_macbytes(), 0);
@@ -216,7 +226,7 @@ public:
 	{
 		async_type_buffer.resize(4, 0);
 
-		auto read_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+		auto read_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			message::Type type = message::Type::NoMessage;
 
@@ -224,8 +234,9 @@ public:
 			{
 				throw std::runtime_error("Error in ansyc_receive_type_handler");
 			}
-
-			assert(bytes_transfered == 4);
+			if(read_bytes != async_type_buffer.size()) {
+				throw std::runtime_error("Unexpected number of bytes read");
+			}
 			uint8_t const* data = async_type_buffer.data();
 			type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 			assert(type != message::Type::NoMessage);
@@ -238,7 +249,7 @@ public:
 	template <typename Callable>
 	void async_receive_encrypted_type(Callable const& cb)
 	{
-		auto type_nonce_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+		auto type_nonce_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			if(ec) {
 				if(ec.value() == boost::system::errc::operation_canceled) {
@@ -247,9 +258,11 @@ public:
 				throw std::runtime_error("Failed to receive nonce of type");
 			}
 
-			assert(bytes_transfered == async_type_nonce_buffer.size());
-
-			auto type_cb = [this, cb](boost::system::error_code ec, size_t bytes_transfered)
+			if(read_bytes != async_type_nonce_buffer.size()) {
+				throw std::runtime_error("Unexpected number of bytes read");
+			}
+			
+			auto type_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 			{
 				message::Type type = message::Type::NoMessage;
 
@@ -257,7 +270,9 @@ public:
 					throw std::runtime_error("Failed to receive type");
 				}
 
-				assert(bytes_transfered == async_type_buffer.size());
+				if(read_bytes != async_type_buffer.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 
 				std::vector<uint8_t> type_buf(sizeof(message::Type_t), 0);
 
@@ -294,26 +309,30 @@ public:
 	template <typename T, typename Callable>
 	void async_receive(Callable const& cb)
 	{
-		auto size_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
+		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			if (ec)
 			{
 				throw std::runtime_error("Error receiving size in size_cb lambda");
 			}
 
-			assert(bytes_transfered == 4);
+			if(read_bytes != async_size_buffer.size()) {
+				throw std::runtime_error("Unexpected number of bytes read");
+			}
 
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
-			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t bytes_transfered)
+			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
 			{
 				if (ec)
 				{
 					throw std::runtime_error("Error receiving size in content_cb lambda");
 				}
 
-				assert(bytes_transfered == size);
+				if(read_bytes != size) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 
 				uint8_t const* data = async_mess_buffer.data();
 				std::string content = std::string(reinterpret_cast<const char*>(data), size);
@@ -336,32 +355,38 @@ public:
 	template <typename T, typename Callable>
 	void async_receive_encrypted(Callable const& cb)
 	{
-		auto nonce_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
+		auto nonce_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			if (ec) {
 				throw std::runtime_error("Error receiving message nonce");
 			}
 
-			assert(bytes_transfered == async_mess_nonce_buffer.size());
-
-			auto size_cb = [this, &cb](boost::system::error_code ec, size_t bytes_transfered)
+			if(read_bytes != async_mess_nonce_buffer.size()) {
+				throw std::runtime_error("Unexpected number of bytes read");
+			}
+			
+			auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 			{
 				if (ec) {
 					throw std::runtime_error("Error receiving size in size_cb lambda");
 				}
 
-				assert(bytes_transfered == 4);
+				if(read_bytes != async_size_buffer.size()) {
+					throw std::runtime_error("Unexpected number of bytes read");
+				}
 
 				uint8_t const* data = async_size_buffer.data();
 				uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
-				auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t bytes_transfered)
+				auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
 				{
 					if (ec) {
 						throw std::runtime_error("Error receiving size in content_cb lambda");
 					}
 
-					assert(bytes_transfered == size);
+					if(read_bytes != size) {
+						throw std::runtime_error("Unexpected number of bytes read");
+					}
 
 					std::vector<uint8_t> data(size - crypto_box_macbytes());
 
