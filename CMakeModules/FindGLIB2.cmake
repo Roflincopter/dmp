@@ -16,7 +16,7 @@ find_path(Glib_INCLUDE_DIR
 # Glib-related libraries also use a separate config header, which is in lib dir
 find_path(GlibConfig_INCLUDE_DIR
   NAMES glibconfig.h
-  PATH_SUFFIXES lib/x86_64-linux-gnu/glib-2.0/include lib/glib-2.0/include ../lib/glib-2.0/include
+  PATH_SUFFIXES lib/x86_64-linux-gnu/glib-2.0/include lib/i386-linux-gnu/glib-2.0/include/ lib/glib-2.0/include ../lib/glib-2.0/include
 )
 
 # Finally the library itself
