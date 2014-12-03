@@ -79,6 +79,8 @@ function(ODB_compile outfiles)
 			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile1}
 			VERBATIM
 		)
+		
+		SET_SOURCE_FILES_PROPERTIES(${_outfile2} PROPERTIES COMPILE_FLAGS -Wno-switch-default )
 
 		set(_outfile3 ${_outfile}-odb.ipp)
 		add_custom_command(
