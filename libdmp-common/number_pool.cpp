@@ -10,8 +10,12 @@ int NumberPool::allocate_number()
 	NumberInterval first = *(free.begin());
 	int free_id = first.left();
 	free.erase(free.begin());
-	if (first.left() + 1 <= first.right()) {
-		free.insert(NumberInterval(first.left() + 1 , first.right()));
+	if (first.left() < std::numeric_limits<int>::max()) {
+		if (first.left() + 1 <= first.right()) {
+			free.insert(NumberInterval(first.left() + 1 , first.right()));
+		}
+	} else {
+		std::runtime_error("Left boundry would overflow, this should not happen");
 	}
 	return free_id;
 }
