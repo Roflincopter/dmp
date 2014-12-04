@@ -99,7 +99,7 @@ void GStreamerBase::wait_for_state_change()
 {
 	GstState state;
 	GstState pending;
-	if(!gst_element_get_state(pipeline.get(), &state, &pending, 5000000000)) {
+	if(!gst_element_get_state(pipeline.get(), &state, &pending, std::numeric_limits<GstClockTime>::max())) {
 		DEBUG_COUT << "State change did not complete within 5s. Making debug dot." << std::endl;
 		make_debug_graph("StateChangeTimeout");
 	}
