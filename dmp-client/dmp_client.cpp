@@ -23,16 +23,17 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
 {
-	auto library_info = get_library_information();
-	if(library_info) {
-		for(auto&& entry : library_info.get()){
-			DEBUG_COUT << entry.second.get<std::string>("name");
-			DEBUG_COUT << entry.second.get<std::string>("path");
-			DEBUG_COUT << entry.second.get<std::string>("cache_file");
-		}
+	auto library_info = config::get_library_information();
+	
+	if(library_info.size() == 0) {
+		config::add_library("blaat1", "/path/1", "somesha1hash");
+		config::add_library("blaat2", "/path/2", "someotherhash");
 	} else {
-		config_add_library("blaat1", "/path/1", "somesha1hash");
-		config_add_library("blaat2", "/path/2", "someotherhash");
+		for(auto&& entry : library_info){
+			DEBUG_COUT << entry.second.get<std::string>("name") << std::endl;
+			DEBUG_COUT << entry.second.get<std::string>("path") << std::endl;
+			DEBUG_COUT << entry.second.get<std::string>("cache_file") << std::endl;
+		}
 	}
 }
 

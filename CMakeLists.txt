@@ -31,6 +31,8 @@ add_subdirectory(libboost-fusion-utils)
 add_subdirectory(libdmp-common)
 add_subdirectory(libdmp-net)
 
+add_subdirectory(libdmp-config)
+
 add_subdirectory(dmp-server)
 add_subdirectory(dmp-client)
 add_subdirectory(qt-client)

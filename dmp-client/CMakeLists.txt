@@ -28,6 +28,7 @@ target_link_libraries(dmp-client
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
+	PRIVATE dmp-config
 	PUBLIC boost-fusion-utils
 	PRIVATE dbg
 )

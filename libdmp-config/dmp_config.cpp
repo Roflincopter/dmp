@@ -7,13 +7,15 @@
 
 #include <fstream>
 
+namespace config {
+
 #if defined( _WIN32 ) || defined( _WIN64 )
 boost::filesystem::path get_config_dir() {
 	if(!std::getenv("APPDATA")) {
 		throw std::runtime_error("Environment variable \"APPDATA\" is not set, could not find suitable config home.");
 	}
 	boost::filesystem::path appdata(std::getenv("APPDATA"));
-	return appdata / boost::path("dmp");
+	return appdata / boost::filesystem::path("dmp");
 }
 #endif
 
@@ -69,9 +71,7 @@ struct DmpConfig : public boost::property_tree::ptree {
 
 	DmpConfig()
 	:boost::property_tree::ptree(create_or_open_config())
-	{
-		DEBUG_COUT << "reading config" << std::endl;
-	}
+	{}
 
 	~DmpConfig(){
 		if(!boost::filesystem::exists(get_config_file_name())) {
@@ -85,27 +85,55 @@ struct DmpConfig : public boost::property_tree::ptree {
 
 static DmpConfig config;
 static const std::string library_key = "library";
+static const std::string servers_key = "servers";
 
-boost::optional<boost::property_tree::ptree&> get_library_information() {
-	return config.get_child_optional(library_key);
+boost::property_tree::ptree& append_array_element_to_key(std::string key)
+{
+	auto top_element = config.get_child_optional(key);
+	
+	boost::property_tree::ptree inner;
+	
+	if(!top_element) {
+		boost::property_tree::ptree array;
+		config.add_child(key, array);
+		top_element = config.get_child(key);
+	}
+	
+	top_element.get().push_back(std::make_pair("", inner));
+	return top_element.get().back().second;
 }
 
-void config_add_library(std::string name, std::string path, std::string cache_file) {
-	DEBUG_COUT << "adding library" << std::endl;
-	auto library = config.get_child_optional(library_key);
-
-	boost::property_tree::ptree inner;
-	inner.put("name", name);
-	inner.put("path", path);
-	inner.put("cache_file", cache_file);
-
-	if(!library) {
-		boost::property_tree::ptree array;
-		config.add_child(library_key, array);
-		library = config.get_child_optional(library_key);
+boost::property_tree::ptree& get_or_create_child(std::string key) {
+	auto element = config.get_child_optional(key);
+	if(!element) {
+		config.add_child(key, boost::property_tree::ptree());
 	}
+	return config.get_child(key);
+}
 
-	library.get().push_back(std::make_pair("", inner));
+boost::property_tree::ptree get_library_information() {
+	return get_or_create_child(library_key);
+}
+
+void add_library(std::string name, std::string path, std::string cache_file) {
+
+	auto& new_elem = append_array_element_to_key(library_key);
+	new_elem.put("name", name);
+	new_elem.put("path", path);
+	new_elem.put("cache_file", cache_file);
+}
+
+boost::property_tree::ptree get_servers()
+{
+	return get_or_create_child(servers_key);
+}
+
+void add_server(std::string name, std::string hostname, uint16_t port)
+{
+	auto& new_elem = append_array_element_to_key(servers_key);
+	new_elem.put("name", name);
+	new_elem.put("hostname", hostname);
+	new_elem.put("port", port);
 }
 
 void print_config_dir() {
@@ -114,4 +142,6 @@ void print_config_dir() {
 
 void print_config_file_name() {
 	DEBUG_COUT << get_config_file_name() << std::endl;
+}
+
 }
