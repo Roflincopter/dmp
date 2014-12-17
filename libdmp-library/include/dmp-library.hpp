@@ -8,7 +8,6 @@
 
 namespace dmp_library
 {
-
 	const std::string cache_file = ".dmp_library";
 
 	Library create_library(std::string path, bool use_cache = true, bool create_cache = true);

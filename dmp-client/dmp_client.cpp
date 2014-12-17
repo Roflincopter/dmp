@@ -1,5 +1,6 @@
 #include "dmp_client.hpp"
 
+#include "dmp_config.hpp"
 #include "fusion_outputter.hpp"
 #include "connect.hpp"
 #include "timed_debug.hpp"
@@ -21,7 +22,19 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , senders()
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
-{}
+{
+	auto library_info = get_library_information();
+	if(library_info) {
+		for(auto&& entry : library_info.get()){
+			DEBUG_COUT << entry.second.get<std::string>("name");
+			DEBUG_COUT << entry.second.get<std::string>("path");
+			DEBUG_COUT << entry.second.get<std::string>("cache_file");
+		}
+	} else {
+		config_add_library("blaat1", "/path/1", "somesha1hash");
+		config_add_library("blaat2", "/path/2", "someotherhash");
+	}
+}
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 {
