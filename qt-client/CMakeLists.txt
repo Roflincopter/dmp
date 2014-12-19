@@ -113,6 +113,7 @@ target_link_libraries(qt-client
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
+	PRIVATE dmp-config
 	PRIVATE dbg
 )
 

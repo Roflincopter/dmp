@@ -9,11 +9,16 @@
 DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 : QDialog(parent)
 , port_validator(this)
+, servers(config::get_servers())
 {
 	ui.setupUi(this);
 	updateOkButton();
 
 	ui.PortEdit->setValidator(&port_validator);
+	
+	for(auto&& server : servers) {
+		ui.Servers->addItem(QString::fromStdString(server.second.get_value<std::string>()));
+	}
 }
 
 std::string DmpClientConnectDialog::get_host()
