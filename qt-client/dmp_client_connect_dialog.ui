@@ -171,8 +171,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>horizontalLayoutWidget</zorder>
-  <zorder>Servers</zorder>
  </widget>
  <resources/>
  <connections>
@@ -240,8 +238,143 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>AddButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>addPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>32</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DeleteButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>deletePressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Servers</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>selectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DmpClientConnectDialog</sender>
+   <signal>accepted()</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>afterAccept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NameEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>inputChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>HostEdit</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>hostChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NameEdit</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>nameChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PortEdit</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>portChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>inputChanged()</slot>
+  <slot>addPressed()</slot>
+  <slot>deletePressed()</slot>
+  <slot>selectionChanged()</slot>
+  <slot>afterAccept()</slot>
+  <slot>nameChanged(QString)</slot>
+  <slot>hostChanged(QString)</slot>
+  <slot>portChanged(QString)</slot>
  </slots>
 </ui>

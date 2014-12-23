@@ -128,12 +128,16 @@ boost::property_tree::ptree get_servers()
 	return get_or_create_child(servers_key);
 }
 
-void add_server(std::string name, std::string hostname, uint16_t port)
+void add_server(std::string name, std::string hostname, std::string port)
 {
 	auto& new_elem = append_array_element_to_key(servers_key);
 	new_elem.put("name", name);
 	new_elem.put("hostname", hostname);
 	new_elem.put("port", port);
+}
+
+void clear_servers() {
+	config.erase(servers_key);
 }
 
 void print_config_dir() {

@@ -1,5 +1,8 @@
 #include "dmp_client_connect_dialog.hpp"
 
+#include "fusion_outputter.hpp"
+#include "debug_macros.hpp"
+
 #include <cassert>
 
 #include <iostream>
@@ -9,15 +12,22 @@
 DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 : QDialog(parent)
 , port_validator(this)
-, servers(config::get_servers())
+, servers()
 {
 	ui.setupUi(this);
 	updateOkButton();
 
 	ui.PortEdit->setValidator(&port_validator);
 	
-	for(auto&& server : servers) {
-		ui.Servers->addItem(QString::fromStdString(server.second.get_value<std::string>()));
+	for(auto&& server : config::get_servers()) {
+		std::string name = server.second.get<std::string>("name");
+	
+		servers[name] = ConnectionInfo {
+			server.second.get<std::string>("hostname"),
+			server.second.get<std::string>("port")
+		};
+		
+		ui.Servers->addItem(QString::fromStdString(name));
 	}
 }
 
@@ -46,7 +56,71 @@ void DmpClientConnectDialog::updateOkButton()
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enabled);
 }
 
+void DmpClientConnectDialog::nameChanged(QString str)
+{
+	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
+	servers[str.toStdString()] = servers[item->text().toStdString()];
+	servers.erase(item->text().toStdString());
+	item->setText(str);
+	DEBUG_COUT << servers << std::endl;
+}
+
+void DmpClientConnectDialog::hostChanged(QString str)
+{
+	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
+	servers[item->text().toStdString()].host_name = str.toStdString();
+	DEBUG_COUT << servers << std::endl;
+}
+
+void DmpClientConnectDialog::portChanged(QString str)
+{
+	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
+	servers[item->text().toStdString()].port = str.toStdString();
+	DEBUG_COUT << servers << std::endl;
+}
+
 void DmpClientConnectDialog::inputChanged()
 {
 	updateOkButton();
+}
+
+void DmpClientConnectDialog::addPressed()
+{
+	std::string new_label = "new server";
+	int no = 1;
+	while(servers.find(new_label) != servers.end()) {
+		std::stringstream ss;
+		ss << "new server " << no;
+		new_label = ss.str();
+		++no;
+	}
+	
+	ui.Servers->addItem(QString::fromStdString(new_label));
+	servers[new_label] = {};
+	auto index = ui.Servers->rootIndex().child(ui.Servers->count() - 1, 0);
+	ui.Servers->setCurrentIndex(index);
+}
+
+void DmpClientConnectDialog::deletePressed()
+{
+	
+}
+
+void DmpClientConnectDialog::selectionChanged()
+{
+	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
+	std::string name = item->text().toStdString();
+	
+	ui.NameEdit->setText(QString::fromStdString(name));
+	ui.HostEdit->setText(QString::fromStdString(servers[name].host_name));
+	ui.PortEdit->setText(QString::fromStdString(servers[name].port));
+}
+
+void DmpClientConnectDialog::afterAccept()
+{
+	config::clear_servers();
+	DEBUG_COUT << "Saving servers: " << servers << std::endl;
+	for(auto&& server : servers) {
+		config::add_server(server.first, server.second.host_name, server.second.port);
+	}
 }

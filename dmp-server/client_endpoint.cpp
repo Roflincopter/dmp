@@ -35,7 +35,6 @@ void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, mes
 void ClientEndpoint::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);
-
 }
 
 bool ClientEndpoint::handle_pong(message::Pong p)

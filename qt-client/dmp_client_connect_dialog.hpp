@@ -6,6 +6,15 @@
 
 #include <memory>
 
+struct ConnectionInfo {
+	std::string host_name;
+	std::string port;
+	
+	friend std::ostream& operator<<(std::ostream& os, ConnectionInfo c) {
+		return os << "{host_name: " << "port: " << c.host_name << ", " << c.port << "}";
+	}
+};
+
 class DmpClientConnectDialog : public QDialog
 {
 	Q_OBJECT
@@ -17,7 +26,7 @@ public:
 
 	std::string get_host();
 	uint16_t get_port();
-	config::array servers;
+	std::map<std::string, ConnectionInfo> servers;
 
 private:
 	Ui::DmpClientConnectDialog ui;
@@ -25,6 +34,16 @@ private:
 	//! Checks if current input is acceptable, enables/disables the ok-button
 	void updateOkButton();
 
+	
+
 private slots:
 	void inputChanged();
+	void nameChanged(QString str);
+	void hostChanged(QString str);
+	void portChanged(QString str);
+	void addPressed();
+	void deletePressed();
+	void selectionChanged();
+	
+	void afterAccept();
 };
