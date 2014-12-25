@@ -100,17 +100,30 @@ void DmpClientConnectDialog::addPressed()
 
 void DmpClientConnectDialog::deletePressed()
 {
-	
+	auto items = ui.Servers->selectedItems();
+	if(items.length() == 1) {
+		auto item = items[0];
+		
+		std::string text = item->text().toStdString();
+		servers.erase(text);
+		
+		delete item;
+		selectionChanged();
+	}
 }
 
 void DmpClientConnectDialog::selectionChanged()
 {
-	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
-	std::string name = item->text().toStdString();
+	auto items = ui.Servers->selectedItems();
+	if(items.length() == 1) {
+		auto item = items[0];
+		std::string name = item->text().toStdString();
+		
+		ui.NameEdit->setText(QString::fromStdString(name));
+		ui.HostEdit->setText(QString::fromStdString(servers[name].host_name));
+		ui.PortEdit->setText(QString::fromStdString(servers[name].port));
+	}
 	
-	ui.NameEdit->setText(QString::fromStdString(name));
-	ui.HostEdit->setText(QString::fromStdString(servers[name].host_name));
-	ui.PortEdit->setText(QString::fromStdString(servers[name].port));
 }
 
 void DmpClientConnectDialog::afterAccept()
