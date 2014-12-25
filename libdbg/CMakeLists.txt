@@ -20,6 +20,12 @@ target_link_libraries(dbg
 	PRIVATE ${Boost_LIBRARIES}
 )
 
+if(WIN32)
+	target_link_libraries(dbg
+		PUBLIC wsock32.dll
+	)
+endif(WIN32)
+
 if(USE_GPERF)
 	target_link_libraries(dbg
 		PRIVATE "-lprofiler"
