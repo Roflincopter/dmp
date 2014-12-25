@@ -62,21 +62,18 @@ void DmpClientConnectDialog::nameChanged(QString str)
 	servers[str.toStdString()] = servers[item->text().toStdString()];
 	servers.erase(item->text().toStdString());
 	item->setText(str);
-	DEBUG_COUT << servers << std::endl;
 }
 
 void DmpClientConnectDialog::hostChanged(QString str)
 {
 	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
 	servers[item->text().toStdString()].host_name = str.toStdString();
-	DEBUG_COUT << servers << std::endl;
 }
 
 void DmpClientConnectDialog::portChanged(QString str)
 {
 	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
 	servers[item->text().toStdString()].port = str.toStdString();
-	DEBUG_COUT << servers << std::endl;
 }
 
 void DmpClientConnectDialog::inputChanged()
@@ -119,7 +116,6 @@ void DmpClientConnectDialog::selectionChanged()
 void DmpClientConnectDialog::afterAccept()
 {
 	config::clear_servers();
-	DEBUG_COUT << "Saving servers: " << servers << std::endl;
 	for(auto&& server : servers) {
 		config::add_server(server.first, server.second.host_name, server.second.port);
 	}
