@@ -45,5 +45,6 @@ private slots:
 	void deletePressed();
 	void selectionChanged();
 	
+	void saveToConfig();
 	void afterAccept();
 };

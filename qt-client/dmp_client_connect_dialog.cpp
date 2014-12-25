@@ -126,10 +126,14 @@ void DmpClientConnectDialog::selectionChanged()
 	
 }
 
-void DmpClientConnectDialog::afterAccept()
-{
+void DmpClientConnectDialog::saveToConfig() {
 	config::clear_servers();
 	for(auto&& server : servers) {
 		config::add_server(server.first, server.second.host_name, server.second.port);
 	}
+}
+
+void DmpClientConnectDialog::afterAccept()
+{
+	saveToConfig();
 }
