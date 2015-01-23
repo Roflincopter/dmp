@@ -198,6 +198,8 @@ void DmpClientGui::dmpConnect()
 
 	if(connect_client(connect.get_host(), connect.get_port())) {
 		login_user();
+	} else {
+		QApplication::postEvent(this, new CallEvent([this]{dmpConnect();}));
 	}
 }
 

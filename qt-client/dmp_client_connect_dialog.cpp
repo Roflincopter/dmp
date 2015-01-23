@@ -29,6 +29,11 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 		
 		ui.Servers->addItem(QString::fromStdString(name));
 	}
+	if(ui.Servers->count() == 0) {
+		auto index = ui.Servers->rootIndex().child(0, 0);
+		ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
+		emit selectionChanged();
+	}
 }
 
 std::string DmpClientConnectDialog::get_host()
@@ -54,6 +59,14 @@ void DmpClientConnectDialog::updateOkButton()
 	bool const ok_enabled = host_valid && port_valid;
 
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enabled);
+}
+
+void DmpClientConnectDialog::setEnabled(bool enable)
+{
+	ui.NameEdit->setEnabled(enable);
+	ui.HostEdit->setEnabled(enable);
+	ui.PortEdit->setEnabled(enable);
+	ui.buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(enable);
 }
 
 void DmpClientConnectDialog::nameChanged(QString str)
@@ -95,7 +108,8 @@ void DmpClientConnectDialog::addPressed()
 	ui.Servers->addItem(QString::fromStdString(new_label));
 	servers[new_label] = {};
 	auto index = ui.Servers->rootIndex().child(ui.Servers->count() - 1, 0);
-	ui.Servers->setCurrentIndex(index);
+	ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
+	emit selectionChanged();
 }
 
 void DmpClientConnectDialog::deletePressed()
@@ -122,6 +136,9 @@ void DmpClientConnectDialog::selectionChanged()
 		ui.NameEdit->setText(QString::fromStdString(name));
 		ui.HostEdit->setText(QString::fromStdString(servers[name].host_name));
 		ui.PortEdit->setText(QString::fromStdString(servers[name].port));
+		setEnabled(true);
+	} else {
+		setEnabled(false);
 	}
 	
 }

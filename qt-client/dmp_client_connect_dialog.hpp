@@ -34,7 +34,7 @@ private:
 	//! Checks if current input is acceptable, enables/disables the ok-button
 	void updateOkButton();
 
-	
+	void setEnabled(bool enable);
 
 private slots:
 	void inputChanged();
