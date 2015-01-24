@@ -27,6 +27,7 @@ void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> n
 
 void DmpClientGuiSearchResults::queueRequest(QModelIndex index)
 {
+	index = proxy_model->mapToSource(index);
 	auto x = model->get_row_info(index.row());
 	if(!current_active_radio.empty()) {
 		client->queue(current_active_radio, x.first, x.second);
