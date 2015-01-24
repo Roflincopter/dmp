@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <mutex>
+#include <vector>
 
 #define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
 
@@ -58,7 +59,23 @@ struct GErrorDeleter {
 	}
 };
 
-class GStreamerBase {
+struct GStreamerInit {
+	
+	GStreamerInit() {
+		if(!gst_is_initialized()) {
+			char arg0[] = "";
+			char arg1[] = "--gst-plugin-path=\"plugins/gstreamer\"";
+			char* argv[] = { &arg0[0], &arg1[0], NULL };
+			int argc = (int)(sizeof(argv) / sizeof(argv[0])) - 1;
+			char** ptr = &argv[0];
+			
+			gst_init(&argc, &ptr);
+		}
+	}
+
+};
+
+class GStreamerBase : GStreamerInit {
 protected:
 	std::unique_ptr<std::recursive_mutex> gstreamer_mutex;
 

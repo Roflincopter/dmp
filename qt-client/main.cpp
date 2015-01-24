@@ -20,8 +20,6 @@ int main(int argc, char* argv[]) {
 	//signal(SIGINT, core_dump);
 #endif
 
-	gst_init(0, nullptr);
-
 	using boost::program_options::value;
 	boost::program_options::options_description desc;
 	desc.add_options()
@@ -56,14 +54,6 @@ int main(int argc, char* argv[]) {
 		std::cerr << "Error: " << e.what() << std::endl;
 		return 1;
 	}
-
-/*
-	if (vm["sender"].as<bool>())
-		DmpSender s("localhost", 2000, "test.mp3");
-	else
-		DmpReceiver r("localhost", 2001);
-	return 0;
-*/
 
 	int retval = 0;
 	{

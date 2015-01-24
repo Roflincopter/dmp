@@ -39,7 +39,8 @@ void GStreamerBase::buffer_low(GstElement*)
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: gstreamer_mutex(std::move(base.gstreamer_mutex))
+: GStreamerInit()
+, gstreamer_mutex(std::move(base.gstreamer_mutex))
 , buffering(false)
 , name(std::move(base.name))
 , loop(std::move(base.loop))
@@ -58,7 +59,8 @@ GStreamerBase::GStreamerBase(GStreamerBase&& base)
 }
 
 GStreamerBase::GStreamerBase(std::string name)
-: gstreamer_mutex(new std::recursive_mutex())
+: GStreamerInit()
+, gstreamer_mutex(new std::recursive_mutex())
 , buffering(false)
 , name(name)
 , loop(g_main_loop_new(nullptr, false))

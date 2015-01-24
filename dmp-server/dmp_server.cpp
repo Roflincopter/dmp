@@ -97,8 +97,6 @@ DmpServer::DmpServer()
 , db(initialize_database())
 , auth(db)
 {
-	gst_init(0, nullptr);
-	
 	auto f = [this](Connection&& x){
 		try {
 			add_pending_connection(std::move(x));

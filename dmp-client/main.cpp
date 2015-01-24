@@ -25,8 +25,6 @@
 
 int main(int argc, char* argv[]) {
 
-	gst_init(0, nullptr);
-
 	using boost::program_options::value;
 	boost::program_options::options_description desc;
 	desc.add_options()

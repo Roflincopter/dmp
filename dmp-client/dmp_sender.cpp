@@ -46,7 +46,7 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 	g_object_set(G_OBJECT(sink.get()), "host", host.c_str(), nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);

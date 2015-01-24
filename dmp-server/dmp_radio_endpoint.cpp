@@ -12,7 +12,7 @@ DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 	g_object_set(G_OBJECT(sink.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 
 	gst_bin_add_many(GST_BIN(bin.get()), buffer.get(), sink.get(), nullptr);

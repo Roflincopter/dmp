@@ -39,7 +39,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	g_object_set(G_OBJECT(source.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(source.get()), "port", gint(recv_port), nullptr);
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 
 	g_object_set(G_OBJECT(fake_sink.get()), "sync", gboolean(true), nullptr);

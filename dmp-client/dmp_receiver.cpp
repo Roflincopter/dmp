@@ -29,7 +29,7 @@ DmpReceiver::DmpReceiver()
 		throw std::runtime_error("Could not create the pipeline components for this receiver.");
 	}
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(100000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 	
 	gst_bin_add_many(GST_BIN(pipeline.get()), source.get(), /*rtpdepay.get(),*/ buffer.get(), decoder.get(), converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
