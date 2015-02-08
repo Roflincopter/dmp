@@ -80,6 +80,12 @@ void DmpReceiver::mute(bool mute)
 	g_object_set(G_OBJECT(volume.get()), "mute", gboolean(mute), nullptr);
 }
 
+void DmpReceiver::change_volume(int ivolume)
+{
+	dvolume = ivolume / 100.0;
+	g_object_set(G_OBJECT(volume.get()), "volume", gdouble(dvolume), nullptr);
+}
+
 std::string DmpReceiver::radio_target()
 {
 	return radio_name;

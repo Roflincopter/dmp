@@ -31,6 +31,103 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="stopButton">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="playButton">
+        <property name="text">
+         <string>Play/Pause</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="nextButton">
+        <property name="text">
+         <string>Next</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Volume</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="volumeSlider">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksAbove</enum>
+        </property>
+        <property name="tickInterval">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="muteButton">
+        <property name="text">
+         <string>Mute</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -226,21 +323,6 @@
    <addaction name="menuIndex"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionStop"/>
-   <addaction name="actionPlay"/>
-   <addaction name="actionNext"/>
-   <addaction name="actionMute"/>
-  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -260,56 +342,6 @@
    </property>
    <property name="text">
     <string>Connect</string>
-   </property>
-  </action>
-  <action name="actionPlay">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Play/Pause</string>
-   </property>
-   <property name="toolTip">
-    <string>Plays the radio</string>
-   </property>
-  </action>
-  <action name="actionNext">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Next</string>
-   </property>
-   <property name="toolTip">
-    <string>Skips the current song</string>
-   </property>
-  </action>
-  <action name="actionStop">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Stop</string>
-   </property>
-   <property name="toolTip">
-    <string>Stops the radio</string>
-   </property>
-  </action>
-  <action name="actionMute">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Mute</string>
-   </property>
-   <property name="toolTip">
-    <string>Mutes the playback</string>
    </property>
   </action>
  </widget>
@@ -404,12 +436,12 @@
    <slot>searchBarReturned()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>410</x>
-     <y>712</y>
+     <x>420</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>650</x>
-     <y>712</y>
+     <x>660</x>
+     <y>691</y>
     </hint>
    </hints>
   </connection>
@@ -420,12 +452,12 @@
    <slot>cursorChanged(int,int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>712</y>
+     <x>660</x>
+     <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>650</x>
-     <y>712</y>
+     <x>660</x>
+     <y>691</y>
     </hint>
    </hints>
   </connection>
@@ -436,28 +468,12 @@
    <slot>addRadio()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>34</x>
-     <y>90</y>
+     <x>47</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>140</x>
      <y>216</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionConnect</sender>
-   <signal>triggered()</signal>
-   <receiver>DmpClientGui</receiver>
-   <slot>dmpConnect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>639</x>
-     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -510,14 +526,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionStop</sender>
-   <signal>triggered()</signal>
+   <sender>stopButton</sender>
+   <signal>clicked()</signal>
    <receiver>DmpClientGui</receiver>
    <slot>StopPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>49</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
      <x>639</x>
@@ -526,14 +542,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionPlay</sender>
-   <signal>triggered(bool)</signal>
+   <sender>playButton</sender>
+   <signal>toggled(bool)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>PlayPauseToggled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>135</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
      <x>639</x>
@@ -542,30 +558,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionNext</sender>
-   <signal>triggered()</signal>
+   <sender>nextButton</sender>
+   <signal>clicked()</signal>
    <receiver>DmpClientGui</receiver>
    <slot>NextPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>639</x>
-     <y>372</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionMute</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>DmpClientGui</receiver>
-   <slot>MuteToggled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>221</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
      <x>639</x>
@@ -580,8 +580,8 @@
    <slot>tuneIn(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>159</x>
-     <y>89</y>
+     <x>187</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>139</x>
@@ -600,24 +600,8 @@
      <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>159</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radio_list</sender>
-   <signal>setPlayingChecked(bool)</signal>
-   <receiver>actionPlay</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>139</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>187</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -637,6 +621,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionConnect</sender>
+   <signal>triggered()</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>dmpConnect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>volumeSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>VolumeChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>370</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>muteButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DmpClientGui</receiver>
+   <slot>MuteToggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>searchBarReturned()</slot>
@@ -646,5 +678,6 @@
   <slot>PlayPauseToggled(bool)</slot>
   <slot>NextPressed()</slot>
   <slot>MuteToggled(bool)</slot>
+  <slot>VolumeChanged(int)</slot>
  </slots>
 </ui>

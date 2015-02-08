@@ -74,6 +74,7 @@ public:
 	virtual void pause_radio() override final;
 	virtual void next_radio() override final;
 	virtual void mute_radio(bool state) override final;
+	virtual void change_volume(int volume) override final;
 	
 	virtual void forward_radio_action(message::RadioAction ra) override final;
 	virtual void forward_radio_event(message::SenderEvent se) override final;

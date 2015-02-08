@@ -16,6 +16,7 @@ class DmpReceiver : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> audiosink;
 
 	std::string radio_name;
+	double dvolume;
 	
 	void cleanup();
 public:
@@ -32,5 +33,6 @@ public:
 	void pause();
 	void stop();
 	void mute(bool mute);
+	void change_volume(int volume);
 	std::string radio_target();
 };

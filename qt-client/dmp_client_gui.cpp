@@ -127,6 +127,7 @@ bool DmpClientGui::connect_client(std::string host, uint16_t port)
 	try {
 		auto client_sp = std::make_shared<DmpClient>(host, port);
 		set_client(client_sp);
+		client->change_volume(ui.volumeSlider->value());
 	} catch(std::exception &e) {
 		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());
 		dialog.exec();
@@ -148,11 +149,11 @@ void DmpClientGui::setEnabled(bool enabled) {
 	ui.deleteRadioButton->setEnabled(enabled);
 	ui.tuneInRadioButton->setEnabled(enabled);
 	
-	ui.actionStop->setEnabled(enabled);
-	ui.actionPlay->setEnabled(enabled);
-	ui.actionNext->setEnabled(enabled);
-	ui.actionMute->setEnabled(enabled);
-	
+	ui.stopButton->setEnabled(enabled);
+	ui.playButton->setEnabled(enabled);
+	ui.nextButton->setEnabled(enabled);
+	ui.muteButton->setEnabled(enabled);
+	ui.volumeSlider->setEnabled(enabled);
 }
 
 void DmpClientGui::register_user()
@@ -205,7 +206,7 @@ void DmpClientGui::dmpConnect()
 
 void DmpClientGui::StopPressed()
 {
-	ui.actionPlay->setChecked(false);
+	ui.playButton->setChecked(false);
 	client->stop_radio();
 }
 
@@ -220,7 +221,7 @@ void DmpClientGui::PlayPauseToggled(bool state)
 
 void DmpClientGui::set_play_paused_state(bool state)
 {
-	ui.actionPlay->setChecked(state);
+	ui.playButton->setChecked(state);
 }
 
 void DmpClientGui::login_succeeded()
@@ -252,6 +253,11 @@ void DmpClientGui::NextPressed()
 void DmpClientGui::MuteToggled(bool state)
 {
 	client->mute_radio(state);
+}
+
+void DmpClientGui::VolumeChanged(int volume)
+{
+	client->change_volume(volume);
 }
 
 void DmpClientGui::closeEvent(QCloseEvent*)

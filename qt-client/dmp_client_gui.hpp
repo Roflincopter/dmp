@@ -79,6 +79,7 @@ public slots:
 	void PlayPauseToggled(bool state);
 	void NextPressed();
 	void MuteToggled(bool state);
+	void VolumeChanged(int volume);
 
 private:
 	Ui::DmpClientGui ui;

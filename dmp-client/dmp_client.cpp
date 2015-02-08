@@ -250,6 +250,11 @@ void DmpClient::mute_radio(bool state)
 	receiver.mute(state);
 }
 
+void DmpClient::change_volume(int volume)
+{
+	receiver.change_volume(volume);
+}
+
 bool DmpClient::handle_ping(message::Ping ping)
 {
 	message::Pong pong(ping.payload);
