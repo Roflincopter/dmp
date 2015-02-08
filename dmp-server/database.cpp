@@ -28,14 +28,18 @@ std::shared_ptr<odb::database> initialize_database()
 			User x("ex_username", "ex_password");
 			db->persist(x);
 		} else {
-			DEBUG_COUT << "Migrating" << std::endl;
 			odb::schema_version version = db->schema_version();
 			if(version < database_base_version) {
 				throw std::runtime_error("Sorry, the database is to old to migrate to the current required version. Please delete the old database: \"" + database_file + "\" and let the application create a new one");
 			}
+			
+			if(version != current_database_version) {
+				DEBUG_COUT << "Migrating database" << std::endl;
+			}
+			
 			for(odb::schema_version i = version; i < current_database_version; ++i) {
 				odb::schema_catalog::migrate_schema_pre(*db, i+1);
-				do_migration_for(i+i, db);
+				do_migration_for(i+1, db);
 				odb::schema_catalog::migrate_schema_post(*db, i+1);
 			}
 		}
