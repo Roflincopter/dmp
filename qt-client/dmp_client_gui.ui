@@ -639,7 +639,7 @@
   </connection>
   <connection>
    <sender>volumeSlider</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>sliderMoved(int)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>VolumeChanged(int)</slot>
    <hints>

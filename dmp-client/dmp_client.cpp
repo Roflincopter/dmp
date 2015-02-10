@@ -35,6 +35,7 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 			DEBUG_COUT << entry.second.get<std::string>("cache_file") << std::endl;
 		}
 	}
+	change_volume(config::get_volume());
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
@@ -84,6 +85,7 @@ std::shared_ptr<SearchResultModel> DmpClient::get_search_result_model()
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
 	Delegator::add_delegate<DmpClientUiDelegate>(delegate);
+	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::volume_changed, receiver.get_volume());
 }
 
 void DmpClient::run()
@@ -252,7 +254,9 @@ void DmpClient::mute_radio(bool state)
 
 void DmpClient::change_volume(int volume)
 {
-	receiver.change_volume(volume);
+	receiver.set_volume(volume);
+	config::set_volume(volume);
+	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::volume_changed, volume);
 }
 
 bool DmpClient::handle_ping(message::Ping ping)

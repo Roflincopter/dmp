@@ -33,6 +33,7 @@ public:
 	void pause();
 	void stop();
 	void mute(bool mute);
-	void change_volume(int volume);
+	void set_volume(int volume);
+	int get_volume();
 	std::string radio_target();
 };

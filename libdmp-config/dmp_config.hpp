@@ -6,6 +6,9 @@ namespace config {
 
 typedef boost::property_tree::ptree array;
 
+int get_volume();
+void set_volume(int volume);
+
 boost::property_tree::ptree get_library_information();
 void add_library(std::string name, std::string path, std::string cache_file);
 

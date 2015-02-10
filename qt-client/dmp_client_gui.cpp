@@ -127,7 +127,6 @@ bool DmpClientGui::connect_client(std::string host, uint16_t port)
 	try {
 		auto client_sp = std::make_shared<DmpClient>(host, port);
 		set_client(client_sp);
-		client->change_volume(ui.volumeSlider->value());
 	} catch(std::exception &e) {
 		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());
 		dialog.exec();
@@ -243,6 +242,11 @@ void DmpClientGui::register_failed(std::string reason)
 {
 	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
 	QApplication::postEvent(this, new CallEvent([this]{register_user();}));
+}
+
+void DmpClientGui::volume_changed(int volume)
+{
+	ui.volumeSlider->setValue(volume);
 }
 
 void DmpClientGui::NextPressed()

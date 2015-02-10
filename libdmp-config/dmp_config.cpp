@@ -86,6 +86,7 @@ struct DmpConfig : public boost::property_tree::ptree {
 static DmpConfig config;
 static const std::string library_key = "library";
 static const std::string servers_key = "servers";
+static const std::string volume_key = "volume";
 
 boost::property_tree::ptree& append_array_element_to_key(std::string key)
 {
@@ -109,6 +110,16 @@ boost::property_tree::ptree& get_or_create_child(std::string key) {
 		config.add_child(key, boost::property_tree::ptree());
 	}
 	return config.get_child(key);
+}
+
+void set_volume(int volume)
+{
+	config.put(volume_key, volume);
+}
+
+int get_volume()
+{
+	return get_or_create_child(volume_key).get_value<int>();
 }
 
 boost::property_tree::ptree get_library_information() {

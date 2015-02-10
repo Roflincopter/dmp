@@ -68,6 +68,8 @@ public:
 	void register_succeeded() override final;
 	void register_failed(std::string reason) override final;
 	
+	void volume_changed(int volume) override final;
+	
 private slots:
 	void test1();
 	void test2();
