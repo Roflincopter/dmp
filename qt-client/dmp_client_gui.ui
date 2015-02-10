@@ -543,7 +543,7 @@
   </connection>
   <connection>
    <sender>playButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>PlayPauseToggled(bool)</slot>
    <hints>
@@ -655,7 +655,7 @@
   </connection>
   <connection>
    <sender>muteButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>DmpClientGui</receiver>
    <slot>MuteToggled(bool)</slot>
    <hints>
