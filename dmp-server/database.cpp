@@ -8,15 +8,17 @@
 
 #include "odb/sqlite/database.hxx"
 
+#include "dmp_config.hpp"
+
 #include <boost/filesystem.hpp>
 
 std::shared_ptr<odb::database> initialize_database()
 {
-	const std::string database_file = "dmp-server.db";
+	const boost::filesystem::path database_file = config::get_database_file_name();
 	const bool database_existed = boost::filesystem::exists(database_file);
 
 	std::shared_ptr<odb::database> db = std::make_shared<odb::sqlite::database>(
-		database_file,
+		database_file.string(),
 		SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
 	);
 
@@ -30,7 +32,7 @@ std::shared_ptr<odb::database> initialize_database()
 		} else {
 			odb::schema_version version = db->schema_version();
 			if(version < database_base_version) {
-				throw std::runtime_error("Sorry, the database is to old to migrate to the current required version. Please delete the old database: \"" + database_file + "\" and let the application create a new one");
+				throw std::runtime_error("Sorry, the database is to old to migrate to the current required version. Please delete the old database: \"" + database_file.string() + "\" and let the application create a new one");
 			}
 			
 			if(version != current_database_version) {

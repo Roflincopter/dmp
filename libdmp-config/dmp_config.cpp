@@ -55,6 +55,10 @@ boost::filesystem::path get_config_file_name() {
 	return get_config_dir() / "config";
 }
 
+boost::filesystem::path get_database_file_name() {
+	return get_config_dir() / "server.db";
+}
+
 boost::property_tree::ptree create_or_open_config() {
 	boost::filesystem::path config_file = get_config_file_name();
 	if(!boost::filesystem::exists(config_file)) {
