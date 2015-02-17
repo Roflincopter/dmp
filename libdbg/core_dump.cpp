@@ -6,3 +6,5 @@ void core_dump(int)
 	kill(getpid(), SIGSEGV);
 }
 #endif
+
+void symbol(){}

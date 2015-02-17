@@ -7,3 +7,5 @@
  
 void core_dump(int = -1);
 #endif
+
+void symbol();
