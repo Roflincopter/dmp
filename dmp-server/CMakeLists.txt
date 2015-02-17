@@ -50,3 +50,5 @@ if(USE_GPERF)
 		PRIVATE "-lprofiler"
 	)
 endif(USE_GPERF)
+
+sane_install(TARGETS dmp-server)

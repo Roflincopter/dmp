@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(DMP)
+project(dmp)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 include(wubwubcmake/warning_settings.cmake)
 get_sane_warning_flags(warnings)
+
+include(wubwubcmake/sane_install.cmake)
 
 if(MINGW)
     include(wubwubcmake/enable_gnu11.cmake)

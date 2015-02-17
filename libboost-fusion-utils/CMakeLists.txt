@@ -9,7 +9,7 @@ set(boost-fusion-utils-sources
 	fusion_lexicographical_compare.hpp
 )
 
-add_library(boost-fusion-utils SHARED ${boost-fusion-utils-sources})
+add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})
 
 set_target_properties(boost-fusion-utils PROPERTIES LINKER_LANGUAGE CXX)
 

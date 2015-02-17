@@ -9,10 +9,10 @@ set(dbg-sources
 
 find_package(Boost COMPONENTS thread system REQUIRED)
 
-add_library(dbg SHARED ${dbg-sources})
+add_library(dbg STATIC ${dbg-sources})
 
 target_include_directories(dbg
-	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 	PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
