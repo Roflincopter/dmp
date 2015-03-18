@@ -64,7 +64,7 @@ struct GStreamerInit {
 	GStreamerInit() {
 		if(!gst_is_initialized()) {
 			char arg0[] = "";
-			char arg1[] = "--gst-plugin-path=\"plugins/gstreamer\"";
+			char arg1[] = "--gst-plugin-path=plugins/gstreamer";
 			char* argv[] = { &arg0[0], &arg1[0], NULL };
 			int argc = (int)(sizeof(argv) / sizeof(argv[0])) - 1;
 			char** ptr = &argv[0];
