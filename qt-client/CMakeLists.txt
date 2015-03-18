@@ -86,7 +86,7 @@ set(DmpClientSources
 
 #set(DmpClientResources resources.qrc)
 
-add_executable(qt-client ${DmpClientSources} ${DmpClientResources})
+add_executable(dmp-client-qt ${DmpClientSources} ${DmpClientResources})
 
 find_package(Boost COMPONENTS system program_options REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -97,14 +97,14 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 add_definitions(${Qt5Gui_DEFINITIONS})
 add_definitions(${Qt5Core_DEFINITIONS})
 
-target_include_directories(qt-client SYSTEM
+target_include_directories(dmp-client-qt SYSTEM
 	PRIVATE ${Boost_INCLUDE_DIRS}
 	PRIVATE ${Qt5Widgets_INCLUDE_DIRS}
 	PRIVATE ${Qt5Gui_INCLUDE_DIRS}
 	PRIVATE ${Qt5Core_INCLUDE_DIRS}
 )
 
-target_link_libraries(qt-client
+target_link_libraries(dmp-client-qt
 	PRIVATE ${Qt5Widgets_LIBRARIES}
 	PRIVATE ${Qt5Gui_LIBRARIES}
 	PRIVATE ${Qt5Core_LIBRARIES}
@@ -118,9 +118,9 @@ target_link_libraries(qt-client
 )
 
 if(USE_GPERF)
-	target_link_libraries(qt-client
+	target_link_libraries(dmp-client-qt
 		PRIVATE "-lprofiler"
 	)
 endif(USE_GPERF)
 
-sane_install(TARGETS qt-client)
+sane_install(TARGETS dmp-client-qt)
