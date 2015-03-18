@@ -35,7 +35,13 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 			DEBUG_COUT << entry.second.get<std::string>("cache_file") << std::endl;
 		}
 	}
-	change_volume(config::get_volume());
+	auto volume_node = config::get_volume();
+	if(volume_node.empty()) {
+		change_volume(50);
+	} else {
+		change_volume(volume_node.get_value<int>());
+	}
+	
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()

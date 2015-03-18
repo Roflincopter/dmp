@@ -121,9 +121,9 @@ void set_volume(int volume)
 	config.put(volume_key, volume);
 }
 
-int get_volume()
+boost::property_tree::ptree get_volume()
 {
-	return get_or_create_child(volume_key).get_value<int>();
+	return get_or_create_child(volume_key);
 }
 
 boost::property_tree::ptree get_library_information() {

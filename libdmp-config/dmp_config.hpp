@@ -10,7 +10,7 @@ typedef boost::property_tree::ptree array;
 boost::filesystem::path get_config_file_name();
 boost::filesystem::path get_database_file_name();
 
-int get_volume();
+boost::property_tree::ptree get_volume();
 void set_volume(int volume);
 
 boost::property_tree::ptree get_library_information();
