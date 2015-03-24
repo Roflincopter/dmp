@@ -51,12 +51,20 @@ boost::filesystem::path get_config_dir() {
 }
 #endif
 
+boost::filesystem::path get_or_create_config_dir() {
+	boost::filesystem::path config_dir = get_config_dir();
+	if(!boost::filesystem::exists(config_dir)) {
+		boost::filesystem::create_directory(config_dir);
+	}
+	return config_dir;
+}
+
 boost::filesystem::path get_config_file_name() {
-	return get_config_dir() / "config";
+	return get_or_create_config_dir() / "config";
 }
 
 boost::filesystem::path get_database_file_name() {
-	return get_config_dir() / "server.db";
+	return get_or_create_config_dir() / "server.db";
 }
 
 boost::property_tree::ptree create_or_open_config() {
