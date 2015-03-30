@@ -1,11 +1,21 @@
 #pragma once
 
+#include "debug_macros.hpp"
+
 #include <gst/gst.h>
+
+#include <boost/filesystem/path.hpp>
 
 #include <string>
 #include <memory>
 #include <mutex>
 #include <vector>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#endif
 
 #define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
 
@@ -62,15 +72,17 @@ struct GErrorDeleter {
 struct GStreamerInit {
 	
 	GStreamerInit() {
-		if(!gst_is_initialized()) {
-			char arg0[] = "";
-			char arg1[] = "--gst-plugin-path=plugins/gstreamer";
-			char* argv[] = { &arg0[0], &arg1[0], NULL };
-			int argc = (int)(sizeof(argv) / sizeof(argv[0])) - 1;
-			char** ptr = &argv[0];
-			
-			gst_init(&argc, &ptr);
-		}
+#if defined( _WIN32 ) || defined( _WIN64 )
+		char buffer[512];
+		GetModuleFileName(nullptr, buffer, sizeof(buffer));
+		boost::filesystem::path executable_path(buffer);
+		boost::filesystem::path plugin_path = executable_path.stem() / boost::filesystem::path("plugins/gstreamer");
+
+		DEBUG_COUT << "Setting plugin path to: " << plugin_path.string() << std::endl;
+
+		g_setenv("GST_PLUGIN_PATH_1_0", plugin_path.string().c_str(), false);
+#endif
+		gst_init(nullptr, nullptr);
 	}
 
 };
