@@ -93,21 +93,14 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Core REQUIRED)
 
-add_definitions(${Qt5Widgets_DEFINITIONS})
-add_definitions(${Qt5Gui_DEFINITIONS})
-add_definitions(${Qt5Core_DEFINITIONS})
-
 target_include_directories(qt-client SYSTEM
 	PRIVATE ${Boost_INCLUDE_DIRS}
-	PRIVATE ${Qt5Widgets_INCLUDE_DIRS}
-	PRIVATE ${Qt5Gui_INCLUDE_DIRS}
-	PRIVATE ${Qt5Core_INCLUDE_DIRS}
 )
 
 target_link_libraries(qt-client
-	PRIVATE ${Qt5Widgets_LIBRARIES}
-	PRIVATE ${Qt5Gui_LIBRARIES}
-	PRIVATE ${Qt5Core_LIBRARIES}
+	PRIVATE Qt5::Widgets
+	PRIVATE Qt5::Core
+	PRIVATE Qt5::Gui
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE dmp-client
 	PRIVATE dmp-library
