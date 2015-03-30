@@ -94,15 +94,14 @@ void DmpClientGui::test3()
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	if(client) {
-		if(client_thread.joinable()) {
-			client->destroy();
-			client_thread.join();
-		} else {
-			throw std::runtime_error("Tried to assign a new client when old client was invalidated.");
-		}
+		client->destroy();
 	}
 
 	client = new_client;
+
+	if(client_thread.joinable()) {
+		client_thread.join();
+	}
 
 	auto client_runner = [this]
 	{
@@ -230,6 +229,7 @@ void DmpClientGui::login_succeeded()
 
 void DmpClientGui::login_failed(std::string reason)
 {
+	QApplication::postEvent(this, new CallEvent([this]{login_user();}));
 	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
 }
 
@@ -240,8 +240,8 @@ void DmpClientGui::register_succeeded()
 
 void DmpClientGui::register_failed(std::string reason)
 {
-	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
 	QApplication::postEvent(this, new CallEvent([this]{register_user();}));
+	QApplication::postEvent(this, new CallEvent([this, reason]{error(reason);}));
 }
 
 void DmpClientGui::volume_changed(int volume)
