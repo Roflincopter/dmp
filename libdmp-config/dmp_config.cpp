@@ -60,7 +60,7 @@ boost::filesystem::path get_or_create_config_dir() {
 }
 
 boost::filesystem::path get_or_create_library_dir() {
-	boost::filesystem::path library_dir = get_config_dir() / "library";
+	boost::filesystem::path library_dir = get_or_create_config_dir() / "library";
 	if(!boost::filesystem::exists(library_dir)) {
 		boost::filesystem::create_directory(library_dir);
 	}
