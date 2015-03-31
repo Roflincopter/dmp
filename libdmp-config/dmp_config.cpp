@@ -59,12 +59,24 @@ boost::filesystem::path get_or_create_config_dir() {
 	return config_dir;
 }
 
+boost::filesystem::path get_or_create_library_dir() {
+	boost::filesystem::path library_dir = get_config_dir() / "library";
+	if(!boost::filesystem::exists(library_dir)) {
+		boost::filesystem::create_directory(library_dir);
+	}
+	return library_dir;
+}
+
 boost::filesystem::path get_config_file_name() {
 	return get_or_create_config_dir() / "config";
 }
 
 boost::filesystem::path get_database_file_name() {
 	return get_or_create_config_dir() / "server.db";
+}
+
+boost::filesystem::path get_library_folder_name() {
+	return get_or_create_library_dir();
 }
 
 boost::property_tree::ptree create_or_open_config() {

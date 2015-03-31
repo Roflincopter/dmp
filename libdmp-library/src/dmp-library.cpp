@@ -1,6 +1,8 @@
 #include "dmp-library.hpp"
 #include "icu-ascii-transliterator.hpp"
 
+#include "dmp_config.hpp"
+
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
 
@@ -42,12 +44,12 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 	return boost::optional<LibraryEntry>();
 }
 
-Library build_library(filesystem::recursive_directory_iterator it)
+Library build_library(filesystem::path p)
 {
 	vector<LibraryEntry> library;
 	std::map<uint32_t, std::string> filemap;
 
-	for(; it != filesystem::recursive_directory_iterator(); ++it)
+	for(auto it = filesystem::recursive_directory_iterator(p); it != filesystem::recursive_directory_iterator(); ++it)
 	{
 		if(filesystem::is_directory(*it)){
 			continue;
@@ -64,7 +66,7 @@ Library build_library(filesystem::recursive_directory_iterator it)
 			continue;
 		}
 	}
-	return Library(library, filemap);
+	return Library(p, library, filemap);
 }
 
 Library read_cache(std::string const& cache_path)
@@ -103,20 +105,12 @@ Library parse_directory(std::string const& directory_path)
 	filesystem::path p(directory_path);
 	if(filesystem::exists(p))
 	{
-		if(filesystem::is_regular_file(p))
+		if(filesystem::is_directory(p))
 		{
-			boost::optional<LibraryEntry> entry = build_library_entry(p);
-			if(entry) {
-				return Library({entry.get()},{{entry.get().id, p.string()}});
-			} else {
-				return Library();
-			}
-		} else if(filesystem::is_directory(p))
-		{
-			return build_library(filesystem::recursive_directory_iterator(p));
+			return build_library(p);
 		} else
 		{
-			throw runtime_error("unsupported file type: " + p.string() + " is neither a single file or a folder.");
+			throw runtime_error("unsupported file type: " + p.string() + " is not a folder.");
 		}
 	}
 	else
@@ -127,12 +121,37 @@ Library parse_directory(std::string const& directory_path)
 
 Library create_library(string path, bool use_cache, bool create_cache)
 {
-	filesystem::path cache_path = filesystem::path(path) / filesystem::path(cache_file);
+	//check if this folder has already been indexed.
+	bool found = false;
+	string cache_file_name;
+	for(auto&& entry : config::get_library_information()) {
+		if (entry.second.get<std::string>("path") == path) {
+			found = true;
+			cache_file_name = entry.second.get<std::string>("cache_file");
+		}
+	}
 
-	if(filesystem::exists(cache_path) && use_cache)
+	boost::filesystem::path cache_file;
+	if(found) {
+		//if so set the correct cache file
+		cache_file = cache_folder / cache_file_name;
+	} else {
+		//else make a unique cache file
+		do {
+			cache_file = cache_folder / boost::filesystem::unique_path("%%%%%%%%%%");
+		} while(boost::filesystem::exists(cache_file));
+
+		config::add_library(
+			boost::filesystem::path(path).filename().string(),
+			path,
+			cache_file.filename().string()
+		);
+	}
+
+	if(filesystem::exists(cache_file) && use_cache)
 	{
-		Library lib = read_cache(cache_path.string());
-		write_cache(cache_path.string(), lib);
+		Library lib = read_cache(cache_file.string());
+		write_cache(cache_file.string(), lib);
 		return lib;
 	}
 	else
@@ -145,7 +164,7 @@ Library create_library(string path, bool use_cache, bool create_cache)
 		
 		if(create_cache)
 		{
-			write_cache(cache_path.string(), lib);
+			write_cache(cache_file.string(), lib);
 		}
 		return lib;
 	}

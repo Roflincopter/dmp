@@ -6,8 +6,9 @@ Library::Library()
 {
 }
 
-Library::Library(tracklist_t tracklist, filemap_t filemap)
-: tracklist(tracklist)
+Library::Library(boost::filesystem::path path, tracklist_t tracklist, filemap_t filemap)
+: path(path)
+, tracklist(tracklist)
 , filemap(filemap)
 {
 }

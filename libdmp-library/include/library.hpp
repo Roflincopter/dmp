@@ -2,6 +2,7 @@
 
 #include "library-entry.hpp"
 
+#include <boost/filesystem/path.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>
 
@@ -15,11 +16,12 @@ struct Library
 	typedef std::vector<LibraryEntry> tracklist_t;
 	typedef std::map<uint32_t, std::string> filemap_t;
 
+	boost::filesystem::path path;
 	tracklist_t tracklist;
 	filemap_t filemap;
 
 	Library();
-	Library(tracklist_t tracklist, filemap_t filemap);
+	Library(boost::filesystem::path path, tracklist_t tracklist, filemap_t filemap);
 
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
