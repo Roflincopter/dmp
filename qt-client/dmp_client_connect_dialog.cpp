@@ -30,7 +30,6 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 		ui.Servers->addItem(QString::fromStdString(name));
 	}
 	if(ui.Servers->count() != 0) {
-		auto item = ui.Servers->item(0);
 		auto const& index = ui.Servers->model()->index(0, 0);
 		ui.Servers->selectionModel()->select(index, QItemSelectionModel::Select);
 		emit selectionChanged();
