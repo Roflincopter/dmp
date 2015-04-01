@@ -270,7 +270,7 @@
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
+         <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
@@ -319,8 +319,15 @@
     </property>
     <addaction name="actionIndex_Folder"/>
    </widget>
+   <widget class="QMenu" name="menuPlayList">
+    <property name="title">
+     <string>PlayList</string>
+    </property>
+    <addaction name="actionQueueSelected"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuIndex"/>
+   <addaction name="menuPlayList"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
@@ -342,6 +349,17 @@
    </property>
    <property name="text">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionQueueSelected">
+   <property name="text">
+    <string>Queue selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Queue selected songs</string>
+   </property>
+   <property name="shortcut">
+    <string>Q</string>
    </property>
   </action>
  </widget>
@@ -370,6 +388,7 @@
    <slots>
     <slot>currentActiveRadio(std::string)</slot>
     <slot>queueRequest(QModelIndex)</slot>
+    <slot>queueSelection()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -666,6 +685,22 @@
     <hint type="destinationlabel">
      <x>639</x>
      <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionQueueSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>search_results</receiver>
+   <slot>queueSelection()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>529</y>
     </hint>
    </hints>
   </connection>

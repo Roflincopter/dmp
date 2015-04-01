@@ -34,14 +34,25 @@ void DmpClientGuiRadioList::set_client(std::shared_ptr<DmpClientInterface> new_c
 
 void DmpClientGuiRadioList::set_radio_states()
 {
+	if(current_selected_radio == "" && model->model->row_count() != 0) {
+		set_selection(0);
+	}
 	emit setPlayingChecked(model->model->get_radio_states()[current_selected_radio].playing);
+}
+
+void DmpClientGuiRadioList::add_radio_end()
+{
+	if(selectionModel()->selectedRows().count() == 1) {
+		set_selection(0);
+	}
 }
 
 void DmpClientGuiRadioList::set_selection(int row)
 {
 	auto index = model->get_model_index_for(row);
 	if(index.isValid()) {
-		selectionModel()->select( index, QItemSelectionModel::Select );
+		selectionModel()->select(index, QItemSelectionModel::Select);
+		selectionChanged(selectionModel()->selection(), selectionModel()->selection());
 	}
 }
 

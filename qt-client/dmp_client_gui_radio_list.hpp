@@ -30,6 +30,8 @@ public:
 	
 	virtual void set_radio_states() override final;
 	
+	virtual void add_radio_end() override final;
+	
 	void set_selection(int row);
 	
 signals:

@@ -23,18 +23,6 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
 {
-	auto library_info = config::get_library_information();
-	
-	if(library_info.size() == 0) {
-		config::add_library("blaat1", "/path/1", "somesha1hash");
-		config::add_library("blaat2", "/path/2", "someotherhash");
-	} else {
-		for(auto&& entry : library_info){
-			DEBUG_COUT << entry.second.get<std::string>("name") << std::endl;
-			DEBUG_COUT << entry.second.get<std::string>("path") << std::endl;
-			DEBUG_COUT << entry.second.get<std::string>("cache_file") << std::endl;
-		}
-	}
 	auto volume_node = config::get_volume();
 	if(volume_node.empty()) {
 		change_volume(50);

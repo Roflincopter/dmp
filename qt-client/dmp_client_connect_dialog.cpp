@@ -29,9 +29,10 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 		
 		ui.Servers->addItem(QString::fromStdString(name));
 	}
-	if(ui.Servers->count() == 0) {
-		auto index = ui.Servers->rootIndex().child(0, 0);
-		ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
+	if(ui.Servers->count() != 0) {
+		auto item = ui.Servers->item(0);
+		auto const& index = ui.Servers->model()->index(0, 0);
+		ui.Servers->selectionModel()->select(index, QItemSelectionModel::Select);
 		emit selectionChanged();
 	}
 }
@@ -109,7 +110,7 @@ void DmpClientConnectDialog::addPressed()
 	servers[new_label] = {};
 	auto index = ui.Servers->rootIndex().child(ui.Servers->count() - 1, 0);
 	ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
-	emit selectionChanged();
+	selectionChanged();
 }
 
 void DmpClientConnectDialog::deletePressed()

@@ -34,5 +34,6 @@ signals:
 
 public slots:
 	void queueRequest(QModelIndex index);
+	void queueSelection();
 	void currentActiveRadio(std::string radio_name);
 };
