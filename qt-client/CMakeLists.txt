@@ -43,6 +43,7 @@ my_qt5_wrap_ui(QtGeneratedHeaders
 	dmp_client_login_dialog.ui
 	dmp_client_register_dialog.ui
 	dmp_client_error_dialog.ui
+	library_dialog.ui
 )
 
 qt5_wrap_cpp(QtGeneratedSources
@@ -57,6 +58,7 @@ qt5_wrap_cpp(QtGeneratedSources
 	dmp_client_gui_radio_list.hpp
 	dmp_client_gui_playlists.hpp
 	gui_item_delegate.hpp
+	library_dialog.hpp
 )
 
 set(DmpClientSources
@@ -77,6 +79,7 @@ set(DmpClientSources
 	dmp_client_gui_radio_list.hpp dmp_client_gui_radio_list.cpp
 	dmp_client_gui_playlists.hpp dmp_client_gui_playlists.cpp
 	dmp_qt_meta_types.hpp
+	library_dialog.hpp library_dialog.cpp
 	call_event.hpp call_event.cpp
 	qt_adapter.hpp
 	boost_any_qvariant_convert.hpp
