@@ -2,10 +2,27 @@
 
 #include "debug_macros.hpp"
 
+#include "index_list.hpp"
+#include "fusion_static_dispatch.hpp"
+
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include <fstream>
+
+BOOST_FUSION_ADAPT_STRUCT(
+	config::ServerInfo,
+	(std::string, name)
+	(std::string, hostname)
+	(std::string, port)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	config::LibraryInfo,
+	(std::string, name)
+	(std::string, path)
+	(std::string, cache_file)
+)
 
 namespace config {
 
@@ -128,12 +145,29 @@ boost::property_tree::ptree& append_array_element_to_key(std::string key)
 	return top_element.get().back().second;
 }
 
-boost::property_tree::ptree& get_or_create_child(std::string key) {
+boost::property_tree::ptree& get_or_create_child(std::string key, std::string value = "") {
 	auto element = config.get_child_optional(key);
 	if(!element) {
-		config.add_child(key, boost::property_tree::ptree());
+		config.add_child(key, boost::property_tree::ptree(value));
 	}
 	return config.get_child(key);
+}
+
+template <typename T, int... Indices>
+T to_struct(std::pair<const std::string, boost::property_tree::ptree> pair, indices<Indices...>) {
+	return T{
+		pair.second.get<std::string>(friendly_fusion::extension::struct_member_name<T, Indices>::call())...
+	};
+}
+
+template <typename T>
+std::vector<T> get_array_info(std::string key) {
+	auto info_node = get_or_create_child(key);
+	std::vector<T> info;
+	for(auto&& entry : info_node) {
+		info.push_back(to_struct<T>(entry, typename build_indices<friendly_fusion::result_of::size<T>::type::value>::type{}));
+	}
+	return info;
 }
 
 void set_volume(int volume)
@@ -141,13 +175,14 @@ void set_volume(int volume)
 	config.put(volume_key, volume);
 }
 
-boost::property_tree::ptree get_volume()
+int get_volume()
 {
-	return get_or_create_child(volume_key);
+	auto volume_node = get_or_create_child(volume_key, "50");
+	return volume_node.get_value<int>();
 }
 
-boost::property_tree::ptree get_library_information() {
-	return get_or_create_child(library_key);
+std::vector<LibraryInfo> get_library_information() {
+	return get_array_info<LibraryInfo>(library_key);
 }
 
 void add_library(std::string name, std::string path, std::string cache_file) {
@@ -158,9 +193,9 @@ void add_library(std::string name, std::string path, std::string cache_file) {
 	new_elem.put("cache_file", cache_file);
 }
 
-boost::property_tree::ptree get_servers()
+std::vector<ServerInfo> get_servers()
 {
-	return get_or_create_child(servers_key);
+	return get_array_info<ServerInfo>(servers_key);
 }
 
 void add_server(std::string name, std::string hostname, std::string port)

@@ -20,11 +20,11 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 	ui.PortEdit->setValidator(&port_validator);
 	
 	for(auto&& server : config::get_servers()) {
-		std::string name = server.second.get<std::string>("name");
+		std::string name = server.name;
 	
 		servers[name] = ConnectionInfo {
-			server.second.get<std::string>("hostname"),
-			server.second.get<std::string>("port")
+			server.hostname,
+			server.port
 		};
 		
 		ui.Servers->addItem(QString::fromStdString(name));

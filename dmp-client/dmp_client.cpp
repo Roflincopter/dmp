@@ -23,13 +23,8 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , receiver()
 , message_switch(make_message_switch(callbacks, connection))
 {
-	auto volume_node = config::get_volume();
-	if(volume_node.empty()) {
-		change_volume(50);
-	} else {
-		change_volume(volume_node.get_value<int>());
-	}
-	
+	auto volume = config::get_volume();
+	change_volume(50);
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()

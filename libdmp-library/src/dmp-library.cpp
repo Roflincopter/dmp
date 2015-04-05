@@ -125,9 +125,9 @@ Library create_library(string path, bool use_cache, bool create_cache)
 	bool found = false;
 	string cache_file_name;
 	for(auto&& entry : config::get_library_information()) {
-		if (entry.second.get<std::string>("path") == path) {
+		if(entry.path == path) {
 			found = true;
-			cache_file_name = entry.second.get<std::string>("cache_file");
+			cache_file_name = entry.cache_file;
 		}
 	}
 
@@ -151,7 +151,6 @@ Library create_library(string path, bool use_cache, bool create_cache)
 	if(filesystem::exists(cache_file) && use_cache)
 	{
 		Library lib = read_cache(cache_file.string());
-		write_cache(cache_file.string(), lib);
 		return lib;
 	}
 	else

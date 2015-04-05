@@ -10,7 +10,9 @@ find_package(Boost REQUIRED)
 
 target_link_libraries(dmp-config
 	PRIVATE ${Boost_LIBRARIES}
-	dbg
+	PRIVATE dbg
+	PRIVATE boost-fusion-utils
+
 )
 
 target_include_directories(dmp-config SYSTEM
