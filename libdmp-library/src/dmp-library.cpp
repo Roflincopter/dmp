@@ -36,12 +36,16 @@ boost::optional<LibraryEntry> build_library_entry(filesystem::path p)
 			
 			return boost::optional<LibraryEntry>();
 		}
+		//gcc 4.9 semantic analysis will report control reaches end of non-void function without this return statement
+		//clang 3.6 will report 'return' will never be executed
+		#ifndef __clang__
+		return boost::optional<LibraryEntry>();
+		#endif
 	}
 	else {
 		std::cout << "fileref or audio_prop not valid for file: " << p.string() << std::endl;
 		return boost::optional<LibraryEntry>();
 	}
-	return boost::optional<LibraryEntry>();
 }
 
 Library build_library(filesystem::path p)
@@ -61,7 +65,7 @@ Library build_library(filesystem::path p)
 				filemap.emplace(entry.get().id, (*it).path().string());
 			}
 		}
-		catch(std::exception &e)
+		catch(std::exception&)
 		{
 			continue;
 		}

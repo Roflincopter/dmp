@@ -206,7 +206,7 @@ struct AddRadioResponse {
 	AddRadioResponse(std::string radio_name, bool succes, std::string reason="")
 	: radio_name(radio_name)
 	, succes(succes)
-	, reason()
+	, reason(reason)
 	{}
 };
 

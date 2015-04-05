@@ -60,7 +60,7 @@ inline std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> vec)
 {
 	os << "{";
 	for (auto&& x : vec) {
-		os << (unsigned int)(x) << ",";
+		os << static_cast<unsigned int>(x) << ",";
 	}
 	os << "}" << std::endl;
 	return os;

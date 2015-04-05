@@ -10,15 +10,15 @@ struct DmpClientUiDelegate
 	virtual void add_radio_succes(message::AddRadioResponse){}
 	virtual void add_radio_failed(message::AddRadioResponse){}
 
-	virtual void set_play_paused_state(bool state){}
+	virtual void set_play_paused_state(bool __attribute__((unused)) state){}
 
-	virtual void volume_changed(int volume){};
+	virtual void volume_changed(int __attribute__((unused)) volume){};
 	
 	virtual void login_succeeded(){}
-	virtual void login_failed(std::string reason){}
+	virtual void login_failed(std::string __attribute__((unused))  reason){}
 	
 	virtual void register_succeeded(){}
-	virtual void register_failed(std::string reason){}
+	virtual void register_failed(std::string __attribute__((unused))  reason){}
 
 	virtual ~DmpClientUiDelegate(){}
 };

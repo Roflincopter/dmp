@@ -20,7 +20,7 @@ template<>
 struct Serialize<0>
 {
 	template<class Archive, typename... Args>
-	static void serialize(Archive & ar, std::tuple<Args...> & t, const unsigned int version)
+	static void serialize(Archive& __attribute__((unused)) ar, std::tuple<Args...>& __attribute__((unused)) t, const unsigned int __attribute__((unused)) version)
 	{
 	}
 };

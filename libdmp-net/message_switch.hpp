@@ -23,8 +23,10 @@ struct MessageSwitch
 		: table(
 			//not using labda because of gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 			{
-				MessageSwitch::create_message_receiver<Indices>(cbs, conn)
-				...
+				{
+					MessageSwitch::create_message_receiver<Indices>(cbs, conn)
+					...
+				}
 			}
 		)
 	{}

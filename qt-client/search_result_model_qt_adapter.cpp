@@ -31,7 +31,7 @@ QVariant SearchResultModelQtAdapter::data(const QModelIndex &index, int role) co
 	}
 	try {
 		return QVariant(to_qvariant<SearchResultModel::ElementType>(model->get_cell(index.row(), index.column()), index.column()));
-	} catch (std::out_of_range &e) {
+	} catch (std::out_of_range&) {
 		return QVariant();
 	}
 }
@@ -52,7 +52,7 @@ QVariant SearchResultModelQtAdapter::headerData(int section, Qt::Orientation ori
 
 	try {
 		return QVariant(QString::fromStdString(model->header_data(section)));
-	} catch(std::out_of_range &e) {
+	} catch(std::out_of_range&) {
 		return QVariant();
 	}
 }

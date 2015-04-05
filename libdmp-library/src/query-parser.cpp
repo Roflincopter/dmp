@@ -72,7 +72,7 @@ namespace dmp_library {
 		struct result { typedef void type; };
 
 		template<typename Iter>
-		void operator()(Iter first_iter, Iter last_iter, Iter error_iter, const qi::info& what) const {
+		void operator()(Iter first_iter, Iter __attribute__((unused)) last_iter, Iter error_iter, const qi::info& what) const {
 			std::stringstream ss;
 			ss << what;
 			error.expected = ss.str();

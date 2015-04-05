@@ -61,6 +61,10 @@ qt5_wrap_cpp(QtGeneratedSources
 	library_dialog.hpp
 )
 
+foreach(moc ${QtGeneratedSources})
+	set_source_files_properties(${moc} PROPERTIES COMPILE_FLAGS -Wno-undefined-reinterpret-cast)
+endforeach(moc)
+
 set(DmpClientSources
 	main.cpp
 	search_result_model_qt_adapter.hpp search_result_model_qt_adapter.cpp

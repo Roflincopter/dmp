@@ -17,7 +17,11 @@ class SuperAdmin
 
 	SuperAdmin();
 
-	uint32_t id;
+	uint32_t
+#if !defined( RADIO_ADMIN_ODB_HPP ) && defined( __clang__ )
+		__attribute((unused))
+#endif
+	id;
 
 	std::shared_ptr<User> user;
 	std::shared_ptr<Radio> radio;
@@ -39,7 +43,11 @@ class Admin
 
 	Admin();
 
-	uint32_t id;
+	uint32_t
+#if !defined( RADIO_ADMIN_ODB_HPP ) && defined( __clang__ )
+	__attribute((unused))
+#endif
+	id;
 
 	std::shared_ptr<User> user;
 	std::shared_ptr<Radio> radio;

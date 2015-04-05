@@ -46,7 +46,7 @@ void DmpClientGuiSearchBar::searchBarReturned()
 	client->search(text().toStdString());
 }
 
-void DmpClientGuiSearchBar::cursorChanged(int old_pos, int new_pos)
+void DmpClientGuiSearchBar::cursorChanged(int __attribute__((unused)) old_pos, int new_pos)
 {
 	if(model->should_reset_error_state(new_pos)) {
 		reset_error_state();

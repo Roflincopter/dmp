@@ -24,7 +24,7 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , message_switch(make_message_switch(callbacks, connection))
 {
 	auto volume = config::get_volume();
-	change_volume(50);
+	change_volume(volume);
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()

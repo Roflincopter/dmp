@@ -80,7 +80,7 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 		db->persist(user);
 		t.commit();
 		rr = {true, ""};
-	} catch(odb::object_already_persistent const& e) {
+	} catch(odb::object_already_persistent const&) {
 		rr = {false, "Username already exists in database"};
 	} catch(...) {
 		DEBUG_COUT << "You caught the wrong \"exception\"" << std::endl;
@@ -177,7 +177,7 @@ void DmpServer::add_pending_connection(Connection&& c)
 			cep->forward(message::RegisterResponse(result.succes, result.reason));
 			return true;
 		}).
-		set(message::Type::Bye, [this, cep](message::Bye c) {
+		set(message::Type::Bye, [this, cep](message::Bye) {
 			cep->forward(message::ByeAck());
 			remove_element(pending_connections, cep);
 			cep->get_callbacks().clear();

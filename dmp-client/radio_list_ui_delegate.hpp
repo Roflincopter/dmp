@@ -11,4 +11,6 @@ struct RadioListUiDelegate {
 
 	virtual void remove_radio_start(){}
 	virtual void remove_radio_end(){}
+
+	virtual ~RadioListUiDelegate(){}
 };

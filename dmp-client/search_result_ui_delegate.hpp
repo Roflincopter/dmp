@@ -7,4 +7,6 @@ struct SearchResultUiDelegate {
 	
 	virtual void new_search_begin(){}
 	virtual void new_search_end(){}
+
+	virtual ~SearchResultUiDelegate(){}
 };

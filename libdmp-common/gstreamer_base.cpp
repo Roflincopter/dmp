@@ -107,7 +107,7 @@ void GStreamerBase::wait_for_state_change()
 	}
 }
 
-gboolean GStreamerBase::bus_call (GstBus* bus, GstMessage* msg, gpointer data)
+gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 {
 	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 	
@@ -218,10 +218,10 @@ gboolean GStreamerBase::bus_call (GstBus* bus, GstMessage* msg, gpointer data)
 	return true;
 }
 
-void on_pad_added (GstElement* element, GstPad* pad, gpointer data)
+void on_pad_added (GstElement* __attribute__((unused)) element, GstPad* pad, gpointer data)
 {
 	GstPad *sinkpad;
-	GstElement *decoder = (GstElement *) data;
+	GstElement *decoder = static_cast<GstElement*>(data);
 
 	sinkpad = gst_element_get_static_pad (decoder, "sink");
 	gst_pad_link (pad, sinkpad);
