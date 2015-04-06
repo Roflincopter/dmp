@@ -6,7 +6,9 @@
 
 int main(int argc, char* argv[])
 {
-	assert(argc == 2);
+	if(argc != 2) {
+		throw std::runtime_error("This test requires 1 path to a music directory");
+	}
 
 	dmp_library::Library l1 = dmp_library::create_library(argv[1], false);
 	dmp_library::Library l2 = dmp_library::create_library(argv[1], true);
