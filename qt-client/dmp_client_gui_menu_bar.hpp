@@ -20,5 +20,5 @@ public:
 signals:
 
 public slots:
-	void indexFolder();
+	void editLibrary();
 };

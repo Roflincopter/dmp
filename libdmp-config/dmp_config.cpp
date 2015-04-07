@@ -96,6 +96,17 @@ boost::filesystem::path get_library_folder_name() {
 	return get_or_create_library_dir();
 }
 
+boost::filesystem::path get_unique_cache_name() {
+	boost::filesystem::path cache_name;
+	boost::filesystem::path cache_file;
+	do {
+		cache_name = boost::filesystem::unique_path("%%%%%%%%%%");
+		cache_file = get_library_folder_name() / cache_name;
+	} while(boost::filesystem::exists(cache_file));
+
+	return cache_name;
+}
+
 boost::property_tree::ptree create_or_open_config() {
 	boost::filesystem::path config_file = get_config_file_name();
 	if(!boost::filesystem::exists(config_file)) {
@@ -185,12 +196,17 @@ std::vector<LibraryInfo> get_library_information() {
 	return get_array_info<LibraryInfo>(library_key);
 }
 
-void add_library(std::string name, std::string path, std::string cache_file) {
-
+void add_library(config::LibraryInfo info)
+{
 	auto& new_elem = append_array_element_to_key(library_key);
-	new_elem.put("name", name);
-	new_elem.put("path", path);
-	new_elem.put("cache_file", cache_file);
+	new_elem.put("name", info.name);
+	new_elem.put("path", info.path);
+	new_elem.put("cache_file", info.cache_file);
+}
+
+void clear_library()
+{
+	config.erase(library_key);
 }
 
 std::vector<ServerInfo> get_servers()

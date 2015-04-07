@@ -1,5 +1,7 @@
 #include "dmp_client_gui_menu_bar.hpp"
 
+#include "library_dialog.hpp"
+
 #include <QFileDialog>
 
 DmpClientGuiMenuBar::DmpClientGuiMenuBar(QWidget *parent)
@@ -13,12 +15,17 @@ void DmpClientGuiMenuBar::set_client(std::shared_ptr<DmpClientInterface> new_cli
 	client = new_client;
 }
 
-void DmpClientGuiMenuBar::indexFolder()
+void DmpClientGuiMenuBar::editLibrary()
 {
-	std::string folder = QFileDialog::getExistingDirectory(this, tr("Select music folder to index")).toStdString();
-	if(folder.empty()) {
-	   return;
+	LibraryDialog dialog(this);
+	int result = dialog.exec();
+
+	if(result == QDialog::Accepted) {
+		config::clear_library();
+		for(auto&& elem : dialog.get_library()) {
+			config::add_library(elem.second);
+		}
 	}
 
-	client->index(folder);
+	client->init_library();
 }

@@ -158,6 +158,19 @@ void DmpClient::register_user(std::string username, std::string password)
 	connection.send_encrypted(message::RegisterRequest(username, password));
 }
 
+void DmpClient::init_library()
+{
+	//TODO: notify other clients of the library change.
+	//this->library.clear();
+
+	auto&& library_info = config::get_library_information();
+	for(auto&& entry : library_info) {
+		//only load first entry untill the library supports multiple folders.
+		library = dmp_library::create_library(entry.path);
+		break;
+	}
+}
+
 void DmpClient::handle_request(message::Type t)
 {
 	message_switch.handle_message(t);

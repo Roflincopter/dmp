@@ -110,6 +110,7 @@ void DmpClientConnectDialog::addPressed()
 	auto index = ui.Servers->rootIndex().child(ui.Servers->count() - 1, 0);
 	ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
 	selectionChanged();
+	updateOkButton();
 }
 
 void DmpClientConnectDialog::deletePressed()
@@ -124,6 +125,7 @@ void DmpClientConnectDialog::deletePressed()
 		delete item;
 		selectionChanged();
 	}
+	updateOkButton();
 }
 
 void DmpClientConnectDialog::selectionChanged()
@@ -140,7 +142,7 @@ void DmpClientConnectDialog::selectionChanged()
 	} else {
 		setEnabled(false);
 	}
-	
+	updateOkButton();
 }
 
 void DmpClientConnectDialog::saveToConfig() {

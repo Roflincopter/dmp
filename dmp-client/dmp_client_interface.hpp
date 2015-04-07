@@ -25,6 +25,7 @@ struct DmpClientInterface {
 	virtual void send_bye() = 0;
 	virtual void send_login(std::string username, std::string password) = 0;
 	virtual void register_user(std::string username, std::string password) = 0;
+	virtual void init_library() = 0;
 
 	virtual void stop_radio() = 0;
 	virtual void pause_radio() = 0;

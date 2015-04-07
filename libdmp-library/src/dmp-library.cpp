@@ -145,11 +145,11 @@ Library create_library(string path, bool use_cache, bool create_cache)
 			cache_file = cache_folder / boost::filesystem::unique_path("%%%%%%%%%%");
 		} while(boost::filesystem::exists(cache_file));
 
-		config::add_library(
+		config::add_library({
 			boost::filesystem::path(path).filename().string(),
 			path,
 			cache_file.filename().string()
-		);
+		});
 	}
 
 	if(filesystem::exists(cache_file) && use_cache)
