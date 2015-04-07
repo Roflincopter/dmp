@@ -58,10 +58,9 @@ public:
 	virtual void stop() override final;
 	virtual void run() override final;
 	virtual void search(std::string query) override final;
-	virtual void index(std::string path) override final;
 	virtual void add_radio(std::string str) override final;
 	virtual void remove_radio(std::string str) override final;
-	virtual void queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry) override final;
+	virtual void queue(std::string radio, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry) override final;
 	virtual void set_current_radio(std::string name) override final;
 	virtual void tune_in(std::string radio, bool tune_in) override final;
 	virtual std::string get_tuned_in_radio() override final;

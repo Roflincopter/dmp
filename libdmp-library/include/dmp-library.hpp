@@ -14,5 +14,5 @@ namespace dmp_library
 {
 	const boost::filesystem::path cache_folder = config::get_library_folder_name();
 
-	Library create_library(std::string path, bool use_cache = true, bool create_cache = true);
+	LibraryFolder create_library(std::string path, bool use_cache = true, bool create_cache = true);
 }

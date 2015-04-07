@@ -344,7 +344,7 @@ bool DmpServer::handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, m
 
 bool DmpServer::handle_queue(message::Queue queue)
 {
-	radios.at(queue.radio).second.queue(queue.queuer, queue.owner, queue.entry);
+	radios.at(queue.radio).second.queue(queue.queuer, queue.owner, queue.folder_id, queue.entry);
 	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios.at(queue.radio).second.get_playlist()));
@@ -428,9 +428,9 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 	return true;
 }
 
-void DmpServer::order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
+void DmpServer::order_stream(std::string client, std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port)
 {
-	connections.at(client)->forward(message::StreamRequest(radio_name, entry, port));
+	connections.at(client)->forward(message::StreamRequest(radio_name, folder_id, entry, port));
 }
 
 void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)

@@ -208,7 +208,7 @@ void DmpRadio:: play()
 	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 
 	if(stopped) {
-		sp->order_stream(entry.owner, name, entry.entry, get_sender_port());
+		sp->order_stream(entry.owner, name, entry.folder_id, entry.entry, get_sender_port());
 	}
 
 	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Play));
@@ -298,11 +298,11 @@ void DmpRadio::buffer_low(GstElement *src)
 	wait_for_state_change();
 }
 
-void DmpRadio::queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
+void DmpRadio::queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
-	playlist.push_back({queuer, owner, entry});
+	playlist.push_back({queuer, owner, folder_id, entry});
 }
 
 RadioState DmpRadio::get_state()

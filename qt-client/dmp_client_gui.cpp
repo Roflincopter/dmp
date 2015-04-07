@@ -59,7 +59,7 @@ void DmpClientGui::update_ui_client_interface()
 	shared_radio_list->set_client(client);
 	shared_playlists->set_client(client);
 }
-
+/*
 void DmpClientGui::test1()
 {
 	connect_client("127.0.0.1", 1337);
@@ -90,7 +90,7 @@ void DmpClientGui::test3()
 	shared_radio_list->set_selection(0);
 	client->search("artist contains \"Alter\"");
 }
-
+*/
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	if(client) {
@@ -141,7 +141,6 @@ void DmpClientGui::login_client(std::string username, std::string password)
 }
 
 void DmpClientGui::setEnabled(bool enabled) {
-	ui.actionIndex_Folder->setEnabled(enabled);
 	ui.search_bar->setEnabled(enabled);
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);

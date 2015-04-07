@@ -167,9 +167,9 @@ struct SearchResponse
 {
 	std::string origin;
 	std::string query;
-	std::vector<dmp_library::LibraryEntry> results;
+	std::map<uint32_t, std::vector<dmp_library::LibraryEntry>> results;
 
-	SearchResponse(std::string origin, std::string query, std::vector<dmp_library::LibraryEntry> results)
+	SearchResponse(std::string origin, std::string query, std::map<uint32_t, std::vector<dmp_library::LibraryEntry>> results)
 	: origin(origin)
 	, query(query)
 	, results(results)
@@ -232,12 +232,14 @@ struct Queue {
 	std::string radio;
 	std::string queuer;
 	std::string owner;
+	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 
-	Queue(std::string radio, std::string queuer, std::string owner, dmp_library::LibraryEntry entry)
+	Queue(std::string radio, std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
 	: radio(radio)
 	, queuer(queuer)
 	, owner(owner)
+	, folder_id(folder_id)
 	, entry(entry)
 	{}
 };
@@ -285,11 +287,13 @@ struct PlaylistUpdate {
 
 struct StreamRequest {
 	std::string radio_name;
+	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 	uint16_t port;
 	
-	StreamRequest(std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port)
+	StreamRequest(std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port)
 	: radio_name(radio_name)
+	, folder_id(folder_id)
 	, entry(entry)
 	, port(port)
 	{}
@@ -484,11 +488,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, query)
 )
 
+typedef std::map<uint32_t, std::vector<dmp_library::LibraryEntry>> T1;
 BOOST_FUSION_ADAPT_STRUCT(
 	message::SearchResponse,
 	(std::string, origin)
 	(std::string, query)
-	(std::vector<dmp_library::LibraryEntry>, results)
+	(T1, results)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -535,6 +540,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, radio)
 	(std::string, queuer)
 	(std::string, owner)
+	(uint32_t, folder_id)
 	(dmp_library::LibraryEntry, entry)
 )
 
@@ -555,6 +561,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::StreamRequest,
 	(std::string, radio_name)
+	(uint32_t, folder_id)
 	(dmp_library::LibraryEntry, entry)
 	(uint16_t, port)
 )

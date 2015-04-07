@@ -335,14 +335,6 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionIndex_Folder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Index Folder</string>
-   </property>
-  </action>
   <action name="actionConnect">
    <property name="enabled">
     <bool>true</bool>

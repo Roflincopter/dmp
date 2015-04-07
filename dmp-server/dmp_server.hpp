@@ -72,7 +72,5 @@ public:
 	
 	virtual void forward_receiver_action(std::string client, message::ReceiverAction ra) override final;
 	virtual void forward_sender_action(std::string client, message::SenderAction sa) override final;
-	virtual void order_stream(std::string client, std::string radio_name, dmp_library::LibraryEntry entry, uint16_t port) override final;
-	
-	
+	virtual void order_stream(std::string client, std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port) override final;
 };

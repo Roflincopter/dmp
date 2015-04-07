@@ -9,6 +9,7 @@
 struct PlaylistEntry {
 	std::string queuer;
 	std::string owner;
+	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 	
 	template <typename Archive>

@@ -20,7 +20,11 @@ void SearchResultModel::add_search_response(message::SearchResponse response)
 
 int SearchResultModel::row_count() const
 {
-	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement const& rh){return acc + rh.second.size();});
+	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement const& rh){
+		return acc + std::accumulate(rh.second.cbegin(), rh.second.cend(), 0, [](int acc, SearchResultsElement::second_type::value_type rh) {
+			return acc + rh.second.size();
+		});  
+	});
 }
 
 int SearchResultModel::column_count() const
@@ -36,12 +40,13 @@ boost::any SearchResultModel::get_cell(int row, int column) const
 
 	for(SearchResultsElement const& p : search_results)
 	{
-		if(row > 0 && size_t(row) >= p.second.size()) {
-			row -= p.second.size();
-			continue;
+		for(auto && pair : p.second) {
+			if(row > 0 && size_t(row) >= pair.second.size()) {
+				row -= pair.second.size();
+			} else {
+				return get_nth(boost::fusion::joint_view<dmp_library::LibraryFolder::tracklist_t::value_type const, Client const>(pair.second.at(row), p.first), column);
+			}
 		}
-		
-		return get_nth(boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type const, Client const>(p.second.at(row), p.first), column);
 	}
 
 	throw std::out_of_range("Row index was out of range.");
@@ -53,7 +58,7 @@ std::string SearchResultModel::header_data(int section) const
 		throw std::out_of_range("Column index was out of range.");
 	}
 	
-	return get_nth_name<boost::fusion::joint_view<dmp_library::Library::tracklist_t::value_type, Client>>(section);
+	return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryFolder::tracklist_t::value_type, Client>>(section);
 }
 
 void SearchResultModel::clear()
@@ -75,15 +80,17 @@ std::string SearchResultModel::get_current_query() const
 	return current_query;
 }
 
-std::pair<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
+std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
 {
-	for(auto&p : search_results)
+	for(auto&& p : search_results)
 	{
-		if(row > 0 && size_t(row) >= p.second.size()) {
-			row -= p.second.size();
-			continue;
+		for(auto&& pair : p.second) {
+			if(row > 0 && size_t(row) >= pair.second.size()) {
+				row -= pair.second.size();
+			} else {
+				return std::make_tuple(p.first.client, pair.first, pair.second.at(row));	
+			}
 		}
-		return std::make_pair(p.first.client, p.second.at(row));
 	}
 
 	throw std::runtime_error("Row index is out of range");

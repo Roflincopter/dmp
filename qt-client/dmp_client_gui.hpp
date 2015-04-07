@@ -71,10 +71,11 @@ public:
 	void volume_changed(int volume) override final;
 	
 private slots:
+/*
 	void test1();
 	void test2();
 	void test3();
-
+*/
 public slots:
 	void dmpConnect();
 	void StopPressed();

@@ -25,6 +25,7 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 {
 	auto volume = config::get_volume();
 	change_volume(volume);
+	init_library();
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
@@ -94,11 +95,6 @@ void DmpClient::stop()
 	connection.send_encrypted(b);
 }
 
-void DmpClient::index(std::string path)
-{
-	library = dmp_library::create_library(path);
-}
-
 void DmpClient::add_radio(std::string radio_name)
 {
 	connection.send_encrypted(message::AddRadio(radio_name));
@@ -109,9 +105,9 @@ void DmpClient::remove_radio(std::string str)
 	connection.send_encrypted(message::RemoveRadio(str));
 }
 
-void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
+void DmpClient::queue(std::string radio, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
 {
-	connection.send_encrypted(message::Queue(radio, name, owner, entry));
+	connection.send_encrypted(message::Queue(radio, name, owner, folder_id, entry));
 }
 
 void DmpClient::set_current_radio(std::string name)
@@ -161,13 +157,11 @@ void DmpClient::register_user(std::string username, std::string password)
 void DmpClient::init_library()
 {
 	//TODO: notify other clients of the library change.
-	//this->library.clear();
+	this->library.clear();
 
 	auto&& library_info = config::get_library_information();
 	for(auto&& entry : library_info) {
-		//only load first entry untill the library supports multiple folders.
-		library = dmp_library::create_library(entry.path);
-		break;
+		library.add_folder(entry);
 	}
 }
 
@@ -372,7 +366,7 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 	
 	t.detach();
 	
-	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
+	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.folder_id, sr.entry));
 	return true;
 }
 

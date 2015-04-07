@@ -89,7 +89,7 @@ public:
 	virtual void buffer_high(GstElement* src) override final;
 	virtual void buffer_low(GstElement* src) override final;
 	
-	void queue(std::string queuer, std::string owner, dmp_library::LibraryEntry entry);
+	void queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry);
 	RadioState get_state();
 
 	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;

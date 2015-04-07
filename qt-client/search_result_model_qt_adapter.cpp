@@ -69,7 +69,11 @@ void SearchResultModelQtAdapter::new_search_end()
 
 void SearchResultModelQtAdapter::search_results_start(message::SearchResponse response)
 {
-	beginInsertRows(QModelIndex(), model->row_count(), model->row_count() + response.results.size() - 1);
+	size_t count = 0;
+	for(auto&& entry : response.results) {
+		count += entry.second.size();
+	}
+	beginInsertRows(QModelIndex(), model->row_count(), model->row_count() + count - 1);
 }
 
 void SearchResultModelQtAdapter::search_results_end()

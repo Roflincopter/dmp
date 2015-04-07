@@ -10,6 +10,7 @@
 #include <ostream>
 #include <vector>
 #include <string>
+#include <map>
 
 //Workaround for argument dependent lookup
 namespace std

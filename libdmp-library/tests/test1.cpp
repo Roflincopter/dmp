@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 		throw std::runtime_error("this test requires 1 path to a music directory");
 	}
 
-	dmp_library::Library x = dmp_library::create_library(argv[1]);
+	dmp_library::LibraryFolder x = dmp_library::create_library(argv[1]);
 	for(dmp_library::LibraryEntry const& e : x.tracklist)
 	{
 		std::cout << e << std::endl;
