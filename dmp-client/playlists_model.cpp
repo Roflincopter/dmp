@@ -27,12 +27,12 @@ int PlaylistsModel::row_count() const
 
 int PlaylistsModel::column_count() const
 {
-	return number_of_library_entry_members + number_of_playlist_entry_members;
+	return number_of_library_entry_members + number_of_queuer_owner_pair_members;
 }
 
 std::string PlaylistsModel::header_data(int section) const
 {	
-	if(section < 0 || size_t(section) >= number_of_library_entry_members + number_of_playlist_entry_members) {
+	if(section < 0 || section >= column_count()) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 	
@@ -52,12 +52,13 @@ boost::any PlaylistsModel::get_cell(int row, int column) const
 		throw std::out_of_range("Row index was out of range.");
 	}
 
-	if(column < 0 || size_t(column) >= number_of_library_entry_members + number_of_playlist_entry_members) {
+	if(column < 0 || column >= column_count()) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 
 	auto data = datalist[row];
-	return get_nth(ElementType(data.entry, data), column);
+	PlaylistEntry::QueuerOwnerPair p{data.queuer, data.owner};
+	return get_nth(ElementType(data.entry, p), column);
 }
 
 void PlaylistsModel::set_cell(boost::any const& value, int row, int column)
@@ -73,17 +74,18 @@ void PlaylistsModel::set_cell(boost::any const& value, int row, int column)
 		throw std::out_of_range("Row index was out of range.");
 	}
 
-	if(column < 0 || size_t(column) >= number_of_library_entry_members + number_of_playlist_entry_members) {
+	if(column < 0 || column >= column_count()) {
 		throw std::out_of_range("Column index was out of range.");
 	}
 	auto& data = datalist[row];
-	set_nth(ElementType(data.entry, data), column, value);
+	PlaylistEntry::QueuerOwnerPair p{data.queuer, data.owner};
+	set_nth(ElementType(data.entry, p), column, value);
 }
 
 void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 {
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_start);
-	playlists[radio_name] = playlist;
+	std::swap(playlists[radio_name], playlist);
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_end);
 	
 }

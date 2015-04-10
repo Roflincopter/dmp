@@ -7,6 +7,11 @@
 #include <string>
 
 struct PlaylistEntry {
+	struct QueuerOwnerPair{
+		std::string& queuer;
+		std::string& owner;
+	};
+
 	std::string queuer;
 	std::string owner;
 	uint32_t folder_id;
@@ -15,14 +20,14 @@ struct PlaylistEntry {
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned int)
 	{
-		ar & queuer & owner & entry;
+		ar & queuer & owner & folder_id & entry;
 	}
 	
 	friend std::ostream& operator<<(std::ostream& os, PlaylistEntry const& pe);
 };
 
 inline std::ostream& operator<<(std::ostream& os, PlaylistEntry const& pe) {
-	os << "queuer: " << pe.queuer << ", owner: " << pe.owner << ", entry:\n" << pe.entry << std::endl;
+	os << "queuer: " << pe.queuer << ", owner: " << pe.owner << ", folder_id: " << pe.folder_id << ", entry:\n" << pe.entry << std::endl;
 	return os;
 }
 
@@ -30,8 +35,14 @@ BOOST_FUSION_ADAPT_STRUCT (
 	PlaylistEntry,
 	(std::string, queuer)
 	(std::string, owner)
-	//Not adapting entry, because we do not have a flatten operation yet.
-	//The flatten operation is emulated in playlistmodel.
+	(uint32_t, folder_id)
+	(dmp_library::LibraryEntry, entry)
+)
+
+BOOST_FUSION_ADAPT_STRUCT (
+	PlaylistEntry::QueuerOwnerPair,
+	(std::string&, queuer)
+	(std::string&, owner)
 )
 
 typedef std::vector<PlaylistEntry> Playlist;
