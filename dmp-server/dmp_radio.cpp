@@ -20,6 +20,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , fake_buffer(gst_element_factory_make("queue2", "fake_buffer"))
 , fake_sink(gst_element_factory_make("fakesink", "fakesink"))
 , radio_mutex(new std::recursive_mutex)
+, playlist_id(0)
 , recv_port(port_pool->allocate_number())
 , event_callbacks()
 {
@@ -302,7 +303,25 @@ void DmpRadio::queue(std::string queuer, std::string owner, uint32_t folder_id, 
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
-	playlist.push_back({queuer, owner, folder_id, entry});
+	playlist.push_back({queuer, owner, playlist_id++, folder_id, entry});
+}
+
+void DmpRadio::unqueue(uint32_t playlist_id)
+{
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
+
+	auto entry = playlist.end();
+	for(auto it = playlist.begin(); it != playlist.end(); ++it) {
+		if(it->playlist_id == playlist_id) {
+			entry = it;
+			break;
+		}
+	}
+	if(entry == playlist.begin()) {
+		next();
+	} else {
+		playlist.erase(entry);
+	}
 }
 
 RadioState DmpRadio::get_state()

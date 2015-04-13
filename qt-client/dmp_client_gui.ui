@@ -246,7 +246,7 @@
            <enum>Qt::IgnoreAction</enum>
           </property>
           <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
+           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
@@ -324,6 +324,7 @@
      <string>PlayList</string>
     </property>
     <addaction name="actionQueueSelected"/>
+    <addaction name="actionDelete_selected"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -357,6 +358,17 @@
   <action name="actionLibrary">
    <property name="text">
     <string>Library</string>
+   </property>
+  </action>
+  <action name="actionDelete_selected">
+   <property name="text">
+    <string>Delete selected</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
@@ -408,6 +420,7 @@
    <header>dmp_client_gui_playlists.hpp</header>
    <slots>
     <slot>currentRadioChanged(std::string)</slot>
+    <slot>deleteSelected()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -698,6 +711,22 @@
     <hint type="destinationlabel">
      <x>639</x>
      <y>529</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDelete_selected</sender>
+   <signal>triggered()</signal>
+   <receiver>playlists</receiver>
+   <slot>deleteSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>771</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>

@@ -28,3 +28,13 @@ void DmpClientGuiPlaylists::currentRadioChanged(std::string name)
 {
 	client->set_current_radio(name);
 }
+
+void DmpClientGuiPlaylists::deleteSelected()
+{
+	auto&& selection = this->selectionModel()->selectedRows();
+	for(auto&& index : selection) {
+		auto playlist_id = model->model->get_playlist_id(index.row());
+		auto radio = model->model->get_current_radio();
+		client->unqueue(radio, playlist_id);
+	}
+}

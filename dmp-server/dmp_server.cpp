@@ -200,7 +200,8 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		set(message::Type::RadioAction, std::function<bool(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
-		set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1)));
+		set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
+		set(message::Type::UnQueue, std::function<bool(message::UnQueue)>(std::bind(&DmpServer::handle_unqueue, this, std::placeholders::_1)));
 	connections[username] = cep;
 
 	std::map<std::string, Playlist> playlists;
@@ -425,6 +426,20 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 	} else {
 		throw std::runtime_error("Received a TuneIn message with unhandled action");
 	}
+	return true;
+}
+
+bool DmpServer::handle_unqueue(message::UnQueue uq)
+{
+	auto& radio = radios.at(uq.radio);
+
+	radio.second.unqueue(uq.playlist_id);
+
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, 0, 0);
+	for(auto& endpoint : connections) {
+		endpoint.second->forward(message::PlaylistUpdate(action, uq.radio, radios.at(uq.radio).second.get_playlist()));
+	}
+
 	return true;
 }
 

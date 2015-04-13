@@ -14,13 +14,14 @@ struct PlaylistEntry {
 
 	std::string queuer;
 	std::string owner;
+	uint32_t playlist_id;
 	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 	
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned int)
 	{
-		ar & queuer & owner & folder_id & entry;
+		ar & queuer & owner & playlist_id & folder_id & entry;
 	}
 	
 	friend std::ostream& operator<<(std::ostream& os, PlaylistEntry const& pe);
@@ -35,6 +36,7 @@ BOOST_FUSION_ADAPT_STRUCT (
 	PlaylistEntry,
 	(std::string, queuer)
 	(std::string, owner)
+	(uint32_t, playlist_id)
 	(uint32_t, folder_id)
 	(dmp_library::LibraryEntry, entry)
 )

@@ -82,6 +82,23 @@ void PlaylistsModel::set_cell(boost::any const& value, int row, int column)
 	set_nth(ElementType(data.entry, p), column, value);
 }
 
+uint32_t PlaylistsModel::get_playlist_id(uint32_t row) const
+{
+	auto it = playlists.find(current_radio);
+	if(it == playlists.end()) {
+		std::runtime_error("internally selected current radio does not exist.");
+	}
+
+	Playlist const& datalist = it->second;
+
+	if(size_t(row) >= datalist.size()) {
+		throw std::out_of_range("Row index was out of range.");
+	}
+
+	auto& data = datalist[row];
+	return data.playlist_id;
+}
+
 void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 {
 	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_start);

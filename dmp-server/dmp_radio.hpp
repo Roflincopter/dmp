@@ -58,6 +58,8 @@ class DmpRadio : public GStreamerBase
 	
 	std::unique_ptr<std::recursive_mutex> radio_mutex;
 
+	uint32_t playlist_id;
+
 	uint16_t recv_port;
 
 	Playlist playlist;
@@ -90,6 +92,7 @@ public:
 	virtual void buffer_low(GstElement* src) override final;
 	
 	void queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry);
+	void unqueue(uint32_t playlist_id);
 	RadioState get_state();
 
 	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;

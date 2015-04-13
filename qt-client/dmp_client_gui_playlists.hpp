@@ -29,4 +29,5 @@ signals:
 
 public slots:
 	void currentRadioChanged(std::string name);
+	void deleteSelected();
 };
