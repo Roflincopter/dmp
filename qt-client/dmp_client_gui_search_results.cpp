@@ -37,7 +37,7 @@ void DmpClientGuiSearchResults::queueRequest(QModelIndex index)
 void DmpClientGuiSearchResults::queueSelection()
 {
 	auto selection = selectionModel()->selectedRows();
-	for(auto&& row_index : selection) {
+	for(auto row_index : selection) {
 		queueRequest(row_index);
 	}
 }

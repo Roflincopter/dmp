@@ -5,6 +5,7 @@
 
 #include <QMetaType>
 #include <QDataStream>
+#include <QItemSelection>
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -16,6 +17,7 @@
 Q_DECLARE_METATYPE(std::string)
 Q_DECLARE_METATYPE(dmp_library::LibraryEntry::Duration)
 Q_DECLARE_METATYPE(dmp_library::LibraryEntry)
+Q_DECLARE_METATYPE(QItemSelection)
 
 
 inline void init_meta_types() {
@@ -25,6 +27,7 @@ inline void init_meta_types() {
 	qRegisterMetaTypeStreamOperators<dmp_library::LibraryEntry::Duration>("DmpLibrary_LibraryEntry_Duration");
 	qRegisterMetaType<dmp_library::LibraryEntry>("DmpLibrary LibraryEntry");
 	qRegisterMetaTypeStreamOperators<dmp_library::LibraryEntry>("DmpLibrary_LibraryEntry");
+	qRegisterMetaType<QItemSelection>("QItemSelection");
 }
 
 inline QDataStream& operator<<(QDataStream& os, std::string const& string) {

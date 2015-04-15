@@ -24,9 +24,6 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , search_result_model()
 , client(nullptr)
 , client_thread()
-, test1_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_A), this, SLOT(test1()))
-, test2_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Q), this, SLOT(test2()))
-, test3_key(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Z), this, SLOT(test3()))
 , shared_main_window(nullptr)
 , shared_menu_bar(nullptr)
 , shared_search_bar(nullptr)
@@ -44,8 +41,6 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 	shared_radio_list = std::shared_ptr<DmpClientGuiRadioList>(ui.radio_list, [](void*){});
 	shared_playlists = std::shared_ptr<DmpClientGuiPlaylists>(ui.playlists, [](void*){});
 
-	test1_key.setAutoRepeat(false);
-	test1_key.setContext(Qt::ApplicationShortcut);
 	setEnabled(false);
 }
 
@@ -59,38 +54,7 @@ void DmpClientGui::update_ui_client_interface()
 	shared_radio_list->set_client(client);
 	shared_playlists->set_client(client);
 }
-/*
-void DmpClientGui::test1()
-{
-	connect_client("127.0.0.1", 1337);
 
-	client->index("/home/dennis/Music");
-
-	client->add_radio("Radio1");
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	shared_radio_list->set_selection(0);
-	client->search("artist contains \"Alter\"");
-}
-
-void DmpClientGui::test2()
-{
-	connect_client("127.0.0.1", 1337);
-	client->send_login("dennis", "password");
-	client->index("/home/dennis/Music");
-}
-
-void DmpClientGui::test3()
-{
-	connect_client("192.168.0.104", 1337);
-
-	client->index("/home/dennis/Music");
-
-	client->add_radio("Radio1");
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	shared_radio_list->set_selection(0);
-	client->search("artist contains \"Alter\"");
-}
-*/
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	if(client) {

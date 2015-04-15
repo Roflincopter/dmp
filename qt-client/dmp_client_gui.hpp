@@ -22,10 +22,6 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	std::shared_ptr<DmpClientInterface> client;
 	std::thread client_thread;
 
-	QShortcut test1_key;
-	QShortcut test2_key;
-	QShortcut test3_key;
-
 	/* these variables hold non-owning shared pointers to the raw pointers
 	*  provided by the QtDesigner generated code. Be very cautious what you
 	*  do with these. They should only be used as weak_pointers and no other.
