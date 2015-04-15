@@ -69,6 +69,7 @@ public:
 	virtual void send_login(std::string username, std::string password) override final;
 	virtual void register_user(std::string username, std::string password) override final;
 	virtual void init_library() override final;
+	virtual void move_queue(std::string radio, std::vector<uint32_t> playlist_id, bool up) override final;
 
 	virtual void stop_radio() override final;
 	virtual void play_radio() override final;

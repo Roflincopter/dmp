@@ -5,6 +5,7 @@
 
 #include <string>
 #include <tuple>
+#include <iterator>
 
 DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool)
 : GStreamerBase("tcp_bridge")
@@ -306,7 +307,7 @@ void DmpRadio::queue(std::string queuer, std::string owner, uint32_t folder_id, 
 	playlist.push_back({queuer, owner, playlist_id++, folder_id, entry});
 }
 
-void DmpRadio::unqueue(uint32_t playlist_id)
+void DmpRadio::unqueue(PlaylistId playlist_id)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 
@@ -321,6 +322,76 @@ void DmpRadio::unqueue(uint32_t playlist_id)
 		next();
 	} else {
 		playlist.erase(entry);
+	}
+}
+
+void DmpRadio::move_up(std::vector<PlaylistId> ids)
+{
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
+	bool move_up = false;
+	std::vector<size_t> gathered;
+	
+	for(size_t i = 0; i < playlist.size(); ++i) {
+		for(auto&& id : ids) {
+			if(id == playlist[i].playlist_id) {
+				if(move_up) {
+					gathered.push_back(i);
+				} 
+			} else {
+				if(!move_up) {
+					move_up = true;
+				}
+			}
+		}
+	}
+	
+	bool stopandplay = false;
+	for(auto&& index : gathered) {
+		stopandplay = stopandplay || index - 1 == 0;
+		std::swap(playlist[index - 1], playlist[index]);
+	}
+	
+	if (stopandplay) {
+		bool should_play = get_state().playing;
+		stop();
+		if(should_play) {
+			play();
+		}
+	}
+}
+
+void DmpRadio::move_down(std::vector<PlaylistId> ids)
+{
+	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
+	bool move_down = false;
+	std::vector<size_t> gathered;
+	
+	for(size_t i = playlist.size() - 1; i != std::numeric_limits<size_t>::max(); --i) {
+		for(auto&& id : ids) {
+			if(id == playlist[i].playlist_id) {
+				if(move_down) {
+					gathered.push_back(i);
+				} 
+			} else {
+				if(!move_down) {
+					move_down = true;
+				}
+			}
+		}
+	}
+	
+	bool stopandplay = false;
+	for(auto&& index : gathered) {
+		stopandplay = stopandplay || index == 0;
+		std::swap(playlist[index + 1], playlist[index]);
+	}
+	
+	if (stopandplay) {
+		bool should_play = get_state().playing;
+		stop();
+		if(should_play) {
+			play();
+		}
 	}
 }
 

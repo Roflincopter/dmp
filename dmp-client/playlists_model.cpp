@@ -146,7 +146,11 @@ bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 		{
 			break;
 		}
-		case message::PlaylistUpdate::Action::Type::Move:
+		case message::PlaylistUpdate::Action::Type::MoveUp:
+		{
+			break;
+		}
+		case message::PlaylistUpdate::Action::Type::MoveDown:
 		{
 			break;
 		}

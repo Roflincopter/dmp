@@ -98,7 +98,11 @@ void PlaylistsModelQtAdapter::playlist_update_start(message::PlaylistUpdate upda
 			{
 				break;
 			}
-			case message::PlaylistUpdate::Action::Type::Move:
+			case message::PlaylistUpdate::Action::Type::MoveUp:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::MoveDown:
 			{
 				break;
 			}
@@ -136,7 +140,11 @@ void PlaylistsModelQtAdapter::playlist_update_end(message::PlaylistUpdate update
 			{
 				break;
 			}
-			case message::PlaylistUpdate::Action::Type::Move:
+			case message::PlaylistUpdate::Action::Type::MoveUp:
+			{
+				break;
+			}
+			case message::PlaylistUpdate::Action::Type::MoveDown:
 			{
 				break;
 			}

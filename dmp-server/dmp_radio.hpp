@@ -92,7 +92,10 @@ public:
 	virtual void buffer_low(GstElement* src) override final;
 	
 	void queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry);
-	void unqueue(uint32_t playlist_id);
+	void unqueue(PlaylistId playlist_id);
+	
+	void move_up(std::vector<PlaylistId> ids);
+	void move_down(std::vector<PlaylistId> ids);
 	RadioState get_state();
 
 	std::map<message::PlaybackEvent, std::function<void()>> event_callbacks;

@@ -19,6 +19,8 @@ class DmpClientGuiPlaylists
 	std::shared_ptr<DmpClientInterface> client;
 	std::shared_ptr<PlaylistsModelQtAdapter> model;
 	GuiItemDelegate delegate;
+	
+	void move_selected(bool up);
 
 public:
 	explicit DmpClientGuiPlaylists(QWidget *parent = 0);
@@ -30,4 +32,6 @@ signals:
 public slots:
 	void currentRadioChanged(std::string name);
 	void deleteSelected();
+	void moveSelectedUp();
+	void moveSelectedDown();
 };

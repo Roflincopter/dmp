@@ -117,7 +117,7 @@ void DmpClient::unqueue(std::string radio, uint32_t playlist_id)
 
 void DmpClient::set_current_radio(std::string name)
 {
-	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Reset, 0, 0);
+	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Reset, {});
 	message::PlaylistUpdate update(action, name, {});
 	
 	playlists_model->set_current_radio(name);
@@ -168,6 +168,17 @@ void DmpClient::init_library()
 	for(auto&& entry : library_info) {
 		library.add_folder(entry);
 	}
+}
+
+void DmpClient::move_queue(std::string radio, std::vector<uint32_t> playlist_id, bool up)
+{
+	using type = message::PlaylistUpdate::Action::Type;
+	connection.send_encrypted(message::PlaylistUpdate(
+		message::PlaylistUpdate::Action(
+			up ? type::MoveUp : type::MoveDown, playlist_id),
+		radio,
+		{}
+	));
 }
 
 void DmpClient::handle_request(message::Type t)

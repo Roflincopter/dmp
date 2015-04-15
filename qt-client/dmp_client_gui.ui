@@ -325,6 +325,8 @@
     </property>
     <addaction name="actionQueueSelected"/>
     <addaction name="actionDelete_selected"/>
+    <addaction name="actionMove_selected_up"/>
+    <addaction name="actionMove_selected_down"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -369,6 +371,22 @@
    </property>
    <property name="autoRepeat">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionMove_selected_up">
+   <property name="text">
+    <string>Move selected up</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="actionMove_selected_down">
+   <property name="text">
+    <string>Move selected down</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
    </property>
   </action>
  </widget>
@@ -421,6 +439,8 @@
    <slots>
     <slot>currentRadioChanged(std::string)</slot>
     <slot>deleteSelected()</slot>
+    <slot>moveSelectedUp()</slot>
+    <slot>moveSelectedDown()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -719,6 +739,38 @@
    <signal>triggered()</signal>
    <receiver>playlists</receiver>
    <slot>deleteSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>771</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMove_selected_up</sender>
+   <signal>triggered()</signal>
+   <receiver>playlists</receiver>
+   <slot>moveSelectedUp()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>771</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMove_selected_down</sender>
+   <signal>triggered()</signal>
+   <receiver>playlists</receiver>
+   <slot>moveSelectedDown()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

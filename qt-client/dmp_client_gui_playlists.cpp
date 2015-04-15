@@ -38,3 +38,25 @@ void DmpClientGuiPlaylists::deleteSelected()
 		client->unqueue(radio, playlist_id);
 	}
 }
+
+void DmpClientGuiPlaylists::move_selected(bool up)
+{
+	auto&& selection = this->selectionModel()->selectedRows();
+	std::vector<uint32_t> selected;
+	auto radio = model->model->get_current_radio();
+	for(auto&& index : selection) {
+		auto playlist_id = model->model->get_playlist_id(index.row());
+		selected.push_back(playlist_id);
+	}
+	client->move_queue(radio, selected, up);
+}
+
+void DmpClientGuiPlaylists::moveSelectedUp()
+{
+	move_selected(true);
+}
+
+void DmpClientGuiPlaylists::moveSelectedDown()
+{
+	move_selected(false);
+}

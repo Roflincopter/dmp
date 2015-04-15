@@ -6,6 +6,8 @@
 
 #include <string>
 
+typedef uint32_t PlaylistId;
+
 struct PlaylistEntry {
 	struct QueuerOwnerPair{
 		std::string& queuer;
@@ -14,7 +16,7 @@ struct PlaylistEntry {
 
 	std::string queuer;
 	std::string owner;
-	uint32_t playlist_id;
+	PlaylistId playlist_id;
 	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 	

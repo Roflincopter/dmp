@@ -264,24 +264,22 @@ struct PlaylistUpdate {
 			Append,
 			Update,
 			Insert,
-			Move,
+			MoveUp,
+			MoveDown,
 			Reset,
 		};
 
 		Type type;
-		uint32_t from;
-		uint32_t to;
+		std::vector<PlaylistId> ids;
 
 		Action()
 		: type(Type::NoAction)
-		, from()
-		, to()
+		, ids()
 		{}
 
-		Action(Type type, uint32_t from, uint32_t to)
+		Action(Type type, std::vector<PlaylistId> ids)
 		: type(type)
-		, from(from)
-		, to(to)
+		, ids(ids)
 		{}
 	};
 
@@ -565,8 +563,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::PlaylistUpdate::Action,
 	(message::PlaylistUpdate::Action::Type, type)
-	(uint32_t, from)
-	(uint32_t, to)
+	(std::vector<PlaylistId>, ids)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
