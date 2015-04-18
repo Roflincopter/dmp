@@ -200,7 +200,6 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
 		set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
-		set(message::Type::UnQueue, std::function<bool(message::UnQueue)>(std::bind(&DmpServer::handle_unqueue, this, std::placeholders::_1))).
 		set(message::Type::PlaylistUpdate, std::function<bool(message::PlaylistUpdate)>(std::bind(&DmpServer::handle_playlist_update, this, std::placeholders::_1)));
 	connections[username] = cep;
 
@@ -419,20 +418,6 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 	return true;
 }
 
-bool DmpServer::handle_unqueue(message::UnQueue uq)
-{
-	auto& radio = radios.at(uq.radio);
-
-	radio.second.unqueue(uq.playlist_id);
-
-	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, {});
-	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::PlaylistUpdate(action, uq.radio, radios.at(uq.radio).second.get_playlist()));
-	}
-
-	return true;
-}
-
 bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 {
 	auto& radio = radios.at(pu.radio_name).second;
@@ -461,6 +446,10 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 		}
 		case Type::MoveDown: {
 			radio.move_down(pu.action.ids);
+			break;
+		}
+		case Type::Remove: {
+			radio.unqueue(pu.action.ids);
 			break;
 		}
 		case Type::Reset: {

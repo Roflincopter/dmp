@@ -92,7 +92,7 @@ public:
 	virtual void buffer_low(GstElement* src) override final;
 	
 	void queue(PlaylistEntry pl_entry);
-	void unqueue(PlaylistId playlist_id);
+	void unqueue(std::vector<PlaylistId> ids);
 	
 	void move_up(std::vector<PlaylistId> ids);
 	void move_down(std::vector<PlaylistId> ids);

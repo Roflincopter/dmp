@@ -32,7 +32,6 @@ enum class Type : Type_t {
 	AddRadioResponse,
 	ListenConnectionRequest,
 	Radios,
-	UnQueue,
 	PlaylistUpdate,
 	StreamRequest,
 	RadioAction,
@@ -228,16 +227,6 @@ struct Radios {
 	{}
 };
 
-struct UnQueue {
-	std::string radio;
-	uint32_t playlist_id;
-
-	UnQueue(std::string radio, uint32_t playlist_id)
-	: radio(radio)
-	, playlist_id(playlist_id)
-	{}
-};
-
 struct PlaylistUpdate {
 	struct Action
 	{
@@ -247,6 +236,7 @@ struct PlaylistUpdate {
 			Append,
 			Update,
 			Insert,
+			Remove,
 			MoveUp,
 			MoveDown,
 			Reset,
@@ -418,7 +408,6 @@ MESSAGE_TYPE_CONVERSION(RemoveRadio)
 MESSAGE_TYPE_CONVERSION(AddRadioResponse)
 MESSAGE_TYPE_CONVERSION(ListenConnectionRequest)
 MESSAGE_TYPE_CONVERSION(Radios)
-MESSAGE_TYPE_CONVERSION(UnQueue)
 MESSAGE_TYPE_CONVERSION(PlaylistUpdate)
 MESSAGE_TYPE_CONVERSION(StreamRequest)
 MESSAGE_TYPE_CONVERSION(RadioAction)
@@ -525,12 +514,6 @@ typedef std::map<std::string, Playlist> RadiosType;
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Radios,
 	(RadiosType, radios)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-	message::UnQueue,
-	(std::string, radio)
-	(uint32_t, playlist_id)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

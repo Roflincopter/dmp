@@ -112,9 +112,11 @@ void DmpClient::queue(std::string radio, std::string owner, uint32_t folder_id, 
 	connection.send_encrypted(message::PlaylistUpdate(append, radio, {pl_entry}));
 }
 
-void DmpClient::unqueue(std::string radio, uint32_t playlist_id)
+void DmpClient::unqueue(std::string radio, std::vector<PlaylistId> ids)
 {
-	connection.send_encrypted(message::UnQueue(radio, playlist_id));
+	message::PlaylistUpdate::Action remove(message::PlaylistUpdate::Action::Type::Remove, ids);
+	
+	connection.send_encrypted(message::PlaylistUpdate(remove, radio, {}));
 }
 
 void DmpClient::set_current_radio(std::string name)

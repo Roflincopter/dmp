@@ -66,7 +66,6 @@ public:
 	bool handle_radio_action(message::RadioAction ra);
 	bool handle_sender_event(message::SenderEvent se);
 	bool handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti);
-	bool handle_unqueue(message::UnQueue uq);
 	bool handle_playlist_update(message::PlaylistUpdate pu);
 
 	void update_playlist(std::string radio_name, Playlist playlist) override final;

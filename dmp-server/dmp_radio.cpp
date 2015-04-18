@@ -308,21 +308,22 @@ void DmpRadio::queue(PlaylistEntry pl_entry)
 	playlist.push_back(pl_entry);
 }
 
-void DmpRadio::unqueue(PlaylistId playlist_id)
+void DmpRadio::unqueue(std::vector<PlaylistId> ids)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
-
-	auto entry = playlist.end();
-	for(auto it = playlist.begin(); it != playlist.end(); ++it) {
-		if(it->playlist_id == playlist_id) {
-			entry = it;
-			break;
+	for(auto&& id : ids) {
+		auto entry = playlist.end();
+		for(auto it = playlist.begin(); it != playlist.end(); ++it) {
+			if(it->playlist_id == id) {
+				entry = it;
+				break;
+			}
 		}
-	}
-	if(entry == playlist.begin()) {
-		next();
-	} else {
-		playlist.erase(entry);
+		if(entry == playlist.begin()) {
+			next();
+		} else {
+			playlist.erase(entry);
+		}
 	}
 }
 

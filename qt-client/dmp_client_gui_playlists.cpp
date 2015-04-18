@@ -32,11 +32,14 @@ void DmpClientGuiPlaylists::currentRadioChanged(std::string name)
 void DmpClientGuiPlaylists::deleteSelected()
 {
 	auto&& selection = this->selectionModel()->selectedRows();
+	std::vector<PlaylistId> ids;
+	auto radio = model->model->get_current_radio();
 	for(auto&& index : selection) {
 		auto playlist_id = model->model->get_playlist_id(index.row());
-		auto radio = model->model->get_current_radio();
-		client->unqueue(radio, playlist_id);
+		
+		ids.push_back(playlist_id);
 	}
+	client->unqueue(radio, ids);
 }
 
 void DmpClientGuiPlaylists::move_selected(bool up)
