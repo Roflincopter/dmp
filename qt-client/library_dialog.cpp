@@ -4,6 +4,7 @@
 #include "debug_macros.hpp"
 
 #include <QPushButton>
+#include <QFileDialog>
 
 #include <boost/filesystem.hpp>
 
@@ -147,4 +148,17 @@ void LibraryDialog::selectionChanged() {
 		setEnabled(false);
 	}
 	updateOkButton();
+}
+
+void LibraryDialog::folderSelectButtonClicked()
+{
+	QString path = QFileDialog::getExistingDirectory(
+		this,
+		"Select a Music folder",
+		ui->PathEdit->text()
+	);
+	
+	ui->PathEdit->setText(path);
+	pathChanged(path);
+	
 }

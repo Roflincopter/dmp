@@ -32,6 +32,8 @@ private slots:
 	void deletePressed();
 	void selectionChanged();
 
+	void folderSelectButtonClicked();
+
 	void inputChanged();
 	void pathChanged(QString str);
 	void nameChanged(QString str);
