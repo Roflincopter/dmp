@@ -160,5 +160,5 @@ void LibraryDialog::folderSelectButtonClicked()
 	
 	ui->PathEdit->setText(path);
 	pathChanged(path);
-	
+	updateOkButton();
 }
