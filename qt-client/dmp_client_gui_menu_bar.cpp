@@ -27,5 +27,7 @@ void DmpClientGuiMenuBar::editLibrary()
 		}
 	}
 
-	client->init_library();
+	if(client) {
+		client->init_library();
+	}
 }
