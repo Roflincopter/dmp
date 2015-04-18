@@ -63,7 +63,6 @@ public:
 	bool handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr);
 	bool handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar);
 	bool handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::RemoveRadio rr);
-	bool handle_queue(message::Queue queue);
 	bool handle_radio_action(message::RadioAction ra);
 	bool handle_sender_event(message::SenderEvent se);
 	bool handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti);

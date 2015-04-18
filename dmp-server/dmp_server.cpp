@@ -196,7 +196,6 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		set(message::Type::SearchRequest, std::function<bool(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, wcep, std::placeholders::_1))).
 		set(message::Type::AddRadio, std::function<bool(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, wcep, std::placeholders::_1))).
 		set(message::Type::RemoveRadio, std::function<bool(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, wcep, std::placeholders::_1))).
-		set(message::Type::Queue, std::function<bool(message::Queue)>(std::bind(&DmpServer::handle_queue, this, std::placeholders::_1))).
 		set(message::Type::RadioAction, std::function<bool(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
 		set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
 		set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
@@ -344,16 +343,6 @@ bool DmpServer::handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, m
 	return true;
 }
 
-bool DmpServer::handle_queue(message::Queue queue)
-{
-	radios.at(queue.radio).second.queue(queue.queuer, queue.owner, queue.folder_id, queue.entry);
-	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, {});
-	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::PlaylistUpdate(action, queue.radio, radios.at(queue.radio).second.get_playlist()));
-	}
-	return true;
-}
-
 void DmpServer::update_playlist(std::string radio_name, Playlist playlist)
 {
 	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, {});
@@ -455,6 +444,9 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 			break;
 		}
 		case Type::Append: {
+			for(auto&& pe : pu.playlist) {
+				radio.queue(pe);
+			}
 			break;
 		}
 		case Type::Update: {

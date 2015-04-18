@@ -107,7 +107,9 @@ void DmpClient::remove_radio(std::string str)
 
 void DmpClient::queue(std::string radio, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
 {
-	connection.send_encrypted(message::Queue(radio, name, owner, folder_id, entry));
+	message::PlaylistUpdate::Action append(message::PlaylistUpdate::Action::Type::Append, {});
+	PlaylistEntry pl_entry(name, owner, folder_id, entry);
+	connection.send_encrypted(message::PlaylistUpdate(append, radio, {pl_entry}));
 }
 
 void DmpClient::unqueue(std::string radio, uint32_t playlist_id)

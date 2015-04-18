@@ -20,6 +20,16 @@ struct PlaylistEntry {
 	uint32_t folder_id;
 	dmp_library::LibraryEntry entry;
 	
+	PlaylistEntry() = default;
+	
+	PlaylistEntry(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
+	: queuer(queuer)
+	, owner(owner)
+	, playlist_id(-1)
+	, folder_id(folder_id)
+	, entry(entry)
+	{}
+	
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned int)
 	{

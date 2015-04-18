@@ -109,7 +109,7 @@ void DmpClientGui::setEnabled(bool enabled) {
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);
 	ui.tuneInRadioButton->setEnabled(enabled);
-	
+
 	ui.stopButton->setEnabled(enabled);
 	ui.playButton->setEnabled(enabled);
 	ui.nextButton->setEnabled(enabled);

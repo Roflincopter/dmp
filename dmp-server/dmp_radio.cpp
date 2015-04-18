@@ -300,11 +300,12 @@ void DmpRadio::buffer_low(GstElement *src)
 	wait_for_state_change();
 }
 
-void DmpRadio::queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
+void DmpRadio::queue(PlaylistEntry pl_entry)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
-	playlist.push_back({queuer, owner, playlist_id++, folder_id, entry});
+	pl_entry.playlist_id = playlist_id++;
+	playlist.push_back(pl_entry);
 }
 
 void DmpRadio::unqueue(PlaylistId playlist_id)

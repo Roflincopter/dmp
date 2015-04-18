@@ -32,7 +32,6 @@ enum class Type : Type_t {
 	AddRadioResponse,
 	ListenConnectionRequest,
 	Radios,
-	Queue,
 	UnQueue,
 	PlaylistUpdate,
 	StreamRequest,
@@ -229,22 +228,6 @@ struct Radios {
 	{}
 };
 
-struct Queue {
-	std::string radio;
-	std::string queuer;
-	std::string owner;
-	uint32_t folder_id;
-	dmp_library::LibraryEntry entry;
-
-	Queue(std::string radio, std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
-	: radio(radio)
-	, queuer(queuer)
-	, owner(owner)
-	, folder_id(folder_id)
-	, entry(entry)
-	{}
-};
-
 struct UnQueue {
 	std::string radio;
 	uint32_t playlist_id;
@@ -435,7 +418,6 @@ MESSAGE_TYPE_CONVERSION(RemoveRadio)
 MESSAGE_TYPE_CONVERSION(AddRadioResponse)
 MESSAGE_TYPE_CONVERSION(ListenConnectionRequest)
 MESSAGE_TYPE_CONVERSION(Radios)
-MESSAGE_TYPE_CONVERSION(Queue)
 MESSAGE_TYPE_CONVERSION(UnQueue)
 MESSAGE_TYPE_CONVERSION(PlaylistUpdate)
 MESSAGE_TYPE_CONVERSION(StreamRequest)
@@ -543,15 +525,6 @@ typedef std::map<std::string, Playlist> RadiosType;
 BOOST_FUSION_ADAPT_STRUCT(
 	message::Radios,
 	(RadiosType, radios)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-	message::Queue,
-	(std::string, radio)
-	(std::string, queuer)
-	(std::string, owner)
-	(uint32_t, folder_id)
-	(dmp_library::LibraryEntry, entry)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

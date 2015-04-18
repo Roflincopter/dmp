@@ -91,7 +91,7 @@ public:
 	virtual void buffer_high(GstElement* src) override final;
 	virtual void buffer_low(GstElement* src) override final;
 	
-	void queue(std::string queuer, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry);
+	void queue(PlaylistEntry pl_entry);
 	void unqueue(PlaylistId playlist_id);
 	
 	void move_up(std::vector<PlaylistId> ids);
