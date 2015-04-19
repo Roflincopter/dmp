@@ -95,7 +95,7 @@ set(DmpClientSources
 
 add_executable(qt-client ${DmpClientSources} ${DmpClientResources})
 
-find_package(Boost COMPONENTS system program_options REQUIRED)
+find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Core REQUIRED)
