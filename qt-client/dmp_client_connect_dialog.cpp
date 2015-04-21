@@ -69,24 +69,36 @@ void DmpClientConnectDialog::setEnabled(bool enable)
 	ui.buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(enable);
 }
 
+QListWidgetItem* get_selected_item(QListWidget* list) {
+	auto selection = list->selectionModel()->selectedRows();
+	if(selection.size() == 1) {
+		return list->item(selection[0].row());
+	} else {
+		return nullptr;
+	}
+}
+
 void DmpClientConnectDialog::nameChanged(QString str)
 {
-	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
-	servers[str.toStdString()] = servers[item->text().toStdString()];
-	servers.erase(item->text().toStdString());
-	item->setText(str);
+	if(auto item = get_selected_item(ui.Servers)) {
+		servers[str.toStdString()] = servers[item->text().toStdString()];
+		servers.erase(item->text().toStdString());
+		item->setText(str);
+	}
 }
 
 void DmpClientConnectDialog::hostChanged(QString str)
 {
-	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
-	servers[item->text().toStdString()].host_name = str.toStdString();
+	if(auto item = get_selected_item(ui.Servers)) {
+		servers[item->text().toStdString()].host_name = str.toStdString();
+	}
 }
 
 void DmpClientConnectDialog::portChanged(QString str)
 {
-	QListWidgetItem* item = ui.Servers->item(ui.Servers->currentIndex().row());
-	servers[item->text().toStdString()].port = str.toStdString();
+	if(auto item = get_selected_item(ui.Servers)) {
+		servers[item->text().toStdString()].port = str.toStdString();
+	}
 }
 
 void DmpClientConnectDialog::inputChanged()
