@@ -58,19 +58,30 @@ std::string LibraryDialog::get_path()
 	return ui->PathEdit->text().toStdString();
 }
 
+inline QListWidgetItem* get_selected_item(QListWidget* list) {
+	auto selection = list->selectionModel()->selectedRows();
+	if(selection.size() == 1) {
+		return list->item(selection[0].row());
+	} else {
+		return nullptr;
+	}
+}
+
 void LibraryDialog::nameChanged(QString str)
 {
-	QListWidgetItem* item = ui->LibraryList->item(ui->LibraryList->currentIndex().row());
-	library[str.toStdString()] = library[item->text().toStdString()];
-	library[str.toStdString()].name = str.toStdString();
-	library.erase(item->text().toStdString());
-	item->setText(str);
+	if(auto item = get_selected_item(ui->LibraryList)) {
+		library[str.toStdString()] = library[item->text().toStdString()];
+		library[str.toStdString()].name = str.toStdString();
+		library.erase(item->text().toStdString());
+		item->setText(str);
+	}
 }
 
 void LibraryDialog::pathChanged(QString str)
 {
-	QListWidgetItem* item = ui->LibraryList->item(ui->LibraryList->currentIndex().row());
-	library[item->text().toStdString()].path = str.toStdString();
+	if(auto item = get_selected_item(ui->LibraryList)) {
+		library[item->text().toStdString()].path = str.toStdString();
+	}
 }
 
 void LibraryDialog::inputChanged()

@@ -69,7 +69,7 @@ void DmpClientConnectDialog::setEnabled(bool enable)
 	ui.buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(enable);
 }
 
-QListWidgetItem* get_selected_item(QListWidget* list) {
+inline QListWidgetItem* get_selected_item(QListWidget* list) {
 	auto selection = list->selectionModel()->selectedRows();
 	if(selection.size() == 1) {
 		return list->item(selection[0].row());
