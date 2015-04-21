@@ -23,8 +23,7 @@ void DmpClientRegisterDialog::checkPassword()
 {
 	auto button = ui.buttonBox->button(QDialogButtonBox::Ok);
 	
-	bool enabled = ui.password->text().size() >= 8 
-		&& ui.password->text() == ui.confirmPassword->text();
+	bool enabled = ui.password->text() == ui.confirmPassword->text();
 	
 	button->setEnabled(enabled);
 }
