@@ -4,6 +4,7 @@
 #include "index_list.hpp"
 #include "connection.hpp"
 
+#include <boost/version.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 
@@ -55,8 +56,16 @@ struct DmpCallbacks {
 	{
 		auto it = callbacks.find(message_to_type(message));
 
-		if (it != callbacks.cend()) {
+		if (it != callbacks.cend()) { 
+//In boost 1.58 they added compile time checks for boost::get.
+//But because i generate code that won't be called it triggers compilation errors.
+//So use relaxed_get from 1.58 onwards.
+#if ( BOOST_VERSION / 100000 == 1 ) && ( BOOST_VERSION / 100 % 1000 >= 58 ) 
+			auto f = boost::relaxed_get<CB<T>>(it->second);
+#else
 			auto f = boost::get<CB<T>>(it->second);
+#endif
+			
 			if(f(message)) {
 				refresher();
 			}
