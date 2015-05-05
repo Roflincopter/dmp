@@ -60,12 +60,12 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	if(client) {
 		client->destroy();
 	}
-
-	client = new_client;
-
+	
 	if(client_thread.joinable()) {
 		client_thread.join();
 	}
+
+	client = new_client;
 
 	auto client_runner = [this]
 	{
