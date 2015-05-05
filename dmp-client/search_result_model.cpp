@@ -21,7 +21,7 @@ void SearchResultModel::add_search_response(message::SearchResponse response)
 int SearchResultModel::row_count() const
 {
 	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement const& rh){
-		return acc + std::accumulate(rh.second.cbegin(), rh.second.cend(), 0, [](int acc, SearchResultsElement::second_type::value_type rh) {
+		return acc + std::accumulate(rh.second.cbegin(), rh.second.cend(), 0, [](int acc, SearchResultsElement::second_type::value_type const& rh) {
 			return acc + rh.second.size();
 		});  
 	});
