@@ -383,6 +383,16 @@ bool DmpServer::handle_radio_action(message::RadioAction ra)
 			throw std::runtime_error("Unknown RadioAction was passed to the Server, action was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
 	}
+	
+	std::map<std::string, RadioState> states;
+	for(auto&& radio : radios) {
+		states.emplace(radio.first, std::move(radio.second.second.get_state()));
+	}
+	
+	for(auto&& endpoint : connections) {
+		endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+	}
+	
 	return true;
 }
 
