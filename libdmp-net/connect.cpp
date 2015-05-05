@@ -40,5 +40,5 @@ Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asi
 		}
 	}
 
-	throw std::runtime_error("None of the supplied endpoints for query " + hostname + ":" /*+ std::to_string(port)*/ + " accepted the connection.");
+	throw std::runtime_error("None of the supplied endpoints for query " + hostname + ":" + std::to_string(port) + " accepted the connection.");
 }
