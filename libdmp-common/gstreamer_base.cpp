@@ -97,7 +97,7 @@ std::string GStreamerBase::make_debug_graph(std::string prefix)
 	return filename;
 }
 
-void GStreamerBase::wait_for_state_change()
+GstState GStreamerBase::wait_for_state_change()
 {
 	GstState state;
 	GstState pending;
@@ -105,6 +105,7 @@ void GStreamerBase::wait_for_state_change()
 		DEBUG_COUT << "State change did not complete within 5s. Making debug dot." << std::endl;
 		make_debug_graph("StateChangeTimeout");
 	}
+	return state;
 }
 
 gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)

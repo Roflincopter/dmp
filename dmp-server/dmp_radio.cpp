@@ -109,11 +109,7 @@ void DmpRadio::remove_listener(std::string name)
 	gst_pad_unlink(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
 	gst_element_set_state(branch_it->second.endpoint.get_bin(), GST_STATE_NULL);
 
-	{
-		GstState state;
-		GstState pending;
-		gst_element_get_state(branch_it->second.endpoint.get_bin(), &state, &pending, GST_CLOCK_TIME_NONE);
-	}
+	wait_for_state_change();
 
 	gst_bin_remove(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
 
@@ -130,9 +126,7 @@ void DmpRadio::disconnect(std::string endpoint_name)
 		remove_listener(endpoint_name);
 	}
 	
-	GstState old_state;
-	GstState pending;
-	gst_element_get_state(pipeline.get(), &old_state, &pending, GST_CLOCK_TIME_NONE);
+	GstState old_state = wait_for_state_change();
 	
 	auto it = playlist.begin();
 	while(it != playlist.end())
@@ -265,11 +259,7 @@ void DmpRadio::next()
 		sp->forward_sender_action(playlist.front().owner, message::SenderAction(name, message::PlaybackAction::Reset));
 		gst_element_set_state(pipeline.get(), GST_STATE_READY);
 		
-		{
-			GstState state;
-			GstState pending;
-			gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-		}
+		wait_for_state_change();
 	}
 	
 	playlist.erase(playlist.begin());
@@ -399,9 +389,6 @@ void DmpRadio::move_down(std::vector<PlaylistId> ids)
 
 RadioState DmpRadio::get_state()
 {
-	GstState state;
-	GstState pending;
-	gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-
+	GstState state = wait_for_state_change();
 	return RadioState(state == GST_STATE_PLAYING);
 }
