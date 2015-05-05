@@ -21,7 +21,6 @@ Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asi
 
 	boost::asio::ip::basic_resolver_query<tcp> query(hostname, portstr);
 	boost::asio::ip::basic_endpoint<tcp> endpoint;
-	boost::asio::ip::tcp::socket socket(*ios.lock());
 
 	for(boost::asio::ip::tcp::resolver::iterator it = resolver.resolve(query);
 		it != boost::asio::ip::tcp::resolver::iterator();
@@ -29,6 +28,7 @@ Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asi
 	{
 		endpoint = *it;
 		boost::system::error_code ec;
+		boost::asio::ip::tcp::socket socket(*ios.lock());
 		socket.connect(endpoint, ec);
 		if(ec)
 		{
