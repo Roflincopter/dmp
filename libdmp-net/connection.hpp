@@ -57,7 +57,7 @@ class Connection {
 			}
 
 			std::istringstream iss(content);
-			boost::archive::text_iarchive iar(iss);
+			boost::archive::text_iarchive iar(iss, boost::archive::no_header);
 
 			T t = message::serialize<T>(iar);
 
@@ -143,7 +143,7 @@ public:
 	{
 		boost::interprocess::scoped_lock<boost::mutex> l(send_mutex);
 		std::ostringstream oss;
-		boost::archive::text_oarchive oar(oss);
+		boost::archive::text_oarchive oar(oss, boost::archive::no_header);
 		message::serialize(oar, x);
 		std::string content = oss.str();
 		uint32_t size = content.size();
@@ -185,7 +185,7 @@ public:
 		boost::asio::write(socket, boost::asio::buffer(type_cypher));
 
 		std::stringstream ss;
-		boost::archive::text_oarchive oar(ss);
+		boost::archive::text_oarchive oar(ss, boost::archive::no_header);
 		message::serialize(oar, x);
 
 		std::string tmp_str = ss.str();
@@ -338,7 +338,7 @@ public:
 				std::string content = std::string(reinterpret_cast<const char*>(data), size);
 
 				std::istringstream iss(content);
-				boost::archive::text_iarchive iar(iss);
+				boost::archive::text_iarchive iar(iss, boost::archive::no_header);
 
 				T t = message::serialize<T>(iar);
 				cb(t);
@@ -406,7 +406,7 @@ public:
 					std::string content = std::string(reinterpret_cast<const char*>(data.data()), data.size());
 
 					std::istringstream iss(content);
-					boost::archive::text_iarchive iar(iss);
+					boost::archive::text_iarchive iar(iss, boost::archive::no_header);
 
 					T t = message::serialize<T>(iar);
 					cb(t);
