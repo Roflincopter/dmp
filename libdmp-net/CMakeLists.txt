@@ -15,6 +15,11 @@ find_package(Boost COMPONENTS system REQUIRED)
 find_package(Sodium)
 
 set(boost_variant_workaround BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS;BOOST_MPL_LIMIT_LIST_SIZE=30)
+
+if(Boost_MAJOR_VERSION MATCHES 1 AND Boost_MINOR_VERSION MATCHES 58)
+	target_compile_definitions(dmp-net PUBLIC "BOOST_PP_VARIADICS=0")
+endif()
+
 target_compile_definitions(dmp-net PUBLIC "${boost_variant_workaround}")
 
 target_include_directories(dmp-net SYSTEM
