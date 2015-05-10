@@ -48,6 +48,13 @@ inline std::ostream& operator<<(std::ostream& os, message::Type t)
 	return os << static_cast<message::Type_t>(t);
 }
 
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, std::ostream&>::type
+operator<<(std::ostream& os, T x)
+{
+	return os << static_cast<uint32_t>(x);
+}
+
 struct NoMessage {
 	NoMessage()
 	{

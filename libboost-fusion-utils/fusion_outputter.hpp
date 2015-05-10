@@ -23,6 +23,7 @@ struct Outputter
 	output(std::ostream& os, I const& it, E const& end)
 	{
 		os << friendly_fusion::deref(it);
+		os << ", ";
 		return Outputter::output(os, friendly_fusion::advance_c<1>(it), end);
 	}
 
@@ -71,7 +72,10 @@ template <typename T>
 typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, std::ostream&>::type
 operator<<(std::ostream& os, T x)
 {
-	return std::Outputter::output(os, friendly_fusion::begin(x), friendly_fusion::end(x));
+	os << "{";
+	std::Outputter::output(os, friendly_fusion::begin(x), friendly_fusion::end(x));
+	os << "}";
+	return os;
 }
 
 }

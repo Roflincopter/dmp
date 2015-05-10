@@ -4,6 +4,7 @@ set(dmp-common-sources
 	gstreamer_base.hpp gstreamer_base.cpp
 	number_pool.hpp number_pool.cpp
 	radio_state.hpp radio_state.cpp
+	archive.hpp
 	playlist.hpp
 )
 
