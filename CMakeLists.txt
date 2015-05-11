@@ -24,17 +24,27 @@ IF(UNIX AND NOT APPLE)
     option(USE_GPERF "Enable Google performance tools." ON)
 ENDIF(UNIX AND NOT APPLE)
 
+option(BUILD_SERVER "Build the dmp server." ON)
+option(BUILD_QT_CLIENT "Build the Qt client." ON)
+
 add_definitions(${warnings} -g3 -Wno-shadow)
 
-add_subdirectory(libdbg)
+if(BUILD_SERVER OR BUILD_QT_CLIENT)
+	add_subdirectory(libdbg)
 
-add_subdirectory(libdmp-library)
-add_subdirectory(libboost-fusion-utils)
-add_subdirectory(libdmp-common)
-add_subdirectory(libdmp-net)
+	add_subdirectory(libdmp-library)
+	add_subdirectory(libboost-fusion-utils)
+	add_subdirectory(libdmp-common)
+	add_subdirectory(libdmp-net)
 
-add_subdirectory(libdmp-config)
+	add_subdirectory(libdmp-config)
+endif(BUILD_SERVER OR BUILD_QT_CLIENT)
 
-add_subdirectory(dmp-server)
-add_subdirectory(dmp-client)
-add_subdirectory(qt-client)
+if(BUILD_SERVER)
+	add_subdirectory(dmp-server)
+endif(BUILD_SERVER)
+
+if(BUILD_QT_CLIENT)
+	add_subdirectory(dmp-client)
+	add_subdirectory(qt-client)
+endif(BUILD_QT_CLIENT)
