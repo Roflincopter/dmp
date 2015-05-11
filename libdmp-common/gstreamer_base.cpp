@@ -170,11 +170,17 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 			
 			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
 			
+			if (percent >= 10 && state == GST_STATE_PAUSED) {
+				base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				base->buffering = false;
+			}
+			
 			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
 				//base->gstreamer_mutex->lock();
 				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				base->buffering = true;
 			}
-			base->buffering = true;
+			
 		}
 		break;
 	}
