@@ -59,11 +59,19 @@ public:
 	OArchive& operator&(const boost::archive::class_name_type&) {return *this;}
 	
 	template<typename T>
-	typename std::enable_if<std::is_fundamental<T>::value, OArchive&>::type
+	typename std::enable_if<std::is_fundamental<T>::value && !std::is_same<T, uint8_t>::value, OArchive&>::type
 	operator&(T & t) {
 		os << t << " ";
 		return *this;
 	}
+	
+	template<typename T>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_same<T, uint8_t>::value, OArchive&>::type
+	operator&(T & t) {
+		os << static_cast<unsigned int>(t) << " ";
+		return *this;
+	}
+	
 	
 	template<typename T>
 	typename std::enable_if<std::is_same<std::string, T>::value, OArchive&>::type
@@ -147,9 +155,18 @@ public:
 	IArchive& operator&(const boost::archive::class_name_type&) {return *this;}
 	
 	template<typename T>
-	typename std::enable_if<std::is_fundamental<T>::value, IArchive&>::type
-	operator&(T & t) {
+	typename std::enable_if<std::is_fundamental<T>::value && !std::is_same<T, uint8_t>::value, IArchive&>::type
+	operator&(T& t) {
 		is >> t >> std::ws;
+		return *this;
+	}
+	
+	template<typename T>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_same<T, uint8_t>::value, IArchive&>::type
+	operator&(T& t) {
+		unsigned int x;
+		is >> x >> std::ws;
+		t = static_cast<uint8_t>(x);
 		return *this;
 	}
 	
@@ -195,9 +212,6 @@ public:
 			typename T::value_type x;
 			*this & x;
 			t.push_back(x);
-			std::cout << "element" << std::endl;
-			std::cout << x << std::endl;
-			std::cout << "end element" << std::endl;
 		}
 		
 		return *this;
@@ -210,7 +224,6 @@ public:
 		
 		is >> size >> std::ws;
 		
-		std::cout << "Reading map of size: " << size << std::endl;
 		for(size_t i = 0; i < size; ++i) {
 			std::pair<typename std::decay<typename T::value_type::first_type>::type, typename std::decay<typename T::value_type::second_type>::type> x;
 			*this & x;
