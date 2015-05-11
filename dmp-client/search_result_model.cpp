@@ -13,18 +13,28 @@ SearchResultModel::SearchResultModel()
 
 void SearchResultModel::add_search_response(message::SearchResponse response)
 {
-	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_start, response);
-	search_results.push_back(std::make_pair(Client(response.origin), response.results));
-	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_end);
+	int count = 0;
+	for(auto&& pair : response.results) {
+		count += pair.second.size();
+	}
+	
+	if(count != 0) {
+		call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_start, count);
+		search_results.push_back(std::make_pair(Client(response.origin), response.results));
+		call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_end);
+	}
 }
 
 int SearchResultModel::row_count() const
 {
-	return std::accumulate(search_results.cbegin(), search_results.cend(), 0, [](int acc, SearchResultsElement const& rh){
-		return acc + std::accumulate(rh.second.cbegin(), rh.second.cend(), 0, [](int acc, SearchResultsElement::second_type::value_type const& rh) {
-			return acc + rh.second.size();
-		});  
-	});
+	int size = 0;
+	for(auto&& results : search_results) {
+		for(auto&& results_of_client : results.second) {
+			size += results_of_client.second.size();
+		}
+	}
+	
+	return size;
 }
 
 int SearchResultModel::column_count() const

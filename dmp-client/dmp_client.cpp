@@ -295,9 +295,7 @@ bool DmpClient::handle_search_request(message::SearchRequest search_req)
 {
 	dmp_library::LibrarySearcher searcher(library);
 	message::SearchResponse response(name, search_req.query, searcher.search(search_req.query));
-	if(!response.results.empty()) {
-		connection.send_encrypted(response);
-	}
+	connection.send_encrypted(response);
 	return true;
 }
 

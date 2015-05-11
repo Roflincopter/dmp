@@ -22,7 +22,7 @@ public:
 	virtual void new_search_begin() override final;
 	virtual void new_search_end() override final;
 	
-	virtual void search_results_start(message::SearchResponse response) override final;
+	virtual void search_results_start(int count) override final;
 	virtual void search_results_end() override final;
 	
 	auto get_row_info(int index) -> decltype(model->get_row_info(index));
