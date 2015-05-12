@@ -20,11 +20,12 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 	message::Ping last_ping;
 	message::DmpCallbacks callbacks;
 	MessageSwitch message_switch;
-	std::function<void()> terminate_connection;
 
 public:
 
 	ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios);
+
+	std::function<void()> terminate_connection;
 
 	void run();
 	void keep_alive();
@@ -39,7 +40,12 @@ public:
 	template <typename T>
 	void forward(T x)
 	{
-		connection.send_encrypted(x);
+		try {
+			connection.send_encrypted(x);
+		} catch(boost::system::system_error&) {
+			terminate_connection();
+			throw;
+		}
 	}
 
 	void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);

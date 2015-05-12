@@ -29,7 +29,7 @@ message::DmpCallbacks& ClientEndpoint::get_callbacks()
 void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr)
 {
 	callbacks.set(message::Type::SearchResponse, [cb](message::SearchResponse sr){cb(sr); return true;});
-	connection.send_encrypted(sr);
+	forward(sr);
 }
 
 void ClientEndpoint::handle_request(message::Type t)
@@ -58,7 +58,7 @@ void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
 
 bool ClientEndpoint::handle_bye(message::Bye)
 {
-	connection.send_encrypted(message::ByeAck());
+	forward(message::ByeAck());
 	ping_timer->cancel();
 	terminate_connection();
 	return false;
@@ -77,7 +77,7 @@ void ClientEndpoint::keep_alive()
 		}
 
 		last_ping = message::Ping();
-		connection.send_encrypted(last_ping);
+		forward(last_ping);
 		keep_alive();
 	};
 	ping_timer->async_wait(cb);

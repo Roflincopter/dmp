@@ -189,6 +189,10 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 {
 	auto username = cep->get_name();
 	
+	if(connections.find(username) != connections.end()) {
+		connections[username]->terminate_connection();
+	}
+	
 	cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
 	std::weak_ptr<ClientEndpoint> wcep = cep;
