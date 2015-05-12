@@ -185,14 +185,14 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 			//base->gstreamer_mutex->unlock();
 		} else {
-			
 			GstState state;
 			GstState pending;
 			GstClockTime timeout = 0;
 			
 			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
 			
-			if (percent >= 10 && state == GST_STATE_PAUSED) {
+			if (percent >= 25 && state == GST_STATE_PAUSED) {
+				DEBUG_COUT << base->name << ": sending buffer_high because percent >= 25 and paused pipeline" << std::endl;
 				base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 				base->buffering = false;
 			}
