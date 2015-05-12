@@ -33,6 +33,7 @@ boost::filesystem::path get_config_file_name();
 boost::filesystem::path get_database_file_name();
 boost::filesystem::path get_library_folder_name();
 boost::filesystem::path get_unique_cache_name();
+boost::filesystem::path get_gst_folder_name();
 
 int get_volume();
 void set_volume(int volume);

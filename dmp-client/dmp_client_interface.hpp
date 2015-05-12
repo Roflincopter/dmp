@@ -34,6 +34,8 @@ struct DmpClientInterface {
 	virtual void next_radio() = 0;
 	virtual void mute_radio(bool state) = 0;
 	virtual void change_volume(int volume) = 0;
+	
+	virtual void gstreamer_debug(std::string reason) = 0;
 
 	virtual void add_delegate(std::weak_ptr<DmpClientUiDelegate>) = 0;
 	virtual std::shared_ptr<PlaylistsModel> get_playlists_model() = 0;

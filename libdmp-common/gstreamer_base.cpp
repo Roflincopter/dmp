@@ -39,7 +39,7 @@ void GStreamerBase::buffer_low(GstElement*)
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: GStreamerInit()
+: GStreamerInit(*this)
 , gstreamer_mutex(std::move(base.gstreamer_mutex))
 , buffering(false)
 , name(std::move(base.name))
@@ -58,8 +58,8 @@ GStreamerBase::GStreamerBase(GStreamerBase&& base)
 	gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
 }
 
-GStreamerBase::GStreamerBase(std::string name)
-: GStreamerInit()
+GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
+: GStreamerInit(gst_dir)
 , gstreamer_mutex(new std::recursive_mutex())
 , buffering(false)
 , name(name)

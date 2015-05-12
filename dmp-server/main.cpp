@@ -28,6 +28,8 @@ int main(int, char**) {
 		if (input == "stop")
 		{
 			stop = true;
+		} else if (input == "graph") {
+			server->gstreamer_debug("command");
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}

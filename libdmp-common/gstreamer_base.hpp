@@ -71,7 +71,7 @@ struct GErrorDeleter {
 
 struct GStreamerInit {
 	
-	GStreamerInit() {
+	GStreamerInit(std::string gst_dir) {
 #if defined( _WIN32 ) || defined( _WIN64 )
 		char buffer[512];
 		GetModuleFileName(nullptr, buffer, sizeof(buffer));
@@ -82,7 +82,10 @@ struct GStreamerInit {
 
 		g_setenv("GST_PLUGIN_PATH_1_0", plugin_path.string().c_str(), false);
 #endif
-		gst_init(nullptr, nullptr);
+		if(!gst_is_initialized()) {
+			g_setenv("GST_DEBUG_DUMP_DOT_DIR", gst_dir.c_str(), false);
+			gst_init(nullptr, nullptr);
+		}
 	}
 
 };
@@ -110,7 +113,7 @@ public:
 	virtual void buffer_high(GstElement* src);
 	virtual void buffer_low(GstElement* src);
 	
-	GStreamerBase(std::string name);
+	GStreamerBase(std::string name, std::string gst_dir);
 	
 	GStreamerBase(GStreamerBase&& base);
 	

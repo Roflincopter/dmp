@@ -7,8 +7,8 @@
 #include <tuple>
 #include <iterator>
 
-DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool)
-: GStreamerBase("tcp_bridge")
+DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir)
+: GStreamerBase("tcp_bridge", gst_dir)
 , name(name)
 , server(server)
 , port_pool(port_pool)

@@ -20,8 +20,8 @@ class DmpReceiver : public GStreamerBase
 	
 	void cleanup();
 public:
-	DmpReceiver();
-	DmpReceiver(std::string radio_name);
+	DmpReceiver(std::string gst_dir);
+	//DmpReceiver(std::string radio_name, std::string gst_dir);
 	
 	DmpReceiver(DmpReceiver&&) = default;
 	DmpReceiver& operator=(DmpReceiver&&) = default;

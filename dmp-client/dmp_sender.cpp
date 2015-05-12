@@ -5,8 +5,8 @@
 
 #include "debug_macros.hpp"
 
-DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name)
-: GStreamerBase("sender")
+DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir)
+: GStreamerBase("sender", gst_dir)
 , client(client)
 , radio_name(radio_name)
 , source(gst_element_factory_make("filesrc", "file"))

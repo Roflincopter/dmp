@@ -249,7 +249,8 @@ void DmpServer::add_radio(std::string radio_name) {
 				DmpRadio(
 					radio_name, 
 					shared_from_this(),
-					port_pool
+					port_pool,
+					config::get_gst_folder_name().string()
 				)
 			)
 		)
@@ -266,6 +267,13 @@ void DmpServer::remove_radio(std::string radio_name)
 	radio_it->second.second.stop_loop();
 	radio_it->second.first.join();
 	radios.erase(radio_it);
+}
+
+void DmpServer::gstreamer_debug(std::string reason)
+{
+	for(auto&& radio : radios) {
+		std::cout << "created debug graph: " << radio.second.second.make_debug_graph(reason) << std::endl;
+	}
 }
 
 bool DmpServer::handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar)

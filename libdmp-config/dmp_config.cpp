@@ -84,6 +84,14 @@ boost::filesystem::path get_or_create_library_dir() {
 	return library_dir;
 }
 
+boost::filesystem::path get_or_create_gst_dir() {
+	boost::filesystem::path gst_dir = get_or_create_config_dir() / "gst";
+	if(!boost::filesystem::exists(gst_dir)) {
+		boost::filesystem::create_directory(gst_dir);
+	}
+	return gst_dir;
+}
+
 boost::filesystem::path get_config_file_name() {
 	return get_or_create_config_dir() / "config";
 }
@@ -105,6 +113,11 @@ boost::filesystem::path get_unique_cache_name() {
 	} while(boost::filesystem::exists(cache_file));
 
 	return cache_name;
+}
+
+boost::filesystem::path get_gst_folder_name()
+{
+	return get_or_create_gst_dir();
 }
 
 boost::property_tree::ptree create_or_open_config() {

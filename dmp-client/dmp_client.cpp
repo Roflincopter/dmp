@@ -20,7 +20,7 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , last_sent_ping()
 , library()
 , senders()
-, receiver()
+, receiver(config::get_gst_folder_name().string())
 , message_switch(make_message_switch(callbacks, connection))
 {
 	auto volume = config::get_volume();
@@ -242,6 +242,14 @@ void DmpClient::forward_radio_event(message::SenderEvent se)
 	connection.send_encrypted(se);
 }
 
+void DmpClient::gstreamer_debug(std::string reason)
+{
+	std::cout << "created debug graph: " << receiver.make_debug_graph(reason) << std::endl;
+	for(auto&& sender : senders) {
+		std::cout << "created debug graph: " << sender.second.make_debug_graph(sender.first + "_" + reason) << std::endl;
+	}
+}
+
 bool DmpClient::handle_login_response(message::LoginResponse lr)
 {
 	if(lr.succes) {
@@ -367,7 +375,14 @@ bool DmpClient::handle_add_radio(message::AddRadio added_radio)
 bool DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	senders.erase(sr.radio_name);
-	auto result = senders.emplace(sr.radio_name, DmpSender(shared_from_this(), sr.radio_name));
+	auto result = senders.emplace(
+		sr.radio_name,
+		DmpSender(
+			shared_from_this(),
+			sr.radio_name,
+			config::get_gst_folder_name().string()
+		)
+	);
 	
 	if(!result.second) {
 		DEBUG_COUT << "emplace did not overwrite existing map entry" << std::endl;

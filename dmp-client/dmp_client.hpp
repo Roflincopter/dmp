@@ -80,6 +80,8 @@ public:
 	
 	virtual void forward_radio_action(message::RadioAction ra) override final;
 	virtual void forward_radio_event(message::SenderEvent se) override final;
+	
+	virtual void gstreamer_debug(std::string reason) override final;
 
 	bool handle_login_response(message::LoginResponse lr);
 	bool handle_register_response(message::RegisterResponse rr);

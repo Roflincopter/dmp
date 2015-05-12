@@ -22,7 +22,7 @@ class DmpSender : public GStreamerBase
 	bool is_resetting = false;
 	
 public:
-	DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name);
+	DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir);
 	
 	DmpSender(DmpSender&&) = default;
 	DmpSender& operator=(DmpSender&&) = default;

@@ -33,6 +33,8 @@ class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 	std::shared_ptr<DmpClientGuiSearchResults> shared_search_results;
 	std::shared_ptr<DmpClientGuiRadioList> shared_radio_list;
 	std::shared_ptr<DmpClientGuiPlaylists> shared_playlists;
+	
+	QShortcut* gstreamer_debug_shortcut;
 
 	void update_ui_client_interface();
 	void setEnabled(bool enabled);
@@ -67,6 +69,9 @@ public:
 	void volume_changed(int volume) override final;
 	
 private slots:
+
+	void gstreamer_debug();
+
 /*
 	void test1();
 	void test2();

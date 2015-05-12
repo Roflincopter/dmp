@@ -30,6 +30,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , shared_search_results(nullptr)
 , shared_radio_list(nullptr)
 , shared_playlists(nullptr)
+, gstreamer_debug_shortcut(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_D), this, SLOT(gstreamer_debug())))
 , ui()
 {
 	ui.setupUi(this);
@@ -105,6 +106,8 @@ void DmpClientGui::login_client(std::string username, std::string password)
 }
 
 void DmpClientGui::setEnabled(bool enabled) {
+	this->gstreamer_debug_shortcut->setEnabled(enabled);
+
 	ui.search_bar->setEnabled(enabled);
 	ui.addRadioButton->setEnabled(enabled);
 	ui.deleteRadioButton->setEnabled(enabled);
@@ -210,6 +213,11 @@ void DmpClientGui::register_failed(std::string reason)
 void DmpClientGui::volume_changed(int volume)
 {
 	ui.volumeSlider->setValue(volume);
+}
+
+void DmpClientGui::gstreamer_debug()
+{
+	client->gstreamer_debug("Shortcut");
 }
 
 void DmpClientGui::NextPressed()

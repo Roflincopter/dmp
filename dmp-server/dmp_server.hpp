@@ -59,6 +59,8 @@ public:
 	void remove_connection(std::string name);
 	void add_radio(std::string);
 	void remove_radio(std::string);
+	
+	void gstreamer_debug(std::string reason);
 
 	bool handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr);
 	bool handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar);

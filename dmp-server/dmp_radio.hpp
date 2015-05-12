@@ -67,7 +67,7 @@ class DmpRadio : public GStreamerBase
 	bool stopped = true;
 	
 public:
-	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool);
+	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir);
 
 	DmpRadio(DmpRadio&& r) = default;
 	DmpRadio& operator=(DmpRadio&& r) = default;

@@ -6,8 +6,8 @@
 #include <iostream>
 #include <cassert>
 
-DmpReceiver::DmpReceiver()
-: GStreamerBase("receiver")
+DmpReceiver::DmpReceiver(std::string gst_dir)
+: GStreamerBase("receiver", gst_dir)
 , source(gst_element_factory_make("tcpclientsrc", "stream"))
 , buffer(gst_element_factory_make("queue2", "buffer"))
 , decoder(gst_element_factory_make("decodebin", "decoder"))
