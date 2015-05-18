@@ -48,7 +48,7 @@ bool ClientEndpoint::handle_pong(message::Pong p)
 void ClientEndpoint::listen_requests()
 {
 	std::function<void(message::Type)> cb = std::bind(&ClientEndpoint::handle_request, this, std::placeholders::_1);
-	connection.async_receive_encrypted_type(cb);
+	connection.async_receive_type(cb);
 }
 
 void ClientEndpoint::set_terminate_connection(std::function<void ()> f)

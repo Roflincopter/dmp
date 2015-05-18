@@ -29,7 +29,7 @@
 
 class Connection {
 
-	struct ReceiveProxy {
+	struct ReceivePlainProxy {
 		Connection& c;
 
 		template <typename T>
@@ -114,8 +114,28 @@ class Connection {
 			if(!succes) {
 				throw std::runtime_error("Failed to decrypt message");
 			}
+			
+			std::stringstream ss(std::string(reinterpret_cast<const char*>(data.data()), data.size()));
+			IArchive iar(ss);
+			return message::serialize<T>(iar);
 		}
 	};
+	
+	struct ReceiveProxy {
+		Connection& c;
+		
+		template <typename T>
+		operator T()
+		{
+			if(c.encrypted) {
+				return ReceiveEncryptedProxy{c};
+			} else {
+				return ReceivePlainProxy{c};
+			}
+		}
+	};
+
+	bool encrypted;
 
 	boost::asio::ip::tcp::socket socket;
 
@@ -140,7 +160,42 @@ public:
 	~Connection();
 
 	template <typename T>
-	void send(T x)
+	void send(T x) {
+		if(encrypted) {
+			send_encrypted(x);
+		} else {
+			send_plain(x);
+		}
+	}
+	
+	message::Type receive_type();
+	
+	template <typename Callable>
+	void async_receive_type(Callable const& cb)
+	{
+		if(encrypted) {
+			async_receive_encrypted_type(cb);
+		} else {
+			async_receive_plain_type(cb);
+		}
+	}
+	
+	ReceiveProxy receive();
+	
+	template <typename T, typename Callable>
+	void async_receive(Callable const& cb)
+	{
+		if(encrypted) {
+			async_receive_encrypted<T>(cb);
+		} else {
+			async_receive_plain<T>(cb);
+		}
+	}
+	
+private:
+
+	template <typename T>
+	void send_plain(T x)
 	{
 		boost::interprocess::scoped_lock<boost::mutex> l(send_mutex);
 		std::ostringstream oss;
@@ -219,11 +274,11 @@ public:
 		boost::asio::write(socket, boost::asio::buffer(message_cypher));
 	}
 
-	message::Type receive_type();
+	message::Type receive_plain_type();
 	message::Type receive_encrypted_type();
 
 	template <typename Callable>
-	void async_receive_type(Callable const& cb)
+	void async_receive_plain_type(Callable const& cb)
 	{
 		async_type_buffer.resize(4, 0);
 
@@ -304,11 +359,11 @@ public:
 		boost::asio::async_read(socket, boost::asio::buffer(async_type_nonce_buffer), type_nonce_cb);
 	}
 
-	ReceiveProxy receive();
+	ReceivePlainProxy receive_plain();
 	ReceiveEncryptedProxy receive_encrypted();
 
 	template <typename T, typename Callable>
-	void async_receive(Callable const& cb)
+	void async_receive_plain(Callable const& cb)
 	{
 		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 		{

@@ -1,7 +1,8 @@
 #include "connection.hpp"
 
 Connection::Connection(boost::asio::ip::tcp::socket &&socket)
-	: socket(std::move(socket))
+	: encrypted(false)
+	, socket(std::move(socket))
 	, async_type_nonce_buffer()
 	, async_type_buffer()
 	, async_mess_nonce_buffer()
@@ -14,6 +15,7 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 {
 	crypto_box_keypair(&public_key[0], &private_key[0]);
 	send(message::PublicKey(public_key));
+	
 	auto type = receive_type();
 	if(type != message::Type::PublicKey) {
 		throw std::runtime_error("Failed to setup a secure connection");
@@ -21,10 +23,12 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 
 	message::PublicKey x = receive();
 	other_public_key.swap(x.key);
+	encrypted = true;
 }
 
 Connection::Connection(Connection&& that)
-	: socket(std::move(that.socket))
+	: encrypted(std::move(that.encrypted))
+	, socket(std::move(that.socket))
 	, async_type_nonce_buffer()
 	, async_type_buffer()
 	, async_mess_nonce_buffer()
@@ -37,6 +41,7 @@ Connection::Connection(Connection&& that)
 {}
 
 Connection& Connection::operator=(Connection&& that){
+	std::swap(encrypted, that.encrypted);
 	std::swap(socket, that.socket);
 	std::swap(private_key, that.private_key);
 	std::swap(public_key, that.public_key);
@@ -49,7 +54,15 @@ Connection::~Connection()
 	socket.close();
 }
 
-message::Type Connection::receive_type()
+message::Type Connection::receive_type() {
+	if(encrypted) {
+		return receive_encrypted_type();
+	} else {
+		return receive_plain_type();
+	}
+}
+
+message::Type Connection::receive_plain_type()
 {
 	message::Type type = message::Type::NoMessage;
 

@@ -41,7 +41,7 @@ public:
 	void forward(T x)
 	{
 		try {
-			connection.send_encrypted(x);
+			connection.send(x);
 		} catch(boost::system::system_error&) {
 			terminate_connection();
 			throw;
