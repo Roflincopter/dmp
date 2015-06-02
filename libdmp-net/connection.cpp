@@ -50,9 +50,7 @@ void Connection::set_our_keys(std::vector<uint8_t> priv, std::vector<uint8_t> pu
 
 void Connection::set_their_key(std::vector<uint8_t> opub)
 {
-	DEBUG_COUT << "setup their pub key" << std::endl;
 	other_public_key = opub;
-	DEBUG_COUT << other_public_key;
 	encrypt = true;
 }
 
@@ -69,8 +67,6 @@ bool Connection::encrypted()
 	if(read_bytes != buf.size()) {
 		throw std::runtime_error("Unexpected number of bytes read");
 	}
-	
-	DEBUG_COUT << (buf[0] != 0 ? "Message was encrypted" : "Message was not encrypted") << std::endl;
 	
 	return buf[0] != 0;
 }
