@@ -49,4 +49,7 @@ void clear_servers();
 void print_config_dir();
 void print_config_file_name();
 
+boost::filesystem::path get_private_key_path();
+boost::filesystem::path get_public_key_path();
+
 }

@@ -387,17 +387,35 @@ inline Type message_to_type(NoMessage)
 	return Type::NoMessage;
 }
 
+inline std::string message_to_type_string(NoMessage)
+{
+	return "NoMessage";
+}
+
+static std::vector<std::string> type_to_string_vector;
+
+inline std::string type_to_string(Type t) {
+	return type_to_string_vector.at(static_cast<message::Type_t>(t));
+}
+
 #define MESSAGE_TYPE_CONVERSION(X) \
-template<>\
-struct type_to_message<Type::X>\
-{\
-	typedef X type;\
+template<> \
+struct type_to_message<Type::X> \
+{ \
+	typedef X type; \
 }; \
  \
 inline Type message_to_type(X) \
 { \
 	return Type::X; \
-}
+} \
+ \
+inline std::string message_to_type_string(X) \
+{ \
+	return #X; \
+} \
+ \
+static const int X ## _type_to_string_helper = (type_to_string_vector.resize(static_cast<Type_t>(Type::X) + 1), type_to_string_vector.at(static_cast<Type_t>(Type::X)) = #X, 0);
 
 MESSAGE_TYPE_CONVERSION(PublicKey)
 MESSAGE_TYPE_CONVERSION(Ping)

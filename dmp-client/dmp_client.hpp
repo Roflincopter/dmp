@@ -39,7 +39,7 @@ private:
 
 public:
 
-	DmpClient(std::string host, uint16_t port);
+	DmpClient(std::string host, uint16_t port, bool secure);
 	DmpClient(DmpClient&&) = default;
 	virtual ~DmpClient();
 
@@ -83,6 +83,7 @@ public:
 	
 	virtual void gstreamer_debug(std::string reason) override final;
 
+	bool handle_public_key(message::PublicKey pk);
 	bool handle_login_response(message::LoginResponse lr);
 	bool handle_register_response(message::RegisterResponse rr);
 	bool handle_ping(message::Ping ping);

@@ -34,6 +34,9 @@ public:
 	void set_terminate_connection(std::function<void()> f);
 	std::string get_name() {return name;}
 	void set_name(std::string name) {this->name = name;}
+	
+	void set_our_keys(std::vector<uint8_t> priv, std::vector<uint8_t> pub);
+	void set_their_key(std::vector<uint8_t> opub);
 
 	message::DmpCallbacks& get_callbacks();
 

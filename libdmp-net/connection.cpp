@@ -1,7 +1,7 @@
 #include "connection.hpp"
 
 Connection::Connection(boost::asio::ip::tcp::socket &&socket)
-	: encrypted(false)
+	: encrypt(false)
 	, socket(std::move(socket))
 	, async_type_nonce_buffer()
 	, async_type_buffer()
@@ -12,22 +12,10 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 	, public_key(crypto_box_publickeybytes(), 0)
 	, other_public_key(crypto_box_publickeybytes(), 0)
 	, send_mutex()
-{
-	crypto_box_keypair(&public_key[0], &private_key[0]);
-	send(message::PublicKey(public_key));
-	
-	auto type = receive_type();
-	if(type != message::Type::PublicKey) {
-		throw std::runtime_error("Failed to setup a secure connection");
-	}
-
-	message::PublicKey x = receive();
-	other_public_key.swap(x.key);
-	encrypted = true;
-}
+{}
 
 Connection::Connection(Connection&& that)
-	: encrypted(std::move(that.encrypted))
+	: encrypt(std::move(that.encrypt))
 	, socket(std::move(that.socket))
 	, async_type_nonce_buffer()
 	, async_type_buffer()
@@ -41,7 +29,7 @@ Connection::Connection(Connection&& that)
 {}
 
 Connection& Connection::operator=(Connection&& that){
-	std::swap(encrypted, that.encrypted);
+	std::swap(encrypt, that.encrypt);
 	std::swap(socket, that.socket);
 	std::swap(private_key, that.private_key);
 	std::swap(public_key, that.public_key);
@@ -54,8 +42,41 @@ Connection::~Connection()
 	socket.close();
 }
 
+void Connection::set_our_keys(std::vector<uint8_t> priv, std::vector<uint8_t> pub)
+{
+	private_key = priv;
+	public_key = pub;
+}
+
+void Connection::set_their_key(std::vector<uint8_t> opub)
+{
+	DEBUG_COUT << "setup their pub key" << std::endl;
+	other_public_key = opub;
+	DEBUG_COUT << other_public_key;
+	encrypt = true;
+}
+
+bool Connection::encrypted()
+{
+	boost::system::error_code ec;
+	std::vector<uint8_t> buf(1);
+	size_t read_bytes = boost::asio::read(socket, boost::asio::buffer(buf), ec);
+	
+	if(ec) {
+		throw std::runtime_error("Failed to read encryption sentinel");
+	}
+	
+	if(read_bytes != buf.size()) {
+		throw std::runtime_error("Unexpected number of bytes read");
+	}
+	
+	DEBUG_COUT << (buf[0] != 0 ? "Message was encrypted" : "Message was not encrypted") << std::endl;
+	
+	return buf[0] != 0;
+}
+
 message::Type Connection::receive_type() {
-	if(encrypted) {
+	if(encrypted()) {
 		return receive_encrypted_type();
 	} else {
 		return receive_plain_type();

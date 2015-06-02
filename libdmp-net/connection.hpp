@@ -127,7 +127,7 @@ class Connection {
 		template <typename T>
 		operator T()
 		{
-			if(c.encrypted) {
+			if(c.encrypted()) {
 				return ReceiveEncryptedProxy{c};
 			} else {
 				return ReceivePlainProxy{c};
@@ -135,7 +135,8 @@ class Connection {
 		}
 	};
 
-	bool encrypted;
+	bool encrypt;
+	bool encrypted();
 
 	boost::asio::ip::tcp::socket socket;
 
@@ -158,10 +159,15 @@ public:
 	Connection(Connection&& that);
 	Connection& operator=(Connection&& that);
 	~Connection();
+	
+	void set_our_keys(std::vector<uint8_t> priv, std::vector<uint8_t> pub);
+	void set_their_key(std::vector<uint8_t> opub);
 
 	template <typename T>
 	void send(T x) {
-		if(encrypted) {
+		
+		
+		if(encrypt) {
 			send_encrypted(x);
 		} else {
 			send_plain(x);
@@ -173,7 +179,7 @@ public:
 	template <typename Callable>
 	void async_receive_type(Callable const& cb)
 	{
-		if(encrypted) {
+		if(encrypted()) {
 			async_receive_encrypted_type(cb);
 		} else {
 			async_receive_plain_type(cb);
@@ -185,7 +191,7 @@ public:
 	template <typename T, typename Callable>
 	void async_receive(Callable const& cb)
 	{
-		if(encrypted) {
+		if(encrypted()) {
 			async_receive_encrypted<T>(cb);
 		} else {
 			async_receive_plain<T>(cb);
@@ -206,7 +212,12 @@ private:
 
 		auto type = message::message_to_type(x);
 		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
+		
+		uint8_t encrypted = 0;
+		
+		boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 		boost::asio::write(socket, boost::asio::buffer(&type, 4));
+		boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
 		boost::asio::write(socket, boost::asio::buffer(content));
 	}
@@ -237,6 +248,8 @@ private:
 			throw std::runtime_error("failed to encrypt type");
 		}
 
+		uint8_t encrypted = 1;
+		boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 		boost::asio::write(socket, boost::asio::buffer(nonce1));
 		boost::asio::write(socket, boost::asio::buffer(type_cypher));
 
@@ -269,6 +282,7 @@ private:
 
 		static_assert(sizeof(decltype(size)) == 4, "Size of uint32_t is assumed to be 4 bytes, but is not.");
 
+		boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 		boost::asio::write(socket, boost::asio::buffer(nonce2));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
 		boost::asio::write(socket, boost::asio::buffer(message_cypher));

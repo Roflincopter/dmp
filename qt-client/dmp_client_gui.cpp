@@ -89,7 +89,7 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 bool DmpClientGui::connect_client(std::string host, uint16_t port)
 {
 	try {
-		auto client_sp = std::make_shared<DmpClient>(host, port);
+		auto client_sp = std::make_shared<DmpClient>(host, port, true);
 		set_client(client_sp);
 	} catch(std::exception &e) {
 		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());

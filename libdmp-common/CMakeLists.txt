@@ -4,6 +4,7 @@ set(dmp-common-sources
 	gstreamer_base.hpp gstreamer_base.cpp
 	number_pool.hpp number_pool.cpp
 	radio_state.hpp radio_state.cpp
+	key_management.hpp key_management.cpp
 	archive.hpp
 	playlist.hpp
 )
@@ -24,6 +25,7 @@ target_link_libraries(dmp-common
 	PRIVATE ${GOBJECT_LIBRARIES}
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE boost-fusion-utils
+	PRIVATE dmp-config
 	PRIVATE dbg
 )
 

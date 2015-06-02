@@ -247,4 +247,14 @@ void print_config_file_name() {
 	DEBUG_COUT << get_config_file_name() << std::endl;
 }
 
+boost::filesystem::path get_private_key_path()
+{
+	return get_or_create_config_dir() / "key";
+}
+
+boost::filesystem::path get_public_key_path()
+{
+	return get_or_create_config_dir() / "key.pub";
+}
+
 }

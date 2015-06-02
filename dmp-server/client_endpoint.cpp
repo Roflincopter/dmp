@@ -56,11 +56,22 @@ void ClientEndpoint::set_terminate_connection(std::function<void ()> f)
 	terminate_connection = f;
 }
 
+void ClientEndpoint::set_our_keys(std::vector<uint8_t> priv, std::vector<uint8_t> pub)
+{
+	connection.set_our_keys(priv, pub);
+}
+
+void ClientEndpoint::set_their_key(std::vector<uint8_t> opub) {
+	connection.set_their_key(opub);
+}
+
 bool ClientEndpoint::handle_bye(message::Bye)
 {
 	forward(message::ByeAck());
 	ping_timer->cancel();
-	terminate_connection();
+	if(terminate_connection) {
+		terminate_connection();
+	}
 	return false;
 }
 

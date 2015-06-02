@@ -7,6 +7,8 @@
 #include "database.hpp"
 #include "server_exceptions.hpp"
 
+#include "key_management.hpp"
+
 #include "user-odb.hpp"
 #include "radio-odb.hpp"
 #include "radio_admin-odb.hpp"
@@ -182,6 +184,22 @@ void DmpServer::add_pending_connection(Connection&& c)
 			remove_element(pending_connections, cep);
 			cep->get_callbacks().clear();
 			return false;
+		}).
+		set(message::Type::PublicKey, [this, cep](message::PublicKey r) {
+			KeyPair pair = load_key_pair();
+			
+			//send key plain first then set up encryption as it is needed for signature verification.
+			cep->forward(message::PublicKey(pair.public_key));
+			
+			cep->set_our_keys(
+				pair.private_key,
+				pair.public_key
+			);
+			cep->set_their_key(
+				r.key
+			);
+			
+			return true;
 		});
 }
 

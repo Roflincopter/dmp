@@ -1,5 +1,7 @@
 #include "dmp_client.hpp"
 
+#include "key_management.hpp"
+
 #include "dmp_config.hpp"
 #include "fusion_outputter.hpp"
 #include "connect.hpp"
@@ -7,7 +9,7 @@
 #include "debug_macros.hpp"
 #include "dmp_client_ui_delegate.hpp"
 
-DmpClient::DmpClient(std::string host, uint16_t port)
+DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 : name()
 , host(host)
 , playlists_model(std::make_shared<PlaylistsModel>())
@@ -23,6 +25,12 @@ DmpClient::DmpClient(std::string host, uint16_t port)
 , receiver(config::get_gst_folder_name().string())
 , message_switch(make_message_switch(callbacks, connection))
 {
+	if(secure) {
+		KeyPair kp = load_key_pair();
+		connection.set_our_keys(kp.private_key, kp.public_key);
+		connection.send(message::PublicKey(kp.public_key));
+	}
+
 	auto volume = config::get_volume();
 	change_volume(volume);
 	init_library();
@@ -48,7 +56,8 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::StreamRequest, std::function<bool(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
 		{message::Type::SenderAction, std::function<bool(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
 		{message::Type::ReceiverAction, std::function<bool(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
-		{message::Type::RadioStates, std::function<bool(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))}
+		{message::Type::RadioStates, std::function<bool(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))},
+		{message::Type::PublicKey, std::function<bool(message::PublicKey)>(std::bind(&DmpClient::handle_public_key, this, _1))}
 	};
 }
 
@@ -248,6 +257,12 @@ void DmpClient::gstreamer_debug(std::string reason)
 	for(auto&& sender : senders) {
 		std::cout << "created debug graph: " << sender.second.make_debug_graph(sender.first + "_" + reason) << std::endl;
 	}
+}
+
+bool DmpClient::handle_public_key(message::PublicKey pk)
+{
+	connection.set_their_key(pk.key);
+	return true;
 }
 
 bool DmpClient::handle_login_response(message::LoginResponse lr)

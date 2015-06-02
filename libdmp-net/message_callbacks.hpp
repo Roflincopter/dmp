@@ -18,6 +18,7 @@ struct DmpCallbacks {
 	using CallBackType = boost::variant<
 		  CB<message::Ping>
 		, CB<message::Pong>
+		, CB<message::PublicKey>
 		, CB<message::LoginRequest>
 		, CB<message::LoginResponse>
 		, CB<message::RegisterRequest>
