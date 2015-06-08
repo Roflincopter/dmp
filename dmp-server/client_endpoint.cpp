@@ -67,6 +67,7 @@ void ClientEndpoint::set_their_key(std::vector<uint8_t> opub) {
 
 bool ClientEndpoint::handle_bye(message::Bye)
 {
+	connection.stop_encryption();
 	forward(message::ByeAck());
 	ping_timer->cancel();
 	if(terminate_connection) {

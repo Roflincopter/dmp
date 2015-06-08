@@ -68,6 +68,16 @@ inline std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> vec)
 	return os;
 }
 
+template <size_t I>
+inline std::ostream& operator<<(std::ostream& os, std::array<uint8_t, I> arr){
+	os << "{";
+	for(auto&& x : arr) {
+		os << static_cast<unsigned int>(x) << ", ";
+	}
+	os << "}" << std::endl;
+	return os;
+}
+
 template <typename T>
 typename std::enable_if<friendly_fusion::traits::is_sequence<T>::value, std::ostream&>::type
 operator<<(std::ostream& os, T x)

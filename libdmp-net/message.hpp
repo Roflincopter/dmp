@@ -8,6 +8,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 
+#include <sodium.h>
+
 #include <cstdint>
 
 namespace message {
@@ -17,6 +19,7 @@ typedef uint32_t Type_t;
 enum class Type : Type_t {
 	NoMessage,
 	PublicKey,
+	Nonce,
 	Ping,
 	Pong,
 	LoginRequest,
@@ -67,6 +70,24 @@ struct PublicKey {
 
 	PublicKey(std::vector<uint8_t> key)
 	: key(key)
+	{}
+};
+
+struct Nonce {
+	
+	typedef std::array<uint8_t, crypto_box_NONCEBYTES> Nonce_t;
+	
+	enum class Type {
+		Request,
+		Delivery
+	};
+	
+	Type type;
+	Nonce_t nonce;
+	
+	Nonce(Type type, Nonce_t nonce)
+	: type(type) 
+	, nonce(nonce)
 	{}
 };
 
@@ -418,6 +439,7 @@ inline std::string message_to_type_string(X) \
 static const int X ## _type_to_string_helper = (type_to_string_vector.resize(static_cast<Type_t>(Type::X) + 1), type_to_string_vector.at(static_cast<Type_t>(Type::X)) = #X, 0);
 
 MESSAGE_TYPE_CONVERSION(PublicKey)
+MESSAGE_TYPE_CONVERSION(Nonce)
 MESSAGE_TYPE_CONVERSION(Ping)
 MESSAGE_TYPE_CONVERSION(Pong)
 MESSAGE_TYPE_CONVERSION(LoginRequest)
@@ -453,6 +475,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	message::PublicKey,
 	(std::vector<uint8_t>, key)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::Nonce,
+	(message::Nonce::Type, type)
+	(message::Nonce::Nonce_t, nonce)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

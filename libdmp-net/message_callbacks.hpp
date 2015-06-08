@@ -2,7 +2,6 @@
 
 #include "message.hpp"
 #include "index_list.hpp"
-#include "connection.hpp"
 
 #include <boost/version.hpp>
 #include <boost/variant.hpp>
@@ -19,6 +18,7 @@ struct DmpCallbacks {
 		  CB<message::Ping>
 		, CB<message::Pong>
 		, CB<message::PublicKey>
+		, CB<message::Nonce>
 		, CB<message::LoginRequest>
 		, CB<message::LoginResponse>
 		, CB<message::RegisterRequest>

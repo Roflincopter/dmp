@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <array>
 #include <map>
 #include <ostream>
 
@@ -14,6 +15,12 @@ struct is_vector : public std::false_type {};
 
 template <typename T>
 struct is_vector<std::vector<T>> : public std::true_type {};
+
+template <typename T>
+struct is_array : public std::false_type {};
+
+template <typename T, size_t I>
+struct is_array<std::array<T, I>> : public std::true_type {};
 
 template <typename T>
 struct is_map : public std::false_type {};
@@ -84,6 +91,7 @@ public:
 	typename std::enable_if<
 			std::is_class<T>::value &&
 			!is_vector<T>::value &&
+			!is_array<T>::value &&
 			!is_map<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
@@ -97,7 +105,7 @@ public:
 	}
 	
 	template<typename T>
-	typename std::enable_if<is_vector<T>::value || is_map<T>::value, OArchive&>::type
+	typename std::enable_if<is_vector<T>::value || is_map<T>::value || is_array<T>::value, OArchive& >::type
 	operator&(T& t) {
 		size_t count = t.size();
 		os << count << " ";
@@ -189,6 +197,7 @@ public:
 	typename std::enable_if<
 			std::is_class<T>::value &&
 			!is_vector<T>::value &&
+			!is_array<T>::value &&
 			!is_map<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
@@ -212,6 +221,21 @@ public:
 			typename T::value_type x;
 			*this & x;
 			t.push_back(x);
+		}
+		
+		return *this;
+	}
+	
+	template<typename T>
+	typename std::enable_if<is_array<T>::value, IArchive&>::type
+	operator&(T& t) {
+		size_t size;
+		is >> size >> std::ws;
+		
+		for(size_t i = 0; i < size; ++i) {
+			typename T::value_type x;
+			*this & x;
+			t[i] = x;
 		}
 		
 		return *this;

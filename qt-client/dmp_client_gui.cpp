@@ -19,7 +19,6 @@
 #include <string>
 
 DmpClientGui::DmpClientGui(QWidget *parent)
-
 : QMainWindow(parent)
 , search_result_model()
 , client(nullptr)

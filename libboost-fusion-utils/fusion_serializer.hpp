@@ -4,9 +4,6 @@
 #include "boost_tuple_serialization.hpp"
 #include "fusion_static_dispatch.hpp"
 
-#include <boost/archive/basic_text_iarchive.hpp>
-#include <boost/archive/basic_text_oarchive.hpp>
-
 namespace message {
 
 struct Serialize

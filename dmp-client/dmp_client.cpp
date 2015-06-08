@@ -100,6 +100,7 @@ void DmpClient::destroy()
 
 void DmpClient::stop()
 {
+	connection.stop_encryption();
 	message::Bye b;
 	connection.send(b);
 }
