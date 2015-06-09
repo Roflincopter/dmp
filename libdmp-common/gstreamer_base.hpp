@@ -4,12 +4,21 @@
 
 #include <gst/gst.h>
 
-#include <boost/filesystem/path.hpp>
+#include <glib/genviron.h>
+#include <glib/gerror.h>
+#include <glib/gmain.h>
+#include <glib/gtypes.h>
+#include <gst/gstbin.h>
+#include <gst/gstbus.h>
+#include <gst/gstelement.h>
+#include <gst/gstmessage.h>
+#include <gst/gstobject.h>
+#include <gst/gstpad.h>
+#include <gst/gstpadtemplate.h>
 
 #include <string>
 #include <memory>
 #include <mutex>
-#include <vector>
 
 #if defined( _WIN32 ) || defined( _WIN64 )
 #define WIN32_LEAN_AND_MEAN

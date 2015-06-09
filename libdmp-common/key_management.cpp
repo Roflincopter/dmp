@@ -2,11 +2,14 @@
 
 #include "dmp_config.hpp"
 
-#include <sodium.h>
+#include <sodium/crypto_box.h>
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
 #include <fstream>
 #include <iomanip>
+#include <stdexcept>
 
 std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& key) {
 	for(auto&& byte : key) {

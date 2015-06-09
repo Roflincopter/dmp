@@ -1,5 +1,8 @@
 #include "number_pool.hpp"
 
+#include <limits>
+#include <stdexcept>
+
 NumberPool::NumberPool(int lower, int upper)
 {
 	free.insert(NumberInterval(lower, upper));

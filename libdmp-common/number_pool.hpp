@@ -10,9 +10,7 @@
 #undef __USE_ISOC99
 #endif
 
-#include <limits>
 #include <set>
-#include <iostream>
 
 class NumberInterval
 {

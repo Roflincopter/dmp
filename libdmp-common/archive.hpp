@@ -3,12 +3,19 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/archive/detail/common_oarchive.hpp>
 #include <boost/archive/detail/register_archive.hpp>
+#include <boost/archive/basic_archive.hpp>
 
+#include <stdint.h>
 #include <cstddef>
 #include <vector>
 #include <array>
 #include <map>
-#include <ostream>
+#include <string>
+#include <utility>
+#include <type_traits>
+#include <istream>
+
+namespace boost { namespace archive { class save_access; } }
 
 template <typename T>
 struct is_vector : public std::false_type {};

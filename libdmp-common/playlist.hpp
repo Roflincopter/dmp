@@ -2,9 +2,12 @@
 
 #include <library-entry.hpp>
 
-#include <boost/fusion/adapted.hpp>
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
 
+#include <stdint.h>
 #include <string>
+#include <ostream>
+#include <vector>
 
 typedef uint32_t PlaylistId;
 

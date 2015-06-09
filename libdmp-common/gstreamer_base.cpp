@@ -4,11 +4,24 @@
 #include "time_util.hpp"
 #include "debug_macros.hpp"
 
+#include <glib/gerror.h>
+#include <glib/gmain.h>
+#include <glib/gmem.h>
+#include <glib/gtypes.h>
+#include <gst/gstbin.h>
+#include <gst/gstbus.h>
+#include <gst/gstclock.h>
+#include <gst/gstdebugutils.h>
+#include <gst/gstelement.h>
+#include <gst/gstmessage.h>
+#include <gst/gstobject.h>
+#include <gst/gstpad.h>
+#include <gst/gstpipeline.h>
+#include <gst/gstversion.h>
+
+#include <algorithm>
+#include <limits>
 #include <iostream>
-#include <cassert>
-#include <chrono>
-#include <sstream>
-#include <iomanip>
 #include <cstdlib>
 
 void GStreamerBase::eos_reached()
