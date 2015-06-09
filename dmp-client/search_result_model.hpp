@@ -1,6 +1,7 @@
 #pragma once
 
-#include "dmp-library.hpp"
+#include "library.hpp"
+
 #include "message.hpp"
 #include "friendly_fusion.hpp"
 #include "delegator.hpp"

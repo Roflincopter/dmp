@@ -61,8 +61,6 @@ public:
 
 	template <typename T>
 	void send(T x) {
-		
-		
 		if(encrypt) {
 			send_encrypted(x);
 		} else {

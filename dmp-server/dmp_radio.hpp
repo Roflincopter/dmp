@@ -7,7 +7,6 @@
 #include "gstreamer_base.hpp"
 #include "debug_macros.hpp"
 
-#include "dmp-library.hpp"
 #include "playlist.hpp"
 #include "radio_state.hpp"
 

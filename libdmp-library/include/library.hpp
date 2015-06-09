@@ -2,23 +2,22 @@
 
 #include "library-entry.hpp"
 
-#include "dmp_config.hpp"
-
 #include "fusion_outputter.hpp"
 
-#include <taglib/fileref.h>
-#include <taglib/tag.h>
-
-#include <boost/filesystem.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/map.hpp>
+#include <boost/optional/optional.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
 
 #include <vector>
+#include <string>
 #include <map>
+#include <iostream>
+#include <cstdint>
 #include <fstream>
-#include <stdexcept>
+
+namespace config { struct LibraryInfo; }
 
 namespace dmp_library {
 

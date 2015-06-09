@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dmp-library.hpp"
+#include "library.hpp"
 #include "debug_macros.hpp"
 
 #include <QMetaType>

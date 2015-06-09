@@ -1,8 +1,13 @@
 
 #include "query.hpp"
 
+#include "library-entry.hpp"
+
 #include <boost/format.hpp>
 
+#include <algorithm>
+#include <iterator>
+#include <stdexcept>
 #include <iostream>
 
 namespace dmp_library {

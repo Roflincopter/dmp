@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dmp-library.hpp"
+#include <library-entry.hpp>
 
 #include <boost/fusion/adapted.hpp>
 

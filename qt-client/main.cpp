@@ -1,7 +1,6 @@
 
 #include "dmp_qt_meta_types.hpp"
 #include "dmp_client.hpp"
-#include "dmp-library.hpp"
 #include "dmp_client_gui.hpp"
 #include "core_dump.hpp"
 

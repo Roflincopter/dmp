@@ -6,8 +6,6 @@
 #include "playlist_ui_delegate.hpp"
 #include "delegator.hpp"
 
-#include "dmp-library.hpp"
-
 #include <boost/any.hpp>
 
 #include <memory>

@@ -1,16 +1,20 @@
 #pragma once
 
-#include "library-entry.hpp"
-
-#include <boost/variant.hpp>
+#include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
+#include <boost/regex/v4/regex_fwd.hpp>
+#include <boost/variant.hpp>
 #include <boost/regex.hpp>
 
+#include <stddef.h>
 #include <memory>
 #include <vector>
 #include <iostream>
 #include <string>
 #include <type_traits>
+
+namespace boost { template <typename T> class recursive_wrapper; }
+namespace dmp_library { struct LibraryEntry; };
 
 namespace dmp_library {
 

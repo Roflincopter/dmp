@@ -1,10 +1,12 @@
 #pragma once
 
-#include "query.hpp"
-
+#include <stddef.h>
+#include <string>
 #include <memory>
 
 namespace dmp_library {
+
+struct Query;
 
 std::shared_ptr<Query> parse_query(std::string const& str);
 

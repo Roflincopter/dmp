@@ -1,12 +1,18 @@
 #pragma once
 
-#include "library-entry.hpp"
-#include "query-parser.hpp"
-#include "library.hpp"
-
+#include <stddef.h>
+#include <stdint.h>
+#include <map>
+#include <string>
 #include <vector>
-#include <algorithm>
 #include <memory>
+
+namespace dmp_library {
+	struct Library;
+	struct LibraryEntry;
+	struct LibraryFolder;
+	struct Query;
+}
 
 namespace dmp_library {
 

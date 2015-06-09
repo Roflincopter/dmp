@@ -1,5 +1,22 @@
 #include "library.hpp"
 
+#include "icu-ascii-transliterator.hpp"
+
+#include "dmp_config.hpp"
+
+#include <taglib/audioproperties.h>
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
+#include <taglib/tstring.h>
+
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+
+#include <stdexcept>
+#include <exception>
+#include <fstream>
+
 namespace dmp_library {
 
 LibraryFolder::LibraryFolder()

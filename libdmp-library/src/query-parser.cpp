@@ -1,5 +1,7 @@
 #include "query-parser.hpp"
 
+#include "query.hpp"
+
 #include <boost/spirit/include/qi.hpp>
 #include <boost/fusion/adapted.hpp>
 #include <boost/variant.hpp>
@@ -11,7 +13,6 @@
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
 
-#include <sstream>
 #include <iostream>
 
 using namespace boost;

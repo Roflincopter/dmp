@@ -1,8 +1,11 @@
 
 #include "library-entry.hpp"
 
-#include <sstream>
+#include "fusion_lexicographical_compare.hpp"
+#include "icu-ascii-transliterator.hpp"
+
 #include <iomanip>
+#include <sstream>
 
 using namespace std;
 

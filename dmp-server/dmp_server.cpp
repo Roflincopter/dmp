@@ -9,9 +9,12 @@
 
 #include "key_management.hpp"
 
+#include "dmp_config.hpp"
+
 #include "user-odb.hpp"
 #include "radio-odb.hpp"
 #include "radio_admin-odb.hpp"
+
 #include <odb/core.hxx>
 #include <odb/database.hxx>
 #include <odb/result.hxx>

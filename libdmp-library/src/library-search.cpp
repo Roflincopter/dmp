@@ -1,9 +1,12 @@
 
 #include "library-search.hpp"
 
-#include <iostream>
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
+#include "library-entry.hpp"
+#include "library.hpp"
+#include "query-parser.hpp"
+#include "query.hpp"
+
+#include <utility>
 
 namespace dmp_library {
 using namespace std;

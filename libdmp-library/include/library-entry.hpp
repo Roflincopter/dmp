@@ -1,13 +1,10 @@
 #pragma once
 
-#include "icu-ascii-transliterator.hpp"
-#include "fusion_lexicographical_compare.hpp"
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
 
 #include <iostream>
 #include <string>
 #include <cstdint>
-
-#include <boost/fusion/adapted.hpp>
 
 namespace dmp_library
 {

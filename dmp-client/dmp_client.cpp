@@ -2,6 +2,8 @@
 
 #include "key_management.hpp"
 
+#include "library-search.hpp"
+#include "query-parser.hpp"
 #include "dmp_config.hpp"
 #include "fusion_outputter.hpp"
 #include "connect.hpp"
