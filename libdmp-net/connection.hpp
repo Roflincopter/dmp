@@ -108,15 +108,79 @@ private:
 			async_receive<message::Nonce>(handle_nonce_helper);
 		}
 	}
-
+	
 	template <typename T>
-	void send_plain(T x)
-	{
+	std::string create_payload(T& x) const {
 		std::ostringstream oss;
 		OArchive oar(oss);
 		message::serialize(oar, x);
 		std::string content = oss.str();
-		uint32_t size = content.size();
+		return content;
+	}
+	
+	template <typename T>
+	T create_message(std::string payload) {
+		std::istringstream iss(payload);
+		IArchive iar(iss);
+
+		return message::serialize<T>(iar);
+	}
+	
+	void check_common_errors(std::string callee, boost::system::error_code const& ec, size_t read_bytes, std::vector<uint8_t> const& buffer) const {
+		if (ec) {
+			throw std::runtime_error("Error receiving size in: " + callee);
+		}
+		
+		if(read_bytes != buffer.size()) {
+			throw std::runtime_error("Unexpected number of bytes read in: " + callee);
+		}
+	}
+	
+	std::vector<uint8_t> get_cypher_text(std::vector<uint8_t> plaintext, message::Nonce::Nonce_t nonce) const {
+		
+		std::vector<uint8_t> cyphertext(plaintext.size() + crypto_box_macbytes());
+	
+		bool succes = !crypto_box_easy(
+			&cyphertext[0],
+			plaintext.data(),
+			plaintext.size(),
+			nonce.data(),
+			other_public_key.data(),
+			private_key.data()
+		);
+	
+		if(!succes) {
+			throw std::runtime_error("failed to encrypt type");
+		}
+		
+		return cyphertext;
+	}
+	
+	std::vector<uint8_t> get_plain_text(std::vector<uint8_t> cyphertext, message::Nonce::Nonce_t nonce) const {
+	
+		std::vector<uint8_t> plaintext(cyphertext.size() - crypto_box_macbytes());
+		
+		bool succes = !crypto_box_open_easy(
+			&plaintext[0],
+			cyphertext.data(),
+			cyphertext.size(),
+			nonce.data(),
+			other_public_key.data(),
+			private_key.data()
+		);
+
+		if(!succes) {
+			throw std::runtime_error("failed to decrypt the type");
+		}
+		
+		return plaintext;
+	}
+
+	template <typename T>
+	void send_plain(T x)
+	{		
+		std::string payload = create_payload(x);
+		uint32_t size = payload.size();
 
 		auto type = message::message_to_type(x);
 		static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
@@ -127,7 +191,7 @@ private:
 		boost::asio::write(socket, boost::asio::buffer(&type, 4));
 		boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 		boost::asio::write(socket, boost::asio::buffer(&size, 4));
-		boost::asio::write(socket, boost::asio::buffer(content));
+		boost::asio::write(socket, boost::asio::buffer(payload));
 	}
 
 	template <typename T>
@@ -138,58 +202,31 @@ private:
 		auto send_type = [this, type](message::Nonce::Nonce_t nonce) {
 			static_assert(sizeof(decltype(type)) == 4, "Size of type variable in message struct is assumed to be 4 bytes, but is not.");
 	
-			std::vector<uint8_t> type_cypher(sizeof(decltype(type)) + crypto_box_macbytes());
+			std::vector<uint8_t> plaintext(reinterpret_cast<uint8_t const*>(&type), reinterpret_cast<uint8_t const*>(&type)+4);
 	
-			bool succes = !crypto_box_easy(
-				&type_cypher[0],
-				reinterpret_cast<const uint8_t*>(&type),
-				sizeof(decltype(type)),
-				nonce.data(),
-				other_public_key.data(),
-				private_key.data()
-			);
-	
-			if(!succes) {
-				throw std::runtime_error("failed to encrypt type");
-			}
+			std::vector<uint8_t> cypher_text = get_cypher_text(plaintext, nonce);
 	
 			uint8_t encrypted = 1;
 			boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
-			boost::asio::write(socket, boost::asio::buffer(type_cypher));
+			boost::asio::write(socket, boost::asio::buffer(cypher_text));
 		};
 
-		std::stringstream ss;
-		OArchive oar(ss);
-		message::serialize(oar, x);
-		std::string payload = ss.str();
+		std::string payload = create_payload(x);
 
 		auto send_payload = [this, payload](message::Nonce::Nonce_t nonce) {
-
-			std::vector<uint8_t> content(payload.begin(), payload.end());
+			
+			std::vector<uint8_t> plain_text(payload.begin(), payload.end());
 	
-			std::vector<uint8_t> message_cypher(content.size() + crypto_box_macbytes());
+			std::vector<uint8_t> cypher_text = get_cypher_text(plain_text, nonce);
 	
-			bool succes = !crypto_box_easy(
-				&message_cypher[0],
-				content.data(),
-				content.size(),
-				nonce.data(),
-				other_public_key.data(),
-				private_key.data()
-			);
-	
-			if(!succes) {
-				throw std::runtime_error("failed to encrypt message");
-			}
-	
-			uint32_t size = message_cypher.size();
+			uint32_t size = cypher_text.size();
 	
 			static_assert(sizeof(decltype(size)) == 4, "Size of uint32_t is assumed to be 4 bytes, but is not.");
 	
 			uint8_t encrypted = 1;
 			boost::asio::write(socket, boost::asio::buffer(&encrypted, 1));
 			boost::asio::write(socket, boost::asio::buffer(&size, 4));
-			boost::asio::write(socket, boost::asio::buffer(message_cypher));
+			boost::asio::write(socket, boost::asio::buffer(cypher_text));
 		};
 		
 		encrypted_send_queue.push(send_type);
@@ -204,17 +241,10 @@ private:
 	{
 		auto read_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
-			message::Type type = message::Type::NoMessage;
-
-			if(ec)
-			{
-				throw std::runtime_error("Error in ansyc_receive_type_handler");
-			}
-			if(read_bytes != async_type_buffer.size()) {
-				throw std::runtime_error("Unexpected number of bytes read");
-			}
+			check_common_errors("async_receive_plain_type::type_lambda", ec, read_bytes, async_type_buffer);
+			
 			uint8_t const* data = async_type_buffer.data();
-			type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
+			message::Type type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 			assert(type != message::Type::NoMessage);
 			
 			if(type_internal(type)) {
@@ -233,36 +263,15 @@ private:
 	{
 		auto type_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
-			message::Type type = message::Type::NoMessage;
-
-			if(ec) {
-				throw std::runtime_error("Failed to receive type");
-			}
-
-			if(read_bytes != async_type_buffer.size()) {
-				throw std::runtime_error("Unexpected number of bytes read");
-			}
-
-			std::vector<uint8_t> type_buf(sizeof(message::Type_t), 0);
-
+			check_common_errors("async_receive_encrypted_type::type_lambda", ec, read_bytes, async_type_buffer);
+			
 			auto nonce = sent_nonces.front();
 			sent_nonces.pop();
+			
+			std::vector<uint8_t> plaintext = get_plain_text(async_type_buffer, nonce);
 
-			bool succes = !crypto_box_open_easy(
-				&type_buf[0],
-				async_type_buffer.data(),
-				async_type_buffer.size(),
-				nonce.data(),
-				other_public_key.data(),
-				private_key.data()
-			);
-
-			if(!succes) {
-				throw std::runtime_error("failed to decrypt the type");
-			}
-
-			uint8_t const* data = type_buf.data();
-			type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
+			uint8_t const* data = plaintext.data();
+			message::Type type = static_cast<message::Type>(*reinterpret_cast<const message::Type_t*>(data));
 			assert(type != message::Type::NoMessage);
 			cb(type);
 		};
@@ -276,28 +285,14 @@ private:
 	{
 		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 		{
-			if (ec)
-			{
-				throw std::runtime_error("Error receiving size in size_cb lambda");
-			}
-
-			if(read_bytes != async_size_buffer.size()) {
-				throw std::runtime_error("Unexpected number of bytes read");
-			}
+			check_common_errors("async_receive_plain::size_lambda", ec, read_bytes, async_size_buffer);
 
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
 			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
 			{
-				if (ec)
-				{
-					throw std::runtime_error("Error receiving size in content_cb lambda");
-				}
-
-				if(read_bytes != size) {
-					throw std::runtime_error("Unexpected number of bytes read");
-				}
+				check_common_errors("async_receive_plain::content_lambda", ec, read_bytes, async_mess_buffer);
 
 				uint8_t const* data = async_mess_buffer.data();
 				std::string content = std::string(reinterpret_cast<const char*>(data), size);
@@ -322,52 +317,23 @@ private:
 	{
 		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
 		{
-			if (ec) {
-				throw std::runtime_error("Error receiving size in size_cb lambda");
-			}
-
-			if(read_bytes != async_size_buffer.size()) {
-				throw std::runtime_error("Unexpected number of bytes read");
-			}
-
+			check_common_errors("async_receive_encrypted::size_lambda", ec, read_bytes, async_size_buffer);
+			
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
 			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
 			{
-				if (ec) {
-					throw std::runtime_error("Error receiving size in content_cb lambda");
-				}
-
-				if(read_bytes != size) {
-					throw std::runtime_error("Unexpected number of bytes read");
-				}
-
-				std::vector<uint8_t> data(size - crypto_box_macbytes());
-
+				check_common_errors("async_receive_encrypted::content_lambda", ec, read_bytes, async_mess_buffer);
+				
 				auto nonce = sent_nonces.front();
 				sent_nonces.pop();
 
-				bool succes = 0 == crypto_box_open_easy(
-					&data[0],
-					async_mess_buffer.data(),
-					async_mess_buffer.size(),
-					nonce.data(),
-					other_public_key.data(),
-					private_key.data()
-				);
+				std::vector<uint8_t> plaintext = get_plain_text(async_mess_buffer, nonce);
 
-				if(!succes) {
-					throw std::runtime_error("Failed to decrypt message");
-				}
+				std::string payload = std::string(reinterpret_cast<const char*>(plaintext.data()), plaintext.size());
 
-				std::string content = std::string(reinterpret_cast<const char*>(data.data()), data.size());
-
-				std::istringstream iss(content);
-				IArchive iar(iss);
-
-				T t = message::serialize<T>(iar);
-				cb(t);
+				cb(create_message<T>(payload));
 			};
 
 			async_mess_buffer.resize(size, 0);
@@ -378,5 +344,3 @@ private:
 		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), size_cb);
 	};
 };
-
-
