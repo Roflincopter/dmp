@@ -5,8 +5,12 @@
 
 #include <boost/any.hpp>
 
+#include <algorithm>
+#include <string>
 #include <functional>
-#include <iostream>
+#include <type_traits>
+
+namespace boost { namespace fusion { template <typename Sequence1, typename Sequence2> struct joint_view; } }
 
 template <typename T>
 struct IndicesOf 

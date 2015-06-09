@@ -1,18 +1,16 @@
 #pragma once
 
-#include <boost/fusion/include/size.hpp>
-#include <boost/fusion/include/begin.hpp>
-#include <boost/fusion/include/deref.hpp>
-#include <boost/fusion/include/value_of.hpp>
-#include <boost/fusion/include/distance.hpp>
-#include <boost/fusion/include/advance.hpp>
-#include <boost/fusion/include/is_view.hpp>
-#include <boost/fusion/include/is_sequence.hpp>
-#include <boost/fusion/include/is_iterator.hpp>
-#include <boost/fusion/include/struct.hpp>
-#include <boost/fusion/adapted/struct/detail/adapt_base.hpp>
+#include <boost/fusion/adapted/struct/detail/extension.hpp>
+#include <boost/fusion/iterator/advance.hpp>
+#include <boost/fusion/iterator/deref.hpp>
+#include <boost/fusion/sequence/intrinsic/begin.hpp>
+#include <boost/fusion/sequence/intrinsic/end.hpp>
+#include <boost/fusion/sequence/intrinsic/size.hpp>
+#include <boost/fusion/support/is_iterator.hpp>
+#include <boost/fusion/support/is_sequence.hpp>
+#include <boost/fusion/support/is_view.hpp>
 
-#include <boost/mpl/or.hpp>
+#include <type_traits>
 
 namespace friendly_fusion {
 

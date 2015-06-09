@@ -2,6 +2,8 @@
 
 #include "friendly_fusion.hpp"
 
+#include <type_traits>
+
 namespace ff = friendly_fusion;
 
 struct LexicographicalCompare

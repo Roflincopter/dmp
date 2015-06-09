@@ -1,8 +1,11 @@
 #pragma once
 
 #include "friendly_fusion.hpp"
-#include "boost_tuple_serialization.hpp"
 #include "fusion_static_dispatch.hpp"
+#include "index_list.hpp"
+
+#include <tuple>
+#include <type_traits>
 
 namespace message {
 

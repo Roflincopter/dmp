@@ -2,15 +2,14 @@
 
 #include "friendly_fusion.hpp"
 
-#include <boost/fusion/include/pair.hpp>
-#include <boost/fusion/include/map.hpp>
-#include <boost/fusion/include/vector.hpp>
-
 #include <iostream>
 #include <ostream>
 #include <vector>
 #include <string>
 #include <map>
+#include <array>
+#include <cstdint>
+#include <type_traits>
 
 //Workaround for argument dependent lookup
 namespace std
