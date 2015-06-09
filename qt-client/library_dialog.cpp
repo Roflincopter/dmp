@@ -9,6 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include <algorithm>
+#include <sstream>
 
 LibraryDialog::LibraryDialog(QWidget *parent)
 : QDialog(parent)

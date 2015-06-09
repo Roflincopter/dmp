@@ -1,11 +1,10 @@
 #pragma once
 
-#include <boost/fusion/adapted/struct.hpp>
-
-#include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include <vector>
+#include <ostream>
+#include <string>
 
 namespace config {
 

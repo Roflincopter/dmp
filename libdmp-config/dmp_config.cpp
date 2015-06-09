@@ -5,9 +5,20 @@
 #include "index_list.hpp"
 #include "fusion_static_dispatch.hpp"
 
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <boost/filesystem/operations.hpp>
 
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+
+#include <boost/iterator/iterator_facade.hpp>
+
+#include <boost/operators.hpp>
+
+#include <boost/optional/optional.hpp>
+
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+#include <stdlib.h>
 #include <fstream>
 
 BOOST_FUSION_ADAPT_STRUCT(
