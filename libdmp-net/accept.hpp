@@ -1,7 +1,10 @@
 
-#include "connection.hpp"
+#include <stdint.h>
+#include <functional>
+#include <memory>
 
-#include <boost/asio/io_service.hpp>
+class Connection;
+namespace boost { namespace asio { class io_service; } }
 
 void accept_loop(uint16_t port, std::weak_ptr<boost::asio::io_service> ios, std::function<void(Connection&&)> f);
 

@@ -1,7 +1,12 @@
 #pragma once
 
 #include "index_list.hpp"
-#include "message_callbacks.hpp"
+#include "message.hpp"
+
+#include <array>
+#include <functional>
+
+namespace message { struct DmpCallbacks; }
 
 struct MessageSwitch
 {

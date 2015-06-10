@@ -1,9 +1,24 @@
 #include "accept.hpp"
 
-#include <boost/bind.hpp>
+#include "connection.hpp"
+
+#include <boost/asio/basic_socket_acceptor.hpp>
+#include <boost/asio/basic_stream_socket.hpp>
+#include <boost/asio/detail/impl/reactive_socket_service_base.ipp>
+#include <boost/asio/detail/impl/service_registry.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/placeholders.hpp>
+#include <boost/asio/stream_socket_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+#include <boost/bind/bind.hpp>
+
+#include <boost/system/error_code.hpp>
+
+#include <new>
 #include <memory>
+#include <algorithm>
+
 
 using tcp = boost::asio::ip::tcp;
 using io_service = boost::asio::io_service;

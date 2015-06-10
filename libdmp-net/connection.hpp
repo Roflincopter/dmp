@@ -2,31 +2,29 @@
 
 #include "debug_macros.hpp"
 #include "message.hpp"
-#include "message_callbacks.hpp"
 #include "archive.hpp"
 
 #include "fusion_serializer.hpp"
 #include "fusion_outputter.hpp"
 
-#include <sodium.h>
+#include <sodium/crypto_box.h>
 
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/write.hpp>
+#include <boost/asio/buffer.hpp>
 #include <boost/asio/read.hpp>
-#include <boost/asio/placeholders.hpp>
-
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/cstdint.hpp>
 
 #include <sstream>
-#include <iomanip>
-#include <memory>
 #include <cstdint>
 #include <vector>
 #include <queue>
+#include <assert.h>
+#include <stddef.h>
+#include <functional>
+#include <stdexcept>
+#include <string>
 
 class Connection {
 

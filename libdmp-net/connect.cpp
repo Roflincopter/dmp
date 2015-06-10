@@ -1,10 +1,21 @@
 #include "connect.hpp"
 
+#include <boost/asio/detail/impl/resolver_service_base.ipp>
+#include <boost/asio/detail/impl/service_registry.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/basic_endpoint.hpp>
 #include <boost/asio/ip/basic_resolver.hpp>
-#include <boost/asio/ip/basic_resolver_query.hpp>
+#include <boost/asio/ip/basic_resolver_entry.hpp>
 #include <boost/asio/ip/basic_resolver_iterator.hpp>
+#include <boost/asio/ip/basic_resolver_query.hpp>
 #include <boost/asio/ip/tcp.hpp>
+
+#include <boost/system/error_code.hpp>
+
+#include <algorithm>
+#include <ostream>
+#include <stdexcept>
+
 
 using tcp = boost::asio::ip::tcp;
 using io_service = boost::asio::io_service;

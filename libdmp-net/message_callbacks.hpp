@@ -1,13 +1,16 @@
 #pragma once
 
 #include "message.hpp"
-#include "index_list.hpp"
 
+#include <boost/variant/variant.hpp>
 #include <boost/version.hpp>
-#include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 
 #include <stdexcept>
+#include <functional>
+#include <map>
+#include <string>
+#include <typeinfo>
 
 namespace message {
 

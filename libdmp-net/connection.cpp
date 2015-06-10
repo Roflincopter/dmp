@@ -1,5 +1,9 @@
 #include "connection.hpp"
 
+#include <sodium/randombytes.h>
+
+#include <algorithm>
+
 Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 	: encrypt(false)
 	, socket(std::move(socket))

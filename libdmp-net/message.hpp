@@ -2,15 +2,23 @@
 
 #include "playlist.hpp"
 #include "radio_state.hpp"
+#include "library-entry.hpp"
+
+#include <sodium/crypto_box.h>
 
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/map.hpp>
-
-#include <sodium.h>
 
 #include <cstdint>
 #include <time.h>
+#include <cstdlib>
+#include <time.h>
+#include <array>
+#include <iosfwd>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 namespace message {
 
