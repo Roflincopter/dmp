@@ -1,5 +1,7 @@
 #include "dmp_client_gui_radio_list.hpp"
 
+#include "dmp_client_interface.hpp"
+
 #include "debug_macros.hpp"
 
 #include <QInputDialog>

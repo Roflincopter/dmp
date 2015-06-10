@@ -1,16 +1,36 @@
 #pragma once
 
+#include "delegator.hpp"
+#include "library.hpp"
+#include "message.hpp"
+#include "message_callbacks.hpp"
+#include "playlist.hpp"
 #include "connection.hpp"
 #include "dmp_sender.hpp"
 #include "dmp_receiver.hpp"
 #include "dmp_client_interface.hpp"
 #include "dmp_client_radio_interface.hpp"
-#include "dmp_client_ui_delegate.hpp"
-#include "playlists_model.hpp"
 
 #include "message_switch.hpp"
 
 #include <thread>
+#include <stdint.h>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+class PlaylistsModel;
+class RadioListModel;
+class SearchBarModel;
+class SearchResultModel;
+
+namespace boost { namespace asio { class io_service; } }
+
+namespace dmp_library { struct LibraryEntry; }
+
+struct DmpClientUiDelegate;
+
 
 class DmpClient : public DmpClientInterface, public DmpClientRadioInterface, public std::enable_shared_from_this<DmpClientRadioInterface>, public Delegator<DmpClientUiDelegate>
 {

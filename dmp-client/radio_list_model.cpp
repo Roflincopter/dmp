@@ -1,5 +1,7 @@
 #include "radio_list_model.hpp"
 
+#include "radio_list_ui_delegate.hpp"
+
 #include "container_manipulations.hpp"
 
 RadioListModel::RadioListModel()

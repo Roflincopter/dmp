@@ -1,5 +1,7 @@
 #include "dmp_client_gui_search_bar.hpp"
 
+#include "dmp_client_interface.hpp"
+
 void DmpClientGuiSearchBar::set_line_edit_text_format(const std::vector<QTextLayout::FormatRange> formats)
 {
 	QList<QInputMethodEvent::Attribute> attributes;

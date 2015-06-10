@@ -1,6 +1,7 @@
 #include "dmp_client_gui_menu_bar.hpp"
 
 #include "library_dialog.hpp"
+#include "dmp_client_interface.hpp"
 
 #include <QFileDialog>
 

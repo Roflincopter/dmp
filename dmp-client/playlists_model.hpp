@@ -1,15 +1,23 @@
 #pragma once
 
-#include "message.hpp"
 #include "playlist.hpp"
 #include "friendly_fusion.hpp"
-#include "playlist_ui_delegate.hpp"
 #include "delegator.hpp"
 
 #include <boost/any.hpp>
+#include <boost/fusion/view/joint_view/joint_view.hpp>
+#include <boost/mpl/int.hpp>
 
-#include <memory>
-#include <vector>
+#include <stddef.h>
+#include <stdint.h>
+#include <map>
+#include <string>
+
+namespace dmp_library { struct LibraryEntry; }
+
+namespace message { struct PlaylistUpdate; }
+
+struct PlaylistUiDelegate;
 
 class PlaylistsModel : public Delegator<PlaylistUiDelegate>
 {

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "dmp_client_interface.hpp"
+#include <memory>
+
+struct DmpClientInterface;
 
 struct DmpClientUiControllerInterface {
 

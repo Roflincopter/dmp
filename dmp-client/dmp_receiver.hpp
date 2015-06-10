@@ -2,8 +2,11 @@
 
 #include "gstreamer_base.hpp"
 
+#include <gst/gstelement.h>
+
 #include <cstdint>
 #include <string>
+#include <memory>
 
 class DmpReceiver : public GStreamerBase
 {	

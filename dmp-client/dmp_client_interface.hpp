@@ -1,13 +1,18 @@
 #pragma once
 
-#include "message_callbacks.hpp"
-#include "dmp_client_ui_delegate.hpp"
-#include "playlists_model.hpp"
-#include "radio_list_model.hpp"
-#include "search_bar_model.hpp"
-#include "search_result_model.hpp"
-
 #include <memory>
+#include <string>
+#include <vector>
+#include <stdint.h>
+
+class PlaylistsModel;
+class RadioListModel;
+class SearchBarModel;
+class SearchResultModel;
+
+namespace dmp_library { struct LibraryEntry; }
+
+struct DmpClientUiDelegate;
 
 struct DmpClientInterface {
 

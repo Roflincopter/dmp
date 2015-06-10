@@ -1,5 +1,7 @@
 #include "search_bar_model.hpp"
 
+#include "search_bar_ui_delegate.hpp"
+
 SearchBarModel::SearchBarModel()
 {
 }

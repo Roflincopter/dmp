@@ -1,10 +1,14 @@
 #pragma once
 
 #include "gstreamer_base.hpp"
-#include "dmp_client_radio_interface.hpp"
+
+#include <gst/gstelement.h>
 
 #include <cstdint>
 #include <string>
+#include <memory>
+
+struct DmpClientRadioInterface;
 
 class DmpSender : public GStreamerBase
 {	

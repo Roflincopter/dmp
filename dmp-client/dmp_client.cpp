@@ -2,14 +2,30 @@
 
 #include "key_management.hpp"
 
+#include "library-entry.hpp"
+#include "playlists_model.hpp"
+#include "radio_list_model.hpp"
+#include "radio_state.hpp"
+#include "search_bar_model.hpp"
+#include "search_result_model.hpp"
 #include "library-search.hpp"
 #include "query-parser.hpp"
 #include "dmp_config.hpp"
-#include "fusion_outputter.hpp"
 #include "connect.hpp"
-#include "timed_debug.hpp"
 #include "debug_macros.hpp"
 #include "dmp_client_ui_delegate.hpp"
+
+#include <boost/asio/io_service.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/serialization/serialization.hpp>
+
+#include <assert.h>
+#include <cstdint>
+#include <exception>
+#include <functional>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
 
 DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 : name()

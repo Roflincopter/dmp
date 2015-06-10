@@ -3,6 +3,7 @@
 #include "qt_adapter.hpp"
 #include "radio_list_model.hpp"
 #include "dmp_client_ui_delegate.hpp"
+#include "radio_list_ui_delegate.hpp"
 
 #include <QAbstractListModel>
 

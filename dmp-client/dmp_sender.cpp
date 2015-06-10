@@ -1,9 +1,22 @@
 #include "dmp_sender.hpp"
 
+#include "dmp_client_radio_interface.hpp"
+
+#include "message.hpp"
+
+#include <glib/gtypes.h>
+
+#include <gobject/gclosure.h>
+#include <gobject/gobject.h>
+#include <gobject/gsignal.h>
+
+#include <gst/gstbin.h>
+#include <gst/gstelement.h>
+#include <gst/gstelementfactory.h>
+#include <gst/gstutils.h>
+
 #include <stdexcept>
 #include <iostream>
-
-#include "debug_macros.hpp"
 
 DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir)
 : GStreamerBase("sender", gst_dir)

@@ -1,10 +1,18 @@
 #include "dmp_receiver.hpp"
 
-#include "debug_macros.hpp"
+#include <glib/gtypes.h>
+
+#include <gobject/gclosure.h>
+#include <gobject/gobject.h>
+#include <gobject/gsignal.h>
+
+#include <gst/gstbin.h>
+#include <gst/gstelement.h>
+#include <gst/gstelementfactory.h>
+#include <gst/gstutils.h>
 
 #include <stdexcept>
 #include <iostream>
-#include <cassert>
 
 DmpReceiver::DmpReceiver(std::string gst_dir)
 : GStreamerBase("receiver", gst_dir)

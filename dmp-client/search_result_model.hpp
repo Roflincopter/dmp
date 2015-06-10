@@ -2,12 +2,29 @@
 
 #include "library.hpp"
 
-#include "message.hpp"
 #include "friendly_fusion.hpp"
 #include "delegator.hpp"
-#include "search_result_ui_delegate.hpp"
 
 #include <boost/any.hpp>
+
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/fusion/view/joint_view/joint_view.hpp>
+
+#include <boost/mpl/int.hpp>
+
+#include <stddef.h>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+namespace dmp_library { struct LibraryEntry; }
+
+namespace message { struct SearchResponse; }
+
+struct SearchResultUiDelegate;
 
 class SearchResultModel : public Delegator<SearchResultUiDelegate>
 {

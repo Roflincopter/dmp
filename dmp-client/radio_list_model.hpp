@@ -1,12 +1,13 @@
 #pragma once
 
 #include "radio_state.hpp"
-#include "radio_list_ui_delegate.hpp"
 #include "delegator.hpp"
 
 #include <vector>
 #include <string>
 #include <map>
+
+struct RadioListUiDelegate;
 
 class RadioListModel : public Delegator<RadioListUiDelegate>
 {

@@ -1,5 +1,7 @@
 #include "dmp_client_gui_playlists.hpp"
 
+#include "dmp_client_interface.hpp"
+
 #include <QHeaderView>
 
 DmpClientGuiPlaylists::DmpClientGuiPlaylists(QWidget *parent)

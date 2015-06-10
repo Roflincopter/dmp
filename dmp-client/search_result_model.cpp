@@ -1,11 +1,15 @@
 #include "search_result_model.hpp"
+
+#include "search_result_ui_delegate.hpp"
+
+#include "message.hpp"
+
 #include "fusion_static_dispatch.hpp"
-#include "fusion_outputter.hpp"
-#include "debug_macros.hpp"
 
 #include <string>
-#include <iostream>
-#include <numeric>
+#include <stdexcept>
+
+namespace dmp_library { struct LibraryEntry; }
 
 SearchResultModel::SearchResultModel()
 {

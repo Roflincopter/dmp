@@ -1,10 +1,11 @@
 #pragma once
 
 #include "delegator.hpp"
-#include "search_bar_ui_delegate.hpp"
 
 #include <string>
-#include <cstdint>
+#include <stddef.h>
+
+struct SearchBarUiDelegate;
 
 class SearchBarModel
 : public Delegator<SearchBarUiDelegate>
