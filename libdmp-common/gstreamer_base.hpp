@@ -20,12 +20,6 @@
 #include <memory>
 #include <mutex>
 
-#if defined( _WIN32 ) || defined( _WIN64 )
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
-
 #define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
 
 void on_pad_added(_GstElement* element, _GstPad* pad, void* data);

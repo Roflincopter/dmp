@@ -22,6 +22,10 @@
 #if defined( _WIN32 ) || defined( _WIN64 )
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
 #endif
 
 #include <algorithm>
