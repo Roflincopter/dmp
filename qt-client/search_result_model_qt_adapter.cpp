@@ -1,11 +1,11 @@
 #include "search_result_model_qt_adapter.hpp"
+
 #include "dmp_qt_meta_types.hpp"
 #include "boost_any_qvariant_convert.hpp"
 
-#include <boost/any.hpp>
+#include <QString>
 
-#include <boost/fusion/iterator/advance.hpp>
-#include <boost/fusion/include/advance.hpp>
+#include <stdexcept>
 
 SearchResultModelQtAdapter::SearchResultModelQtAdapter()
 {

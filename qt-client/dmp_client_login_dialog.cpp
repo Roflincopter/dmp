@@ -1,8 +1,12 @@
 #include "dmp_client_login_dialog.hpp"
 
-#include "debug_macros.hpp"
-
+#include <QAbstractButton>
+#include <QDialogButtonBox>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QString>
+
+class QWidget;
 
 DmpClientLoginDialog::DmpClientLoginDialog(QWidget *parent)
 : QDialog(parent)

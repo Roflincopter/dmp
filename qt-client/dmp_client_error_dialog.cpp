@@ -1,10 +1,9 @@
 #include "dmp_client_error_dialog.hpp"
 
-#include <cassert>
+#include <QPlainTextEdit>
+#include <QString>
 
-#include <iostream>
-
-#include <QPushButton>
+class QWidget;
 
 DmpClientErrorDialog::DmpClientErrorDialog(std::string error, QWidget *parent)
 : QDialog(parent)

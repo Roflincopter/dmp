@@ -1,13 +1,20 @@
 #pragma once
 
-#include "search_result_model_qt_adapter.hpp"
-#include "search_result_sort_proxy_model.hpp"
-#include "dmp_client_interface.hpp"
-#include "dmp_client_ui_controller_interface.hpp"
-#include "search_result_ui_delegate.hpp"
 #include "gui_item_delegate.hpp"
 
+#include "dmp_client_ui_controller_interface.hpp"
+#include "search_result_ui_delegate.hpp"
+
 #include <QTableView>
+
+#include <memory>
+#include <string>
+
+class QModelIndex;
+class QWidget;
+class SearchResultModelQtAdapter;
+class SearchResultSortProxyModel;
+struct DmpClientInterface;
 
 class DmpClientGuiSearchResults
 : public QTableView

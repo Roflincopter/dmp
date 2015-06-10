@@ -1,5 +1,9 @@
 #include "radio_list_model_qt_adapter.hpp"
 
+#include "radio_list_model.hpp"
+
+#include <QString>
+
 RadioListModelQtAdapter::RadioListModelQtAdapter()
 {
 }

@@ -1,11 +1,18 @@
 #include "dmp_client_gui_radio_list.hpp"
 
+#include "radio_list_model_qt_adapter.hpp"
+
 #include "dmp_client_interface.hpp"
+#include "radio_list_model.hpp"
 
-#include "debug_macros.hpp"
-
+#include <QAbstractItemModel>
 #include <QInputDialog>
-#include <QPushButton>
+#include <QItemSelectionModel>
+#include <QList>
+#include <QString>
+#include <QVariant>
+
+#include <map>
 
 DmpClientGuiRadioList::DmpClientGuiRadioList(QWidget *parent)
 : QListView(parent)

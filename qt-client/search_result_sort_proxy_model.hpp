@@ -1,9 +1,13 @@
 #pragma once
 
 #include "dmp_qt_meta_types.hpp"
-#include "search_result_model_qt_adapter.hpp"
 
 #include <QSortFilterProxyModel>
+
+#include <memory>
+
+class QModelIndex;
+class SearchResultModelQtAdapter;
 
 class SearchResultSortProxyModel : public QSortFilterProxyModel
 {

@@ -3,8 +3,12 @@
 #include "dmp_config.hpp"
 
 #include <QDialog>
+#include <QString>
 
-#include <vector>
+#include <map>
+#include <string>
+
+class QWidget;
 
 namespace Ui {
 class LibraryDialog;

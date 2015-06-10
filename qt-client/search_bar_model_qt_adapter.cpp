@@ -1,6 +1,11 @@
 #include "search_bar_model_qt_adapter.hpp"
 
-#include <iostream>
+#include <search_bar_model.hpp>
+
+#include <QTextFormat>
+
+#include <stddef.h>
+#include <memory>
 
 SearchBarModelQtAdapter::SearchBarModelQtAdapter()
 {}

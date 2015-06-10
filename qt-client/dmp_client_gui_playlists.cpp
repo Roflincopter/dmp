@@ -1,8 +1,20 @@
 #include "dmp_client_gui_playlists.hpp"
 
+#include "playlists_model_qt_adapter.hpp"
+
 #include "dmp_client_interface.hpp"
+#include "playlists_model.hpp"
+
+#include "playlist.hpp"
 
 #include <QHeaderView>
+#include <QAbstractItemModel>
+#include <QItemSelectionModel>
+
+#include <cstdint>
+#include <vector>
+
+class QWidget;
 
 DmpClientGuiPlaylists::DmpClientGuiPlaylists(QWidget *parent)
 : QTableView(parent)

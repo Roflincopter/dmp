@@ -1,11 +1,16 @@
 #pragma once
 
 #include "qt_adapter.hpp"
-#include "playlists_model.hpp"
-#include "dmp_client_ui_delegate.hpp"
 #include "playlist_ui_delegate.hpp"
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
+#include <QVariant>
+
+#include <memory>
+#include <string>
+
+class PlaylistsModel;
+namespace message { struct PlaylistUpdate; }
 
 class PlaylistsModelQtAdapter : public PlaylistUiDelegate, public std::enable_shared_from_this<PlaylistsModelQtAdapter>, public QtAdapter<PlaylistsModel>, public QAbstractTableModel
 {

@@ -1,12 +1,18 @@
 #pragma once
 
-#include "dmp_client_ui_delegate.hpp"
 #include "radio_list_ui_delegate.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
-#include "radio_list_model_qt_adapter.hpp"
 
 #include <QListView>
+#include <qobjectdefs.h>
 
+#include <memory>
+#include <string>
+
+class QItemSelection;
+class QWidget;
+class RadioListModelQtAdapter;
+struct DmpClientInterface;
 
 class DmpClientGuiRadioList
 : public QListView

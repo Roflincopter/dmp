@@ -2,6 +2,12 @@
 
 #include "ui_dmp_client_login_dialog.hpp"
 
+#include <QDialog>
+
+#include <string>
+
+class QWidget;
+
 class DmpClientLoginDialog : public QDialog
 {
 	Q_OBJECT

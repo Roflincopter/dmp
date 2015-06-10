@@ -1,13 +1,14 @@
 #pragma once
 
 #include "qt_adapter.hpp"
-#include "radio_list_model.hpp"
-#include "dmp_client_ui_delegate.hpp"
 #include "radio_list_ui_delegate.hpp"
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
+#include <QVariant>
 
 #include <memory>
+
+class RadioListModel;
 
 class RadioListModelQtAdapter : public QtAdapter<RadioListModel>, public QAbstractListModel, public RadioListUiDelegate, public std::enable_shared_from_this<RadioListUiDelegate>
 {

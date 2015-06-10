@@ -1,6 +1,16 @@
 #include "dmp_client_gui_search_bar.hpp"
 
+#include "search_bar_model_qt_adapter.hpp"
+
 #include "dmp_client_interface.hpp"
+#include "search_bar_model.hpp"
+
+#include <QEvent>
+#include <QList>
+#include <QString>
+#include <QTextFormat>
+#include <QVariant>
+#include <QCoreApplication>
 
 void DmpClientGuiSearchBar::set_line_edit_text_format(const std::vector<QTextLayout::FormatRange> formats)
 {

@@ -1,13 +1,12 @@
 #pragma once
 
-#include "library.hpp"
-#include "debug_macros.hpp"
+#include "library-entry.hpp"
 
+#include <QString>
 #include <QMetaType>
 #include <QDataStream>
-#include <QItemSelection>
+#include <QItemSelectionModel>
 
-#include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 

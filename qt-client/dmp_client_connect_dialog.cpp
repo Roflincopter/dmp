@@ -1,14 +1,22 @@
 #include "dmp_client_connect_dialog.hpp"
 
-#include "fusion_outputter.hpp"
-#include "debug_macros.hpp"
+#include "dmp_config.hpp"
+
+#include <QtGui/qvalidator.h>
+#include <QAbstractItemModel>
+#include <QDialogButtonBox>
+#include <QtGlobal>
+#include <QItemSelectionModel>
+#include <QLineEdit>
+#include <QList>
+#include <QListWidget>
+#include <QPushButton>
 
 #include <cassert>
-
-#include <iostream>
+#include <utility>
 #include <sstream>
 
-#include <QPushButton>
+class QWidget;
 
 DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 : QDialog(parent)

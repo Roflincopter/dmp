@@ -2,9 +2,16 @@
 
 #include "ui_dmp_client_connect_dialog.hpp"
 
-#include "dmp_config.hpp"
+#include <QtGui/qvalidator.h>
+#include <QDialog>
+#include <qobjectdefs.h>
+#include <QString>
 
-#include <memory>
+#include <stdint.h>
+#include <limits>
+#include <map>
+#include <ostream>
+#include <string>
 
 struct ConnectionInfo {
 	std::string host_name;

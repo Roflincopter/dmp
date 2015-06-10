@@ -2,10 +2,14 @@
 
 #include "qt_adapter.hpp"
 #include "search_result_model.hpp"
-#include "dmp_client_ui_delegate.hpp"
 #include "search_result_ui_delegate.hpp"
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
+#include <QVariant>
+
+#include <memory>
+
+namespace message { struct SearchResponse; }
 
 class SearchResultModelQtAdapter : public QtAdapter<SearchResultModel>, public QAbstractTableModel, public SearchResultUiDelegate
 {

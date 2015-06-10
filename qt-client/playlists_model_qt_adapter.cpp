@@ -3,6 +3,17 @@
 #include "dmp_qt_meta_types.hpp"
 #include "boost_any_qvariant_convert.hpp"
 
+#include "playlists_model.hpp"
+
+#include "message.hpp"
+
+#include "playlist.hpp"
+
+#include <QFlags>
+#include <QString>
+
+#include <stdexcept>
+
 PlaylistsModelQtAdapter::PlaylistsModelQtAdapter()
 {
 }

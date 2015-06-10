@@ -1,5 +1,7 @@
 #pragma once
 
+#include "message.hpp"
+
 struct PlaylistUiDelegate
 {
 	virtual void playlist_update_start(message::PlaylistUpdate){}

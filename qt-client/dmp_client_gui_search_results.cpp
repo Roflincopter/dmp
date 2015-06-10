@@ -1,6 +1,18 @@
 #include "dmp_client_gui_search_results.hpp"
 
+#include "search_result_model_qt_adapter.hpp"
+#include "search_result_sort_proxy_model.hpp"
+
+#include "dmp_client_interface.hpp"
+#include "search_result_model.hpp"
+
 #include <QHeaderView>
+#include <QAbstractItemModel>
+#include <QItemSelectionModel>
+
+#include <tuple>
+
+class QWidget;
 
 DmpClientGuiSearchResults::DmpClientGuiSearchResults(QWidget *parent)
 : QTableView(parent)

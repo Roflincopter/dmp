@@ -1,6 +1,14 @@
+#include "gui_item_delegate.hpp"
+
 #include "dmp_qt_meta_types.hpp"
 
-#include "gui_item_delegate.hpp"
+#include "library-entry.hpp"
+
+#include <QMetaType>
+
+#include <string>
+
+class QObject;
 
 GuiItemDelegate::GuiItemDelegate(QObject *parent) :
 QStyledItemDelegate(parent)

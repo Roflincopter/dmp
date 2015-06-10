@@ -1,9 +1,10 @@
 #pragma once
 
 #include "friendly_fusion.hpp"
-#include "index_list.hpp"
 #include "fusion_static_dispatch.hpp"
 
+#include <QMetaType>
+#include <QRegExp>
 #include <QVariant>
 
 #include <boost/any.hpp>

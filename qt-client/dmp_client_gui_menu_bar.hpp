@@ -3,8 +3,12 @@
 #include "dmp_client_ui_controller_interface.hpp"
 
 #include <QMenuBar>
+#include <qobjectdefs.h>
 
 #include <memory>
+
+class QWidget;
+struct DmpClientInterface;
 
 class DmpClientGuiMenuBar : public QMenuBar, public DmpClientUiControllerInterface
 {

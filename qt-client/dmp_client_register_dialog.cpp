@@ -1,6 +1,11 @@
 #include "dmp_client_register_dialog.hpp"
 
+#include <QDialogButtonBox>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QString>
+
+class QWidget;
 
 DmpClientRegisterDialog::DmpClientRegisterDialog(QWidget *parent)
 : QDialog(parent)

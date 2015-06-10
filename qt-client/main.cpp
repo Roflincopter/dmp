@@ -1,17 +1,20 @@
 
 #include "dmp_qt_meta_types.hpp"
-#include "dmp_client.hpp"
 #include "dmp_client_gui.hpp"
-#include "core_dump.hpp"
 
-#include <gst/gst.h>
-
-#include <boost/program_options.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/value_semantic.hpp>
+#include <boost/program_options/errors.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 #include <QApplication>
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 int main(int argc, char* argv[]) {
 

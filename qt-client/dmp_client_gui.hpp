@@ -1,18 +1,29 @@
 #pragma once
 
 #include "search_result_model.hpp"
-#include "dmp_client.hpp"
-#include "dmp_client_interface.hpp"
 #include "ui_dmp_client_gui.hpp"
 #include "dmp_client_ui_delegate.hpp"
 
 #include <QMainWindow>
-#include <QShortcut>
+#include <qobjectdefs.h>
 
 #include <thread>
 #include <memory>
-#include <map>
-#include <mutex>
+#include <stdint.h>
+#include <string>
+
+class DmpClientGuiMenuBar;
+class DmpClientGuiPlaylists;
+class DmpClientGuiRadioList;
+class DmpClientGuiSearchBar;
+class DmpClientGuiSearchResults;
+class QCloseEvent;
+class QEvent;
+class QShortcut;
+class QEvent;
+class QShortcut;
+class QWidget;
+struct DmpClientInterface;
 
 class DmpClientGui : public QMainWindow, public DmpClientUiDelegate
 {

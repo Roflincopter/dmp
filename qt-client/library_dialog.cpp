@@ -1,15 +1,24 @@
 #include "library_dialog.hpp"
 #include "ui_library_dialog.hpp"
 
-#include "debug_macros.hpp"
-
 #include <QPushButton>
 #include <QFileDialog>
+#include <QAbstractItemModel>
+#include <QDialogButtonBox>
+#include <QItemSelectionModel>
+#include <QLineEdit>
+#include <QList>
+#include <QListWidget>
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include <algorithm>
 #include <sstream>
+#include <utility>
+#include <vector>
+
+class QWidget;
 
 LibraryDialog::LibraryDialog(QWidget *parent)
 : QDialog(parent)

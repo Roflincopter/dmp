@@ -1,12 +1,19 @@
 #pragma once
 
-#include "playlists_model_qt_adapter.hpp"
 #include "gui_item_delegate.hpp"
 
-#include "dmp_client_ui_delegate.hpp"
+#include "playlist_ui_delegate.hpp"
 #include "dmp_client_ui_controller_interface.hpp"
 
+#include <qobjectdefs.h>
 #include <QTableView>
+
+#include <memory>
+#include <string>
+
+class PlaylistsModelQtAdapter;
+class QWidget;
+struct DmpClientInterface;
 
 class DmpClientGuiPlaylists 
 : public QTableView

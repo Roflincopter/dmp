@@ -1,22 +1,30 @@
 #include "dmp_client_gui.hpp"
 
-#include "debug_macros.hpp"
-#include "connect.hpp"
+#include "dmp_client.hpp"
+#include "dmp_client_gui_menu_bar.hpp"
+#include "dmp_client_gui_playlists.hpp"
+#include "dmp_client_gui_radio_list.hpp"
+#include "dmp_client_gui_search_bar.hpp"
+#include "dmp_client_gui_search_results.hpp"
+#include "dmp_client_interface.hpp"
+
 #include "dmp_client_connect_dialog.hpp"
 #include "dmp_client_login_dialog.hpp"
 #include "dmp_client_error_dialog.hpp"
 #include "dmp_client_register_dialog.hpp"
 #include "call_event.hpp"
-#include "dmp_client_ui_delegate.hpp"
 
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QApplication>
+#include <QEvent>
+#include <QDialog>
 #include <QKeySequence>
+#include <QPushButton>
+#include <QShortcut>
+#include <QSlider>
+#include <QToolButton>
 
-#include <boost/asio/ip/host_name.hpp>
-
-#include <iostream>
 #include <string>
+#include <exception>
 
 DmpClientGui::DmpClientGui(QWidget *parent)
 : QMainWindow(parent)

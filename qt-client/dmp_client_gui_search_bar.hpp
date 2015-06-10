@@ -1,10 +1,17 @@
 #pragma once
 
 #include "dmp_client_ui_controller_interface.hpp"
-#include "search_bar_model_qt_adapter.hpp"
 #include "search_bar_ui_delegate.hpp"
 
 #include <QLineEdit>
+#include <QTextLayout>
+
+#include <memory>
+#include <vector>
+
+class QWidget;
+struct DmpClientInterface;
+struct SearchBarModelQtAdapter;
 
 class DmpClientGuiSearchBar
 : public QLineEdit

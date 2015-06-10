@@ -1,9 +1,15 @@
 #include "dmp_client_gui_menu_bar.hpp"
 
+#include "dmp_config.hpp"
+
 #include "library_dialog.hpp"
 #include "dmp_client_interface.hpp"
 
-#include <QFileDialog>
+#include <QDialog>
+
+#include <utility>
+
+class QWidget;
 
 DmpClientGuiMenuBar::DmpClientGuiMenuBar(QWidget *parent)
 : QMenuBar(parent)

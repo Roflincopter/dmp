@@ -2,7 +2,12 @@
 
 #include "ui_dmp_client_error_dialog.hpp"
 
-#include <memory>
+#include <QDialog>
+#include <qobjectdefs.h>
+
+#include <string>
+
+class QWidget;
 
 class DmpClientErrorDialog : public QDialog
 {

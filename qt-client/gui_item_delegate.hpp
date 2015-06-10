@@ -1,6 +1,11 @@
 #pragma once
 
+#include <QLocale>
+#include <QString>
+#include <QVariant>
 #include <QStyledItemDelegate>
+
+class QObject;
 
 class GuiItemDelegate : public QStyledItemDelegate
 {

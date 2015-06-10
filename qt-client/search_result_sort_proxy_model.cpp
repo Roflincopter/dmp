@@ -1,5 +1,15 @@
 #include "search_result_sort_proxy_model.hpp"
 
+#include "search_result_model_qt_adapter.hpp"
+
+#include "library-entry.hpp"
+
+#include <QAbstractItemModel>
+#include <QMetaType>
+#include <QVariant>
+
+#include <string>
+
 SearchResultSortProxyModel::SearchResultSortProxyModel(std::shared_ptr<SearchResultModelQtAdapter> model)
 : model(model)
 {
