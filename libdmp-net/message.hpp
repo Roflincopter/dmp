@@ -436,7 +436,7 @@ inline std::string message_to_type_string(X) \
 	return #X; \
 } \
  \
-static const int X ## _type_to_string_helper = (type_to_string_vector.resize(static_cast<Type_t>(Type::X) + 1), type_to_string_vector.at(static_cast<Type_t>(Type::X)) = #X, 0);
+static const int X ## _type_to_string_helper __attribute__((unused))__attribute__((unused)) = (type_to_string_vector.resize(static_cast<Type_t>(Type::X) + 1), type_to_string_vector.at(static_cast<Type_t>(Type::X)) = #X, 0);
 
 MESSAGE_TYPE_CONVERSION(PublicKey)
 MESSAGE_TYPE_CONVERSION(Nonce)
