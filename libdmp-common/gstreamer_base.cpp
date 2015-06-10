@@ -19,6 +19,11 @@
 #include <gst/gstpipeline.h>
 #include <gst/gstversion.h>
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#endif
+
 #include <algorithm>
 #include <limits>
 #include <iostream>
@@ -258,4 +263,19 @@ std::string gst_state_to_string(GstState x)
 	return "<UNKNOWN>";
 }
 
-
+GStreamerInit::GStreamerInit(std::string gst_dir) {
+#if defined( _WIN32 ) || defined( _WIN64 )
+	char buffer[512];
+	GetModuleFileName(nullptr, buffer, sizeof(buffer));
+	boost::filesystem::path executable_path(buffer);
+	boost::filesystem::path plugin_path = executable_path.parent_path() / boost::filesystem::path("plugins\\gstreamer");
+	
+	DEBUG_COUT << "Setting plugin path to: " << plugin_path.string() << std::endl;
+	
+	g_setenv("GST_PLUGIN_PATH_1_0", plugin_path.string().c_str(), false);
+#endif
+	if(!gst_is_initialized()) {
+		g_setenv("GST_DEBUG_DUMP_DOT_DIR", gst_dir.c_str(), false);
+		gst_init(nullptr, nullptr);
+	}
+}
