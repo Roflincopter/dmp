@@ -10,6 +10,7 @@
 #include <sodium.h>
 
 #include <cstdint>
+#include <time.h>
 
 namespace message {
 
