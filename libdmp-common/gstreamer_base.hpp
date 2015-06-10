@@ -16,6 +16,11 @@
 #include <gst/gstpad.h>
 #include <gst/gstpadtemplate.h>
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#endif
+
 #include <string>
 #include <memory>
 #include <mutex>
