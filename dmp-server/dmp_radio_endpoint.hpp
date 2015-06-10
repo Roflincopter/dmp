@@ -1,8 +1,12 @@
 #pragma once
 
 #include "gstreamer_base.hpp"
-#include "debug_macros.hpp"
 
+#include <gst/gstelement.h>
+#include <gst/gstpad.h>
+
+#include <stdint.h>
+#include <string>
 #include <memory>
 
 class DmpRadioEndpoint

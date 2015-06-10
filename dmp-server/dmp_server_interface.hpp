@@ -1,8 +1,15 @@
 #pragma once
 
-#include "message.hpp"
+#include "playlist.hpp"
 
 #include <string>
+#include <stdint.h>
+
+namespace dmp_library { struct LibraryEntry; }
+
+namespace message { struct ReceiverAction; }
+
+namespace message { struct SenderAction; }
 
 struct DmpServerInterface {
 	

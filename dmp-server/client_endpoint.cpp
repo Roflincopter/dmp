@@ -1,9 +1,17 @@
 #include "client_endpoint.hpp"
 
 #include "message.hpp"
-#include "fusion_outputter.hpp"
 
-#include "debug_macros.hpp"
+#include <boost/asio/basic_deadline_timer.hpp>
+#include <boost/date_time/posix_time/posix_time_duration.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/system/error_code.hpp>
+
+#include <algorithm>
+#include <cstdint>
+#include <new>
+#include <stdexcept>
+
 
 ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios)
 : name()

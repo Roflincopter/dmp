@@ -2,14 +2,9 @@
 	#pragma once
 #endif
 
-#include "database_version.hpp"
-
-#include <odb/core.hxx>
-
 #include <string>
 
-class SuperAdmin;
-class Admin;
+namespace odb { class access; }
 
 class Radio
 {
@@ -19,7 +14,7 @@ class Radio
 
 	Radio();
 
-	std::string name;	
+	std::string name;
 public:
 	Radio(std::string name);
 	

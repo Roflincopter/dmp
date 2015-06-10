@@ -1,6 +1,7 @@
 #pragma once
 
-#include <odb/database.hxx>
-#include <odb/schema-catalog.hxx>
+#include <memory>
+
+namespace odb { class database; }
 
 std::shared_ptr<odb::database> initialize_database();

@@ -1,17 +1,29 @@
 #pragma once
 
-#include "dmp_radio.hpp"
-#include "client_endpoint.hpp"
 #include "dmp_server_interface.hpp"
 
-#include "connection.hpp"
-#include "message_callbacks.hpp"
-#include "number_pool.hpp"
-#include "container_manipulations.hpp"
+#include "message.hpp"
 
-#include "user-odb.hpp"
+#include "playlist.hpp"
 
 #include <thread>
+#include <stdint.h>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+class ClientEndpoint;
+class Connection;
+class DmpRadio;
+class NumberPool;
+
+namespace boost { namespace asio { class io_service; } }
+
+namespace dmp_library { struct LibraryEntry; }
+
+namespace odb { class database; }
 
 class Authenticator
 {

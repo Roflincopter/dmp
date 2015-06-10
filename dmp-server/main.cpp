@@ -1,13 +1,13 @@
 
 #include "dmp_server.hpp"
 
-#include "core_dump.hpp"
-#include "debug_macros.hpp"
-
-#include <boost/asio/io_service.hpp>
-
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <ratio>
+#include <thread>
 
 int main(int, char**) {
 

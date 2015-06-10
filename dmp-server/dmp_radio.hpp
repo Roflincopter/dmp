@@ -1,23 +1,30 @@
 #pragma once
 
-#include "dmp_server_interface.hpp"
 #include "dmp_radio_endpoint.hpp"
 
-#include "number_pool.hpp"
 #include "gstreamer_base.hpp"
-#include "debug_macros.hpp"
 
 #include "playlist.hpp"
 #include "radio_state.hpp"
 
-#include <boost/optional.hpp>
+#include "message.hpp"
 
-#include <stdexcept>
-#include <iostream>
+#include <gst/gstelement.h>
+#include <gst/gstpad.h>
+#include <gst/gstpadtemplate.h>
+
+#include <stdint.h>
+#include <algorithm>
+#include <functional>
+#include <map>
+#include <string>
+#include <vector>
 #include <memory>
-#include <thread>
 #include <mutex>
-#include <condition_variable>
+
+class NumberPool;
+
+struct DmpServerInterface;
 
 class DmpRadio : public GStreamerBase
 {

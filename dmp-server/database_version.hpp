@@ -1,6 +1,6 @@
 #pragma once
 
-#include <odb/core.hxx>
+#include <odb/forward.hxx>
 
 #define DATABASE_BASE_VERSION 2
 #define DATABASE_VERSION 2

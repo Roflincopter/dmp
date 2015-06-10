@@ -1,6 +1,17 @@
 #include "dmp_radio_endpoint.hpp"
 
-#include <iostream>
+#include "gstreamer_base.hpp"
+
+#include <glib/gtypes.h>
+
+#include <gobject/gobject.h>
+
+#include <gst/gstbin.h>
+#include <gst/gstelement.h>
+#include <gst/gstelementfactory.h>
+#include <gst/gstghostpad.h>
+#include <gst/gstpad.h>
+#include <gst/gstutils.h>
 
 DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 : name(name)

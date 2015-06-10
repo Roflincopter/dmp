@@ -2,15 +2,24 @@
 
 #include "database_version.hpp"
 #include "database_migration.hpp"
-#include "index_list.hpp"
-#include "debug_macros.hpp"
+#include "user.hpp"
 #include "user-odb.hpp"
-
-#include "odb/sqlite/database.hxx"
 
 #include "dmp_config.hpp"
 
-#include <boost/filesystem.hpp>
+#include "debug_macros.hpp"
+
+#include "odb/sqlite/database.hxx"
+#include "odb/forward.hxx"
+#include "odb/schema-catalog.hxx"
+#include "odb/transaction.hxx"
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <sqlite3.h>
+
+
 
 std::shared_ptr<odb::database> initialize_database()
 {

@@ -1,11 +1,27 @@
 #include "dmp_radio.hpp"
 
-#include "debug_macros.hpp"
-#include "fusion_outputter.hpp"
+#include "dmp_server_interface.hpp"
 
+#include "number_pool.hpp"
+
+#include <glib/gtypes.h>
+
+#include <gobject/gobject.h>
+
+#include <gst/gstbin.h>
+#include <gst/gstelement.h>
+#include <gst/gstelementfactory.h>
+#include <gst/gstghostpad.h>
+#include <gst/gstobject.h>
+#include <gst/gstpad.h>
+#include <gst/gstutils.h>
+
+#include <stddef.h>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <utility>
 #include <string>
-#include <tuple>
-#include <iterator>
 
 DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir)
 : GStreamerBase("tcp_bridge", gst_dir)

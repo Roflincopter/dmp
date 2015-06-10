@@ -5,11 +5,10 @@
 #include "user.hpp"
 #include "radio.hpp"
 
-#include "database_version.hpp"
-
-#include <odb/core.hxx>
-
 #include <memory>
+#include <stdint.h>
+
+namespace odb { class access; }
 
 class SuperAdmin
 {

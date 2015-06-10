@@ -1,6 +1,13 @@
 #pragma once
 
+#include "database_version.hpp"
+
 #include "index_list.hpp"
+
+#include <odb/forward.hxx>
+
+#include <functional>
+#include <memory>
 
 //base migration case, do nothing.
 template<odb::schema_version v>

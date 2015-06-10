@@ -1,6 +1,7 @@
 #include "dmp_server.hpp"
+#include "dmp_radio.hpp"
+#include "client_endpoint.hpp"
 #include "message_callbacks.hpp"
-#include "timed_debug.hpp"
 #include "playlist.hpp"
 #include "radio_state.hpp"
 #include "accept.hpp"
@@ -8,23 +9,38 @@
 #include "server_exceptions.hpp"
 
 #include "key_management.hpp"
+#include "container_manipulations.hpp"
+#include "number_pool.hpp"
 
 #include "dmp_config.hpp"
+
+#include "debug_macros.hpp"
 
 #include "user-odb.hpp"
 #include "radio-odb.hpp"
 #include "radio_admin-odb.hpp"
 
-#include <odb/core.hxx>
 #include <odb/database.hxx>
 #include <odb/result.hxx>
-#include <odb/query.hxx>
+#include <odb/exception.hxx>
+#include <odb/exceptions.hxx>
+#include <odb/forward.hxx>
 
-#include "sodium.h"
+#include <sodium/crypto_pwhash_scryptsalsa208sha256.h>
 
-#include <boost/thread.hpp>
+#include <boost/asio/io_service.hpp>
 
-#include "fusion_outputter.hpp"
+#include <boost/filesystem/path.hpp>
+
+#include <boost/serialization/serialization.hpp>
+#include <boost/system/system_error.hpp>
+
+#include <cstdint>
+#include <exception>
+#include <functional>
+#include <iostream>
+#include <stdexcept>
+
 
 Authenticator::Authenticator(std::shared_ptr<odb::database> db)
 : db(db)

@@ -1,12 +1,20 @@
 #pragma once
 
+#include "message.hpp"
 #include "connection.hpp"
 #include "message_callbacks.hpp"
 #include "message_switch.hpp"
 
-#include "debug_macros.hpp"
-
 #include <boost/asio/deadline_timer.hpp>
+#include <boost/system/system_error.hpp>
+
+#include <stdint.h>
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+namespace boost { namespace asio { class io_service; } }
 
 class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 {
