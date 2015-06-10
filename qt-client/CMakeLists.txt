@@ -117,6 +117,12 @@ target_link_libraries(qt-client
 	PRIVATE dbg
 )
 
+if(MINGW)
+	target_compile_options(qt-client
+		PRIVATE "-mwindows"
+	)
+endif(MINGW)
+
 if(USE_GPERF)
 	target_link_libraries(qt-client
 		PRIVATE "-lprofiler"
