@@ -9,19 +9,8 @@ struct Delegator_impl
 	std::vector<std::weak_ptr<Delegate>> observers;
 };
 
-template<typename... Delegators>
-struct Delegator_impl_gen;
-
-template <>
-struct Delegator_impl_gen<>
-{};
-
-template <typename Delegate, typename... Delegates>
-struct Delegator_impl_gen<Delegate, Delegates...> : protected Delegator_impl<Delegate>, protected Delegator_impl_gen<Delegates...>
-{};
-
 template <typename... Delegates>
-struct Delegator : protected Delegator_impl_gen<Delegates...>
+struct Delegator : protected Delegator_impl<Delegates>...
 {
 	template <typename Delegate>
 	void add_delegate(std::weak_ptr<Delegate> delegate)
