@@ -225,8 +225,6 @@ void DmpRadio:: play()
 
 	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Play));
 
-	wait_for_state_change();
-
 	for(auto&& branch : branches) {
 		sp->forward_receiver_action(branch.first, message::ReceiverAction(name, message::PlaybackAction::Play));
 	}
