@@ -109,9 +109,9 @@ uint32_t PlaylistsModel::get_playlist_id(uint32_t row) const
 
 void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 {
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_start);
+	call_on_delegates(&PlaylistUiDelegate::set_radios_start);
 	std::swap(playlists[radio_name], playlist);
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::set_radios_end);
+	call_on_delegates(&PlaylistUiDelegate::set_radios_end);
 	
 }
 
@@ -137,7 +137,7 @@ void PlaylistsModel::reset(std::string radio_name)
 
 bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 {
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_start, update_msg);
+	call_on_delegates(&PlaylistUiDelegate::playlist_update_start, update_msg);
 	switch(update_msg.action.type)
 	{
 		case message::PlaylistUpdate::Action::Type::Append:
@@ -177,27 +177,27 @@ bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 			throw std::runtime_error("This should never happen");
 		}
 	}
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::playlist_update_end, update_msg);
+	call_on_delegates(&PlaylistUiDelegate::playlist_update_end, update_msg);
 	return true;
 }
 
 void PlaylistsModel::set_current_radio(std::string radio_name)
 {
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::current_radio_change_start);
+	call_on_delegates(&PlaylistUiDelegate::current_radio_change_start);
 	current_radio = radio_name;
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::current_radio_change_end);
+	call_on_delegates(&PlaylistUiDelegate::current_radio_change_end);
 }
 
 void PlaylistsModel::create_radio(std::string radio_name)
 {
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::add_radio_start);
+	call_on_delegates(&PlaylistUiDelegate::add_radio_start);
 	playlists[radio_name] = {};
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::add_radio_end);
+	call_on_delegates(&PlaylistUiDelegate::add_radio_end);
 }
 
 void PlaylistsModel::remove_radio(std::string radio_name)
 {
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::remove_radio_start);
+	call_on_delegates(&PlaylistUiDelegate::remove_radio_start);
 	playlists.erase(radio_name);
-	call_on_delegates<PlaylistUiDelegate>(&PlaylistUiDelegate::remove_radio_end);
+	call_on_delegates(&PlaylistUiDelegate::remove_radio_end);
 }

@@ -102,7 +102,7 @@ std::shared_ptr<SearchResultModel> DmpClient::get_search_result_model()
 void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 {
 	Delegator::add_delegate<DmpClientUiDelegate>(delegate);
-	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::volume_changed, receiver.get_volume());
+	call_on_delegates(&DmpClientUiDelegate::volume_changed, receiver.get_volume());
 }
 
 void DmpClient::run()
@@ -287,9 +287,9 @@ bool DmpClient::handle_public_key(message::PublicKey pk)
 bool DmpClient::handle_login_response(message::LoginResponse lr)
 {
 	if(lr.succes) {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::login_succeeded);
+		call_on_delegates(&DmpClientUiDelegate::login_succeeded);
 	} else {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::login_failed, lr.reason);
+		call_on_delegates(&DmpClientUiDelegate::login_failed, lr.reason);
 		name = "";
 	}
 	return true;
@@ -298,9 +298,9 @@ bool DmpClient::handle_login_response(message::LoginResponse lr)
 bool DmpClient::handle_register_response(message::RegisterResponse rr)
 {
 	if(rr.succes) {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::register_succeeded);
+		call_on_delegates(&DmpClientUiDelegate::register_succeeded);
 	} else {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::register_failed, rr.reason);
+		call_on_delegates(&DmpClientUiDelegate::register_failed, rr.reason);
 	}
 	return true;
 }
@@ -314,7 +314,7 @@ void DmpClient::change_volume(int volume)
 {
 	receiver.set_volume(volume);
 	config::set_volume(volume);
-	call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::volume_changed, volume);
+	call_on_delegates(&DmpClientUiDelegate::volume_changed, volume);
 }
 
 bool DmpClient::handle_ping(message::Ping ping)
@@ -356,9 +356,9 @@ bool DmpClient::handle_bye_ack(message::ByeAck)
 bool DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 {
 	if(response.succes) {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::add_radio_succes, response);
+		call_on_delegates(&DmpClientUiDelegate::add_radio_succes, response);
 	} else {
-		call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::add_radio_failed, response);
+		call_on_delegates(&DmpClientUiDelegate::add_radio_failed, response);
 	}
 	return true;
 }
@@ -483,19 +483,19 @@ bool DmpClient::handle_receiver_action(message::ReceiverAction ra)
 		case message::PlaybackAction::Pause:
 		{
 			receiver.pause();
-			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, false);
+			call_on_delegates(&DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		case message::PlaybackAction::Play:
 		{
 			receiver.play();
-			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, true);
+			call_on_delegates(&DmpClientUiDelegate::set_play_paused_state, true);
 			break;
 		}
 		case message::PlaybackAction::Stop:
 		{
 			receiver.stop();
-			call_on_delegates<DmpClientUiDelegate>(&DmpClientUiDelegate::set_play_paused_state, false);
+			call_on_delegates(&DmpClientUiDelegate::set_play_paused_state, false);
 			break;
 		}
 		//explicit falltrough

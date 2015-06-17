@@ -23,9 +23,9 @@ void SearchResultModel::add_search_response(message::SearchResponse response)
 	}
 	
 	if(count != 0) {
-		call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_start, count);
+		call_on_delegates(&SearchResultUiDelegate::search_results_start, count);
 		search_results.push_back(std::make_pair(Client(response.origin), response.results));
-		call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::search_results_end);
+		call_on_delegates(&SearchResultUiDelegate::search_results_end);
 	}
 }
 
@@ -82,10 +82,10 @@ void SearchResultModel::clear()
 
 void SearchResultModel::set_current_query(std::string query)
 {
-	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::new_search_begin);
+	call_on_delegates(&SearchResultUiDelegate::new_search_begin);
 	clear();
 	current_query = query;
-	call_on_delegates<SearchResultUiDelegate>(&SearchResultUiDelegate::new_search_end);
+	call_on_delegates(&SearchResultUiDelegate::new_search_end);
 	
 }
 

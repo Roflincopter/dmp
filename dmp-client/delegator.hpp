@@ -39,8 +39,8 @@ struct Delegator : protected Delegator_impl_gen<Delegates...>
 		}
 	}
 
-	template <typename Delegate, typename U, typename... Args>
-	void call_on_delegates(U member_fun, Args... args)
+	template <typename Delegate, typename... Args>
+	void call_on_delegates(void(Delegate::* member_fun)(Args...), Args... args)
 	{
 		for(auto&& delegate : Delegator_impl<Delegate>::observers)
 		{
