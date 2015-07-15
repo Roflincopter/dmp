@@ -25,6 +25,8 @@ class DmpSender : public GStreamerBase
 	
 	bool is_resetting = false;
 	
+	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending) override final;
+	
 public:
 	DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir);
 	

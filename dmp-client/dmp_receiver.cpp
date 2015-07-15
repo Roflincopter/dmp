@@ -14,6 +14,9 @@
 #include <stdexcept>
 #include <iostream>
 
+void DmpReceiver::state_changed(std::string, GstState, GstState, GstState)
+{}
+
 DmpReceiver::DmpReceiver(std::string gst_dir)
 : GStreamerBase("receiver", gst_dir)
 , source(gst_element_factory_make("tcpclientsrc", "stream"))
@@ -48,9 +51,7 @@ DmpReceiver::DmpReceiver(std::string gst_dir)
 }
 
 void DmpReceiver::eos_reached()
-{
-	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-}
+{}
 
 void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
 	radio_name = name;

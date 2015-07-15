@@ -18,6 +18,9 @@
 #include <stdexcept>
 #include <iostream>
 
+void DmpSender::state_changed(std::string, GstState, GstState, GstState)
+{}
+
 DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir)
 : GStreamerBase("sender", gst_dir)
 , client(client)

@@ -82,6 +82,17 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	}
 }
 
+void DmpRadio::state_changed(std::string element, GstState, GstState, GstState)
+{
+	if(element == "tcp_bridge") {
+		if(auto sp = server.lock()) {
+			 sp->update_radio_state();
+		} else {
+			throw std::runtime_error("Server pointer in radio: " + name + " was invalid.");
+		}
+	}
+}
+
 void DmpRadio::listen()
 {
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
@@ -185,9 +196,9 @@ Playlist DmpRadio::get_playlist()
 void DmpRadio::stop()
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
-	
+
 	auto sp = server.lock();
-	
+
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
 
 	wait_for_state_change();
@@ -292,17 +303,11 @@ void DmpRadio::eos_reached()
 	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 }
 
-void DmpRadio::buffer_high(GstElement *src)
-{
-	gst_element_set_state(GST_ELEMENT_PARENT(src), GST_STATE_PLAYING);
-	wait_for_state_change();
-}
+void DmpRadio::buffer_high(GstElement*)
+{}
 
-void DmpRadio::buffer_low(GstElement *src)
-{
-	gst_element_set_state(GST_ELEMENT_PARENT(src), GST_STATE_PAUSED);
-	wait_for_state_change();
-}
+void DmpRadio::buffer_low(GstElement*)
+{}
 
 void DmpRadio::queue(PlaylistEntry pl_entry)
 {

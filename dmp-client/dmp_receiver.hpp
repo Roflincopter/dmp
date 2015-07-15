@@ -22,6 +22,8 @@ class DmpReceiver : public GStreamerBase
 	double dvolume;
 	
 	void cleanup();
+	
+	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending) override final;
 public:
 	DmpReceiver(std::string gst_dir);
 	//DmpReceiver(std::string radio_name, std::string gst_dir);

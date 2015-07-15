@@ -60,6 +60,11 @@ void GStreamerBase::buffer_low(GstElement*)
 	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
 }
 
+void GStreamerBase::state_changed(std::string element, GstState old_, GstState new_, GstState pending)
+{
+	std::cout << "State change: " << name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
+}
+
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
 : GStreamerInit(*this)
 , gstreamer_mutex(std::move(base.gstreamer_mutex))
@@ -152,7 +157,8 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 		std::string element(x);
 		g_free(x);
 		
-		//std::cout << "State change: " << base->name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
+		base->state_changed(element, old_, new_, pending);
+		
 		break;
 	}
 

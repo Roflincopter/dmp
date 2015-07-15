@@ -35,7 +35,7 @@ struct MessageSwitch
 			}
 		)
 	{}
-
+	
 	void handle_message(message::Type index) {
 		table[static_cast<message::Type_t>(index)]();
 	}

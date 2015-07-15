@@ -72,6 +72,8 @@ class DmpRadio : public GStreamerBase
 	
 	bool stopped = true;
 	
+	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending) override final;
+	
 public:
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir);
 

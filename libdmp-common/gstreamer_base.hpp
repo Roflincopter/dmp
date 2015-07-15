@@ -100,6 +100,7 @@ public:
 	virtual void error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err);
 	virtual void buffer_high(GstElement* src);
 	virtual void buffer_low(GstElement* src);
+	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending);
 	
 	GStreamerBase(std::string name, std::string gst_dir);
 	

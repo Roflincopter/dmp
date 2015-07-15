@@ -433,15 +433,6 @@ bool DmpServer::handle_radio_action(message::RadioAction ra)
 		}
 	}
 	
-	std::map<std::string, RadioState> states;
-	for(auto&& radio : radios) {
-		states.emplace(radio.first, std::move(radio.second.second.get_state()));
-	}
-	
-	for(auto&& endpoint : connections) {
-		endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
-	}
-	
 	return true;
 }
 
@@ -530,6 +521,18 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 void DmpServer::order_stream(std::string client, std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port)
 {
 	connections.at(client)->forward(message::StreamRequest(radio_name, folder_id, entry, port));
+}
+
+void DmpServer::update_radio_state()
+{
+	std::map<std::string, RadioState> states;
+	for(auto&& radio : radios) {
+		states.emplace(radio.first, std::move(radio.second.second.get_state()));
+	}
+	
+	for(auto& endpoint : connections) {
+		//endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+	}
 }
 
 void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)
