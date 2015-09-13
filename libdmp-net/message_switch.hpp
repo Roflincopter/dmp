@@ -10,41 +10,46 @@ namespace message { struct DmpCallbacks; }
 
 struct MessageSwitch
 {
-	template <int index, typename Conn>
-	std::function<void()> create_message_receiver(message::DmpCallbacks& cbs, Conn& conn)
+	template <int index>
+	std::function<void(Connection&, message::DmpCallbacks const&)> create_message_receiver()
 	{
-		return [&conn, &cbs]
+		return [](Connection& conn, message::DmpCallbacks const& cbs)
 		{
 			typedef typename message::type_to_message<static_cast<message::Type>(index)>::type message_t;
-			conn.template async_receive<message_t>(cbs);
+			conn.async_receive<message_t>(cbs);
 			return;
 		};
 	}
 
-	std::array<std::function<void()>, static_cast<message::Type_t>(message::Type::LAST)> table;
+	std::array<std::function<void(Connection&, message::DmpCallbacks const&)>, static_cast<message::Type_t>(message::Type::LAST)> table;
 
-	template<typename Conn, int... Indices>
-	MessageSwitch(message::DmpCallbacks& cbs, indices<Indices...>, Conn& conn)
+	template<int... Indices>
+	MessageSwitch(indices<Indices...>)
 		: table(
 			//not using labda because of gcc bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
 			{
 				{
-					MessageSwitch::create_message_receiver<Indices>(cbs, conn)
+					MessageSwitch::create_message_receiver<Indices>()
 					...
 				}
 			}
 		)
 	{}
 	
-	void handle_message(message::Type index) {
-		table[static_cast<message::Type_t>(index)]();
+	void handle_message(Connection& conn, message::Type index, message::DmpCallbacks const& cbs) const {
+		if(auto f = table[static_cast<message::Type_t>(index)]) {
+			f(conn, cbs);
+		} else {
+			std::cout << static_cast<message::Type_t>(index) << std::endl;
+			std::cout << sizeof(table) << std::endl;
+			std::cout << "Ignored message of type: " << type_to_string(index) << std::endl;
+		}
 	}
 };
 
-template <typename Conn>
-MessageSwitch make_message_switch(message::DmpCallbacks& cbs, Conn& conn)
+inline MessageSwitch make_message_switch()
 {
 	typedef typename build_indices<static_cast<message::Type_t>(message::Type::LAST)>::type indices_type;
 
-	return MessageSwitch(cbs, indices_type{}, conn);
+	return MessageSwitch(indices_type{});
 }

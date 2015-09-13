@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(dmp)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules")
 
 include(wubwubcmake/warning_settings.cmake)
 get_sane_warning_flags(warnings)
@@ -30,6 +30,8 @@ option(BUILD_QT_CLIENT "Build the Qt client." ON)
 add_definitions(${warnings} -g3 -Wno-shadow)
 
 if(BUILD_SERVER OR BUILD_QT_CLIENT)
+	include(FindCommonLibraries)
+
 	add_subdirectory(libdbg)
 
 	add_subdirectory(libdmp-library)
@@ -38,13 +40,20 @@ if(BUILD_SERVER OR BUILD_QT_CLIENT)
 	add_subdirectory(libdmp-net)
 
 	add_subdirectory(libdmp-config)
+	
+	enable_testing()
+	add_subdirectory(tests)
 endif(BUILD_SERVER OR BUILD_QT_CLIENT)
 
 if(BUILD_SERVER)
+	include(FindServerLibraries)
+	
 	add_subdirectory(dmp-server)
 endif(BUILD_SERVER)
 
 if(BUILD_QT_CLIENT)
+	include(FindClientLibraries)
+	
 	add_subdirectory(dmp-client)
 	add_subdirectory(qt-client)
 endif(BUILD_QT_CLIENT)

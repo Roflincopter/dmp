@@ -61,17 +61,22 @@ struct DmpCallbacks {
 		auto it = callbacks.find(message_to_type(message));
 
 		if (it != callbacks.cend()) { 
+
+			if(
 //In boost 1.58 they added compile time checks for boost::get.
 //But because i generate code that won't be called it triggers compilation errors.
 //So use relaxed_get from 1.58 onwards.
 #if ( BOOST_VERSION / 100000 == 1 ) && ( BOOST_VERSION / 100 % 1000 >= 58 ) 
-			auto f = boost::relaxed_get<CB<T>>(it->second);
+				auto f = boost::relaxed_get<CB<T>>(it->second)
 #else
-			auto f = boost::get<CB<T>>(it->second);
+				auto f = boost::get<CB<T>>(it->second)
 #endif
-			
-			if(f(message)) {
-				refresher();
+			) {	
+				if(f(message)) {
+					refresher();
+				}
+			} else {
+				throw std::runtime_error("Empty functor as callback detected");
 			}
 		} else {
 			throw std::runtime_error("Requested callback type was not found in callbacks: " + std::string(typeid(message).name()) + " " + std::to_string(static_cast<message::Type_t>(message_to_type(message))));

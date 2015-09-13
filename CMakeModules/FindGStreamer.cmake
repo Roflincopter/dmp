@@ -11,6 +11,9 @@
 #  GSTREAMER_BASE_INCLUDE_DIRS - gstreamer-base's include directory
 #  GSTREAMER_BASE_LIBRARIES - link to these to use gstreamer-base
 #
+# Additionally we have to find the config include directory
+#  GSTREAMER_CONFIG_INCLUDE_DIRS - gstreamer config include directory
+#
 # Optionally, the COMPONENTS keyword can be passed to find_package()
 # and GStreamer plugins can be looked for.  Currently, the following
 # plugins can be searched, and they define the following variables if
@@ -74,6 +77,13 @@ endmacro()
 # 1.1. Find headers and libraries
 FIND_GSTREAMER_COMPONENT(GSTREAMER gstreamer-1.0 gst/gst.h gstreamer-1.0)
 FIND_GSTREAMER_COMPONENT(GSTREAMER_BASE gstreamer-base-1.0 gst/gst.h gstbase-1.0)
+
+FIND_PATH(GSTREAMER_CONFIG_INCLUDE_DIRS
+    NAMES gst/gstconfig.h
+    PATHS ${PC_GSTREAMER_BASE_LIBDIR}/gstreamer-1.0/include ${GSTREAMER_INCLUDE_DIRS}
+    DOC "Directory containing gst/gstconfig.h include file"
+)
+
 
 # 1.2. Check GStreamer version
 if (GSTREAMER_INCLUDE_DIRS)

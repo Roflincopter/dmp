@@ -1,6 +1,5 @@
 #pragma once
 
-#include "debug_macros.hpp"
 #include "message.hpp"
 #include "archive.hpp"
 
@@ -29,9 +28,11 @@
 class Connection {
 
 	bool encrypt;
-	bool encrypted();
+	void encrypted(std::function<void(bool)> cb);
 
 	boost::asio::ip::tcp::socket socket;
+
+	std::vector<uint8_t> encrypted_buffer;
 
 	std::vector<uint8_t> async_type_buffer;
 
@@ -67,23 +68,28 @@ public:
 	}
 	
 	template <typename Callable>
-	void async_receive_type(Callable const& cb)
+	void async_receive_type(Callable const cb)
 	{
-		if(encrypted()) {
-			async_receive_encrypted_type(cb);
-		} else {
-			async_receive_plain_type(cb);
-		}
+		encrypted([this, cb](bool encrypted){
+			if(encrypted) {
+				async_receive_encrypted_type(cb);
+			} else {
+				async_receive_plain_type(cb);
+			}
+		});
+		
 	}
 	
 	template <typename T, typename Callable>
-	void async_receive(Callable const& cb)
+	void async_receive(Callable const cb)
 	{
-		if(encrypted()) {
-			async_receive_encrypted<T>(cb);
-		} else {
-			async_receive_plain<T>(cb);
-		}
+		encrypted([this, cb](bool encrypted){
+			if(encrypted) {
+				async_receive_encrypted<T>(cb);
+			} else {
+				async_receive_plain<T>(cb);
+			}
+		});
 	}
 	
 private:
@@ -233,7 +239,7 @@ private:
 	}
 
 	template <typename Callable>
-	void async_receive_plain_type(Callable const& cb)
+	void async_receive_plain_type(Callable const cb)
 	{
 		auto read_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
@@ -277,16 +283,16 @@ private:
 	}
 
 	template <typename T, typename Callable>
-	void async_receive_plain(Callable const& cb)
+	void async_receive_plain(Callable const cb)
 	{
-		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
+		auto size_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			check_common_errors("async_receive_plain::size_lambda", ec, read_bytes, async_size_buffer);
 
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
-			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
+			auto content_cb = [this, cb, size](boost::system::error_code ec, size_t read_bytes)
 			{
 				check_common_errors("async_receive_plain::content_lambda", ec, read_bytes, async_mess_buffer);
 
@@ -309,16 +315,16 @@ private:
 	}
 
 	template <typename T, typename Callable>
-	void async_receive_encrypted(Callable const& cb)
+	void async_receive_encrypted(Callable const cb)
 	{
-		auto size_cb = [this, &cb](boost::system::error_code ec, size_t read_bytes)
+		auto size_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{
 			check_common_errors("async_receive_encrypted::size_lambda", ec, read_bytes, async_size_buffer);
 			
 			uint8_t const* data = async_size_buffer.data();
 			uint32_t size = *reinterpret_cast<const uint32_t*>(data);
 
-			auto content_cb = [this, &cb, size](boost::system::error_code ec, size_t read_bytes)
+			auto content_cb = [this, cb, size](boost::system::error_code ec, size_t read_bytes)
 			{
 				check_common_errors("async_receive_encrypted::content_lambda", ec, read_bytes, async_mess_buffer);
 				

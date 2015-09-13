@@ -19,7 +19,7 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 , ping_timer(new boost::asio::deadline_timer(*ios.lock()))
 , last_ping()
 , callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{})
-, message_switch(make_message_switch(callbacks, connection))
+, message_switch(make_message_switch())
 , terminate_connection()
 {
 	callbacks.
@@ -42,7 +42,7 @@ void ClientEndpoint::search(std::function<void(message::SearchResponse)> cb, mes
 
 void ClientEndpoint::handle_request(message::Type t)
 {
-	message_switch.handle_message(t);
+	message_switch.handle_message(connection, t, callbacks);
 }
 
 bool ClientEndpoint::handle_pong(message::Pong p)

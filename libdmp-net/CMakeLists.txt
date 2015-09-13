@@ -11,9 +11,6 @@ set(dmp-net-sources
 
 add_library(dmp-net STATIC ${dmp-net-sources})
 
-find_package(Boost COMPONENTS system REQUIRED)
-find_package(Sodium)
-
 set(boost_variant_workaround BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS;BOOST_MPL_LIMIT_LIST_SIZE=30)
 
 if(Boost_MAJOR_VERSION MATCHES 1 AND Boost_MINOR_VERSION MATCHES 58)
@@ -34,9 +31,9 @@ target_include_directories(dmp-net
 target_link_libraries(dmp-net
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE ${Sodium_LIBRARIES}
-	PRIVATE dmp-library
-	PRIVATE dmp-common
 	PRIVATE boost-fusion-utils
+	PUBLIC dmp-library
+	PUBLIC dmp-common
 	PUBLIC pthread
 	PRIVATE dbg
 )

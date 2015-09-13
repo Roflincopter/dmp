@@ -90,19 +90,19 @@ void Connection::handle_nonce(message::Nonce x) {
 	}
 }
 
-bool Connection::encrypted()
+void Connection::encrypted(std::function<void(bool)> cb)
 {
-	boost::system::error_code ec;
-	std::vector<uint8_t> buf(1);
-	size_t read_bytes = boost::asio::read(socket, boost::asio::buffer(buf), ec);
+	encrypted_buffer.resize(1, 0);
+	boost::asio::async_read(socket, boost::asio::buffer(encrypted_buffer), [this, cb](boost::system::error_code ec, size_t read_bytes) {
 	
-	if(ec) {
-		throw std::runtime_error("Failed to read encryption sentinel");
-	}
+		if(ec) {
+			throw std::runtime_error("Failed to read encryption sentinel");
+		}
 	
-	if(read_bytes != buf.size()) {
-		throw std::runtime_error("Unexpected number of bytes read");
-	}
+		if(read_bytes != encrypted_buffer.size()) {
+			throw std::runtime_error("Unexpected number of bytes read");
+		}
 	
-	return buf[0] != 0;
+		cb(encrypted_buffer[0] != 0);
+	});
 }

@@ -6,13 +6,10 @@ set(dmp-config-sources
 
 add_library(dmp-config STATIC ${dmp-config-sources})
 
-find_package(Boost REQUIRED)
-
 target_link_libraries(dmp-config
 	PRIVATE ${Boost_LIBRARIES}
 	PRIVATE dbg
 	PRIVATE boost-fusion-utils
-
 )
 
 target_include_directories(dmp-config SYSTEM

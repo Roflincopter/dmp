@@ -89,3 +89,5 @@ public:
 	virtual void order_stream(std::string client, std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port) override final;
 	virtual void update_radio_state() override final;
 };
+
+std::ostream& operator<< (std::ostream& os, Authenticator::LoginResult const& x);

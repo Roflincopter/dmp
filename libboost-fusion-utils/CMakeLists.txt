@@ -15,8 +15,6 @@ add_library(boost-fusion-utils STATIC ${boost-fusion-utils-sources})
 
 set_target_properties(boost-fusion-utils PROPERTIES LINKER_LANGUAGE CXX)
 
-find_package(Boost REQUIRED)
-
 target_link_libraries(boost-fusion-utils
 	PRIVATE ${Boost_LIBRARIES}
 )
@@ -30,5 +28,7 @@ target_include_directories(boost-fusion-utils
 )
 
 if(USE_GPERF)
-	target_link_libraries(boost-fusion-utils "-lprofiler")
+	target_link_libraries(boost-fusion-utils 
+		PRIVATE "-lprofiler"
+	)
 endif(USE_GPERF)

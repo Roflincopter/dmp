@@ -531,7 +531,7 @@ void DmpServer::update_radio_state()
 	}
 	
 	for(auto& endpoint : connections) {
-		//endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+		endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 	}
 }
 
@@ -549,3 +549,6 @@ void DmpServer::forward_sender_action(std::string client, message::SenderAction 
 	}
 }
 
+std::ostream&operator<<(std::ostream& os, const Authenticator::LoginResult& x) {
+	return os << x.succes << " " << x.reason << std::endl;
+}

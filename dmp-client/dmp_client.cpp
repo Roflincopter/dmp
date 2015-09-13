@@ -41,7 +41,7 @@ DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 , library()
 , senders()
 , receiver(config::get_gst_folder_name().string())
-, message_switch(make_message_switch(callbacks, connection))
+, message_switch(make_message_switch())
 {
 	if(secure) {
 		KeyPair kp = load_key_pair();
@@ -215,7 +215,7 @@ void DmpClient::move_queue(std::string radio, std::vector<uint32_t> playlist_id,
 
 void DmpClient::handle_request(message::Type t)
 {
-	message_switch.handle_message(t);
+	message_switch.handle_message(connection, t, callbacks);
 }
 
 void DmpClient::listen_requests()

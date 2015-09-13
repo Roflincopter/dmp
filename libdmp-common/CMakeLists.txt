@@ -13,11 +13,6 @@ add_library(dmp-common STATIC ${dmp-common-sources})
 
 include_directories(${CMAKE_SOURCE_DIR}/libdmp-library/include/)
 
-find_package(Boost COMPONENTS system serialization REQUIRED)
-find_package(GStreamer REQUIRED)
-find_package(GLIB2 REQUIRED)
-find_package(GObject REQUIRED)
-
 target_link_libraries(dmp-common
 	PRIVATE ${GSTREAMER_LIBRARIES}
 	PRIVATE ${GSTREAMER_BASE_LIBRARIES}
@@ -31,6 +26,7 @@ target_link_libraries(dmp-common
 
 target_include_directories(dmp-common SYSTEM
 	PUBLIC ${GSTREAMER_INCLUDE_DIRS}
+	PUBLIC ${GSTREAMER_CONFIG_INCLUDE_DIRS}
 	PUBLIC ${Glib_INCLUDE_DIRS}
 	PRIVATE ${GOBJECT_INCLUDE_DIR}
 	PRIVATE ${Boost_INCLUDE_DIRS}

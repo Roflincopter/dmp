@@ -20,8 +20,6 @@ set(DmpClientSources
 
 add_library(dmp-client STATIC ${DmpClientSources} ${DmpClientResources})
 
-find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
-
 target_include_directories(dmp-client
 	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 	PRIVATE ${Boost_INCLUDE_DIRS}

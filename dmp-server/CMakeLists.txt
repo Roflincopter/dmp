@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-find_package(Boost COMPONENTS system REQUIRED)
-find_package(ODBc++ COMPONENTS sqlite REQUIRED)
-
 ODB_compile(odb_sources
 	user.hpp
 	radio.hpp
