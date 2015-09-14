@@ -4,6 +4,8 @@
 #include "fusion_static_dispatch.hpp"
 #include "index_list.hpp"
 
+#include <boost/fusion/container/vector.hpp>
+
 #include <tuple>
 #include <type_traits>
 

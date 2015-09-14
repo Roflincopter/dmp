@@ -189,14 +189,14 @@ public:
 	typename std::enable_if<std::is_same<std::string, T>::value, IArchive&>::type
 	operator&(T& t) {
 		size_t size;
-		is >> size >> std::ws;
+		is >> size;
+		is.ignore();
 		
-		char buffer[size + 1];
-		is.read(buffer, size);
-		buffer[size] = '\0';
+		std::vector<char> buffer(size + 1, '\0');
+		is.read(buffer.data(), size);
 		is >> std::ws;
 		
-		t = std::string(buffer);
+		t = std::string(buffer.data());
 		return *this;
 	}
 	

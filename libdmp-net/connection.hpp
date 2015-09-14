@@ -91,6 +91,10 @@ public:
 			}
 		});
 	}
+
+	inline std::vector<uint8_t> get_public_key() {
+		return public_key;
+	}
 	
 private:
 

@@ -84,8 +84,8 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 		&hashed_password[0],
 		password.data(),
 		password.size(),
-		crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(),
-		crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
+		crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(),
+		crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 	);
 
 	if(!succes) {

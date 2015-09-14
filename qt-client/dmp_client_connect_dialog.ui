@@ -179,6 +179,15 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>Servers</tabstop>
+  <tabstop>NameEdit</tabstop>
+  <tabstop>HostEdit</tabstop>
+  <tabstop>PortEdit</tabstop>
+  <tabstop>AddButton</tabstop>
+  <tabstop>DeleteButton</tabstop>
+  <tabstop>SaveButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

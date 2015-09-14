@@ -80,6 +80,11 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>username</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>confirmPassword</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -137,8 +142,8 @@
    <slot>checkPassword()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>261</x>
-     <y>91</y>
+     <x>375</x>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
