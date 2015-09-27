@@ -14,3 +14,12 @@ target_link_libraries(encrypted_connection_test
 )
 
 add_test(Encrypted_connection_test. encrypted_connection_test)
+
+add_executable(archive_test archive.cpp)
+
+target_link_libraries(archive_test
+	PRIVATE dmp-common
+	PRIVATE boost-fusion-utils
+)
+
+add_test(Archive_test archive_test)

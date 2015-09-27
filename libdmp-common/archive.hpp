@@ -172,7 +172,8 @@ public:
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value && !std::is_same<T, uint8_t>::value, IArchive&>::type
 	operator&(T& t) {
-		is >> t >> std::ws;
+		is >> t;
+		is.ignore();
 		return *this;
 	}
 	
@@ -180,7 +181,8 @@ public:
 	typename std::enable_if<std::is_fundamental<T>::value && std::is_same<T, uint8_t>::value, IArchive&>::type
 	operator&(T& t) {
 		unsigned int x;
-		is >> x >> std::ws;
+		is >> x;
+		is.ignore();
 		t = static_cast<uint8_t>(x);
 		return *this;
 	}
@@ -194,7 +196,7 @@ public:
 		
 		std::vector<char> buffer(size + 1, '\0');
 		is.read(buffer.data(), size);
-		is >> std::ws;
+		is.ignore();
 		
 		t = std::string(buffer.data());
 		return *this;
@@ -221,7 +223,8 @@ public:
 	typename std::enable_if<is_vector<T>::value, IArchive&>::type
 	operator&(T& t) {
 		size_t size;
-		is >> size >> std::ws;
+		is >> size;
+		is.ignore();
 		
 		t.reserve(size);
 		for(size_t i = 0; i < size; ++i) {
@@ -237,7 +240,8 @@ public:
 	typename std::enable_if<is_array<T>::value, IArchive&>::type
 	operator&(T& t) {
 		size_t size;
-		is >> size >> std::ws;
+		is >> size;
+		is.ignore();
 		
 		for(size_t i = 0; i < size; ++i) {
 			typename T::value_type x;
@@ -253,7 +257,8 @@ public:
 	operator&(T& t) {
 		size_t size;
 		
-		is >> size >> std::ws;
+		is >> size;
+		is.ignore();
 		
 		for(size_t i = 0; i < size; ++i) {
 			std::pair<typename std::decay<typename T::value_type::first_type>::type, typename std::decay<typename T::value_type::second_type>::type> x;
@@ -279,7 +284,8 @@ public:
 	typename std::enable_if<std::is_enum<T>::value, IArchive&>::type
 	operator&(T& t) {
 		serialized_enum_t x;
-		is >> x >> std::ws;
+		is >> x;
+		is.ignore();
 		t = static_cast<T>(x);
 		return *this;
 	}
