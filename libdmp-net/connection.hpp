@@ -105,7 +105,7 @@ private:
 	std::function<void(message::Nonce)> handle_nonce_helper;
 	
 	template <typename Callable>
-	void handle_internal(message::Type type, Callable const& cb) {
+	void handle_internal(message::Type type, Callable const cb) {
 	
 		if (type == message::Type::Nonce) {
 			if(!handle_nonce_helper) {
@@ -125,7 +125,7 @@ private:
 	}
 	
 	template <typename T>
-	T create_message(std::string payload) {
+	T create_message(std::string& payload) {
 		std::istringstream iss(payload);
 		IArchive iar(iss);
 
@@ -265,7 +265,7 @@ private:
 	}
 
 	template <typename Callable>
-	void async_receive_encrypted_type(Callable const& cb)
+	void async_receive_encrypted_type(Callable const cb)
 	{
 		auto type_cb = [this, cb](boost::system::error_code ec, size_t read_bytes)
 		{

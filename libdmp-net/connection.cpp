@@ -103,6 +103,8 @@ void Connection::encrypted(std::function<void(bool)> cb)
 			throw std::runtime_error("Unexpected number of bytes read");
 		}
 	
+		assert(encrypted_buffer[0] == 1 || encrypted_buffer[0] == 0);
+	
 		cb(encrypted_buffer[0] != 0);
 	});
 }
