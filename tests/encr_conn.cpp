@@ -29,7 +29,6 @@ public:
 	, messageswitch(make_message_switch()) {
 		callbacks
 		.set(message::Type::Ping, [this](message::Ping p){
-			std::cout << "Handling ping" << std::endl;
 			connection.send(message::Pong(p.payload));
 			return true;
 		})
@@ -43,7 +42,6 @@ public:
 			}
 		})
 		.set(message::Type::PublicKey, [this, server](message::PublicKey p){
-			std::cout << "Handling publickey" << std::endl;
 			if(server) {
 				forward(message::PublicKey(get_public_key()));
 			}
