@@ -66,7 +66,7 @@ void GStreamerBase::state_changed(std::string element, GstState old_, GstState n
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: GStreamerInit(*this)
+: GStreamerInit(std::move(base))
 , gstreamer_mutex(std::move(base.gstreamer_mutex))
 , buffering(false)
 , name(std::move(base.name))
