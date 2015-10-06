@@ -7,19 +7,21 @@
 #include <sstream>
 
 struct Entry {
+	std::vector<uint8_t> vec;
 	std::string str;
 	int i;
 	
 	friend bool operator==(Entry lh, Entry rh) {
 		return 
-			lh.str == rh.str && 
+			lh.vec == rh.vec &&
+			lh.str == rh.str &&
 			lh.i == rh.i;
 	}
 	
 	template <typename Archive>
 	void serialize(Archive& ar, const unsigned int)
 	{
-		ar & str & i;
+		ar & vec & str & i;
 	}
 };
 
@@ -120,6 +122,18 @@ BOOST_FUSION_ADAPT_STRUCT(
 template<typename T>
 T&& id(T&& x) {return std::move(x);}
 
+std::vector<uint8_t> get_random_vector() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> dis(0, 255);
+
+	auto v = std::vector<uint8_t>(20, 0);
+	std::transform(v.begin(), v.end(), v.begin(), [](uint8_t const&){
+		return dis(gen);
+	});
+	return v;
+}
+
 int main() {
 	std::vector<bool> results;
 	{
@@ -136,7 +150,7 @@ int main() {
 	}
 	
 	{
-		message::StructV i2{{{"string1", 10}, {"string2 ", 20}}};
+		message::StructV i2{{{get_random_vector(), "string1", 10}, {get_random_vector(), "string2 ", 20}}};
 		std::stringstream ss;
 		OArchive oar(ss);
 		message::serialize(oar, i2);
@@ -148,7 +162,7 @@ int main() {
 	}
 	
 	{
-		message::StructM i3{{{"key1", {"string1", 10}}, {"key2", {"string2", 20}}}};
+		message::StructM i3{{{"key1", {get_random_vector(), "string1", 10}}, {"key2", {get_random_vector(), "string2", 20}}}};
 		std::stringstream ss;
 		OArchive oar(ss);
 		message::serialize(oar, i3);
@@ -161,8 +175,8 @@ int main() {
 	
 	{
 		message::StructVM i4{
-			{{"string1", 10}, {"string2", 20}},
-			{{"key1", {"string1", 10}}, {"key2", {"string2", 20}}}
+			{{get_random_vector(), "string1", 10}, {get_random_vector(), "string2", 20}},
+			{{"key1", {get_random_vector(), "string1", 10}}, {"key2", {get_random_vector(), "string2", 20}}}
 		};
 		std::stringstream ss;
 		OArchive oar(ss);
@@ -176,8 +190,8 @@ int main() {
 	
 	{
 		message::StructMV i5{
-			{{"key1", {"string1", 10}}, {"key2", {"string2", 20}}},
-			{{"string1", 10}, {"string2 ", 20}}
+			{{"key1", {get_random_vector(), "string1", 10}}, {"key2", {get_random_vector(), "string2", 20}}},
+			{{get_random_vector(), "string1", 10}, {get_random_vector(), "string2 ", 20}}
 		};
 		std::stringstream ss;
 		OArchive oar(ss);
@@ -194,11 +208,11 @@ int main() {
 			{
 				{
 					"key1",
-					{{"string1", 0}, {"string2", 20}}
+					{{get_random_vector(), "string1", 0}, {get_random_vector(), "string2", 20}}
 				},
 				{
 					"key2",
-					{{"string1", 10}, {"string2", 20}}
+					{{get_random_vector(), "string1", 10}, {get_random_vector(), "string2", 20}}
 				}
 			}
 		};
