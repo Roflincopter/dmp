@@ -33,7 +33,8 @@ DmpClientConnectDialog::DmpClientConnectDialog(QWidget *parent)
 	
 		servers[name] = ConnectionInfo {
 			server.hostname,
-			server.port
+			server.port,
+			server.secure
 		};
 		
 		ui.Servers->addItem(QString::fromStdString(name));
@@ -56,6 +57,11 @@ uint16_t DmpClientConnectDialog::get_port()
 	return ui.PortEdit->text().toUShort();
 }
 
+bool DmpClientConnectDialog::get_secure()
+{
+	return Qt::Checked == ui.SecureCheckBox->checkState();
+}
+
 void DmpClientConnectDialog::updateOkButton()
 {
 	// We purposedly not validate host & port beyond checking for not-emptiness
@@ -75,6 +81,7 @@ void DmpClientConnectDialog::setEnabled(bool enable)
 	ui.NameEdit->setEnabled(enable);
 	ui.HostEdit->setEnabled(enable);
 	ui.PortEdit->setEnabled(enable);
+	ui.SecureCheckBox->setEnabled(enable);
 	ui.buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(enable);
 }
 
@@ -107,6 +114,13 @@ void DmpClientConnectDialog::portChanged(QString str)
 {
 	if(auto item = get_selected_item(ui.Servers)) {
 		servers[item->text().toStdString()].port = str.toStdString();
+	}
+}
+
+void DmpClientConnectDialog::secureChanged(bool checked)
+{
+	if(auto item = get_selected_item(ui.Servers)) {
+		servers[item->text().toStdString()].secure = checked;
 	}
 }
 
@@ -159,6 +173,7 @@ void DmpClientConnectDialog::selectionChanged()
 		ui.NameEdit->setText(QString::fromStdString(name));
 		ui.HostEdit->setText(QString::fromStdString(servers[name].host_name));
 		ui.PortEdit->setText(QString::fromStdString(servers[name].port));
+		ui.SecureCheckBox->setChecked(servers[name].secure);
 		setEnabled(true);
 	} else {
 		setEnabled(false);
@@ -169,7 +184,7 @@ void DmpClientConnectDialog::selectionChanged()
 void DmpClientConnectDialog::saveToConfig() {
 	config::clear_servers();
 	for(auto&& server : servers) {
-		config::add_server(server.first, server.second.host_name, server.second.port);
+		config::add_server(server.first, server.second.host_name, server.second.port, server.second.secure);
 	}
 }
 

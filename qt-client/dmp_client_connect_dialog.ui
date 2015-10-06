@@ -149,6 +149,20 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="1">
+         <widget class="QCheckBox" name="SecureCheckBox">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="SecureLabel">
+          <property name="text">
+           <string>Secure</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -398,6 +412,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>SecureCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>secureChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>462</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SecureCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DmpClientConnectDialog</receiver>
+   <slot>inputChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>462</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>inputChanged()</slot>
@@ -409,5 +455,6 @@
   <slot>hostChanged(QString)</slot>
   <slot>portChanged(QString)</slot>
   <slot>saveToConfig()</slot>
+  <slot>secureChanged(bool)</slot>
  </slots>
 </ui>

@@ -145,6 +145,14 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>LibraryList</tabstop>
+  <tabstop>NameEdit</tabstop>
+  <tabstop>PathEdit</tabstop>
+  <tabstop>folderSelectButton</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

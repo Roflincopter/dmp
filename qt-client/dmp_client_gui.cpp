@@ -93,10 +93,10 @@ void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 	update_ui_client_interface();
 }
 
-bool DmpClientGui::connect_client(std::string host, uint16_t port)
+bool DmpClientGui::connect_client(std::string host, uint16_t port, bool secure)
 {
 	try {
-		auto client_sp = std::make_shared<DmpClient>(host, port, false);
+		auto client_sp = std::make_shared<DmpClient>(host, port, secure);
 		set_client(client_sp);
 	} catch(std::exception &e) {
 		DmpClientErrorDialog dialog("Failed to connect to " + host + ":" + std::to_string(port) + ": " + e.what());
@@ -168,7 +168,7 @@ void DmpClientGui::dmpConnect()
 		return;
 	}
 
-	if(connect_client(connect.get_host(), connect.get_port())) {
+	if(connect_client(connect.get_host(), connect.get_port(), connect.get_secure())) {
 		login_user();
 	} else {
 		QApplication::postEvent(this, new CallEvent([this]{dmpConnect();}));

@@ -12,9 +12,10 @@ struct ServerInfo {
 	std::string name;
 	std::string hostname;
 	std::string port;
+	bool secure;
 
 	friend std::ostream& operator<<(std::ostream& os, ServerInfo const& x) {
-		return os << x.name << ", " << x.hostname << ", " << x.port << std::endl;
+		return os << x.name << ", " << x.hostname << ", " << x.port << " using secured connection: " << (x.secure ? "yes" : "no") << std::endl;
 	}
 };
 
@@ -42,7 +43,7 @@ void add_library(LibraryInfo info);
 void clear_library();
 
 std::vector<ServerInfo> get_servers();
-void add_server(std::string name, std::string hostname, std::string port);
+void add_server(std::string name, std::string hostname, std::string port, bool secure);
 void clear_servers();
 
 void print_config_dir();

@@ -26,6 +26,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, name)
 	(std::string, hostname)
 	(std::string, port)
+	(bool, secure)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -191,7 +192,7 @@ boost::property_tree::ptree& get_or_create_child(std::string key, std::string va
 template <typename T, int... Indices>
 T to_struct(std::pair<const std::string, boost::property_tree::ptree> pair, indices<Indices...>) {
 	return T{
-		pair.second.get<std::string>(friendly_fusion::extension::struct_member_name<T, Indices>::call())...
+		pair.second.get<typename friendly_fusion::utils::DecayedTypeOfAtIndex<T, Indices>::type>(friendly_fusion::extension::struct_member_name<T, Indices>::call())...
 	};
 }
 
@@ -238,12 +239,13 @@ std::vector<ServerInfo> get_servers()
 	return get_array_info<ServerInfo>(servers_key);
 }
 
-void add_server(std::string name, std::string hostname, std::string port)
+void add_server(std::string name, std::string hostname, std::string port, bool secure)
 {
 	auto& new_elem = append_array_element_to_key(servers_key);
 	new_elem.put("name", name);
 	new_elem.put("hostname", hostname);
 	new_elem.put("port", port);
+	new_elem.put("secure", secure);
 }
 
 void clear_servers() {

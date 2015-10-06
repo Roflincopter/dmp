@@ -16,9 +16,10 @@
 struct ConnectionInfo {
 	std::string host_name;
 	std::string port;
+	bool secure;
 	
 	friend std::ostream& operator<<(std::ostream& os, ConnectionInfo c) {
-		return os << "{host_name: " << "port: " << c.host_name << ", " << c.port << "}";
+		return os << "{host_name: " << "port: " << c.host_name << ", " << c.port << " using secured connection: " << (c.secure ? "yes" : "no") << "}";
 	}
 };
 
@@ -33,6 +34,7 @@ public:
 
 	std::string get_host();
 	uint16_t get_port();
+	bool get_secure();
 	std::map<std::string, ConnectionInfo> servers;
 
 private:
@@ -48,6 +50,7 @@ private slots:
 	void nameChanged(QString str);
 	void hostChanged(QString str);
 	void portChanged(QString str);
+	void secureChanged(bool checked);
 	void addPressed();
 	void deletePressed();
 	void selectionChanged();

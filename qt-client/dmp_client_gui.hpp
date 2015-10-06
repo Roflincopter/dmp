@@ -59,7 +59,7 @@ public:
 	// reimplementation of event to route custom events to the gui main thread.
 	bool event(QEvent* event) override final;
 
-	bool connect_client(std::string host, uint16_t port);
+	bool connect_client(std::string host, uint16_t port, bool secure);
 	void login_client(std::string username, std::string password);
 
 	void set_client(std::shared_ptr<DmpClientInterface> new_client);
