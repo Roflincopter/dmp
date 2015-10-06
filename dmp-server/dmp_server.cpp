@@ -252,7 +252,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 	std::map<std::string, RadioState> states;
 	for(auto&& radio : radios) {
-		states.emplace(radio.first, std::move(radio.second.second.get_state()));
+		states.emplace(radio.first, radio.second.second.get_state());
 	}
 	connections[username]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 }
@@ -527,7 +527,7 @@ void DmpServer::update_radio_state()
 {
 	std::map<std::string, RadioState> states;
 	for(auto&& radio : radios) {
-		states.emplace(radio.first, std::move(radio.second.second.get_state()));
+		states.emplace(radio.first, radio.second.second.get_state());
 	}
 	
 	for(auto& endpoint : connections) {
