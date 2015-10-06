@@ -61,9 +61,13 @@ public:
 	template <typename T>
 	void send(T x) {
 		if(encrypt) {
-			send_encrypted(x);
+			socket.get_io_service().post([this, x]{
+				send_encrypted(x);
+			});
 		} else {
-			send_plain(x);
+			socket.get_io_service().post([this, x]{
+				send_plain(x);
+			});
 		}
 	}
 	
