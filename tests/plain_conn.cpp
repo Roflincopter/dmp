@@ -22,7 +22,7 @@ public:
 	
 	Client(Connection&& conn)
 	: connection(std::move(conn)) 
-	, callbacks(std::bind(&Client::receive, this), {})
+	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{})
 	, messageswitch(make_message_switch()) {
 		callbacks
 			.set(message::Type::Ping, [this](message::Ping p){
