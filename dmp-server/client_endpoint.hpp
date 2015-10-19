@@ -32,6 +32,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 public:
 
 	ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios);
+	~ClientEndpoint();
 
 	std::function<void()> terminate_connection;
 

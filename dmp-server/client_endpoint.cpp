@@ -29,6 +29,11 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 	keep_alive();
 }
 
+ClientEndpoint::~ClientEndpoint()
+{
+	ping_timer->cancel();
+}
+
 message::DmpCallbacks& ClientEndpoint::get_callbacks()
 {
 	return callbacks;
@@ -97,8 +102,17 @@ void ClientEndpoint::keep_alive()
 		}
 
 		last_ping = message::Ping();
-		forward(last_ping);
+		try {
+			forward(last_ping);
+		} catch(boost::system::error_code& ec) {
+			if(ec.value() == boost::system::errc::broken_pipe) {
+				return;
+			}
+			keep_alive();
+			throw;
+		}
 		keep_alive();
+		
 	};
 	ping_timer->async_wait(cb);
 }
