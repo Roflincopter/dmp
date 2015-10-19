@@ -5,6 +5,7 @@
 
 #include <boost/fusion/adapted/struct.hpp>
 #include <sstream>
+#include <random>
 
 struct Entry {
 	std::vector<uint8_t> vec;
