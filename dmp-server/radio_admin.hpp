@@ -2,6 +2,10 @@
 	#pragma once
 #endif
 
+#ifdef ODB_COMPILER
+	#include "database_version.hpp"
+#endif
+
 #include "user.hpp"
 #include "radio.hpp"
 

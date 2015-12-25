@@ -1,5 +1,5 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="sqlite" version="1">
-  <model version="2">
+  <model version="1">
     <table name="SuperAdmin" kind="object">
       <column name="id" type="INTEGER" null="false"/>
       <column name="user" type="TEXT" null="false"/>
