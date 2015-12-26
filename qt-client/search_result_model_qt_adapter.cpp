@@ -67,6 +67,17 @@ void SearchResultModelQtAdapter::new_search_end()
 	endResetModel();
 }
 
+void SearchResultModelQtAdapter::remove_entries_start(int start, int count)
+{
+	std::cout << "Start: " << start << "count: " << count << std::endl;
+	beginRemoveRows(QModelIndex(), start, start + count);
+}
+
+void SearchResultModelQtAdapter::remove_entries_end()
+{
+	endRemoveRows();
+}
+
 void SearchResultModelQtAdapter::search_results_start(int count)
 {
 	beginInsertRows(QModelIndex(), model->row_count(), model->row_count() + count - 1);

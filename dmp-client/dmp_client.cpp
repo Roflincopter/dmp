@@ -75,7 +75,8 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 		{message::Type::SenderAction, std::function<bool(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
 		{message::Type::ReceiverAction, std::function<bool(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
 		{message::Type::RadioStates, std::function<bool(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))},
-		{message::Type::PublicKey, std::function<bool(message::PublicKey)>(std::bind(&DmpClient::handle_public_key, this, _1))}
+		{message::Type::PublicKey, std::function<bool(message::PublicKey)>(std::bind(&DmpClient::handle_public_key, this, _1))},
+		{message::Type::Disconnected, std::function<bool(message::Disconnected)>(std::bind(&DmpClient::handle_disconnected, this, _1))}
 	};
 }
 
@@ -524,5 +525,11 @@ bool DmpClient::handle_radio_states(message::RadioStates rs)
 			throw std::runtime_error("Received a RadioStates message with unhandled action: " + std::to_string(static_cast<message::Type_t>(rs.action)));
 		}
 	}
+	return true;
+}
+
+bool DmpClient::handle_disconnected(message::Disconnected d)
+{
+	search_result_model->remove_entries_from(d.name);
 	return true;
 }

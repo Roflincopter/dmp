@@ -109,3 +109,22 @@ std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> SearchResultModel::
 
 	throw std::runtime_error("Row index is out of range");
 }
+
+void SearchResultModel::remove_entries_from(std::string name)
+{
+	int start = 0;
+	for(auto it = search_results.cbegin(); it != search_results.cend();) {
+		if(it->first.client == name) {
+			int count = 0;
+			for(auto&& pair : it->second) {
+				count += pair.second.size();
+			}
+			call_on_delegates(&SearchResultUiDelegate::remove_entries_start, start, count);
+			it = search_results.erase(it);
+			call_on_delegates(&SearchResultUiDelegate::remove_entries_end);
+		} else {
+			start += it->second.size();
+			++it;
+		}
+	}
+}

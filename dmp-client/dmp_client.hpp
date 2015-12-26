@@ -120,4 +120,5 @@ public:
 	bool handle_sender_action(message::SenderAction sa);
 	bool handle_receiver_action(message::ReceiverAction ra);
 	bool handle_radio_states(message::RadioStates rs);
+	bool handle_disconnected(message::Disconnected d);
 };

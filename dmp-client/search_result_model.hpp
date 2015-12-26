@@ -62,6 +62,7 @@ public:
 	int column_count() const;
 
 	std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> get_row_info(int row) const;
+	void remove_entries_from(std::string name);
 };
 
 BOOST_FUSION_ADAPT_STRUCT

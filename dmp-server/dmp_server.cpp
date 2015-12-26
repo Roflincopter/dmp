@@ -260,8 +260,13 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 void DmpServer::remove_connection(std::string name)
 {
 	connections.erase(name);
-	for(auto&& radio : radios)
-	{
+	
+	for(auto&& connection : connections) {
+		std::cout << "Sending Disconnected to " << connection.first << std::endl;
+		connection.second->forward(message::Disconnected(name));
+	}
+	
+	for(auto&& radio : radios){
 		radio.second.second.disconnect(name);
 	}
 }

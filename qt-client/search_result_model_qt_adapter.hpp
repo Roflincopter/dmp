@@ -26,6 +26,9 @@ public:
 	virtual void new_search_begin() override final;
 	virtual void new_search_end() override final;
 	
+	virtual void remove_entries_start(int start, int count) override final;
+	virtual void remove_entries_end() override final;
+	
 	virtual void search_results_start(int count) override final;
 	virtual void search_results_end() override final;
 	

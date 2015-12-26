@@ -51,6 +51,7 @@ enum class Type : Type_t {
 	SenderAction,
 	TuneIn,
 	RadioStates,
+	Disconnected,
 	LAST
 };
 
@@ -405,6 +406,14 @@ struct RadioStates {
 	{}
 };
 
+struct Disconnected {
+	std::string name;
+	
+	Disconnected(std::string name)
+	: name(name)
+	{}
+};
+
 template <Type t>
 struct type_to_message
 {
@@ -475,6 +484,7 @@ MESSAGE_TYPE_CONVERSION(SenderEvent)
 MESSAGE_TYPE_CONVERSION(ReceiverAction)
 MESSAGE_TYPE_CONVERSION(TuneIn)
 MESSAGE_TYPE_CONVERSION(RadioStates)
+MESSAGE_TYPE_CONVERSION(Disconnected)
 
 #undef MESSAGE_TYPE_CONVERSION
 
@@ -638,4 +648,9 @@ BOOST_FUSION_ADAPT_STRUCT(
 	message::RadioStates,
 	(message::RadioStates::Action, action)
 	(RadioStatesType, states)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	message::Disconnected,
+	(std::string, name)	
 )

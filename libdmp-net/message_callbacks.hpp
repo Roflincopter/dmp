@@ -43,6 +43,7 @@ struct DmpCallbacks {
 		, CB<message::SenderEvent>
 		, CB<message::TuneIn>
 		, CB<message::RadioStates>
+		, CB<message::Disconnected>
 	>;
 	
 	typedef std::map<message::Type, CallBackType> Callbacks_t;
