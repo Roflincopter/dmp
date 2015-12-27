@@ -77,7 +77,9 @@ std::string SearchResultModel::header_data(int section) const
 
 void SearchResultModel::clear()
 {
+	call_on_delegates(&SearchResultUiDelegate::clear_start);
 	search_results.clear();
+	call_on_delegates(&SearchResultUiDelegate::clear_end);
 }
 
 void SearchResultModel::set_current_query(std::string query)

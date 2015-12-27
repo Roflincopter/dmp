@@ -5,6 +5,9 @@ struct SearchResultUiDelegate {
 	virtual void search_results_start(int){}
 	virtual void search_results_end(){}
 	
+	virtual void clear_start(){}
+	virtual void clear_end(){}
+	
 	virtual void remove_entries_start(int, int){}
 	virtual void remove_entries_end(){}
 	

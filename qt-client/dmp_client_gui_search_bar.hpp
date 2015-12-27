@@ -33,6 +33,9 @@ public:
 	virtual void set_client(std::shared_ptr<DmpClientInterface> new_client) override final;
 
 	virtual void query_parse_error() override final;
+	
+	virtual void clear_start() override final;
+	virtual void clear_end() override final;
 signals:
 
 public slots:

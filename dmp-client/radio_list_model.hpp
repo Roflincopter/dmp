@@ -28,6 +28,8 @@ public:
 	std::string get_tuned_in_radio() const;
 	void set_tuned_in_radio(std::string radio_name);
 	
+	void clear();
+	
 	void set_radio_states(std::map<std::string, RadioState> states);
 	std::map<std::string, RadioState> get_radio_states() const;
 };

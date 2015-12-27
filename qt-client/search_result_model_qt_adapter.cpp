@@ -67,6 +67,16 @@ void SearchResultModelQtAdapter::new_search_end()
 	endResetModel();
 }
 
+void SearchResultModelQtAdapter::clear_start()
+{
+	beginResetModel();
+}
+
+void SearchResultModelQtAdapter::clear_end()
+{
+	endResetModel();
+}
+
 void SearchResultModelQtAdapter::remove_entries_start(int start, int count)
 {
 	std::cout << "Start: " << start << "count: " << count << std::endl;

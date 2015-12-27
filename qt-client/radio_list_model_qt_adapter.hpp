@@ -25,6 +25,9 @@ public:
 	virtual void set_radios_start() override final;
 	virtual void set_radios_end() override final;
 	
+	virtual void clear_start() override final;
+	virtual void clear_end() override final;
+	
 	virtual void add_radio_start() override final;
 	virtual void add_radio_end() override final;
 

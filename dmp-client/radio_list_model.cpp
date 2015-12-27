@@ -47,6 +47,13 @@ void RadioListModel::set_tuned_in_radio(std::string radio_name)
 	tuned_in_radio = radio_name;
 }
 
+void RadioListModel::clear()
+{
+	call_on_delegates(&RadioListUiDelegate::clear_start);
+	radio_names.clear();
+	call_on_delegates(&RadioListUiDelegate::clear_end);
+}
+
 void RadioListModel::set_radio_states(std::map<std::string, RadioState> states)
 {
 	radio_states = states;

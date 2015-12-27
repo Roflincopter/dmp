@@ -7,6 +7,9 @@ struct PlaylistUiDelegate
 	virtual void playlist_update_start(message::PlaylistUpdate){}
 	virtual void playlist_update_end(message::PlaylistUpdate){}
 	
+	virtual void clear_start(){}
+	virtual void clear_end(){}
+	
 	virtual void current_radio_change_start(){}
 	virtual void current_radio_change_end(){}
 	

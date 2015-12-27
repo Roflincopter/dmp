@@ -52,6 +52,17 @@ void DmpClientGuiSearchBar::query_parse_error()
 	set_line_edit_text_format(model->get_error_formats());
 }
 
+void DmpClientGuiSearchBar::clear_start()
+{
+	
+}
+
+void DmpClientGuiSearchBar::clear_end()
+{
+	clear();
+	reset_error_state();
+}
+
 void DmpClientGuiSearchBar::searchBarReturned()
 {
 	reset_error_state();

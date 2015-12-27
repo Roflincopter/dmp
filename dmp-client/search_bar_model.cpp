@@ -11,6 +11,15 @@ void SearchBarModel::set_query(std::string new_query)
 	query = new_query;
 }
 
+void SearchBarModel::clear()
+{
+	call_on_delegates(&SearchBarUiDelegate::clear_start);
+	query.clear();
+	expected.clear();
+	pivot = 0;
+	call_on_delegates(&SearchBarUiDelegate::clear_end);
+}
+
 void SearchBarModel::set_data(std::string new_expected, size_t new_pivot)
 {
 	expected = new_expected;

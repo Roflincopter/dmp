@@ -20,6 +20,8 @@ public:
 	void set_data(std::string new_expected, size_t new_pivot);
 	void set_query(std::string new_query);
 
+	void clear();
+
 	std::string get_expected() const;
 	size_t get_pivot() const;
 	size_t get_query_length() const;

@@ -135,6 +135,13 @@ void PlaylistsModel::reset(std::string radio_name)
 	playlists[radio_name].clear();
 }
 
+void PlaylistsModel::clear()
+{
+	call_on_delegates(&PlaylistUiDelegate::clear_start);
+	playlists.clear();
+	call_on_delegates(&PlaylistUiDelegate::clear_end);
+}
+
 bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 {
 	call_on_delegates(&PlaylistUiDelegate::playlist_update_start, update_msg);

@@ -112,6 +112,14 @@ void DmpClient::run()
 	io_service->run();
 }
 
+void DmpClient::clear_model()
+{
+	playlists_model->clear();
+	radio_list_model->clear();
+	search_bar_model->clear();
+	search_result_model->clear();
+}
+
 void DmpClient::destroy()
 {
 	io_service->stop();

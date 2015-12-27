@@ -66,6 +66,8 @@ void DmpClientGui::update_ui_client_interface()
 void DmpClientGui::set_client(std::shared_ptr<DmpClientInterface> new_client)
 {
 	if(client) {
+		client->clear_model();
+		QApplication::processEvents();
 		client->destroy();
 	}
 	

@@ -3,6 +3,9 @@
 struct RadioListUiDelegate {
 	virtual void set_radio_states(){}
 	
+	virtual void clear_start(){}
+	virtual void clear_end(){}
+	
 	virtual void set_radios_start(){}
 	virtual void set_radios_end(){}
 	

@@ -181,6 +181,16 @@ void PlaylistsModelQtAdapter::playlist_update_end(message::PlaylistUpdate update
 	}
 }
 
+void PlaylistsModelQtAdapter::clear_start()
+{
+	beginResetModel();
+}
+
+void PlaylistsModelQtAdapter::clear_end()
+{
+	endResetModel();
+}
+
 void PlaylistsModelQtAdapter::current_radio_change_start()
 {
 	beginResetModel();

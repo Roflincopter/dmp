@@ -47,6 +47,16 @@ void RadioListModelQtAdapter::set_radios_end()
 	endResetModel();
 }
 
+void RadioListModelQtAdapter::clear_start()
+{
+	beginResetModel();
+}
+
+void RadioListModelQtAdapter::clear_end()
+{
+	endResetModel();
+}
+
 void RadioListModelQtAdapter::add_radio_start()
 {
 	beginInsertRows(QModelIndex(), model->row_count(), model->row_count());
