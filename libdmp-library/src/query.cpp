@@ -63,17 +63,18 @@ boost::regex const Atom::get_regex(Query::modifier const& m)
 	}
 }
 
-std::vector<size_t> Atom::handle_search(vector<LibraryEntry> const& library)
+std::vector<std::pair<size_t, LibraryEntry>> Atom::handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library)
 {
-	std::vector<size_t> ret;
-	for(LibraryEntry const& entry : library)
+	std::vector<std::pair<size_t, LibraryEntry>> ret;
+	for(auto&& pair : library)
 	{
+		auto entry = pair.second.entry;
 		std::string const& source = get_field_string(field, entry);
 		boost::regex x = get_regex(modifier);
 
 		if(boost::regex_match(source, x))
 		{
-			ret.push_back(entry.id);
+			ret.emplace_back(entry.id, entry);
 		}
 	}
 	return ret;
@@ -84,13 +85,13 @@ And::And(dmp_library::ast::And const& ast)
 , rh(apply_visitor(to_query, ast.rh))
 {}
 
-std::vector<size_t> And::handle_search(vector<LibraryEntry> const& library)
+std::vector<std::pair<size_t, LibraryEntry>> And::handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library)
 {
 	auto lhv = lh->handle_search(library);
 	cout << " and ";
 	auto rhv = rh->handle_search(library);
 
-	std::vector<size_t> ret;
+	std::vector<std::pair<size_t, LibraryEntry>> ret;
 	std::set_intersection(lhv.begin(), lhv.end(), rhv.begin(), rhv.end(), std::back_inserter(ret));
 	return ret;
 }
@@ -100,13 +101,13 @@ Or::Or(const ast::Or& ast)
 , rh(apply_visitor(to_query, ast.rh))
 {}
 
-std::vector<size_t> Or::handle_search(vector<LibraryEntry> const& library)
+std::vector<std::pair<size_t, LibraryEntry>> Or::handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library)
 {
 	auto lhv = lh->handle_search(library);
 	cout << " or ";
 	auto rhv = rh->handle_search(library);
 
-	std::vector<size_t> ret;
+	std::vector<std::pair<size_t, LibraryEntry>> ret;
 	std::set_union(lhv.begin(), lhv.end(), rhv.begin(), rhv.end(), std::back_inserter(ret));
 	return ret;
 }
@@ -115,17 +116,16 @@ Not::Not(const ast::Not& ast)
 : negated(apply_visitor(to_query, ast.negated))
 {}
 
-std::vector<size_t> Not::handle_search(vector<LibraryEntry> const& library)
+std::vector<std::pair<size_t, LibraryEntry>> Not::handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library)
 {
-	cout << " not ";
-	std::vector<size_t> x = negated->handle_search(library);
+	auto x = negated->handle_search(library);
 
-	std::vector<size_t> all(library.size());
-	sequence_generator gen;
-	std::generate(all.begin(), all.end(), gen);
+	std::vector<std::pair<size_t, LibraryEntry>> original;
+	original.reserve(library.size());
+	std::transform(library.begin(), library.end(), std::back_inserter(original), [](std::pair<size_t, EntryLocation> const& x) {return std::make_pair(x.first, x.second.entry);});
 
-	std::vector<size_t> ret;
-	std::set_difference(all.begin(), all.end(), x.begin(), x.end(), std::back_inserter(ret));
+	std::vector<std::pair<size_t, LibraryEntry>> ret;
+	std::set_difference(original.begin(), original.end(), x.begin(), x.end(), std::back_inserter(ret));
 
 	return ret;
 }

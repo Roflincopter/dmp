@@ -19,23 +19,21 @@
 
 namespace dmp_library {
 
-LibraryFolder::LibraryFolder()
+Library::Library()
 {
 }
 
-LibraryFolder::LibraryFolder(boost::filesystem::path path, tracklist_t tracklist, filemap_t filemap)
-: path(path)
-, tracklist(tracklist)
-, filemap(filemap)
+Library::Library(library_t library)
+: library(library)
 {
 }
 
-LibraryFolder LibraryFolder::read_cache(std::string cache_path){
+Library Library::read_cache(std::string cache_path){
 	std::ifstream ifs(cache_path);
 	if(ifs)
 	{
 		boost::archive::text_iarchive ar(ifs);
-		LibraryFolder lib;
+		Library lib;
 		ar & lib;
 		return lib;
 	}
@@ -45,7 +43,7 @@ LibraryFolder LibraryFolder::read_cache(std::string cache_path){
 	}
 }
 
-boost::optional<LibraryEntry> LibraryFolder::build_library_entry(boost::filesystem::path p)
+boost::optional<LibraryEntry> Library::build_library_entry(boost::filesystem::path p)
 {
 	TagLib::FileRef file(p.string().c_str(), true, TagLib::AudioProperties::ReadStyle::Accurate);
 	TagLib::AudioProperties* audio_prop = file.audioProperties();
@@ -73,10 +71,9 @@ boost::optional<LibraryEntry> LibraryFolder::build_library_entry(boost::filesyst
 	}
 }
 
-LibraryFolder LibraryFolder::build_library(boost::filesystem::path p)
+Library Library::build_library(boost::filesystem::path p)
 {
-	std::vector<LibraryEntry> library;
-	std::map<uint32_t, std::string> filemap;
+	library_t library;
 
 	for(auto it = boost::filesystem::recursive_directory_iterator(p); it != boost::filesystem::recursive_directory_iterator(); ++it)
 	{
@@ -86,8 +83,7 @@ LibraryFolder LibraryFolder::build_library(boost::filesystem::path p)
 		try {
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
-				library.emplace_back(entry.get());
-				filemap.emplace(entry.get().id, (*it).path().string());
+				library.emplace(std::hash<LibraryEntry>()(entry.get()), EntryLocation{entry.get(), it->path().string()});
 			}
 		}
 		catch(std::exception&)
@@ -95,10 +91,10 @@ LibraryFolder LibraryFolder::build_library(boost::filesystem::path p)
 			continue;
 		}
 	}
-	return LibraryFolder(p, library, filemap);
+	return Library(library);
 }
 
-LibraryFolder LibraryFolder::parse_directory(const std::string &directory_path)
+Library Library::parse_directory(const std::string &directory_path)
 {
 	boost::filesystem::path p(directory_path);
 	if(boost::filesystem::exists(p))
@@ -117,19 +113,19 @@ LibraryFolder LibraryFolder::parse_directory(const std::string &directory_path)
 	}
 }
 
-LibraryFolder LibraryFolder::create(config::LibraryInfo info, bool use_cache, bool create_cache) {
+Library Library::create(config::LibraryInfo info, bool use_cache, bool create_cache) {
 	boost::filesystem::path cache_file = config::get_library_folder_name() / info.cache_file;
 
 	if(boost::filesystem::exists(cache_file) && use_cache)
 	{
-		LibraryFolder lib = read_cache(cache_file.string());
+		Library lib = read_cache(cache_file.string());
 		return lib;
 	}
 	else
 	{
-		LibraryFolder lib = parse_directory(info.path);
+		Library lib = parse_directory(info.path);
 
-		if(lib.tracklist.empty()) {
+		if(lib.library.empty()) {
 			std::cout << "library was empty when writing cache file." << std::endl;
 		}
 
@@ -141,18 +137,34 @@ LibraryFolder LibraryFolder::create(config::LibraryInfo info, bool use_cache, bo
 	}
 }
 
-std::string Library::get_filename(uint32_t folder_id, LibraryEntry entry) const
+std::string Library::get_filename(LibraryEntry entry) const
 {
-	return library.at(folder_id).filemap.at(entry.id);
+	auto hash = std::hash<LibraryEntry>()(entry);
+	if(library.count(hash) == 1) {
+		return library.find(hash)->second.location;
+	} else {
+		auto pair = library.equal_range(hash);
+		for(auto it = pair.first; it != pair.second; ++it) {
+			if(it->second.entry == entry) {
+				return it->second.location;
+			}
+		}
+	}
+	throw EntryNotFound();
 }
 
 void Library::clear() {
 	library.clear();
 }
 
-void Library::add_folder(config::LibraryInfo info)
+void Library::add_folder(config::LibraryInfo const& info)
 {
-	library[library.size()] = LibraryFolder::create(info);
+	auto sublib = Library::create(info);
+	library.insert(sublib.library.begin(), sublib.library.end());
 }
+
+EntryNotFound::EntryNotFound()
+: std::runtime_error("Entry not found in this library")
+{}
 
 }

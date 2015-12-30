@@ -16,24 +16,14 @@ LibrarySearcher::LibrarySearcher(const Library& library)
 : library(library)
 {}
 
-vector<size_t> LibrarySearcher::search(std::shared_ptr<Query> query_obj, LibraryFolder const& folder) {
-	return query_obj->handle_search(folder.tracklist);
+std::vector<std::pair<size_t, LibraryEntry>> LibrarySearcher::search(std::shared_ptr<Query> query_obj, Library const& library) {
+	return query_obj->handle_search(library.library);
 }
 
-std::map<uint32_t, std::vector<LibraryEntry>> LibrarySearcher::search(std::string query)
+std::vector<std::pair<size_t, LibraryEntry>> LibrarySearcher::search(std::string query)
 {
 	auto&& query_obj = parse_query(query);
-	
-	std::map<uint32_t, std::vector<LibraryEntry>> result;
-	for(auto&& entry : library.library) {
-		vector<size_t> result_indices = search(query_obj, entry.second);
-		vector<LibraryEntry> sub_result;
-		for(auto&& index : result_indices) {
-			sub_result.push_back(entry.second.tracklist[index]);
-		}
-		result.emplace(entry.first, sub_result);
-	}
-	return result;
+	return search(query_obj, library.library);
 }
 
 }

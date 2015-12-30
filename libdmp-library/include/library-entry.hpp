@@ -5,9 +5,24 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <functional>
+#include <sstream>
 
 namespace dmp_library
 {
+
+struct LibraryEntry;
+
+}
+
+namespace std {
+
+template<>
+struct hash<dmp_library::LibraryEntry>;
+
+}
+
+namespace dmp_library {
 
 struct LibraryEntry
 {
@@ -45,25 +60,39 @@ struct LibraryEntry
 	std::string ascii_album;
 	uint32_t track;
 	Duration length;
-	uint32_t id;
+	std::hash<std::string>::result_type id;
 
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
 	{
 		ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & length & id;
 	}
-
-private:
-	static uint32_t next_id;
 };
 
 std::ostream& operator<<(std::ostream& os, LibraryEntry const& le);
 std::ostream& operator<<(std::ostream& os, LibraryEntry::Duration const& dur);
 
-bool operator<(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
-
-bool operator==(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
+bool operator<(LibraryEntry const& lh, LibraryEntry const& rh);
 bool operator==(LibraryEntry const& lh, LibraryEntry const& rh);
+
+bool operator<(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
+bool operator==(LibraryEntry::Duration const& lh, LibraryEntry::Duration const& rh);
+
+}
+
+namespace std {
+
+template<>
+struct hash<dmp_library::LibraryEntry> {
+
+	typedef std::hash<std::string>::result_type result_type;
+
+	std::hash<std::string>::result_type operator()(dmp_library::LibraryEntry const& entry) const {
+		std::stringstream ss;
+		ss << entry.artist << entry.title << entry.album << entry.track << entry.length;
+		return hash<string>()(ss.str());
+	}
+};
 
 }
 
@@ -86,5 +115,5 @@ BOOST_FUSION_ADAPT_STRUCT
 	(std::string, ascii_album)
 	(uint32_t, track)
 	(dmp_library::LibraryEntry::Duration, length)
-	(uint32_t, id)
+	(std::hash<std::string>::result_type, id)
 )

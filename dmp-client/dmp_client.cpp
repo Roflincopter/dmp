@@ -442,7 +442,7 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 	
 	t.detach();
 	
-	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.folder_id, sr.entry));
+	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
 	return true;
 }
 

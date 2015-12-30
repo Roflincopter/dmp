@@ -37,12 +37,16 @@ struct MessageSwitch
 	{}
 	
 	void handle_message(Connection& conn, message::Type index, message::DmpCallbacks const& cbs) const {
-		if(auto f = table[static_cast<message::Type_t>(index)]) {
-			f(conn, cbs);
+		if(static_cast<message::Type_t>(index) >= table.size()) {
+			std::cout << "Out of bounds index detected" << std::endl;
 		} else {
-			std::cout << static_cast<message::Type_t>(index) << std::endl;
-			std::cout << sizeof(table) << std::endl;
-			std::cout << "Ignored message of type: " << type_to_string(index) << std::endl;
+			if(auto f = table[static_cast<message::Type_t>(index)]) {
+				f(conn, cbs);
+			} else {
+				std::cout << static_cast<message::Type_t>(index) << std::endl;
+				std::cout << sizeof(table) << std::endl;
+				std::cout << "Ignored message of type: " << type_to_string(index) << std::endl;
+			}
 		}
 	}
 };

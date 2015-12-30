@@ -17,10 +17,7 @@ SearchResultModel::SearchResultModel()
 
 void SearchResultModel::add_search_response(message::SearchResponse response)
 {
-	int count = 0;
-	for(auto&& pair : response.results) {
-		count += pair.second.size();
-	}
+	int count = response.results.size();
 	
 	if(count != 0) {
 		call_on_delegates(&SearchResultUiDelegate::search_results_start, count);
@@ -33,9 +30,7 @@ int SearchResultModel::row_count() const
 {
 	int size = 0;
 	for(auto&& results : search_results) {
-		for(auto&& results_of_client : results.second) {
-			size += results_of_client.second.size();
-		}
+		size += results.second.size();
 	}
 	
 	return size;
@@ -54,12 +49,10 @@ boost::any SearchResultModel::get_cell(int row, int column) const
 
 	for(SearchResultsElement const& p : search_results)
 	{
-		for(auto && pair : p.second) {
-			if(row > 0 && size_t(row) >= pair.second.size()) {
-				row -= pair.second.size();
-			} else {
-				return get_nth(boost::fusion::joint_view<dmp_library::LibraryFolder::tracklist_t::value_type const, Client const>(pair.second.at(row), p.first), column);
-			}
+		if(row > 0 && size_t(row) >= p.second.size()) {
+			row -= p.second.size();
+		} else {
+			return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry const, Client const>(p.second.at(row).second, p.first), column);
 		}
 	}
 
@@ -72,7 +65,7 @@ std::string SearchResultModel::header_data(int section) const
 		throw std::out_of_range("Column index was out of range.");
 	}
 	
-	return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryFolder::tracklist_t::value_type, Client>>(section);
+	return get_nth_name<boost::fusion::joint_view<dmp_library::LibraryEntry, Client>>(section);
 }
 
 void SearchResultModel::clear()
@@ -100,12 +93,10 @@ std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> SearchResultModel::
 {
 	for(auto&& p : search_results)
 	{
-		for(auto&& pair : p.second) {
-			if(row > 0 && size_t(row) >= pair.second.size()) {
-				row -= pair.second.size();
-			} else {
-				return std::make_tuple(p.first.client, pair.first, pair.second.at(row));	
-			}
+		if(row > 0 && size_t(row) >= p.second.size()) {
+			row -= p.second.size();
+		} else {
+			return std::make_tuple(p.first.client, p.second.at(row).first, p.second.at(row).second);
 		}
 	}
 
@@ -117,10 +108,7 @@ void SearchResultModel::remove_entries_from(std::string name)
 	int start = 0;
 	for(auto it = search_results.cbegin(); it != search_results.cend();) {
 		if(it->first.client == name) {
-			int count = 0;
-			for(auto&& pair : it->second) {
-				count += pair.second.size();
-			}
+			int count = it->second.size();
 			call_on_delegates(&SearchResultUiDelegate::remove_entries_start, start, count);
 			it = search_results.erase(it);
 			call_on_delegates(&SearchResultUiDelegate::remove_entries_end);

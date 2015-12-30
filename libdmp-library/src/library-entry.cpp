@@ -11,8 +11,6 @@ using namespace std;
 
 namespace dmp_library {
 
-uint32_t LibraryEntry::next_id = 0;
-
 LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint32_t track, std::uint32_t length)
 : artist(artist)
 , ascii_artist()
@@ -22,7 +20,7 @@ LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint3
 , ascii_album()
 , track(track)
 , length(length)
-, id(next_id++)
+, id(std::hash<LibraryEntry>()(*this))
 {
 	try {
 		this->ascii_artist = transliterate_to_ascii(artist);
@@ -105,6 +103,11 @@ string LibraryEntry::Duration::to_string() const
 		ss << seconds << "s";
 	}
 	return ss.str();
+}
+
+bool operator<(const LibraryEntry &lh, const LibraryEntry &rh)
+{
+	return lexicographical_compare(lh, rh);
 }
 
 }

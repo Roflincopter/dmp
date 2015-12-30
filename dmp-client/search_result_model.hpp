@@ -41,14 +41,14 @@ public:
 private:
 	static constexpr size_t number_of_library_entry_members = friendly_fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
 	
-	typedef std::pair<Client, std::map<uint32_t, dmp_library::LibraryFolder::tracklist_t>> SearchResultsElement;
+	typedef std::pair<Client, std::vector<std::pair<size_t, dmp_library::LibraryEntry>>> SearchResultsElement;
 	std::vector<SearchResultsElement> search_results;
 	std::string current_query;
 
 public:
 	SearchResultModel();
 	
-	typedef boost::fusion::joint_view<dmp_library::LibraryFolder::tracklist_t::value_type, Client> ElementType;
+	typedef boost::fusion::joint_view<dmp_library::LibraryEntry, Client> ElementType;
 
 	void add_search_response(message::SearchResponse);
 	void clear();
