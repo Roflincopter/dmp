@@ -418,7 +418,7 @@ bool DmpClient::handle_add_radio(message::AddRadio added_radio)
 bool DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	senders.erase(sr.radio_name);
-	auto result = senders.emplace(
+	senders.emplace(
 		sr.radio_name,
 		DmpSender(
 			shared_from_this(),
@@ -426,10 +426,6 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 			config::get_gst_folder_name().string()
 		)
 	);
-	
-	if(!result.second) {
-		DEBUG_COUT << "emplace did not overwrite existing map entry" << std::endl;
-	}
 	
 	auto sender_runner = [this, sr]{
 		try {
@@ -441,6 +437,14 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 	std::thread t(sender_runner);
 	
 	t.detach();
+
+	try {
+		std::string file_name =  library.get_filename(sr.entry);
+	} catch(dmp_library::EntryNotFound const&) {
+		std::cout << "Caught exception" << std::endl;
+		senders.at(sr.radio_name).eos_reached();
+		return true;
+	}
 	
 	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
 	return true;
