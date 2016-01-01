@@ -17,6 +17,7 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 : name()
 , connection(std::move(conn))
 , ping_timer(new boost::asio::deadline_timer(*ios.lock()))
+, time_out(new boost::asio::deadline_timer(*ios.lock()))
 , last_ping()
 , callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{})
 , message_switch(make_message_switch())
@@ -54,7 +55,10 @@ bool ClientEndpoint::handle_pong(message::Pong p)
 {
 	if(p.payload != last_ping.payload) {
 		terminate_connection();
+		return false;
 	}
+	time_out->cancel();
+	keep_alive();
 	return true;
 }
 
@@ -83,6 +87,7 @@ bool ClientEndpoint::handle_bye(message::Bye)
 	connection.stop_encryption();
 	forward(message::ByeAck());
 	ping_timer->cancel();
+	time_out->cancel();
 	if(terminate_connection) {
 		terminate_connection();
 	}
@@ -111,8 +116,17 @@ void ClientEndpoint::keep_alive()
 			keep_alive();
 			throw;
 		}
-		keep_alive();
-		
+		time_out->expires_from_now(boost::posix_time::seconds(10));
+		time_out->async_wait([this](boost::system::error_code const& ec) {
+			if(ec.value() == boost::system::errc::operation_canceled) {
+				return;
+			}
+			ping_timer->cancel();
+			if(terminate_connection) {
+				terminate_connection();
+			}
+			return;
+		});
 	};
 	ping_timer->async_wait(cb);
 }

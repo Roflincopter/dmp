@@ -24,6 +24,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 	//Leave them in this order or make them independant.
 	Connection connection;
 	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
+	std::unique_ptr<boost::asio::deadline_timer> time_out;
 
 	message::Ping last_ping;
 	message::DmpCallbacks callbacks;
