@@ -186,7 +186,8 @@ void DmpServer::add_pending_connection(Connection&& c)
 				cep->get_callbacks().
 					unset(message::Type::LoginRequest).
 					unset(message::Type::RegisterRequest).
-					unset(message::Type::ByeAck);
+					unset(message::Type::Bye).
+					unset(message::Type::PublicKey);
 				add_permanent_connection(cep);
 				remove_element(pending_connections, cep);
 				cep->forward(message::LoginResponse(result.succes, ""));
@@ -259,16 +260,18 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 void DmpServer::remove_connection(std::string name)
 {
-	connections.erase(name);
-	
-	for(auto&& connection : connections) {
-		std::cout << "Sending Disconnected to " << connection.first << std::endl;
-		connection.second->forward(message::Disconnected(name));
-	}
-	
-	for(auto&& radio : radios){
-		radio.second.second.disconnect(name);
-	}
+	server_io_service->post([this, name]{
+		connections.erase(name);
+
+		for(auto&& connection : connections) {
+			std::cout << "Sending Disconnected to " << connection.first << std::endl;
+			connection.second->forward(message::Disconnected(name));
+		}
+
+		for(auto&& radio : radios){
+			radio.second.second.disconnect(name);
+		}
+	});
 }
 
 bool DmpServer::handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr)
