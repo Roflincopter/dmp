@@ -20,7 +20,6 @@ struct DmpClientInterface {
 	virtual void add_radio(std::string str) = 0;
 	virtual void remove_radio(std::string str) = 0;
 	virtual void clear_model() = 0;
-	virtual void destroy() = 0;
 	virtual void stop() = 0;
 	virtual void run() = 0;
 	virtual void queue(std::string radio, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry) = 0;

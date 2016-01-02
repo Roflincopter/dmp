@@ -75,7 +75,6 @@ public:
 	void listen_requests();
 
 	virtual void clear_model() override final;
-	virtual void destroy() override final;
 	virtual void stop() override final;
 	virtual void run() override final;
 	virtual void search(std::string query) override final;

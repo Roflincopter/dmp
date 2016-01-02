@@ -230,32 +230,34 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 	if(connections.find(username) != connections.end()) {
 		connections[username]->terminate_connection();
 	}
-	
-	cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
-	std::weak_ptr<ClientEndpoint> wcep = cep;
-	cep->get_callbacks().
-		set(message::Type::SearchRequest, std::function<bool(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, wcep, std::placeholders::_1))).
-		set(message::Type::AddRadio, std::function<bool(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, wcep, std::placeholders::_1))).
-		set(message::Type::RemoveRadio, std::function<bool(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, wcep, std::placeholders::_1))).
-		set(message::Type::RadioAction, std::function<bool(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
-		set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
-		set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
-		set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
-		set(message::Type::PlaylistUpdate, std::function<bool(message::PlaylistUpdate)>(std::bind(&DmpServer::handle_playlist_update, this, std::placeholders::_1)));
-	connections[username] = cep;
+	server_io_service->post([this, cep, username]{
+		cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
-	std::map<std::string, Playlist> playlists;
-	for(auto&& radio : radios) {
-		playlists.emplace(radio.first, radio.second.second.get_playlist());
-	}
-	connections[username]->forward(message::Radios(playlists));
+		std::weak_ptr<ClientEndpoint> wcep = cep;
+		cep->get_callbacks().
+			set(message::Type::SearchRequest, std::function<bool(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, wcep, std::placeholders::_1))).
+			set(message::Type::AddRadio, std::function<bool(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, wcep, std::placeholders::_1))).
+			set(message::Type::RemoveRadio, std::function<bool(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, wcep, std::placeholders::_1))).
+			set(message::Type::RadioAction, std::function<bool(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
+			set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
+			set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
+			set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
+			set(message::Type::PlaylistUpdate, std::function<bool(message::PlaylistUpdate)>(std::bind(&DmpServer::handle_playlist_update, this, std::placeholders::_1)));
+		connections[username] = cep;
 
-	std::map<std::string, RadioState> states;
-	for(auto&& radio : radios) {
-		states.emplace(radio.first, radio.second.second.get_state());
-	}
-	connections[username]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+		std::map<std::string, Playlist> playlists;
+		for(auto&& radio : radios) {
+			playlists.emplace(radio.first, radio.second.second.get_playlist());
+		}
+		connections[username]->forward(message::Radios(playlists));
+
+		std::map<std::string, RadioState> states;
+		for(auto&& radio : radios) {
+			states.emplace(radio.first, radio.second.second.get_state());
+		}
+		connections[username]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+	});
 }
 
 void DmpServer::remove_connection(std::string name)

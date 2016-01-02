@@ -120,11 +120,6 @@ void DmpClient::clear_model()
 	search_result_model->clear();
 }
 
-void DmpClient::destroy()
-{
-	io_service->stop();
-}
-
 void DmpClient::stop()
 {
 	connection.stop_encryption();
@@ -403,8 +398,17 @@ bool DmpClient::handle_radios(message::Radios radios)
 
 DmpClient::~DmpClient() {
 	receiver.stop_loop();
+
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
+	}
+
+	for(auto&& sender : senders) {
+		sender.second.stop_loop();
+	}
+
+	while(!io_service->stopped()) {
+		io_service->poll_one();
 	}
 }
 
