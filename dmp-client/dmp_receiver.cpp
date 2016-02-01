@@ -50,6 +50,11 @@ DmpReceiver::DmpReceiver(std::string gst_dir)
 	gst_element_link_many(converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
 }
 
+DmpReceiver::~DmpReceiver()
+{
+	destroy();
+}
+
 void DmpReceiver::eos_reached()
 {}
 

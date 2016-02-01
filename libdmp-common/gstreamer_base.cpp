@@ -65,56 +65,83 @@ void GStreamerBase::state_changed(std::string element, GstState old_, GstState n
 	std::cout << "State change: " << name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
 }
 
-GStreamerBase::GStreamerBase(GStreamerBase&& base)
-: GStreamerInit(std::move(base))
-, gstreamer_mutex(std::move(base.gstreamer_mutex))
-, buffering(false)
-, name(std::move(base.name))
-, loop(std::move(base.loop))
-, pipeline(std::move(base.pipeline))
-, bus(std::move(base.bus))
-, gst_bus_watch_id(std::move(base.gst_bus_watch_id))
-{
-	base.name = "<INVALID>";
-	base.loop.reset();
-	base.pipeline.reset();
-	base.bus.reset();
-	base.gst_bus_watch_id = 0;
-	
-	g_source_remove(gst_bus_watch_id);
-	gst_bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
-}
-
 GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
 : GStreamerInit(gst_dir)
 , gstreamer_mutex(new std::recursive_mutex())
+, destruction_mutex(new std::mutex())
+, safely_destructable(new std::condition_variable())
+, should_stop(false)
+, stopped_loop(true)
 , buffering(false)
 , name(name)
-, loop(g_main_loop_new(nullptr, false))
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
-, gst_bus_watch_id(gst_bus_add_watch(bus.get(), bus_call, this))
 {
+}
+
+GStreamerBase::GStreamerBase(GStreamerBase&& base)
+: GStreamerInit(std::move(base))
+, gstreamer_mutex(std::move(base.gstreamer_mutex))
+, destruction_mutex(std::move(base.destruction_mutex))
+, safely_destructable(std::move(base.safely_destructable))
+, should_stop(base.should_stop)
+, stopped_loop(base.stopped_loop)
+, buffering(false)
+, name(std::move(base.name))
+, pipeline(std::move(base.pipeline))
+, bus(std::move(base.bus))
+{
+	base.name = "<INVALID>";
+	base.pipeline.reset();
+	base.bus.reset();
+}
+
+void GStreamerBase::destroy() {
+	if(pipeline) {
+		gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	}
+	stop_loop();
 }
 
 GStreamerBase::~GStreamerBase()
 {
-	if(pipeline) {
-		gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	}
-	if(loop) {
-		stop_loop();
-	}
 }
 
 void GStreamerBase::run_loop()
 {
-	g_main_loop_run(loop.get());
+	{
+		std::unique_lock<std::mutex> l(*destruction_mutex);
+
+		stopped_loop = false;
+	}
+	do {
+		
+		GstMessage* message = gst_bus_timed_pop(bus.get(), GST_SECOND * 0.1);
+		
+		if(message) {
+			should_stop = bus_call(message);
+			
+			gst_message_unref(message);
+		}
+		
+	} while(!should_stop);
+	
+	std::unique_lock<std::mutex> l(*destruction_mutex);
+	
+	stopped_loop = true;
+	safely_destructable->notify_one();
 }
 
 void GStreamerBase::stop_loop()
 {
-	g_main_loop_quit(loop.get());
+	if(!stopped_loop) {
+		std::unique_lock<std::mutex>* l = new std::unique_lock<std::mutex>(*destruction_mutex);
+		std::function<bool(void)>* pred = new std::function<bool(void)>([this](){ return stopped_loop; });
+		should_stop = true;
+		safely_destructable->wait(*l, *pred);
+		delete l;
+		delete pred;
+	}
 }
 
 std::string GStreamerBase::make_debug_graph(std::string prefix)
@@ -135,14 +162,13 @@ GstState GStreamerBase::wait_for_state_change()
 	return state;
 }
 
-gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
+gboolean GStreamerBase::bus_call (GstMessage* msg)
 {
-	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 	
 	switch (GST_MESSAGE_TYPE (msg)) {
 
 	case GST_MESSAGE_EOS: {
-		base->eos_reached();
+		eos_reached();
 		break;
 	}
 		
@@ -157,7 +183,7 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 		std::string element(x);
 		g_free(x);
 		
-		base->state_changed(element, old_, new_, pending);
+		state_changed(element, old_, new_, pending);
 		
 		break;
 	}
@@ -177,7 +203,7 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 		std::string element(x);
 		g_free(x);
 		
-		base->error_encountered(base->name, element, std::move(error_ptr));
+		error_encountered(name, element, std::move(error_ptr));
 		break;
 	}
 	
@@ -187,26 +213,26 @@ gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 		gst_message_parse_buffering (msg, &percent);
 		
 		if(percent == 100) {
-			base->buffering = false;
-			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+			buffering = false;
+			buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
 			//base->gstreamer_mutex->unlock();
 		} else {
 			GstState state;
 			GstState pending;
 			GstClockTime timeout = 0;
 			
-			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
+			gst_element_get_state(pipeline.get(), &state, &pending, timeout);
 			
 			if (percent >= 25 && state == GST_STATE_PAUSED) {
-				DEBUG_COUT << base->name << ": sending buffer_high because percent >= 25 and paused pipeline" << std::endl;
-				base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-				base->buffering = false;
+				DEBUG_COUT << name << ": sending buffer_high because percent >= 25 and paused pipeline" << std::endl;
+				buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				buffering = false;
 			}
 			
-			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
+			if (!buffering && percent < 10 && state == GST_STATE_PLAYING) {
 				//base->gstreamer_mutex->lock();
-				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-				base->buffering = true;
+				buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				buffering = true;
 			}
 			
 		}

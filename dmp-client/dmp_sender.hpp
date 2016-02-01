@@ -32,6 +32,8 @@ public:
 	
 	DmpSender(DmpSender&&) = default;
 	DmpSender& operator=(DmpSender&&) = default;
+	
+	~DmpSender();
 
 	void setup(std::string host, uint16_t port, std::string file);
 	

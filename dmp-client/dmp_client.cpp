@@ -380,7 +380,11 @@ bool DmpClient::handle_listener_connection_request(message::ListenConnectionRequ
 	if(receiver_thread.joinable()) {
 		receiver_thread.join();
 	}
-	receiver_thread = std::thread(std::bind(&DmpReceiver::run_loop, std::ref(receiver)));
+	
+	receiver_thread = std::thread([this](){
+		receiver.run_loop();
+	});
+	
 	receiver.setup(req.radio_name, host, req.port);
 	receiver.pause();
 	return true;
@@ -431,14 +435,13 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 		)
 	);
 	
-	auto sender_runner = [this, sr]{
+	std::thread t([this, sr](){
 		try {
 			senders.at(sr.radio_name).run_loop();
 		} catch(std::exception &e){
 			DEBUG_COUT << "Sender crashed with message: " << e.what() << std::endl;
 		}
-	};
-	std::thread t(sender_runner);
+	});
 	
 	t.detach();
 
