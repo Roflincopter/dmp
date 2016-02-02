@@ -36,6 +36,7 @@ target_link_libraries(dmp-net
 	PUBLIC dmp-common
 	PUBLIC pthread
 	PRIVATE dbg
+	PRIVATE serialization
 )
 
 if(WIN32)

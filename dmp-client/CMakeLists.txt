@@ -32,6 +32,7 @@ target_link_libraries(dmp-client
 	PRIVATE dmp-config
 	PUBLIC boost-fusion-utils
 	PRIVATE dbg
+	PRIVATE serialization
 )
 
 if(USE_GPERF)

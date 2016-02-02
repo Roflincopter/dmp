@@ -4,6 +4,8 @@
 
 #include "fusion_outputter.hpp"
 
+#include "archive.hpp"
+
 #include <boost/filesystem/path.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/optional/optional.hpp>
@@ -48,12 +50,12 @@ struct Library
 	Library(library_t library);
 
 	static Library read_cache(std::string cache_path);
-	static void write_cache(std::string const& cache_path, Library const& lib)
+	static void write_cache(std::string const& cache_path, Library& lib)
 	{
 		std::ofstream ofs(cache_path);
 		if(ofs)
 		{
-			boost::archive::text_oarchive ar(ofs);
+			OArchive ar(ofs);
 			ar & lib;
 		}
 		else

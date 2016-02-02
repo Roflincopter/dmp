@@ -82,6 +82,7 @@ target_link_libraries(qt-client
 	PRIVATE dmp-net
 	PRIVATE dmp-config
 	PRIVATE dbg
+	PRIVATE serialization
 )
 
 if(MINGW)

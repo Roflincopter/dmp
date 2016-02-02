@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/serialization/serialization.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/archive/detail/common_oarchive.hpp>
 #include <boost/archive/detail/register_archive.hpp>
@@ -34,6 +35,12 @@ struct is_map : public std::false_type {};
 
 template <typename T, typename U>
 struct is_map<std::map<T, U>> : public std::true_type {};
+
+template <typename T>
+struct is_multimap : public std::false_type {};
+
+template <typename T, typename U>
+struct is_multimap<std::multimap<T, U>> : public std::true_type {};
 
 template <typename T>
 struct is_pair : public std::false_type {};
@@ -86,7 +93,6 @@ public:
 		return *this;
 	}
 	
-	
 	template<typename T>
 	typename std::enable_if<std::is_same<std::string, T>::value, OArchive&>::type
 	operator&(T& t) {
@@ -100,6 +106,7 @@ public:
 			!is_vector<T>::value &&
 			!is_array<T>::value &&
 			!is_map<T>::value &&
+			!is_multimap<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
 			!std::is_same<std::string, T>::value
@@ -112,7 +119,7 @@ public:
 	}
 	
 	template<typename T>
-	typename std::enable_if<is_vector<T>::value || is_map<T>::value || is_array<T>::value, OArchive& >::type
+	typename std::enable_if<is_vector<T>::value || is_map<T>::value || is_multimap<T>::value || is_array<T>::value, OArchive& >::type
 	operator&(T& t) {
 		size_t count = t.size();
 		os << count << " ";
@@ -208,6 +215,7 @@ public:
 			!is_vector<T>::value &&
 			!is_array<T>::value &&
 			!is_map<T>::value &&
+			!is_multimap<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
 			!std::is_same<std::string, T>::value
@@ -253,7 +261,7 @@ public:
 	}
 	
 	template<typename T>
-	typename std::enable_if<is_map<T>::value, IArchive&>::type
+	typename std::enable_if<is_map<T>::value || is_multimap<T>::value, IArchive&>::type
 	operator&(T& t) {
 		size_t size;
 		

@@ -3,13 +3,13 @@
 #include "icu-ascii-transliterator.hpp"
 
 #include "dmp_config.hpp"
+#include "archive.hpp"
 
 #include <taglib/audioproperties.h>
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
 #include <taglib/tstring.h>
 
-#include <boost/archive/text_iarchive.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
@@ -32,7 +32,7 @@ Library Library::read_cache(std::string cache_path){
 	std::ifstream ifs(cache_path);
 	if(ifs)
 	{
-		boost::archive::text_iarchive ar(ifs);
+		IArchive ar(ifs);
 		Library lib;
 		ar & lib;
 		return lib;

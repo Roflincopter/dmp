@@ -33,6 +33,7 @@ if(BUILD_SERVER OR BUILD_QT_CLIENT)
 	include(FindCommonLibraries)
 
 	add_subdirectory(libdbg)
+	add_subdirectory(libserialization)
 
 	add_subdirectory(libdmp-library)
 	add_subdirectory(libboost-fusion-utils)
