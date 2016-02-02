@@ -119,7 +119,7 @@ void GStreamerBase::run_loop()
 		GstMessage* message = gst_bus_timed_pop(bus.get(), GST_SECOND * 0.1);
 		
 		if(message) {
-			should_stop = bus_call(message);
+			should_stop = !bus_call(message);
 			
 			gst_message_unref(message);
 		}
