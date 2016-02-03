@@ -35,6 +35,7 @@ DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
 , io_service(std::make_shared<boost::asio::io_service>())
+, library_info_timer(*io_service)
 , callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
 , connection(connect(host, port, io_service))
 , last_sent_ping()
@@ -195,15 +196,58 @@ void DmpClient::register_user(std::string username, std::string password)
 	connection.send(message::RegisterRequest(username, password));
 }
 
+std::function<void(boost::system::error_code const&)> timer_callback;
+
 void DmpClient::init_library()
 {
 	//TODO: notify other clients of the library change.
-	this->library.clear();
-
-	auto&& library_info = config::get_library_information();
-	for(auto&& entry : library_info) {
-		library.add_folder(entry);
+	library.load_info->should_stop = true;
+	if(library_load_thread.joinable()) {
+		library_load_thread.join();
 	}
+	library.clear();
+	
+	try {
+		library_load_thread = std::thread([this](){
+			io_service->post([this](){
+			
+				call_on_delegates(&DmpClientUiDelegate::library_load_start);
+				
+				auto perpetuation = [this](){
+					library_info_timer.expires_from_now(boost::posix_time::millisec(100));
+					library_info_timer.async_wait(timer_callback);
+				};
+				
+				timer_callback = [this, perpetuation](boost::system::error_code const& ec) {
+				
+					if(ec) {
+						if(ec.value() == boost::system::errc::operation_canceled) {
+							return;
+						}
+						throw std::runtime_error("something went wrong library load info timer.");
+					}
+					
+					call_on_delegates(&DmpClientUiDelegate::library_load_info, library.load_info);
+					perpetuation();
+					
+				};
+				perpetuation();
+				
+			});
+			
+			auto&& library_info = config::get_library_information();
+		
+			library.load_library(library_info);
+			
+			io_service->post([this](){
+				library_info_timer.cancel();
+				call_on_delegates(&DmpClientUiDelegate::library_load_end);
+			});
+		});
+	} catch(dmp_library::Interrupted const&) {
+		return;
+	}
+	
 }
 
 void DmpClient::move_queue(std::string radio, std::vector<uint32_t> playlist_id, bool up)

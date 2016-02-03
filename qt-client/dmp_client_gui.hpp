@@ -79,6 +79,10 @@ public:
 	
 	void volume_changed(int volume) override final;
 	
+	void library_load_start() override final;
+	void library_load_info(std::shared_ptr<dmp_library::LoadInfo> info) override final;
+	void library_load_end() override final;
+	
 private slots:
 
 	void gstreamer_debug();

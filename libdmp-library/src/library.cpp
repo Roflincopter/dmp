@@ -20,11 +20,13 @@
 namespace dmp_library {
 
 Library::Library()
-{
-}
+: load_info(std::make_shared<LoadInfo>())
+, library()
+{}
 
 Library::Library(library_t library)
-: library(library)
+: load_info(std::make_shared<LoadInfo>())
+, library(library)
 {
 }
 
@@ -32,15 +34,33 @@ Library Library::read_cache(std::string cache_path){
 	std::ifstream ifs(cache_path);
 	if(ifs)
 	{
+		load_info->cache_file = cache_path;
+		load_info->reading_cache = true;
 		IArchive ar(ifs);
 		Library lib;
 		ar & lib;
+		load_info->reading_cache = false;
 		return lib;
 	}
 	else
 	{
 		throw std::runtime_error("opening file " + cache_path + " for reading failed: make this a nice exception.");
 	}
+}
+
+void Library::write_cache(const std::string& cache_path)
+{
+	std::ofstream ofs(cache_path);
+	if(ofs)
+	{
+		OArchive ar(ofs);
+		ar & library;
+	}
+	else
+	{
+		std::cout << "opening file " + cache_path + " for writing failed: make this a nice exception." << std::endl;
+	}
+	return;
 }
 
 boost::optional<LibraryEntry> Library::build_library_entry(boost::filesystem::path p)
@@ -73,17 +93,28 @@ boost::optional<LibraryEntry> Library::build_library_entry(boost::filesystem::pa
 
 Library Library::build_library(boost::filesystem::path p)
 {
-	library_t library;
+	library_t lib;
+	
+	load_info->current_track = 1;
+	load_info->current_max_tracks = std::distance(
+		boost::filesystem::recursive_directory_iterator(p),
+		boost::filesystem::recursive_directory_iterator()
+	);
 
 	for(auto it = boost::filesystem::recursive_directory_iterator(p); it != boost::filesystem::recursive_directory_iterator(); ++it)
 	{
+		if(load_info->should_stop) {
+			throw Interrupted();
+		}
+		load_info->current_track++;
 		if(boost::filesystem::is_directory(*it)){
 			continue;
 		}
 		try {
+			
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
-				library.emplace(std::hash<LibraryEntry>()(entry.get()), EntryLocation{entry.get(), it->path().string()});
+				lib.emplace(std::hash<LibraryEntry>()(entry.get()), EntryLocation{entry.get(), it->path().string()});
 			}
 		}
 		catch(std::exception&)
@@ -91,7 +122,7 @@ Library Library::build_library(boost::filesystem::path p)
 			continue;
 		}
 	}
-	return Library(library);
+	return Library(lib);
 }
 
 Library Library::parse_directory(const std::string &directory_path)
@@ -118,7 +149,8 @@ Library Library::create(config::LibraryInfo info, bool use_cache, bool create_ca
 
 	if(boost::filesystem::exists(cache_file) && use_cache)
 	{
-		Library lib = read_cache(cache_file.string());
+		Library lib;
+		lib = read_cache(cache_file.string());
 		return lib;
 	}
 	else
@@ -131,7 +163,7 @@ Library Library::create(config::LibraryInfo info, bool use_cache, bool create_ca
 
 		if(create_cache)
 		{
-			write_cache(cache_file.string(), lib);
+			lib.write_cache(cache_file.string());
 		}
 		return lib;
 	}
@@ -155,12 +187,23 @@ std::string Library::get_filename(LibraryEntry entry) const
 
 void Library::clear() {
 	library.clear();
+	load_info = std::make_shared<LoadInfo>();
 }
 
 void Library::add_folder(config::LibraryInfo const& info)
 {
-	auto sublib = Library::create(info);
+	auto sublib = create(info);
 	library.insert(sublib.library.begin(), sublib.library.end());
+}
+
+void Library::load_library(const std::vector<config::LibraryInfo>& library_info) {
+	load_info->nr_folders = library_info.size();
+	for(size_t i = 0; i < library_info.size(); ++i) {
+		load_info->current_folder = i + 1;
+		
+		auto&& entry = library_info[i];
+		add_folder(entry);
+	}
 }
 
 EntryNotFound::EntryNotFound()

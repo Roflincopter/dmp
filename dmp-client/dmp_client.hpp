@@ -45,6 +45,8 @@ public:
 
 private:
 	std::shared_ptr<boost::asio::io_service> io_service;
+	std::thread library_load_thread;
+	boost::asio::deadline_timer library_info_timer;
 	message::DmpCallbacks callbacks;
 	Connection connection;
 	message::Ping last_sent_ping;

@@ -223,6 +223,37 @@ void DmpClientGui::volume_changed(int volume)
 	ui.volumeSlider->setValue(volume);
 }
 
+void DmpClientGui::library_load_start()
+{
+	QApplication::postEvent(this, new CallEvent([this]{
+		ui.statusbar->clearMessage();
+	}));
+}
+
+void DmpClientGui::library_load_info(std::shared_ptr<dmp_library::LoadInfo> info)
+{
+	QApplication::postEvent(this, new CallEvent([this, info]{
+		QString status_prefix = QString("Processing folder %1 of %2: ").arg(info->current_folder).arg(info->nr_folders);
+	
+		QString status_suffix;
+		if(info->reading_cache) {
+			status_suffix = QString("Currently reading cache file: %1").arg(QString::fromStdString(info->cache_file));
+		} else {
+			status_suffix = QString("Processing file %1 of %2").arg(info->current_track).arg(info->current_max_tracks);
+		}
+	
+		QString status = status_prefix + status_suffix;
+		ui.statusbar->showMessage(status);
+	}));
+}
+
+void DmpClientGui::library_load_end()
+{
+	QApplication::postEvent(this, new CallEvent([this]{
+		ui.statusbar->clearMessage();
+	}));
+}
+
 void DmpClientGui::gstreamer_debug()
 {
 	client->gstreamer_debug("Shortcut");

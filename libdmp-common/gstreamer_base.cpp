@@ -115,7 +115,6 @@ void GStreamerBase::run_loop()
 		stopped_loop = false;
 	}
 	do {
-		
 		GstMessage* message = gst_bus_timed_pop(bus.get(), GST_SECOND * 0.1);
 		
 		if(message) {

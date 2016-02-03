@@ -1,10 +1,13 @@
 #pragma once
 
 #include "library-entry.hpp"
+#include "load_info.hpp"
 
 #include "fusion_outputter.hpp"
 
 #include "archive.hpp"
+
+#include "dmp_config.hpp"
 
 #include <boost/filesystem/path.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -20,8 +23,6 @@
 #include <cstdint>
 #include <fstream>
 #include <unordered_map>
-
-namespace config { struct LibraryInfo; }
 
 namespace dmp_library {
 
@@ -40,8 +41,17 @@ struct EntryLocation {
 	}
 };
 
+struct Interrupted : std::runtime_error {
+	
+	Interrupted()
+	: std::runtime_error("Loading of this library was interrupted")
+	{}
+};
+
 struct Library
 {
+	std::shared_ptr<LoadInfo> load_info;
+	
 	typedef std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> library_t;
 
 	library_t library;
@@ -49,26 +59,13 @@ struct Library
 	Library();
 	Library(library_t library);
 
-	static Library read_cache(std::string cache_path);
-	static void write_cache(std::string const& cache_path, Library& lib)
-	{
-		std::ofstream ofs(cache_path);
-		if(ofs)
-		{
-			OArchive ar(ofs);
-			ar & lib;
-		}
-		else
-		{
-			std::cout << "opening file " + cache_path + " for writing failed: make this a nice exception." << std::endl;
-		}
-		return;
-	}
+	Library read_cache(std::string cache_path);
+	void write_cache(std::string const& cache_path);
 
-	static boost::optional<LibraryEntry> build_library_entry(boost::filesystem::path p);
-	static Library build_library(boost::filesystem::path p);
-	static Library parse_directory(std::string const& directory_path);
-	static Library create(config::LibraryInfo info, bool use_cache = true, bool create_cache = true);
+	boost::optional<LibraryEntry> build_library_entry(boost::filesystem::path p);
+	Library build_library(boost::filesystem::path p);
+	Library parse_directory(std::string const& directory_path);
+	Library create(config::LibraryInfo info, bool use_cache = true, bool create_cache = true);
 
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
@@ -78,7 +75,8 @@ struct Library
 
 	std::string get_filename(LibraryEntry entry) const;
 	void clear();
-	void add_folder(const config::LibraryInfo &info);
+	void add_folder(config::LibraryInfo const& info);
+	void load_library(std::vector<config::LibraryInfo> const& library_info);
 
 	friend std::ostream& operator<<(std::ostream& os, Library const& l) {
 		return os << l.library.size();

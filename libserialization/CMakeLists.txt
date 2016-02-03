@@ -19,7 +19,7 @@ target_include_directories(serialization
 )
 
 if(USE_GPERF)
-	target_link_libraries(boost-fusion-utils 
+	target_link_libraries(serialization 
 		PRIVATE "-lprofiler"
 	)
 endif(USE_GPERF)
