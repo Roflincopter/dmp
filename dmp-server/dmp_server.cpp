@@ -199,11 +199,14 @@ void DmpServer::add_pending_connection(Connection&& c)
 			cep->forward(message::RegisterResponse(result.succes, result.reason));
 			return true;
 		}).
-		set(message::Type::Bye, [this, cep](message::Bye) {
-			cep->forward(message::ByeAck());
-			remove_element(pending_connections, cep);
-			cep->get_callbacks().clear();
+		set(message::Type::Bye, [this, cep](message::Bye b) {
+			cep->handle_bye(b);
+			server_io_service->post([this, cep](){
+				remove_element(pending_connections, cep);
+				cep->get_callbacks().clear();
+			});
 			return false;
+		
 		}).
 		set(message::Type::PublicKey, [this, cep](message::PublicKey r) {
 			KeyPair pair = load_key_pair();
