@@ -132,8 +132,7 @@ DmpServer::DmpServer()
 DmpServer::~DmpServer()
 {
 	for(auto&& radio : radios) {
-		radio.second.second.stop_loop();
-		radio.second.first.join();
+		radio.second.stop_loop();
 	}
 }
 
@@ -251,13 +250,13 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 		std::map<std::string, Playlist> playlists;
 		for(auto&& radio : radios) {
-			playlists.emplace(radio.first, radio.second.second.get_playlist());
+			playlists.emplace(radio.first, radio.second.get_playlist());
 		}
 		connections[username]->forward(message::Radios(playlists));
 
 		std::map<std::string, RadioState> states;
 		for(auto&& radio : radios) {
-			states.emplace(radio.first, radio.second.second.get_state());
+			states.emplace(radio.first, radio.second.get_state());
 		}
 		connections[username]->forward(message::RadioStates(message::RadioStates::Action::Set, states));
 	});
@@ -274,7 +273,7 @@ void DmpServer::remove_connection(std::string name)
 		}
 
 		for(auto&& radio : radios){
-			radio.second.second.disconnect(name);
+			radio.second.disconnect(name);
 		}
 	});
 }
@@ -298,35 +297,31 @@ void DmpServer::add_radio(std::string radio_name) {
 	auto radio_it = radios.emplace(
 		std::make_pair(
 			radio_name, 
-			std::make_pair(
-				std::thread(), 
-				DmpRadio(
-					radio_name, 
-					shared_from_this(),
-					port_pool,
-					config::get_gst_folder_name().string()
-				)
+			DmpRadio(
+				radio_name, 
+				shared_from_this(),
+				port_pool,
+				config::get_gst_folder_name().string()
 			)
 		)
 	).first;
 	
-	radio_it->second.first = std::thread(std::bind(&DmpRadio::run_loop, std::ref(radio_it->second.second)));
+	radio_it->second.run_loop();
 	
-	radio_it->second.second.listen();
+	radio_it->second.listen();
 }
 
 void DmpServer::remove_radio(std::string radio_name)
 {
 	auto radio_it = radios.find(radio_name);
-	radio_it->second.second.stop_loop();
-	radio_it->second.first.join();
+	radio_it->second.stop_loop();
 	radios.erase(radio_it);
 }
 
 void DmpServer::gstreamer_debug(std::string reason)
 {
 	for(auto&& radio : radios) {
-		std::cout << "created debug graph: " << radio.second.second.make_debug_graph(reason) << std::endl;
+		std::cout << "created debug graph: " << radio.second.make_debug_graph(reason) << std::endl;
 	}
 }
 
@@ -419,22 +414,22 @@ bool DmpServer::handle_radio_action(message::RadioAction ra)
 	{
 		case message::PlaybackAction::Next:
 		{
-			radio.second.next();
+			radio.next();
 			break;
 		}
 		case message::PlaybackAction::Pause:
 		{
-			radio.second.pause();
+			radio.pause();
 			break;
 		}
 		case message::PlaybackAction::Play:
 		{
-			radio.second.play();
+			radio.play();
 			break;
 		}
 		case message::PlaybackAction::Stop:
 		{
-			radio.second.stop();
+			radio.stop();
 			break;
 		}
 		//explicit falltrough.
@@ -452,7 +447,7 @@ bool DmpServer::handle_radio_action(message::RadioAction ra)
 bool DmpServer::handle_sender_event(message::SenderEvent se)
 {
 	auto& radio = radios.at(se.radio_name);
-	radio.second.event_callbacks[se.event]();
+	radio.event_callbacks[se.event]();
 	return true;
 }
 
@@ -467,14 +462,14 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 
 	if(ti.action == message::TuneIn::Action::TuneIn) {
 		try {
-			radio.second.add_listener(origin->get_name());
+			radio.add_listener(origin->get_name());
 		} catch(std::runtime_error const& e) {
 			std::cout << e.what() << std::endl;
 			return true;
 		}
-		origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.second.get_receiver_port(origin->get_name())));
+		origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.get_receiver_port(origin->get_name())));
 	} else if(ti.action == message::TuneIn::Action::TuneOff) {
-		radio.second.remove_listener(origin->get_name());
+		radio.remove_listener(origin->get_name());
 	} else {
 		throw std::runtime_error("Received a TuneIn message with unhandled action");
 	}
@@ -483,7 +478,7 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 
 bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 {
-	auto& radio = radios.at(pu.radio_name).second;
+	auto& radio = radios.at(pu.radio_name);
 
 	using Type = message::PlaylistUpdate::Action::Type;
 
@@ -493,7 +488,7 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 		}
 		case Type::Append: {
 			for(auto&& pe : pu.playlist) {
-				radio.queue(pe);
+				pe.playlist_id = radio.queue(pe);
 			}
 			break;
 		}
@@ -523,9 +518,8 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 		}
 	}
 	
-	message::PlaylistUpdate::Action action(message::PlaylistUpdate::Action::Type::Update, {});
 	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::PlaylistUpdate(action, pu.radio_name, radios.at(pu.radio_name).second.get_playlist()));
+		endpoint.second->forward(pu);
 	}
 
 	return true;
@@ -540,7 +534,7 @@ void DmpServer::update_radio_state()
 {
 	std::map<std::string, RadioState> states;
 	for(auto&& radio : radios) {
-		states.emplace(radio.first, radio.second.second.get_state());
+		states.emplace(radio.first, radio.second.get_state());
 	}
 	
 	for(auto& endpoint : connections) {

@@ -54,7 +54,6 @@ private:
 	
 	std::map<std::string, DmpSender> senders;
 	
-	std::thread receiver_thread;
 	DmpReceiver receiver;
 
 	MessageSwitch message_switch;

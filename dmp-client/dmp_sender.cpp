@@ -75,7 +75,6 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 
 void DmpSender::eos_reached()
 {
-	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
 	if(!is_resetting) {
 		client.lock()->forward_radio_action(message::RadioAction(radio_name, message::PlaybackAction::Next));
 	}

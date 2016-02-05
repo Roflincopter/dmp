@@ -50,16 +50,6 @@ void GStreamerBase::error_encountered(std::string pipeline, std::string element,
 	}
 }
 
-void GStreamerBase::buffer_high(GstElement*)
-{
-	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
-}
-
-void GStreamerBase::buffer_low(GstElement*)
-{
-	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
-}
-
 void GStreamerBase::state_changed(std::string element, GstState old_, GstState new_, GstState pending)
 {
 	std::cout << "State change: " << name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
@@ -109,38 +99,13 @@ GStreamerBase::~GStreamerBase()
 
 void GStreamerBase::run_loop()
 {
-	{
-		std::unique_lock<std::mutex> l(*destruction_mutex);
-
-		stopped_loop = false;
-	}
-	do {
-		GstMessage* message = gst_bus_timed_pop(bus.get(), GST_SECOND * 0.1);
-		
-		if(message) {
-			should_stop = !bus_call(message);
-			
-			gst_message_unref(message);
-		}
-		
-	} while(!should_stop);
-	
-	std::unique_lock<std::mutex> l(*destruction_mutex);
-	
-	stopped_loop = true;
-	safely_destructable->notify_one();
+	gst_bus_set_sync_handler(bus.get(), nullptr, nullptr, nullptr);
+	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
 }
 
 void GStreamerBase::stop_loop()
 {
-	if(!stopped_loop) {
-		std::unique_lock<std::mutex>* l = new std::unique_lock<std::mutex>(*destruction_mutex);
-		std::function<bool(void)>* pred = new std::function<bool(void)>([this](){ return stopped_loop; });
-		should_stop = true;
-		safely_destructable->wait(*l, *pred);
-		delete l;
-		delete pred;
-	}
+
 }
 
 std::string GStreamerBase::make_debug_graph(std::string prefix)
@@ -161,13 +126,14 @@ GstState GStreamerBase::wait_for_state_change()
 	return state;
 }
 
-gboolean GStreamerBase::bus_call (GstMessage* msg)
+GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 {
+	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 	
 	switch (GST_MESSAGE_TYPE (msg)) {
 
 	case GST_MESSAGE_EOS: {
-		eos_reached();
+		base->eos_reached();
 		break;
 	}
 		
@@ -182,7 +148,7 @@ gboolean GStreamerBase::bus_call (GstMessage* msg)
 		std::string element(x);
 		g_free(x);
 		
-		state_changed(element, old_, new_, pending);
+		base->state_changed(element, old_, new_, pending);
 		
 		break;
 	}
@@ -202,41 +168,11 @@ gboolean GStreamerBase::bus_call (GstMessage* msg)
 		std::string element(x);
 		g_free(x);
 		
-		error_encountered(name, element, std::move(error_ptr));
+		base->error_encountered(base->name, element, std::move(error_ptr));
 		break;
 	}
 	
-	case GST_MESSAGE_BUFFERING: {
-		int percent;
-		
-		gst_message_parse_buffering (msg, &percent);
-		
-		if(percent == 100) {
-			buffering = false;
-			buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-			//base->gstreamer_mutex->unlock();
-		} else {
-			GstState state;
-			GstState pending;
-			GstClockTime timeout = 0;
-			
-			gst_element_get_state(pipeline.get(), &state, &pending, timeout);
-			
-			if (percent >= 25 && state == GST_STATE_PAUSED) {
-				DEBUG_COUT << name << ": sending buffer_high because percent >= 25 and paused pipeline" << std::endl;
-				buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-				buffering = false;
-			}
-			
-			if (!buffering && percent < 10 && state == GST_STATE_PLAYING) {
-				//base->gstreamer_mutex->lock();
-				buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
-				buffering = true;
-			}
-			
-		}
-		break;
-	}
+	case GST_MESSAGE_BUFFERING:
 	case GST_MESSAGE_UNKNOWN:
 	case GST_MESSAGE_WARNING:
 	case GST_MESSAGE_INFO:
@@ -275,7 +211,8 @@ gboolean GStreamerBase::bus_call (GstMessage* msg)
 		break;
 	}
 
-	return true;
+	gst_message_unref(msg);
+	return GST_BUS_DROP;
 }
 
 void on_pad_added (GstElement* __attribute__((unused)) element, GstPad* pad, gpointer data)

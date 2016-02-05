@@ -1,7 +1,7 @@
 
 #include "time_util.hpp"
 
-#include <boost/date_time/gregorian/greg_date.hpp>
+#include <boost/date_time/gregorian_calendar.hpp>
 #include <boost/date_time/posix_time/posix_time_config.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>

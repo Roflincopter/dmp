@@ -420,15 +420,6 @@ bool DmpClient::handle_remove_radio(message::RemoveRadio rr)
 
 bool DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
 {
-	receiver.stop_loop();
-	if(receiver_thread.joinable()) {
-		receiver_thread.join();
-	}
-	
-	receiver_thread = std::thread([this](){
-		receiver.run_loop();
-	});
-	
 	receiver.setup(req.radio_name, host, req.port);
 	receiver.pause();
 	return true;
@@ -446,10 +437,6 @@ bool DmpClient::handle_radios(message::Radios radios)
 
 DmpClient::~DmpClient() {
 	receiver.stop_loop();
-
-	if(receiver_thread.joinable()) {
-		receiver_thread.join();
-	}
 
 	for(auto&& sender : senders) {
 		sender.second.stop_loop();
@@ -479,16 +466,8 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 		)
 	);
 	
-	std::thread t([this, sr](){
-		try {
-			senders.at(sr.radio_name).run_loop();
-		} catch(std::exception &e){
-			DEBUG_COUT << "Sender crashed with message: " << e.what() << std::endl;
-		}
-	});
+	senders.at(sr.radio_name).run_loop();
 	
-	t.detach();
-
 	try {
 		std::string file_name =  library.get_filename(sr.entry);
 	} catch(dmp_library::EntryNotFound const&) {

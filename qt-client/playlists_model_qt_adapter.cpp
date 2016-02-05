@@ -97,7 +97,7 @@ void PlaylistsModelQtAdapter::playlist_update_start(message::PlaylistUpdate upda
 		{
 			case message::PlaylistUpdate::Action::Type::Append:
 			{
-				beginInsertRows(QModelIndex(), model->row_count(), update.playlist.size() - 1);
+				beginInsertRows(QModelIndex(), model->row_count(), model->row_count() + update.playlist.size() - 1);
 				break;
 			}
 			case message::PlaylistUpdate::Action::Type::Update:
@@ -115,6 +115,7 @@ void PlaylistsModelQtAdapter::playlist_update_start(message::PlaylistUpdate upda
 			}
 			case message::PlaylistUpdate::Action::Type::Remove:
 			{
+				beginRemoveRows(QModelIndex(), model->row_count() - update.action.ids.size(), model->row_count() - 1);
 				break;
 			}
 			case message::PlaylistUpdate::Action::Type::MoveDown:
@@ -157,6 +158,7 @@ void PlaylistsModelQtAdapter::playlist_update_end(message::PlaylistUpdate update
 			}
 			case message::PlaylistUpdate::Action::Type::Remove:
 			{
+				endRemoveRows();
 				break;
 			}
 			case message::PlaylistUpdate::Action::Type::MoveUp:

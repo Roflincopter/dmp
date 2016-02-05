@@ -115,15 +115,40 @@ void PlaylistsModel::update(std::string radio_name, Playlist playlist)
 	
 }
 
+void PlaylistsModel::remove(std::string radio_name, std::vector<uint32_t> ids)
+{
+	auto it = playlists.find(radio_name);
+	if(it == playlists.end()) {
+		throw std::runtime_error("The radio on which append was called does not exists " + radio_name);
+	}
+	
+	auto&& playlist = it->second;
+	
+	for(auto&& id : ids) {
+		auto erase_it = playlist.end();
+		for(auto it = playlist.begin(); it != playlist.end(); ++it) {
+			if(it->playlist_id == id) {
+				erase_it = it;
+				break;
+			}
+		}
+		if(erase_it != playlist.end()) {
+			playlist.erase(erase_it);
+		}
+	}
+}
+
 void PlaylistsModel::append(std::string radio_name, Playlist playlist)
 {
 	auto it = playlists.find(radio_name);
 	if(it == playlists.end()) {
 		throw std::runtime_error("The radio on which append was called does not exists " + radio_name);
 	}
-
+	
 	std::copy(playlist.begin(), playlist.end(), std::back_inserter(playlists[radio_name]));
 }
+
+
 
 void PlaylistsModel::reset(std::string radio_name)
 {
@@ -163,6 +188,7 @@ bool PlaylistsModel::handle_update(message::PlaylistUpdate update_msg)
 		}
 		case message::PlaylistUpdate::Action::Type::Remove:
 		{
+			remove(update_msg.radio_name, update_msg.action.ids);
 			break;
 		}
 		case message::PlaylistUpdate::Action::Type::MoveUp:

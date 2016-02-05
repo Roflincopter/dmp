@@ -67,6 +67,7 @@ void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
 	g_object_set(G_OBJECT(source.get()), "port", gint(port), nullptr);
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
+	wait_for_state_change();
 }
 
 void DmpReceiver::play()

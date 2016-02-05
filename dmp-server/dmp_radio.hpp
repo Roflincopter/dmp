@@ -95,11 +95,7 @@ public:
 	void pause();
 	void next();
 	
-	virtual void eos_reached() override final;
-	virtual void buffer_high(GstElement* src) override final;
-	virtual void buffer_low(GstElement* src) override final;
-	
-	void queue(PlaylistEntry pl_entry);
+	uint32_t queue(PlaylistEntry& pl_entry);
 	void unqueue(std::vector<PlaylistId> ids);
 	
 	void move_up(std::vector<PlaylistId> ids);

@@ -52,7 +52,7 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 	std::shared_ptr<boost::asio::io_service> server_io_service;
 	std::vector<std::shared_ptr<ClientEndpoint>> pending_connections;
 	std::map<std::string, std::shared_ptr<ClientEndpoint>> connections;
-	std::map<std::string, std::pair<std::thread, DmpRadio>> radios;
+	std::map<std::string, DmpRadio> radios;
 	std::shared_ptr<NumberPool> port_pool;
 	std::shared_ptr<odb::database> db;
 	Authenticator auth;

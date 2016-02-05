@@ -45,6 +45,7 @@ public:
 	uint32_t get_playlist_id(uint32_t row) const;
 
 	void update(std::string radio_name, Playlist playlist);
+	void remove(std::string radio_name, std::vector<uint32_t> ids);
 	void append(std::string radio_name, Playlist playlist);
 	void reset(std::string radio_name);
 	void clear();

@@ -274,6 +274,8 @@ void DmpRadio::next()
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
+	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	
 	if(playlist.empty()) {
 		return;
 	}
@@ -298,23 +300,13 @@ void DmpRadio::next()
 	}
 }
 
-void DmpRadio::eos_reached()
-{
-	gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-}
-
-void DmpRadio::buffer_high(GstElement*)
-{}
-
-void DmpRadio::buffer_low(GstElement*)
-{}
-
-void DmpRadio::queue(PlaylistEntry pl_entry)
+uint32_t DmpRadio::queue(PlaylistEntry& pl_entry)
 {
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	pl_entry.playlist_id = playlist_id++;
 	playlist.push_back(pl_entry);
+	return pl_entry.playlist_id;
 }
 
 void DmpRadio::unqueue(std::vector<PlaylistId> ids)
