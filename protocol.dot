@@ -1,0 +1,55 @@
+digraph Protocol {
+	label = "Protocol";
+
+	subgraph cluster_Client {
+		label = "Client"
+		pad = 2.0
+		node [shape=box]
+		ClientA [label="Null"]
+		ClientB [label="Pending Auth"]
+		ClientC [label="Pending Auth S"]
+		ClientD [label="Connection"]
+		ClientE [label="Connection S"]
+		ClientF [label="Null"]
+
+		ClientA -> ClientB [label="Connect!"]
+		ClientB -> ClientB [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::RegisterRequest!\lmessage::LoginRequest!,message::LoginResponse=failed?\l"]
+		ClientB -> ClientD [label="message::LoginRequest!,message::LoginResponse=succes?"]
+		ClientD -> ClientD [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::SearchRequest!\lmessage::SearchResponse?\lmessage::addRadio!\lmessage::RemoveRadio!\lmessage::AddRadioResponse?\lmessage::ListenConnectionRequest?\lmessage::Radios?\lmessage::PlaylistUpdate?\lmessage::StreamRequest?\lmessage::RadioAction!\lmessage::SenderEvent!\lmessage::SenderAction?\lmessage::TuneIn!\lmessage::RadioStates?\lmessage::Disconnected?\l"]
+
+		ClientD -> ClientF [label="message::Bye!,message::ByeAck?"]
+
+		ClientB -> ClientC [label="message::PublicKey!,message::Publickey?"]
+		ClientC -> ClientC [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::RegisterRequest!\lmessage::LoginRequest!,message::LoginResponse=failed?\l"]
+		ClientC-> ClientE [label="message::LoginRequest!,message::LoginResponse=succes?"]
+		ClientE -> ClientE [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::SearchRequest!\lmessage::SearchResponse?\lmessage::addRadio!\lmessage::RemoveRadio!\lmessage::AddRadioResponse?\lmessage::ListenConnectionRequest?\lmessage::Radios?\lmessage::PlaylistUpdate?\lmessage::StreamRequest?\lmessage::RadioAction!\lmessage::SenderEvent!\lmessage::SenderAction?\lmessage::TuneIn!\lmessage::RadioStates?\lmessage::Disconnected?\l"]
+
+		ClientE -> ClientF [label="message::Bye!,message::ByeAck?"]
+	}
+
+	subgraph cluster_Server {
+		label = "Server";
+		pad = 2.0
+		node [shape=box]
+		ServerA [label="Null"]
+		ServerB [label="Accept"]
+		ServerC [label="Pending Auth"]
+		ServerD [label="Pending Auth S"]
+		ServerE [label="Connection"]
+		ServerF [label="Connection S"]
+
+		ServerB -> ServerC [label="Connect?"]
+		ServerC -> ServerC [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::RegisterRequest?,message::LoginResponse=failed!\l"]
+		ServerC -> ServerE [label="message::LoginRequest?,message::LoginResponse=succes!"]
+		ServerE -> ServerE [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::SearchRequest!\lmessage::SearchResponse?\lmessage::addRadio?\lmessage::RemoveRadio?\lmessage::AddRadioResponse!\lmessage::ListenConnectionRequest!\lmessage::Radios!\lmessage::PlaylistUpdate!\lmessage::StreamRequest!\lmessage::RadioAction?\lmessage::SenderEvent?\lmessage::SenderAction!\lmessage::TuneIn?\lmessage::RadioStates!\lmessage::Disconnected!\l"]
+
+		ServerE -> ServerA [label="message::Bye?,message::ByeAck!"]
+
+		ServerC -> ServerD [label="message::PublicKey?,message::Publickey!"]
+		ServerD -> ServerD [label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::RegisterRequest?\lmessage::LoginRequest?,message::LoginResponse=failed!\l"]
+		ServerD -> ServerF [label="message::LoginRequest?,message::LoginResponse=succes!"]
+		ServerF -> ServerF[label="message::Ping!\lmessage::Pong?\lmessage::Ping?,message::Pong!\lmessage::SearchRequest!\lmessage::SearchResponse?\lmessage::addRadio?\lmessage::RemoveRadio?\lmessage::AddRadioResponse!\lmessage::ListenConnectionRequest!\lmessage::Radios!\lmessage::PlaylistUpdate!\lmessage::StreamRequest!\lmessage::RadioAction?\lmessage::SenderEvent?\lmessage::SenderAction!\lmessage::TuneIn?\lmessage::RadioStates!\lmessage::Disconnected!\l"]
+
+		ServerF -> ServerA [label="message::Bye?,message::ByeAck!"]
+	}
+}
