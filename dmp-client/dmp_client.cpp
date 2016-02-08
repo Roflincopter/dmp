@@ -436,12 +436,6 @@ bool DmpClient::handle_radios(message::Radios radios)
 }
 
 DmpClient::~DmpClient() {
-	receiver.stop_loop();
-
-	for(auto&& sender : senders) {
-		sender.second.stop_loop();
-	}
-
 	while(!io_service->stopped()) {
 		io_service->poll_one();
 	}
@@ -465,9 +459,7 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 			config::get_gst_folder_name().string()
 		)
 	);
-	
-	senders.at(sr.radio_name).run_loop();
-	
+		
 	try {
 		std::string file_name =  library.get_filename(sr.entry);
 	} catch(dmp_library::EntryNotFound const&) {

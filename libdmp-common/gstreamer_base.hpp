@@ -97,14 +97,9 @@ public:
 	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending);
 	
 	GStreamerBase(std::string name, std::string gst_dir);
-	
 	GStreamerBase(GStreamerBase&& base);
+	virtual ~GStreamerBase() = default;
 	
-	void destroy();
-	virtual ~GStreamerBase();
-	
-	void run_loop();
-	void stop_loop();
 	std::string make_debug_graph(std::string prefix = "");
 	GstState wait_for_state_change();
 };

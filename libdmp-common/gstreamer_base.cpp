@@ -67,6 +67,7 @@ GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
 {
+	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
 }
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
@@ -84,28 +85,8 @@ GStreamerBase::GStreamerBase(GStreamerBase&& base)
 	base.name = "<INVALID>";
 	base.pipeline.reset();
 	base.bus.reset();
-}
-
-void GStreamerBase::destroy() {
-	if(pipeline) {
-		gst_element_set_state(pipeline.get(), GST_STATE_NULL);
-	}
-	stop_loop();
-}
-
-GStreamerBase::~GStreamerBase()
-{
-}
-
-void GStreamerBase::run_loop()
-{
 	gst_bus_set_sync_handler(bus.get(), nullptr, nullptr, nullptr);
 	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
-}
-
-void GStreamerBase::stop_loop()
-{
-
 }
 
 std::string GStreamerBase::make_debug_graph(std::string prefix)
@@ -211,8 +192,7 @@ GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data
 		break;
 	}
 
-	gst_message_unref(msg);
-	return GST_BUS_DROP;
+	return GST_BUS_PASS;
 }
 
 void on_pad_added (GstElement* __attribute__((unused)) element, GstPad* pad, gpointer data)

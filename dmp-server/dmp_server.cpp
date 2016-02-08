@@ -129,13 +129,6 @@ DmpServer::DmpServer()
 	accept_loop(1337, server_io_service, f);
 }
 
-DmpServer::~DmpServer()
-{
-	for(auto&& radio : radios) {
-		radio.second.stop_loop();
-	}
-}
-
 void DmpServer::read_database()
 {
 	odb::transaction t(db->begin());
@@ -306,15 +299,12 @@ void DmpServer::add_radio(std::string radio_name) {
 		)
 	).first;
 	
-	radio_it->second.run_loop();
-	
 	radio_it->second.listen();
 }
 
 void DmpServer::remove_radio(std::string radio_name)
 {
 	auto radio_it = radios.find(radio_name);
-	radio_it->second.stop_loop();
 	radios.erase(radio_it);
 }
 

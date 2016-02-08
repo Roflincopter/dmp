@@ -76,9 +76,11 @@ class DmpRadio : public GStreamerBase
 	
 public:
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir);
-
 	DmpRadio(DmpRadio&& r) = default;
+	
 	DmpRadio& operator=(DmpRadio&& r) = default;
+
+	~DmpRadio() = default;
 
 	void listen();
 	void add_listener(std::string name);

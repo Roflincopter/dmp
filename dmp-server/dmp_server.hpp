@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dmp_server_interface.hpp"
+#include "dmp_radio.hpp"
 
 #include "message.hpp"
 
@@ -16,7 +17,6 @@
 
 class ClientEndpoint;
 class Connection;
-class DmpRadio;
 class NumberPool;
 
 namespace boost { namespace asio { class io_service; } }
@@ -59,7 +59,7 @@ class DmpServer : public DmpServerInterface, public std::enable_shared_from_this
 
 public:
 	DmpServer();
-	~DmpServer();
+	~DmpServer() = default;
 
 	void run();
 	void stop();

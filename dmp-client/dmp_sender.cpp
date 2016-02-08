@@ -52,11 +52,6 @@ DmpSender::DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string 
 	gst_element_link_many(converter.get(), resampler.get(), encoder.get(), /*rtppay.get(),*/ buffer.get(), sink.get(), nullptr);
 }
 
-DmpSender::~DmpSender()
-{
-	destroy();
-}
-
 void DmpSender::setup(std::string host, uint16_t port, std::string file)
 {
 	g_object_set(G_OBJECT(source.get()), "location", file.c_str(), nullptr);

@@ -29,11 +29,9 @@ class DmpSender : public GStreamerBase
 	
 public:
 	DmpSender(std::weak_ptr<DmpClientRadioInterface> client, std::string radio_name, std::string gst_dir);
-	
 	DmpSender(DmpSender&&) = default;
-	DmpSender& operator=(DmpSender&&) = default;
 	
-	~DmpSender();
+	DmpSender& operator=(DmpSender&&) = default;
 
 	void setup(std::string host, uint16_t port, std::string file);
 	
