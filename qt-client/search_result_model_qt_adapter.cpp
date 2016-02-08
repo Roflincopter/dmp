@@ -79,7 +79,6 @@ void SearchResultModelQtAdapter::clear_end()
 
 void SearchResultModelQtAdapter::remove_entries_start(int start, int count)
 {
-	std::cout << "Start: " << start << "count: " << count << std::endl;
 	beginRemoveRows(QModelIndex(), start, start + count);
 }
 

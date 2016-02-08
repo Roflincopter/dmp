@@ -67,12 +67,10 @@ void DmpReceiver::setup(std::string name, std::string host, uint16_t port) {
 
 void DmpReceiver::play()
 {
-	std::cout << "before playing" << std::endl;
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING))
 	{
 		throw std::runtime_error("Could not change receiver state to playing");
 	}
-	std::cout << "after playing" << std::endl;
 }
 
 void DmpReceiver::pause()
