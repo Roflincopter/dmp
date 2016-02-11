@@ -400,6 +400,9 @@ bool DmpClient::handle_search_response(message::SearchResponse search_res)
 
 bool DmpClient::handle_bye_ack(message::ByeAck)
 {
+	if(library_load_thread.joinable()) {
+		library_load_thread.join();
+	}
 	io_service->stop();
 	return false;
 }
