@@ -107,6 +107,10 @@ void DmpClient::add_delegate(std::weak_ptr<DmpClientUiDelegate> delegate)
 	call_on_delegates(&DmpClientUiDelegate::volume_changed, receiver.get_volume());
 }
 
+std::string DmpClient::get_name() {
+	return name;
+}
+
 void DmpClient::run()
 {
 	listen_requests();
@@ -138,11 +142,10 @@ void DmpClient::remove_radio(std::string str)
 	connection.send(message::RemoveRadio(str));
 }
 
-void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
+void DmpClient::queue(std::string radio, std::vector<PlaylistEntry> entries)
 {
 	message::PlaylistUpdate::Action append(message::PlaylistUpdate::Action::Type::Append, {});
-	PlaylistEntry pl_entry(name, owner, entry);
-	connection.send(message::PlaylistUpdate(append, radio, {pl_entry}));
+	connection.send(message::PlaylistUpdate(append, radio, entries));
 }
 
 void DmpClient::unqueue(std::string radio, std::vector<PlaylistId> ids)

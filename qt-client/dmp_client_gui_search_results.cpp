@@ -1,5 +1,7 @@
 #include "dmp_client_gui_search_results.hpp"
 
+#include <playlist.hpp>
+
 #include "search_result_model_qt_adapter.hpp"
 #include "search_result_sort_proxy_model.hpp"
 
@@ -37,21 +39,18 @@ void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> n
 	client->get_search_result_model()->add_delegate<SearchResultUiDelegate>(model);
 }
 
-void DmpClientGuiSearchResults::queueRequest(QModelIndex index)
-{
-	index = proxy_model->mapToSource(index);
-	auto x = model->get_row_info(index.row());
-	if(!current_active_radio.empty()) {
-		client->queue(current_active_radio, std::get<0>(x), std::get<1>(x));
-	}
-}
-
 void DmpClientGuiSearchResults::queueSelection()
 {
 	auto selection = selectionModel()->selectedRows();
+	std::vector<PlaylistEntry> pl_entries;
 	for(auto row_index : selection) {
-		queueRequest(row_index);
+		
+		QModelIndex index = proxy_model->mapToSource(row_index);
+		auto row_info = model->get_row_info(index.row());
+		pl_entries.emplace_back(client->get_name(), std::get<0>(row_info), std::get<1>(row_info));
 	}
+	
+	client->queue(current_active_radio, pl_entries);
 }
 
 void DmpClientGuiSearchResults::currentActiveRadio(std::string radio_name)

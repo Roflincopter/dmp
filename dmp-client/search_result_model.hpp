@@ -61,7 +61,7 @@ public:
 	int row_count() const;
 	int column_count() const;
 
-	std::tuple<std::__cxx11::string, dmp_library::LibraryEntry> get_row_info(int row) const;
+	std::tuple<std::string, dmp_library::LibraryEntry> get_row_info(int row) const;
 	void remove_entries_from(std::string name);
 };
 

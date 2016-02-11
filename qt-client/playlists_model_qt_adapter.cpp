@@ -11,6 +11,7 @@
 
 #include <QFlags>
 #include <QString>
+#include <QApplication>
 
 #include <stdexcept>
 
@@ -181,6 +182,7 @@ void PlaylistsModelQtAdapter::playlist_update_end(message::PlaylistUpdate update
 			}
 		}
 	}
+	QApplication::processEvents();
 }
 
 void PlaylistsModelQtAdapter::clear_start()

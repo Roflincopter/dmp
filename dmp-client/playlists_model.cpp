@@ -145,10 +145,9 @@ void PlaylistsModel::append(std::string radio_name, Playlist playlist)
 		throw std::runtime_error("The radio on which append was called does not exists " + radio_name);
 	}
 	
+	playlist.reserve(playlists[radio_name].size() + playlist.size());
 	std::copy(playlist.begin(), playlist.end(), std::back_inserter(playlists[radio_name]));
 }
-
-
 
 void PlaylistsModel::reset(std::string radio_name)
 {
