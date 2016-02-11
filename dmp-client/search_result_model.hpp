@@ -41,7 +41,7 @@ public:
 private:
 	static constexpr size_t number_of_library_entry_members = friendly_fusion::result_of::size<dmp_library::LibraryEntry>::type::value;
 	
-	typedef std::pair<Client, std::vector<std::pair<size_t, dmp_library::LibraryEntry>>> SearchResultsElement;
+	typedef std::pair<Client, std::vector<dmp_library::LibraryEntry>> SearchResultsElement;
 	std::vector<SearchResultsElement> search_results;
 	std::string current_query;
 
@@ -61,7 +61,7 @@ public:
 	int row_count() const;
 	int column_count() const;
 
-	std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> get_row_info(int row) const;
+	std::tuple<std::__cxx11::string, dmp_library::LibraryEntry> get_row_info(int row) const;
 	void remove_entries_from(std::string name);
 };
 

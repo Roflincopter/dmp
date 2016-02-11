@@ -237,7 +237,7 @@ struct Query
 	Query::field to_field(std::string const& x);
 	Query::modifier to_modifier(std::string const& x);
 
-	virtual std::vector<std::pair<size_t, LibraryEntry>> handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library) = 0;
+	virtual std::vector<LibraryEntry> handle_search(Library::library_t const& library) = 0;
 };
 
 struct Atom : public Query
@@ -252,7 +252,7 @@ struct Atom : public Query
 	std::string const& get_field_string(Query::field const& f, LibraryEntry const& entry);
 	boost::regex const get_regex(Query::modifier const& m);
 
-	std::vector<std::pair<size_t, LibraryEntry>> handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library) final;
+	std::vector<LibraryEntry> handle_search(Library::library_t const& library) final;
 };
 
 struct And : public Query
@@ -261,7 +261,7 @@ struct And : public Query
 	std::shared_ptr<Query> rh;
 
 	And(ast::And const& ast);
-	std::vector<std::pair<size_t, LibraryEntry>> handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library) final;
+	std::vector<LibraryEntry> handle_search(Library::library_t const& library) final;
 };
 
 struct Or : public Query
@@ -270,7 +270,7 @@ struct Or : public Query
 	std::shared_ptr<Query> rh;
 
 	Or(ast::Or const& ast);
-	std::vector<std::pair<size_t, LibraryEntry>> handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library) final;
+	std::vector<LibraryEntry> handle_search(Library::library_t const& library) final;
 };
 
 struct Not : public Query
@@ -288,7 +288,7 @@ struct Not : public Query
 	std::shared_ptr<Query> negated;
 
 	Not(ast::Not const& ast);
-	std::vector<std::pair<size_t, LibraryEntry>> handle_search(std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> const& library) final;
+	std::vector<LibraryEntry> handle_search(Library::library_t const& library) final;
 };
 
 }

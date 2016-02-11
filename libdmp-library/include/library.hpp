@@ -52,7 +52,8 @@ struct Library
 {
 	std::shared_ptr<LoadInfo> load_info;
 	
-	typedef std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> library_t;
+	typedef std::unordered_multimap<LibraryEntry, EntryLocation> library_t;
+	//typedef std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> library_t;
 
 	library_t library;
 
@@ -73,7 +74,7 @@ struct Library
 		ar & library;
 	}
 
-	std::string get_filename(LibraryEntry entry) const;
+	std::string get_filename(const LibraryEntry& entry) const;
 	void clear();
 	void add_folder(config::LibraryInfo const& info);
 	void load_library(std::vector<config::LibraryInfo> const& library_info);

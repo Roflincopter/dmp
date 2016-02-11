@@ -60,12 +60,12 @@ struct LibraryEntry
 	std::string ascii_album;
 	uint32_t track;
 	Duration length;
-	std::hash<std::string>::result_type id;
+	//std::hash<std::string>::result_type id;
 
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int)
 	{
-		ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & length & id;
+		ar & artist & ascii_artist & title & ascii_title & album & ascii_album & track & length;// & id;
 	}
 };
 
@@ -115,5 +115,5 @@ BOOST_FUSION_ADAPT_STRUCT
 	(std::string, ascii_album)
 	(uint32_t, track)
 	(dmp_library::LibraryEntry::Duration, length)
-	(std::hash<std::string>::result_type, id)
+//	(std::hash<std::string>::result_type, id)
 )

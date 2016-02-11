@@ -16,11 +16,11 @@ LibrarySearcher::LibrarySearcher(const Library& library)
 : library(library)
 {}
 
-std::vector<std::pair<size_t, LibraryEntry>> LibrarySearcher::search(std::shared_ptr<Query> query_obj, Library const& library) {
+std::vector<LibraryEntry> LibrarySearcher::search(std::shared_ptr<Query> query_obj, Library const& library) {
 	return query_obj->handle_search(library.library);
 }
 
-std::vector<std::pair<size_t, LibraryEntry>> LibrarySearcher::search(std::string query)
+std::vector<LibraryEntry> LibrarySearcher::search(std::string query)
 {
 	auto&& query_obj = parse_query(query);
 	return search(query_obj, library.library);

@@ -52,7 +52,7 @@ boost::any SearchResultModel::get_cell(int row, int column) const
 		if(row > 0 && size_t(row) >= p.second.size()) {
 			row -= p.second.size();
 		} else {
-			return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry const, Client const>(p.second.at(row).second, p.first), column);
+			return get_nth(boost::fusion::joint_view<dmp_library::LibraryEntry const, Client const>(p.second.at(row), p.first), column);
 		}
 	}
 
@@ -89,14 +89,14 @@ std::string SearchResultModel::get_current_query() const
 	return current_query;
 }
 
-std::tuple<std::string, uint32_t, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
+std::tuple<std::string, dmp_library::LibraryEntry> SearchResultModel::get_row_info(int row) const
 {
 	for(auto&& p : search_results)
 	{
 		if(row > 0 && size_t(row) >= p.second.size()) {
 			row -= p.second.size();
 		} else {
-			return std::make_tuple(p.first.client, p.second.at(row).first, p.second.at(row).second);
+			return std::make_tuple(p.first.client, p.second.at(row));
 		}
 	}
 

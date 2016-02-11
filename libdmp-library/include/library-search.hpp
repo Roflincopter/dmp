@@ -27,8 +27,8 @@ public:
 	LibrarySearcher(LibrarySearcher const&) = delete;
 	LibrarySearcher(LibrarySearcher&&) = delete;
 
-	std::vector<std::pair<std::size_t, LibraryEntry>> search(std::shared_ptr<Query> query_obj, Library const& library);
-	std::vector<std::pair<std::size_t, LibraryEntry>> search(std::string query);
+	std::vector<LibraryEntry> search(std::shared_ptr<Query> query_obj, Library const& library);
+	std::vector<LibraryEntry> search(std::string query);
 
 };
 

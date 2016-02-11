@@ -20,7 +20,6 @@ LibraryEntry::LibraryEntry(string artist, string title, string album, std::uint3
 , ascii_album()
 , track(track)
 , length(length)
-, id(std::hash<LibraryEntry>()(*this))
 {
 	try {
 		this->ascii_artist = transliterate_to_ascii(artist);
@@ -41,8 +40,7 @@ bool operator==(LibraryEntry const& lh, LibraryEntry const& rh)
 		lh.album        == rh.album        &&
 		lh.ascii_album  == rh.ascii_album  &&
 		lh.track        == rh.track        &&
-		lh.length       == rh.length       &&
-		lh.id           == rh.id;
+		lh.length       == rh.length;
 }
 
 
@@ -50,7 +48,6 @@ ostream& operator<<(ostream& os, LibraryEntry const& le)
 {
 	return os
 		<< "{" << std::endl
-		<< "\t" << "UID: " << le.id << std::endl
 		<< "\t" << "artist: " << le.artist << std::endl
 		<< "\t" << "a_artist: " << le.ascii_artist << std::endl
 		<< "\t" << "title: " << le.title << std::endl

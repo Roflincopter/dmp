@@ -203,9 +203,9 @@ struct SearchResponse
 {
 	std::string origin;
 	std::string query;
-	std::vector<std::pair<size_t, dmp_library::LibraryEntry>> results;
+	std::vector<dmp_library::LibraryEntry> results;
 
-	SearchResponse(std::string origin, std::string query, std::vector<std::pair<size_t, dmp_library::LibraryEntry>> results)
+	SearchResponse(std::string origin, std::string query, std::vector<dmp_library::LibraryEntry> results)
 	: origin(origin)
 	, query(query)
 	, results(results)
@@ -544,12 +544,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, query)
 )
 
-typedef std::vector<std::pair<size_t, dmp_library::LibraryEntry>> T1;
 BOOST_FUSION_ADAPT_STRUCT(
 	message::SearchResponse,
 	(std::string, origin)
 	(std::string, query)
-	(T1, results)
+	(std::vector<dmp_library::LibraryEntry>, results)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

@@ -114,7 +114,7 @@ Library Library::build_library(boost::filesystem::path p)
 			
 			boost::optional<LibraryEntry> entry = build_library_entry(*it);
 			if(entry) {
-				lib.emplace(std::hash<LibraryEntry>()(entry.get()), EntryLocation{entry.get(), it->path().string()});
+				lib.insert(std::make_pair(entry.get(), EntryLocation{entry.get(), it->path().string()}));
 			}
 		}
 		catch(std::exception&)
@@ -169,13 +169,12 @@ Library Library::create(config::LibraryInfo info, bool use_cache, bool create_ca
 	}
 }
 
-std::string Library::get_filename(LibraryEntry entry) const
+std::string Library::get_filename(LibraryEntry const& entry) const
 {
-	auto hash = std::hash<LibraryEntry>()(entry);
-	if(library.count(hash) == 1) {
-		return library.find(hash)->second.location;
+	if(library.count(entry) == 1) {
+		return library.find(entry)->second.location;
 	} else {
-		auto pair = library.equal_range(hash);
+		auto pair = library.equal_range(entry);
 		for(auto it = pair.first; it != pair.second; ++it) {
 			if(it->second.entry == entry) {
 				return it->second.location;

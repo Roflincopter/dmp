@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <utility>
 #include <type_traits>
@@ -41,6 +42,12 @@ struct is_multimap : public std::false_type {};
 
 template <typename T, typename U>
 struct is_multimap<std::multimap<T, U>> : public std::true_type {};
+
+template <typename T>
+struct is_unordered_multimap : public std::false_type {};
+
+template <typename T, typename U>
+struct is_unordered_multimap<std::unordered_multimap<T,U>> : public std::true_type {};
 
 template <typename T>
 struct is_pair : public std::false_type {};
@@ -107,6 +114,7 @@ public:
 			!is_array<T>::value &&
 			!is_map<T>::value &&
 			!is_multimap<T>::value &&
+			!is_unordered_multimap<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
 			!std::is_same<std::string, T>::value
@@ -119,7 +127,7 @@ public:
 	}
 	
 	template<typename T>
-	typename std::enable_if<is_vector<T>::value || is_map<T>::value || is_multimap<T>::value || is_array<T>::value, OArchive& >::type
+	typename std::enable_if<is_vector<T>::value || is_map<T>::value || is_multimap<T>::value || is_unordered_multimap<T>::value || is_array<T>::value, OArchive& >::type
 	operator&(T& t) {
 		size_t count = t.size();
 		os << count << " ";
@@ -216,6 +224,7 @@ public:
 			!is_array<T>::value &&
 			!is_map<T>::value &&
 			!is_multimap<T>::value &&
+			!is_unordered_multimap<T>::value &&
 			!is_pair<T>::value &&
 			!std::is_enum<T>::value &&
 			!std::is_same<std::string, T>::value
@@ -261,7 +270,7 @@ public:
 	}
 	
 	template<typename T>
-	typename std::enable_if<is_map<T>::value || is_multimap<T>::value, IArchive&>::type
+	typename std::enable_if<is_map<T>::value || is_multimap<T>::value || is_unordered_multimap<T>::value, IArchive&>::type
 	operator&(T& t) {
 		size_t size;
 		
@@ -271,7 +280,7 @@ public:
 		for(size_t i = 0; i < size; ++i) {
 			std::pair<typename std::decay<typename T::value_type::first_type>::type, typename std::decay<typename T::value_type::second_type>::type> x;
 			*this & x;
-			t.insert(x);
+			t.emplace(x);
 		}
 		
 		return *this;

@@ -138,10 +138,10 @@ void DmpClient::remove_radio(std::string str)
 	connection.send(message::RemoveRadio(str));
 }
 
-void DmpClient::queue(std::string radio, std::string owner, uint32_t folder_id, dmp_library::LibraryEntry entry)
+void DmpClient::queue(std::string radio, std::string owner, dmp_library::LibraryEntry entry)
 {
 	message::PlaylistUpdate::Action append(message::PlaylistUpdate::Action::Type::Append, {});
-	PlaylistEntry pl_entry(name, owner, folder_id, entry);
+	PlaylistEntry pl_entry(name, owner, entry);
 	connection.send(message::PlaylistUpdate(append, radio, {pl_entry}));
 }
 
