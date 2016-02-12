@@ -403,6 +403,9 @@ bool DmpClient::handle_bye_ack(message::ByeAck)
 	if(library_load_thread.joinable()) {
 		library_load_thread.join();
 	}
+	for(auto&& sender : senders) {
+		sender.second.stop();
+	}
 	io_service->stop();
 	return false;
 }

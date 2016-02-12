@@ -53,8 +53,7 @@ struct Library
 	std::shared_ptr<LoadInfo> load_info;
 	
 	typedef std::unordered_multimap<LibraryEntry, EntryLocation> library_t;
-	//typedef std::multimap<std::hash<LibraryEntry>::result_type, EntryLocation> library_t;
-
+	
 	library_t library;
 
 	Library();

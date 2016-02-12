@@ -39,6 +39,14 @@ void DmpClientGuiSearchResults::set_client(std::shared_ptr<DmpClientInterface> n
 	client->get_search_result_model()->add_delegate<SearchResultUiDelegate>(model);
 }
 
+void DmpClientGuiSearchResults::queueDoubleClicked(QModelIndex clicked)
+{
+	QModelIndex index = proxy_model->mapToSource(clicked);
+	auto row_info = model->get_row_info(index.row());
+	PlaylistEntry entry(client->get_name(), std::get<0>(row_info), std::get<1>(row_info));
+	client->queue(current_active_radio, {entry});
+}
+
 void DmpClientGuiSearchResults::queueSelection()
 {
 	auto selection = selectionModel()->selectedRows();

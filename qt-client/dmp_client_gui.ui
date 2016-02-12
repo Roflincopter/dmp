@@ -414,8 +414,8 @@
    <header>dmp_client_gui_search_results.hpp</header>
    <slots>
     <slot>currentActiveRadio(std::string)</slot>
-    <slot>queueRequest(QModelIndex)</slot>
     <slot>queueSelection()</slot>
+    <slot>queueDoubleClicked(QModelIndex)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -530,7 +530,7 @@
    <sender>search_results</sender>
    <signal>doubleClicked(QModelIndex)</signal>
    <receiver>search_results</receiver>
-   <slot>queueRequest(QModelIndex)</slot>
+   <slot>queueDoubleClicked(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>640</x>

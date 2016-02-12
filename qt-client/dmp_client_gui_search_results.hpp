@@ -40,6 +40,7 @@ public:
 signals:
 
 public slots:
+	void queueDoubleClicked(QModelIndex clicked);
 	void queueSelection();
 	void currentActiveRadio(std::string radio_name);
 };
