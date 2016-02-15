@@ -12,6 +12,7 @@
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/cstdint.hpp>
 
@@ -31,6 +32,7 @@ class Connection {
 	void encrypted(std::function<void(bool)> cb);
 
 	boost::asio::ip::tcp::socket socket;
+	std::unique_ptr<boost::asio::strand> strand;
 
 	std::vector<uint8_t> encrypted_buffer;
 
@@ -61,11 +63,11 @@ public:
 	template <typename T>
 	void send(T x) {
 		if(encrypt) {
-			socket.get_io_service().post([this, x]{
+			strand->post([this, x]{
 				send_encrypted(x);
 			});
 		} else {
-			socket.get_io_service().post([this, x]{
+			strand->post([this, x]{
 				send_plain(x);
 			});
 		}
@@ -74,7 +76,7 @@ public:
 	template <typename Callable>
 	void async_receive_type(Callable const cb)
 	{
-		encrypted([this, cb](bool encrypted){
+		encrypted([this, cb](bool encrypted) {
 			if(encrypted) {
 				async_receive_encrypted_type(cb);
 			} else {
@@ -265,7 +267,7 @@ private:
 		};
 		
 		async_type_buffer.resize(4, 0);
-		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), read_cb);
+		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), strand->wrap(read_cb));
 	}
 
 	template <typename Callable>
@@ -287,7 +289,7 @@ private:
 		};
 
 		async_type_buffer.resize(sizeof(message::Type_t) + crypto_box_macbytes(), 0);
-		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), type_cb);
+		boost::asio::async_read(socket, boost::asio::buffer(async_type_buffer), strand->wrap(type_cb));
 	}
 
 	template <typename T, typename Callable>
@@ -315,11 +317,11 @@ private:
 			};
 
 			async_mess_buffer.resize(size, 0);
-			boost::asio::async_read(socket, boost::asio::buffer(async_mess_buffer), content_cb);
+			boost::asio::async_read(socket, boost::asio::buffer(async_mess_buffer), strand->wrap(content_cb));
 		};
 
 		async_size_buffer.resize(4, 0);
-		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), size_cb);
+		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), strand->wrap(size_cb));
 	}
 
 	template <typename T, typename Callable>
@@ -347,10 +349,10 @@ private:
 			};
 
 			async_mess_buffer.resize(size, 0);
-			boost::asio::async_read(socket, boost::asio::buffer(async_mess_buffer), content_cb);
+			boost::asio::async_read(socket, boost::asio::buffer(async_mess_buffer), strand->wrap(content_cb));
 		};
 
 		async_size_buffer.resize(4, 0);
-		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), size_cb);
+		boost::asio::async_read(socket, boost::asio::buffer(async_size_buffer), strand->wrap(size_cb));
 	};
 };

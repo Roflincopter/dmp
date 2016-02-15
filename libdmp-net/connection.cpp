@@ -4,9 +4,10 @@
 
 #include <algorithm>
 
-Connection::Connection(boost::asio::ip::tcp::socket &&socket)
+Connection::Connection(boost::asio::ip::tcp::socket&& socket)
 	: encrypt(false)
 	, socket(std::move(socket))
+	, strand(new boost::asio::strand(socket.get_io_service()))
 	, async_type_buffer()
 	, async_size_buffer()
 	, async_mess_buffer()
@@ -20,6 +21,7 @@ Connection::Connection(boost::asio::ip::tcp::socket &&socket)
 Connection::Connection(Connection&& that)
 	: encrypt(std::move(that.encrypt))
 	, socket(std::move(that.socket))
+	, strand(std::move(that.strand))
 	, async_type_buffer()
 	, async_size_buffer()
 	, async_mess_buffer()
@@ -33,6 +35,7 @@ Connection::Connection(Connection&& that)
 Connection& Connection::operator=(Connection&& that){
 	std::swap(encrypt, that.encrypt);
 	std::swap(socket, that.socket);
+	std::swap(strand, that.strand);
 	std::swap(private_key, that.private_key);
 	std::swap(public_key, that.public_key);
 	std::swap(other_public_key, that.other_public_key);

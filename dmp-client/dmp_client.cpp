@@ -35,8 +35,10 @@ DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
 , io_service(std::make_shared<boost::asio::io_service>())
+, library_load_thread()
+, helper_thread()
 , library_info_timer(*io_service)
-, callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks())
+, callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks(), io_service)
 , connection(connect(host, port, io_service))
 , last_sent_ping()
 , library()
@@ -59,25 +61,25 @@ message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
 {
 	using std::placeholders::_1;
 	return {
-		{message::Type::LoginResponse, std::function<bool(message::LoginResponse)>(std::bind(&DmpClient::handle_login_response, this, _1))},
-		{message::Type::RegisterResponse, std::function<bool(message::RegisterResponse)>(std::bind(&DmpClient::handle_register_response, this, _1))},
-		{message::Type::Ping, std::function<bool(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
-		{message::Type::Pong, std::function<bool(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
-		{message::Type::SearchRequest, std::function<bool(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
-		{message::Type::SearchResponse, std::function<bool(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
-		{message::Type::ByeAck, std::function<bool(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, _1))},
-		{message::Type::AddRadioResponse, std::function<bool(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, _1))},
-		{message::Type::ListenConnectionRequest, std::function<bool(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, _1))},
-		{message::Type::Radios, std::function<bool(message::Radios)>(std::bind(&DmpClient::handle_radios, this, _1))},
-		{message::Type::AddRadio, std::function<bool(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
-		{message::Type::RemoveRadio, std::function<bool(message::RemoveRadio)>(std::bind(&DmpClient::handle_remove_radio, this, _1))},
-		{message::Type::PlaylistUpdate, std::function<bool(message::PlaylistUpdate)>(std::bind(&PlaylistsModel::handle_update, playlists_model.get(), _1))},
-		{message::Type::StreamRequest, std::function<bool(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
-		{message::Type::SenderAction, std::function<bool(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
-		{message::Type::ReceiverAction, std::function<bool(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
-		{message::Type::RadioStates, std::function<bool(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))},
-		{message::Type::PublicKey, std::function<bool(message::PublicKey)>(std::bind(&DmpClient::handle_public_key, this, _1))},
-		{message::Type::Disconnected, std::function<bool(message::Disconnected)>(std::bind(&DmpClient::handle_disconnected, this, _1))}
+		{message::Type::LoginResponse, std::function<void(message::LoginResponse)>(std::bind(&DmpClient::handle_login_response, this, _1))},
+		{message::Type::RegisterResponse, std::function<void(message::RegisterResponse)>(std::bind(&DmpClient::handle_register_response, this, _1))},
+		{message::Type::Ping, std::function<void(message::Ping)>(std::bind(&DmpClient::handle_ping, this, _1))},
+		{message::Type::Pong, std::function<void(message::Pong)>(std::bind(&DmpClient::handle_pong, this, _1))},
+		{message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpClient::handle_search_request, this, _1))},
+		{message::Type::SearchResponse, std::function<void(message::SearchResponse)>(std::bind(&DmpClient::handle_search_response, this, _1))},
+		{message::Type::ByeAck, std::function<void(message::ByeAck)>(std::bind(&DmpClient::handle_bye_ack, this, _1))},
+		{message::Type::AddRadioResponse, std::function<void(message::AddRadioResponse)>(std::bind(&DmpClient::handle_add_radio_response, this, _1))},
+		{message::Type::ListenConnectionRequest, std::function<void(message::ListenConnectionRequest)>(std::bind(&DmpClient::handle_listener_connection_request, this, _1))},
+		{message::Type::Radios, std::function<void(message::Radios)>(std::bind(&DmpClient::handle_radios, this, _1))},
+		{message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpClient::handle_add_radio, this, _1))},
+		{message::Type::RemoveRadio, std::function<void(message::RemoveRadio)>(std::bind(&DmpClient::handle_remove_radio, this, _1))},
+		{message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&PlaylistsModel::handle_update, playlists_model.get(), _1))},
+		{message::Type::StreamRequest, std::function<void(message::StreamRequest)>(std::bind(&DmpClient::handle_stream_request, this, _1))},
+		{message::Type::SenderAction, std::function<void(message::SenderAction)>(std::bind(&DmpClient::handle_sender_action, this, _1))},
+		{message::Type::ReceiverAction, std::function<void(message::ReceiverAction)>(std::bind(&DmpClient::handle_receiver_action, this, _1))},
+		{message::Type::RadioStates, std::function<void(message::RadioStates)>(std::bind(&DmpClient::handle_radio_states, this, _1))},
+		{message::Type::PublicKey, std::function<void(message::PublicKey)>(std::bind(&DmpClient::handle_public_key, this, _1))},
+		{message::Type::Disconnected, std::function<void(message::Disconnected)>(std::bind(&DmpClient::handle_disconnected, this, _1))}
 	};
 }
 
@@ -114,6 +116,9 @@ std::string DmpClient::get_name() {
 void DmpClient::run()
 {
 	listen_requests();
+	helper_thread = std::thread([this](){
+		io_service->run();
+	});
 	io_service->run();
 }
 
@@ -329,13 +334,12 @@ void DmpClient::gstreamer_debug(std::string reason)
 	}
 }
 
-bool DmpClient::handle_public_key(message::PublicKey pk)
+void DmpClient::handle_public_key(message::PublicKey pk)
 {
 	connection.set_their_key(pk.key);
-	return true;
 }
 
-bool DmpClient::handle_login_response(message::LoginResponse lr)
+void DmpClient::handle_login_response(message::LoginResponse lr)
 {
 	if(lr.succes) {
 		call_on_delegates(&DmpClientUiDelegate::login_succeeded);
@@ -343,17 +347,15 @@ bool DmpClient::handle_login_response(message::LoginResponse lr)
 		call_on_delegates(&DmpClientUiDelegate::login_failed, lr.reason);
 		name = "";
 	}
-	return true;
 }
 
-bool DmpClient::handle_register_response(message::RegisterResponse rr)
+void DmpClient::handle_register_response(message::RegisterResponse rr)
 {
 	if(rr.succes) {
 		call_on_delegates(&DmpClientUiDelegate::register_succeeded);
 	} else {
 		call_on_delegates(&DmpClientUiDelegate::register_failed, rr.reason);
 	}
-	return true;
 }
 
 void DmpClient::mute_radio(bool state)
@@ -368,37 +370,33 @@ void DmpClient::change_volume(int volume)
 	call_on_delegates(&DmpClientUiDelegate::volume_changed, volume);
 }
 
-bool DmpClient::handle_ping(message::Ping ping)
+void DmpClient::handle_ping(message::Ping ping)
 {
 	message::Pong pong(ping.payload);
 	connection.send(pong);
-	return true;
 }
 
-bool DmpClient::handle_pong(message::Pong pong)
+void DmpClient::handle_pong(message::Pong pong)
 {
 	assert(last_sent_ping.payload != "");
 	if (last_sent_ping.payload != pong.payload) {
 		stop();
 	}
-	return true;
 }
 
-bool DmpClient::handle_search_request(message::SearchRequest search_req)
+void DmpClient::handle_search_request(message::SearchRequest search_req)
 {
 	dmp_library::LibrarySearcher searcher(library);
 	message::SearchResponse response(name, search_req.query, searcher.search(search_req.query));
 	connection.send(response);
-	return true;
 }
 
-bool DmpClient::handle_search_response(message::SearchResponse search_res)
+void DmpClient::handle_search_response(message::SearchResponse search_res)
 {
 	search_result_model->add_search_response(search_res);
-	return true;
 }
 
-bool DmpClient::handle_bye_ack(message::ByeAck)
+void DmpClient::handle_bye_ack(message::ByeAck)
 {
 	if(library_load_thread.joinable()) {
 		library_load_thread.join();
@@ -407,57 +405,54 @@ bool DmpClient::handle_bye_ack(message::ByeAck)
 		sender.second.stop();
 	}
 	io_service->stop();
-	return false;
 }
 
-bool DmpClient::handle_add_radio_response(message::AddRadioResponse response)
+void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
 {
 	if(response.succes) {
 		call_on_delegates(&DmpClientUiDelegate::add_radio_succes, response);
 	} else {
 		call_on_delegates(&DmpClientUiDelegate::add_radio_failed, response);
 	}
-	return true;
 }
 
-bool DmpClient::handle_remove_radio(message::RemoveRadio rr)
+void DmpClient::handle_remove_radio(message::RemoveRadio rr)
 {
 	radio_list_model->remove_radio(rr.name);
 	playlists_model->remove_radio(rr.name);
-	return true;
 }
 
-bool DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
+void DmpClient::handle_listener_connection_request(message::ListenConnectionRequest req)
 {
 	receiver.setup(req.radio_name, host, req.port);
 	receiver.pause();
-	return true;
 }
 
-bool DmpClient::handle_radios(message::Radios radios)
+void DmpClient::handle_radios(message::Radios radios)
 {
 	for(auto&& radio : radios.radios)
 	{
 		radio_list_model->add_radio(radio.first);
 		playlists_model->update(radio.first, radio.second);
 	}
-	return true;
 }
 
 DmpClient::~DmpClient() {
 	while(!io_service->stopped()) {
 		io_service->poll_one();
 	}
+	if(helper_thread.joinable()) {
+		helper_thread.join();
+	}
 }
 
-bool DmpClient::handle_add_radio(message::AddRadio added_radio)
+void DmpClient::handle_add_radio(message::AddRadio added_radio)
 {
 	radio_list_model->add_radio(added_radio.name);
 	playlists_model->create_radio(added_radio.name);
-	return true;
 }
 
-bool DmpClient::handle_stream_request(message::StreamRequest sr)
+void DmpClient::handle_stream_request(message::StreamRequest sr)
 {
 	senders.erase(sr.radio_name);
 	senders.emplace(
@@ -474,14 +469,12 @@ bool DmpClient::handle_stream_request(message::StreamRequest sr)
 	} catch(dmp_library::EntryNotFound const&) {
 		std::cout << "Caught exception" << std::endl;
 		senders.at(sr.radio_name).eos_reached();
-		return true;
 	}
 	
 	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
-	return true;
 }
 
-bool DmpClient::handle_sender_action(message::SenderAction sa)
+void DmpClient::handle_sender_action(message::SenderAction sa)
 {
 	auto sender_it = senders.find(sa.radio_name);
 	if(sender_it != senders.end()) {
@@ -517,10 +510,9 @@ bool DmpClient::handle_sender_action(message::SenderAction sa)
 			}
 		}
 	}
-	return true;
 }
 
-bool DmpClient::handle_receiver_action(message::ReceiverAction ra)
+void DmpClient::handle_receiver_action(message::ReceiverAction ra)
 {
 	switch(ra.action)
 	{
@@ -551,10 +543,9 @@ bool DmpClient::handle_receiver_action(message::ReceiverAction ra)
 			throw std::runtime_error("ReceiverAction with incompatible command found in dmp_client, command was: " + std::to_string(static_cast<message::Type_t>(ra.action)));
 		}
 	}
-	return true;
 }
 
-bool DmpClient::handle_radio_states(message::RadioStates rs)
+void DmpClient::handle_radio_states(message::RadioStates rs)
 {
 	switch(rs.action) {
 		case message::RadioStates::Action::Set:
@@ -568,11 +559,9 @@ bool DmpClient::handle_radio_states(message::RadioStates rs)
 			throw std::runtime_error("Received a RadioStates message with unhandled action: " + std::to_string(static_cast<message::Type_t>(rs.action)));
 		}
 	}
-	return true;
 }
 
-bool DmpClient::handle_disconnected(message::Disconnected d)
+void DmpClient::handle_disconnected(message::Disconnected d)
 {
 	search_result_model->remove_entries_from(d.name);
-	return true;
 }

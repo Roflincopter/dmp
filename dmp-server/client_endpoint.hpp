@@ -64,6 +64,6 @@ public:
 	void search(std::function<void(message::SearchResponse)> cb, message::SearchRequest sr);
 
 	void handle_request(message::Type t);
-	bool handle_pong(message::Pong p);
-	bool handle_bye(message::Bye);
+	void handle_pong(message::Pong p);
+	void handle_bye(message::Bye);
 };

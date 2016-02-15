@@ -1,10 +1,9 @@
 
+#include <boost/asio/ip/tcp.hpp>
+
 #include <stdint.h>
 #include <functional>
 #include <memory>
 
-class Connection;
-namespace boost { namespace asio { class io_service; } }
-
-void accept_loop(uint16_t port, std::weak_ptr<boost::asio::io_service> ios, std::function<void(Connection&&)> f);
+void accept_loop(uint16_t port, std::weak_ptr<boost::asio::io_service> ios, std::function<void(boost::asio::ip::tcp::socket&&)> f);
 

@@ -46,6 +46,7 @@ public:
 private:
 	std::shared_ptr<boost::asio::io_service> io_service;
 	std::thread library_load_thread;
+	std::thread helper_thread;
 	boost::asio::deadline_timer library_info_timer;
 	message::DmpCallbacks callbacks;
 	Connection connection;
@@ -105,22 +106,22 @@ public:
 	
 	virtual void gstreamer_debug(std::string reason) override final;
 
-	bool handle_public_key(message::PublicKey pk);
-	bool handle_login_response(message::LoginResponse lr);
-	bool handle_register_response(message::RegisterResponse rr);
-	bool handle_ping(message::Ping ping);
-	bool handle_pong(message::Pong pong);
-	bool handle_search_request(message::SearchRequest search_req);
-	bool handle_search_response(message::SearchResponse search_res);
-	bool handle_bye_ack(message::ByeAck);
-	bool handle_add_radio_response(message::AddRadioResponse);
-	bool handle_remove_radio(message::RemoveRadio);
-	bool handle_listener_connection_request(message::ListenConnectionRequest req);
-	bool handle_radios(message::Radios radios);
-	bool handle_add_radio(message::AddRadio added_radio);
-	bool handle_stream_request(message::StreamRequest sr);
-	bool handle_sender_action(message::SenderAction sa);
-	bool handle_receiver_action(message::ReceiverAction ra);
-	bool handle_radio_states(message::RadioStates rs);
-	bool handle_disconnected(message::Disconnected d);
+	void handle_public_key(message::PublicKey pk);
+	void handle_login_response(message::LoginResponse lr);
+	void handle_register_response(message::RegisterResponse rr);
+	void handle_ping(message::Ping ping);
+	void handle_pong(message::Pong pong);
+	void handle_search_request(message::SearchRequest search_req);
+	void handle_search_response(message::SearchResponse search_res);
+	void handle_bye_ack(message::ByeAck);
+	void handle_add_radio_response(message::AddRadioResponse);
+	void handle_remove_radio(message::RemoveRadio);
+	void handle_listener_connection_request(message::ListenConnectionRequest req);
+	void handle_radios(message::Radios radios);
+	void handle_add_radio(message::AddRadio added_radio);
+	void handle_stream_request(message::StreamRequest sr);
+	void handle_sender_action(message::SenderAction sa);
+	void handle_receiver_action(message::ReceiverAction ra);
+	void handle_radio_states(message::RadioStates rs);
+	void handle_disconnected(message::Disconnected d);
 };

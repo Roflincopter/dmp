@@ -172,7 +172,6 @@ void DmpServer::add_pending_connection(Connection&& c)
 			auto result = auth.login(lr.username, lr.password);
 			if(!result.succes) {
 				cep->forward(message::LoginResponse(result.succes, result.reason));
-				return true;
 			} else {
 				cep->set_name(lr.username);
 				cep->get_callbacks().
@@ -183,13 +182,11 @@ void DmpServer::add_pending_connection(Connection&& c)
 				add_permanent_connection(cep);
 				remove_element(pending_connections, cep);
 				cep->forward(message::LoginResponse(result.succes, ""));
-				return true;
 			}
 		}).
 		set(message::Type::RegisterRequest, [this, cep](message::RegisterRequest r) {
 			auto result = auth.register_username(r.username, r.password);
 			cep->forward(message::RegisterResponse(result.succes, result.reason));
-			return true;
 		}).
 		set(message::Type::Bye, [this, cep](message::Bye b) {
 			cep->handle_bye(b);
@@ -197,8 +194,6 @@ void DmpServer::add_pending_connection(Connection&& c)
 				remove_element(pending_connections, cep);
 				cep->get_callbacks().clear();
 			});
-			return false;
-		
 		}).
 		set(message::Type::PublicKey, [this, cep](message::PublicKey r) {
 			KeyPair pair = load_key_pair();
@@ -213,8 +208,6 @@ void DmpServer::add_pending_connection(Connection&& c)
 			cep->set_their_key(
 				r.key
 			);
-			
-			return true;
 		});
 }
 
@@ -231,14 +224,14 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 		std::weak_ptr<ClientEndpoint> wcep = cep;
 		cep->get_callbacks().
-			set(message::Type::SearchRequest, std::function<bool(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, wcep, std::placeholders::_1))).
-			set(message::Type::AddRadio, std::function<bool(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, wcep, std::placeholders::_1))).
-			set(message::Type::RemoveRadio, std::function<bool(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, wcep, std::placeholders::_1))).
-			set(message::Type::RadioAction, std::function<bool(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
-			set(message::Type::SenderEvent, std::function<bool(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
-			set(message::Type::TuneIn, std::function<bool(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
-			set(message::Type::Bye, std::function<bool(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
-			set(message::Type::PlaylistUpdate, std::function<bool(message::PlaylistUpdate)>(std::bind(&DmpServer::handle_playlist_update, this, std::placeholders::_1)));
+			set(message::Type::SearchRequest, std::function<void(message::SearchRequest)>(std::bind(&DmpServer::handle_search, this, wcep, std::placeholders::_1))).
+			set(message::Type::AddRadio, std::function<void(message::AddRadio)>(std::bind(&DmpServer::handle_add_radio, this, wcep, std::placeholders::_1))).
+			set(message::Type::RemoveRadio, std::function<void(message::RemoveRadio)>(std::bind(&DmpServer::handle_remove_radio, this, wcep, std::placeholders::_1))).
+			set(message::Type::RadioAction, std::function<void(message::RadioAction)>(std::bind(&DmpServer::handle_radio_action, this, std::placeholders::_1))).
+			set(message::Type::SenderEvent, std::function<void(message::SenderEvent)>(std::bind(&DmpServer::handle_sender_event, this, std::placeholders::_1))).
+			set(message::Type::TuneIn, std::function<void(message::TuneIn)>(std::bind(&DmpServer::handle_tune_in, this, wcep, std::placeholders::_1))).
+			set(message::Type::Bye, std::function<void(message::Bye)>(std::bind(&ClientEndpoint::handle_bye, cep.get(), std::placeholders::_1))).
+			set(message::Type::PlaylistUpdate, std::function<void(message::PlaylistUpdate)>(std::bind(&DmpServer::handle_playlist_update, this, std::placeholders::_1)));
 		connections[username] = cep;
 
 		std::map<std::string, Playlist> playlists;
@@ -271,7 +264,7 @@ void DmpServer::remove_connection(std::string name)
 	});
 }
 
-bool DmpServer::handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr)
+void DmpServer::handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message::SearchRequest sr)
 {
 	auto origin = weak_origin.lock();
 	if(!origin) {
@@ -283,7 +276,6 @@ bool DmpServer::handle_search(std::weak_ptr<ClientEndpoint> weak_origin, message
 	{
 		x.second->search(cb, sr);
 	}
-	return true;
 }
 
 void DmpServer::add_radio(std::string radio_name) {
@@ -315,7 +307,7 @@ void DmpServer::gstreamer_debug(std::string reason)
 	}
 }
 
-bool DmpServer::handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar)
+void DmpServer::handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::AddRadio ar)
 {
 	auto origin = weak_origin.lock();
 	if(!origin) {
@@ -346,10 +338,9 @@ bool DmpServer::handle_add_radio(std::weak_ptr<ClientEndpoint> weak_origin, mess
 	} else {
 		origin->forward(message::AddRadioResponse(ar.name, false, "Radio with name " + ar.name + " already exists"));
 	}
-	return true;
 }
 
-bool DmpServer::handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::RemoveRadio rr) {
+void DmpServer::handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, message::RemoveRadio rr) {
 	auto origin = weak_origin.lock();
 	if(!origin) {
 		throw InvalidClientEndpoint();
@@ -386,7 +377,6 @@ bool DmpServer::handle_remove_radio(std::weak_ptr<ClientEndpoint> weak_origin, m
 		}
 		origin->forward(message::RemoveRadio(rr.name));
 	}
-	return true;
 }
 
 void DmpServer::update_playlist(std::string radio_name, Playlist playlist)
@@ -397,7 +387,7 @@ void DmpServer::update_playlist(std::string radio_name, Playlist playlist)
 	}
 }
 
-bool DmpServer::handle_radio_action(message::RadioAction ra)
+void DmpServer::handle_radio_action(message::RadioAction ra)
 {
 	auto& radio = radios.at(ra.radio_name);
 	switch(ra.action)
@@ -431,17 +421,15 @@ bool DmpServer::handle_radio_action(message::RadioAction ra)
 		}
 	}
 	
-	return true;
 }
 
-bool DmpServer::handle_sender_event(message::SenderEvent se)
+void DmpServer::handle_sender_event(message::SenderEvent se)
 {
 	auto& radio = radios.at(se.radio_name);
 	radio.event_callbacks[se.event]();
-	return true;
 }
 
-bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti)
+void DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti)
 {
 	auto origin = weak_origin.lock();
 	if(!origin) {
@@ -455,7 +443,6 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 			radio.add_listener(origin->get_name());
 		} catch(std::runtime_error const& e) {
 			std::cout << e.what() << std::endl;
-			return true;
 		}
 		origin->forward(message::ListenConnectionRequest(ti.radio_name, radio.get_receiver_port(origin->get_name())));
 	} else if(ti.action == message::TuneIn::Action::TuneOff) {
@@ -463,10 +450,9 @@ bool DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, messag
 	} else {
 		throw std::runtime_error("Received a TuneIn message with unhandled action");
 	}
-	return true;
 }
 
-bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
+void DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 {
 	auto& radio = radios.at(pu.radio_name);
 
@@ -511,8 +497,6 @@ bool DmpServer::handle_playlist_update(message::PlaylistUpdate pu)
 	for(auto& endpoint : connections) {
 		endpoint.second->forward(pu);
 	}
-
-	return true;
 }
 
 void DmpServer::order_stream(std::string client, std::string radio_name, uint32_t folder_id, dmp_library::LibraryEntry entry, uint16_t port)

@@ -20,7 +20,7 @@
 using tcp = boost::asio::ip::tcp;
 using io_service = boost::asio::io_service;
 
-Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asio::io_service> ios)
+tcp::socket connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asio::io_service> ios)
 {
 	boost::asio::ip::basic_resolver<tcp> resolver(*ios.lock());
 	std::string portstr;
@@ -47,7 +47,7 @@ Connection connect(std::string hostname, uint16_t port, std::weak_ptr<boost::asi
 		}
 		else
 		{
-			return Connection(std::move(socket));
+			return socket;
 		}
 	}
 

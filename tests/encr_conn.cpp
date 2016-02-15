@@ -23,22 +23,20 @@ private:
 	int pong_received_count = 0;
 public:
 	
-	Client(Connection&& conn, bool server)
+	Client(Connection&& conn, bool server, std::shared_ptr<boost::asio::io_service> ios)
 	: connection(std::move(conn)) 
-	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{})
+	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{}, ios)
 	, messageswitch(make_message_switch()) {
 		callbacks
 		.set(message::Type::Ping, [this](message::Ping p){
 			connection.send(message::Pong(p.payload));
-			return true;
 		})
 		.set(message::Type::Pong, [this](message::Pong){
 			++pong_received_count;
 			if(pong_received_count < 5) {
 				connection.send(message::Ping());
-				return true;
 			} else {
-				return false;
+				callbacks.stop();
 			}
 		})
 		.set(message::Type::PublicKey, [this, server](message::PublicKey p){
@@ -47,7 +45,6 @@ public:
 			}
 			connection.set_their_key(p.key);
 			connection.start_encryption();
-			return true;
 		});
 
 		std::vector<uint8_t> pub(crypto_box_publickeybytes(), 0);
@@ -95,15 +92,15 @@ int main() {
 	
 	Server server;
 	
-	accept_loop(2000, server_io, [&server](Connection&& c) {
-		auto c_ptr = std::make_shared<Client>(std::move(c), true);
+	accept_loop(2000, server_io, [&server, server_io](Connection&& c) {
+		auto c_ptr = std::make_shared<Client>(std::move(c), true, server_io);
 		server.add_connection(c_ptr);
 	});
 	
-	Client client1(connect("127.0.0.1", 2000, client_io1), false);
+	Client client1(connect("127.0.0.1", 2000, client_io1), false, client_io1);
 	client1.receive();
 	
-	Client client2(connect("127.0.0.1", 2000, client_io2), false);
+	Client client2(connect("127.0.0.1", 2000, client_io2), false, client_io2);
 	client2.receive();
 	
 	std::thread t1;
@@ -114,7 +111,7 @@ int main() {
 		t1 = std::thread([server_io]{
 			server_io->run();
 		});
-			
+		
 		t2 = std::thread([client_io1]{
 			client_io1->run();
 		});

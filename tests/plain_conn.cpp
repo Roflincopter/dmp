@@ -20,22 +20,20 @@ private:
 	int pong_received_count = 0;
 public:
 	
-	Client(Connection&& conn)
+	Client(Connection&& conn, std::shared_ptr<boost::asio::io_service> ios)
 	: connection(std::move(conn)) 
-	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{})
+	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{}, ios)
 	, messageswitch(make_message_switch()) {
 		callbacks
 			.set(message::Type::Ping, [this](message::Ping p){
 				connection.send(message::Pong(p.payload));
-				return true;
 			})
 			.set(message::Type::Pong, [this](message::Pong){
 				++pong_received_count;
 				if(pong_received_count < 5) {
 					connection.send(message::Ping());
-					return true;
 				} else {
-					return false;
+					callbacks.stop();
 				}
 			});
 	}
@@ -75,15 +73,15 @@ int main() {
 	
 	Server server;
 	
-	accept_loop(2000, server_io, [&server](Connection&& c) {
-		auto c_ptr = std::make_shared<Client>(std::move(c));
+	accept_loop(2000, server_io, [&server, server_io](Connection&& c) {
+		auto c_ptr = std::make_shared<Client>(std::move(c), server_io);
 		server.add_connection(c_ptr);
 	});
 	
-	Client client1(connect("127.0.0.1", 2000, client_io1));
+	Client client1(connect("127.0.0.1", 2000, client_io1), client_io1);
 	client1.receive();
 	
-	Client client2(connect("127.0.0.1", 2000, client_io2));
+	Client client2(connect("127.0.0.1", 2000, client_io2), client_io2);
 	client2.receive();
 	
 	std::thread t1;

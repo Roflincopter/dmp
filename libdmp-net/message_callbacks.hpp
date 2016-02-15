@@ -5,6 +5,7 @@
 #include <boost/variant/variant.hpp>
 #include <boost/version.hpp>
 #include <boost/variant/get.hpp>
+#include <boost/asio/strand.hpp>
 
 #include <stdexcept>
 #include <functional>
@@ -14,8 +15,28 @@
 
 namespace message {
 
+template <typename T>
+struct continuation {
+	template<typename F>
+	void operator()(F const& continuation) {
+		continuation();
+	}
+};
+
+template <>
+struct continuation<message::ByeAck> {
+	template<typename F>
+	void operator()(F const&) {}
+};
+
+template <>
+struct continuation<message::Bye> {
+	template<typename F>
+	void operator()(F const&) {}
+};
+
 struct DmpCallbacks {
-	template <typename T> using CB = std::function<bool(T)>;
+	template <typename T> using CB = std::function<void(T)>;
 	
 	using CallBackType = boost::variant<
 		  CB<message::Ping>
@@ -50,10 +71,12 @@ struct DmpCallbacks {
 	
 	Callbacks_t callbacks;
 	std::function<void()> refresher;
+	std::shared_ptr<boost::asio::strand> strand;
 
-	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks)
+	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks, std::shared_ptr<boost::asio::io_service> io_service)
 	: callbacks(initial_callbacks)
 	, refresher(refresher)
+	, strand(std::make_shared<boost::asio::strand>(*io_service))
 	{}
 
 	template <typename T>
@@ -72,10 +95,9 @@ struct DmpCallbacks {
 #else
 				auto f = boost::get<CB<T>>(it->second)
 #endif
-			) {	
-				if(f(message)) {
-					refresher();
-				}
+			) {
+				strand->post([f, message](){f(message);});
+				continuation<T>()(refresher);
 			} else {
 				throw std::runtime_error("Empty functor as callback detected");
 			}
@@ -100,6 +122,11 @@ struct DmpCallbacks {
 	void clear()
 	{
 		callbacks.clear();
+	}
+	
+	void stop()
+	{
+		strand->get_io_service().stop();
 	}
 };
 

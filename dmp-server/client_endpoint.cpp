@@ -19,12 +19,12 @@ ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_
 , ping_timer(new boost::asio::deadline_timer(*ios.lock()))
 , time_out(new boost::asio::deadline_timer(*ios.lock()))
 , last_ping()
-, callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{})
+, callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{}, ios.lock())
 , message_switch(make_message_switch())
 , terminate_connection()
 {
 	callbacks.
-		set(message::Type::Pong, std::function<bool(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1)));
+		set(message::Type::Pong, std::function<void(message::Pong)>(std::bind(&ClientEndpoint::handle_pong, this, std::placeholders::_1)));
 	
 	listen_requests();
 	keep_alive();
@@ -51,15 +51,13 @@ void ClientEndpoint::handle_request(message::Type t)
 	message_switch.handle_message(connection, t, callbacks);
 }
 
-bool ClientEndpoint::handle_pong(message::Pong p)
+void ClientEndpoint::handle_pong(message::Pong p)
 {
 	if(p.payload != last_ping.payload) {
 		terminate_connection();
-		return false;
 	}
 	time_out->cancel();
 	keep_alive();
-	return true;
 }
 
 void ClientEndpoint::listen_requests()
@@ -82,7 +80,7 @@ void ClientEndpoint::set_their_key(std::vector<uint8_t> opub) {
 	connection.set_their_key(opub);
 }
 
-bool ClientEndpoint::handle_bye(message::Bye)
+void ClientEndpoint::handle_bye(message::Bye)
 {
 	connection.stop_encryption();
 	forward(message::ByeAck());
@@ -91,7 +89,6 @@ bool ClientEndpoint::handle_bye(message::Bye)
 	if(terminate_connection) {
 		terminate_connection();
 	}
-	return false;
 }
 
 void ClientEndpoint::keep_alive()
