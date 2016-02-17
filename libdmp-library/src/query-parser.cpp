@@ -53,6 +53,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(dmp_library::ast::AstQueryType, arg)
 )
 
+void is_valid_regex(std::vector<char> vec, qi::unused_type, bool& pass) {
+	std::string str(vec.cbegin(), vec.cend());
+	try {
+		boost::regex regex(str);
+	} catch(boost::regex_error&) {
+		pass = false;
+	}
+}
+
 namespace dmp_library {
 
 	std::string ParseError::what() const
@@ -83,7 +92,7 @@ namespace dmp_library {
 
 	template<typename Iterator>
 	struct atom_parser : spirit::qi::grammar<Iterator, ast::AstQueryType(), spirit::qi::ascii::space_type>
-	{
+	{	
 		ParseError error;
 		const phoenix::function<ReportError> error_reporter;
 
@@ -201,7 +210,7 @@ namespace dmp_library {
 					|   qi::string("contains")
 				);
 
-			input %= qi::eps > quote >> lexeme[+(char_ - '"')] >> quote > qi::eps;
+			input %= qi::eps > quote > lexeme[+(char_ - '"')][is_valid_regex] > quote > qi::eps;
 
 			quote %= '"';
 
