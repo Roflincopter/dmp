@@ -10,9 +10,9 @@ get_sane_warning_flags(warnings)
 include(wubwubcmake/sane_install.cmake)
 
 if(MINGW)
-    include(wubwubcmake/enable_gnu11.cmake)
+    include(wubwubcmake/enable_gnu14.cmake)
 else()
-    include(wubwubcmake/enable_cpp11.cmake)
+    include(wubwubcmake/enable_cpp14.cmake)
 endif()
 
 include(wubwubcmake/sanitizers.cmake)

@@ -42,14 +42,67 @@ typename F<Arg1>::return_type apply_functor_to_member_impl(indices<Indices...>, 
 	return array[index](arg1, std::forward<Args...>(args)...);
 }
 
+template <typename T>
+struct is_joint_view : public std::false_type {};
+
+template <typename T, typename U>
+struct is_joint_view<boost::fusion::joint_view<T, U>> : public std::true_type{};
+
+template <typename T>
+struct joint_view_first_t {};
+
+template <typename T, typename U>
+struct joint_view_first_t<boost::fusion::joint_view<T, U>> {
+	typedef T type;
+};
+
+template <typename T>
+struct joint_view_second_t {};
+
+template <typename T, typename U>
+struct joint_view_second_t<boost::fusion::joint_view<T, U>> {
+	typedef U type;
+};
+
 template <typename U, template<typename T> class F, typename... Args>
-typename F<U>::return_type apply_functor_to_member(int index, Args... args)
+typename std::enable_if<is_joint_view<U>::value, typename std::common_type<typename F<typename joint_view_first_t<U>::type>::return_type , typename F<typename joint_view_second_t<U>::type>::return_type>::type>::type
+apply_functor_to_member(int index, Args... args)
+{
+	typedef typename joint_view_first_t<U>::type S1;
+	typedef typename joint_view_second_t<U>::type S2;
+	constexpr int size_s1 = friendly_fusion::result_of::size<S1>::type::value;
+	
+	if(index < size_s1) {
+		return apply_functor_to_member_impl<S1, F>(typename IndicesOf<S1>::type{}, index, std::forward<Args...>(args)...);
+	} else {
+		return apply_functor_to_member_impl<S2, F>(typename IndicesOf<S2>::type{}, index - size_s1, std::forward<Args...>(args)...);
+	}
+}
+
+template <typename U, template<typename T> class F, typename... Args>
+typename std::enable_if<!is_joint_view<U>::value, typename F<U>::return_type>::type
+apply_functor_to_member(int index, Args... args)
 {
 	return apply_functor_to_member_impl<U, F>(typename IndicesOf<U>::type{}, index, std::forward<Args...>(args)...);
 }
 
 template <template<typename T> class F, typename Arg1, typename... Args>
-typename F<Arg1>::return_type apply_functor_to_member(int index, Arg1& arg1, Args... args)
+typename std::enable_if<is_joint_view<Arg1>::value, typename std::common_type<typename F<typename joint_view_first_t<Arg1>::type>::return_type , typename F<typename joint_view_second_t<Arg1>::type>::return_type>::type>::type
+apply_functor_to_member(int index, Arg1& arg1, Args... args)
+{
+	typedef typename joint_view_first_t<Arg1>::type S1;
+	constexpr int size_s1 = friendly_fusion::result_of::size<S1>::type::value;
+	
+	if(index < size_s1) {
+		return apply_functor_to_member_impl<F>(typename IndicesOf<Arg1>::type{}, index, arg1, std::forward<Args...>(args)...);
+	} else {
+		return apply_functor_to_member_impl<F>(typename IndicesOf<Arg1>::type{}, index - size_s1, arg1, std::forward<Args...>(args)...);
+	}
+}
+
+template <template<typename T> class F, typename Arg1, typename... Args>
+typename std::enable_if<!is_joint_view<Arg1>::value, typename F<Arg1>::return_type>::type
+apply_functor_to_member(int index, Arg1& arg1, Args... args)
 {
 	return apply_functor_to_member_impl<F>(typename IndicesOf<Arg1>::type{}, index, arg1, std::forward<Args...>(args)...);
 }
@@ -69,7 +122,7 @@ struct is_const_functor
 };
 
 template <typename T>
-bool is_const(int index)
+auto is_const(int index)
 {
 	return apply_functor_to_member<T, is_const_functor>(index);
 }
@@ -87,7 +140,7 @@ struct get_nth_functor
 };
 
 template <typename T>
-boost::any get_nth(T x, int index)
+auto get_nth(T x, int index)
 {
 	return apply_functor_to_member<get_nth_functor>(index, x);
 }
@@ -122,13 +175,10 @@ struct set_nth_functor
 };
 
 template <typename T>
-void set_nth(T&& x, int index, boost::any const& value)
+auto set_nth(T&& x, int index, boost::any const& value)
 {
 	apply_functor_to_member<set_nth_functor>(index, x, value);
 }
-
-template <typename T>
-std::string get_nth_name(int index);
 
 template <typename T>
 struct get_nth_name_functor 
@@ -142,25 +192,8 @@ struct get_nth_name_functor
 	}
 };
 
-template <typename T, typename U>
-struct get_nth_name_functor<boost::fusion::joint_view<T,U>>
-{
-	typedef std::string return_type;
-	
-	template <int I>
-	static return_type call()
-	{
-		constexpr int size_of_T = friendly_fusion::result_of::size<T>::type::value;
-		if(I < size_of_T){
-			return get_nth_name<T>(I);
-		} else {
-			return get_nth_name<U>(I - size_of_T);
-		}
-	}
-};
-
 template <typename T>
-std::string get_nth_name(int index)
+auto get_nth_name(int index)
 {
 	return apply_functor_to_member<T, get_nth_name_functor>(index);
 }

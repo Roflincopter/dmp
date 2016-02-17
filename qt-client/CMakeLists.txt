@@ -1,7 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 
-add_definitions("--std=c++11")
-
 if(MINGW)
 	cmake_policy(SET CMP0020 NEW)
 	set(CMAKE_PREFIX_PATH "${WINSDK_LIB};${QT5PREFIX}")
