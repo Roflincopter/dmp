@@ -2,7 +2,6 @@
 #include "gstreamer_base.hpp"
 
 #include "time_util.hpp"
-#include "debug_macros.hpp"
 
 #include <glib/gerror.h>
 #include <glib/gmain.h>
@@ -28,6 +27,8 @@
 #undef WIN32_LEAN_AND_MEAN
 #endif
 
+#include <boost/filesystem/path.hpp>
+
 #include <algorithm>
 #include <limits>
 #include <iostream>
@@ -35,58 +36,78 @@
 
 void GStreamerBase::eos_reached()
 {
-	std::cerr << "End of stream Reached." << std::endl;
+	log << "End of stream Reached." << std::endl;
 }
 
 void GStreamerBase::error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err)
 {
 	std::string message = std::string(err->message);
-	std::cerr << pipeline << ":" << element << " message: " << message << std::endl;
+	log << pipeline << ":" << element << " message: " << message << std::endl;
 
 	if(getenv("GST_DEBUG_DUMP_DOT_DIR"))
 	{
 		std::string filename = make_debug_graph(message);
-		std::cout << "debug_dot_file_created at: " << filename << std::endl;
+		log << "debug_dot_file_created at: " << filename << std::endl;
 	}
 }
 
 void GStreamerBase::state_changed(std::string element, GstState old_, GstState new_, GstState pending)
 {
-	std::cout << "State change: " << name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
+	std::cout << "buffer high" << std::endl;
+	log << "State change: " << name << ":" << element << " from: " << gst_state_to_string(old_) << " to: " << gst_state_to_string(new_) << " pending?: "  << gst_state_to_string(pending) << std::endl;
+}
+
+void GStreamerBase::buffer_low(GstElement*)
+{
+	std::cout << "buffer_low" << std::endl;
+	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
+}
+
+void GStreamerBase::buffer_high(GstElement*)
+{
+	gst_element_set_state(pipeline.get(), GST_STATE_PLAYING);
 }
 
 GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
 : GStreamerInit(gst_dir)
 , gstreamer_mutex(new std::recursive_mutex())
-, destruction_mutex(new std::mutex())
-, safely_destructable(new std::condition_variable())
-, should_stop(false)
-, stopped_loop(true)
+, log((boost::filesystem::path(gst_dir) / (name + "_log")).string())
 , buffering(false)
 , name(name)
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
-{
-	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
-}
+, loop(nullptr)
+, bus_watch_id(0)
+, bus_thread()
+{}
 
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
 : GStreamerInit(std::move(base))
 , gstreamer_mutex(std::move(base.gstreamer_mutex))
-, destruction_mutex(std::move(base.destruction_mutex))
-, safely_destructable(std::move(base.safely_destructable))
-, should_stop(base.should_stop)
-, stopped_loop(base.stopped_loop)
+, log(std::move(base.log))
 , buffering(false)
 , name(std::move(base.name))
 , pipeline(std::move(base.pipeline))
 , bus(std::move(base.bus))
+, loop(nullptr)
+, bus_watch_id(std::move(base.bus_watch_id))
+, bus_thread(std::move(base.bus_thread))
 {
 	base.name = "<INVALID>";
 	base.pipeline.reset();
 	base.bus.reset();
-	gst_bus_set_sync_handler(bus.get(), nullptr, nullptr, nullptr);
-	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
+	base.loop.reset();
+	base.bus_thread.reset();
+	
+	g_source_remove(bus_watch_id);
+	bus_watch_id = gst_bus_add_watch(bus.get(), bus_call, this);
+
+}
+
+GStreamerBase::~GStreamerBase()
+{
+	gst_bus_set_flushing(bus.get(), true);
+	g_main_loop_quit(loop.get());
 }
 
 std::string GStreamerBase::make_debug_graph(std::string prefix)
@@ -101,13 +122,13 @@ GstState GStreamerBase::wait_for_state_change()
 	GstState state;
 	GstState pending;
 	if(!gst_element_get_state(pipeline.get(), &state, &pending, GST_TIME_AS_SECONDS(5))) {
-		DEBUG_COUT << "State change did not complete within 5s. Making debug dot." << std::endl;
+		log << get_current_time() << ": State change did not complete within 5s. Making debug dot." << std::endl;
 		make_debug_graph("StateChangeTimeout");
 	}
 	return state;
 }
 
-GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
+gboolean GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
 {
 	GStreamerBase* base = static_cast<GStreamerBase*>(data);
 	
@@ -153,7 +174,35 @@ GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data
 		break;
 	}
 	
-	case GST_MESSAGE_BUFFERING:
+	case GST_MESSAGE_BUFFERING: {
+		int percent;
+		
+		gst_message_parse_buffering (msg, &percent);
+		
+		if(percent == 100) {
+			base->buffering = false;
+			base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+		} else {
+			GstState state;
+			GstState pending;
+			GstClockTime timeout = 0;
+			
+			gst_element_get_state(base->pipeline.get(), &state, &pending, timeout);
+			
+			if (percent >= 25 && state == GST_STATE_PAUSED) {
+				base->buffer_high(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				base->buffering = false;
+			}
+			
+			if (!base->buffering && percent < 10 && state == GST_STATE_PLAYING) {
+				base->buffer_low(GST_ELEMENT(GST_MESSAGE_SRC(msg)));
+				base->buffering = true;
+			}
+		}
+		break;
+	}
+
+	
 	case GST_MESSAGE_UNKNOWN:
 	case GST_MESSAGE_WARNING:
 	case GST_MESSAGE_INFO:
@@ -195,11 +244,31 @@ GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data
 	return GST_BUS_PASS;
 }
 
+void*GStreamerBase::bus_loop(gpointer data) {
+	GStreamerBase* base = static_cast<GStreamerBase*>(data);
+	
+	GMainContext* ps_context = g_main_context_new();
+	g_main_context_push_thread_default(ps_context);
+	
+	base->loop.reset(g_main_loop_new(ps_context, false));
+	
+	base->bus_watch_id = gst_bus_add_watch(base->bus.get(), &GStreamerBase::bus_call, data);
+	
+	g_main_loop_run(base->loop.get());
+	
+	return nullptr;
+}
+
+void GStreamerBase::run()
+{
+	bus_thread.reset(g_thread_new((name + "bus_thread").c_str(), &GStreamerBase::bus_loop, this));
+}
+
 void on_pad_added (GstElement* __attribute__((unused)) element, GstPad* pad, gpointer data)
 {
 	GstPad *sinkpad;
 	GstElement *decoder = static_cast<GstElement*>(data);
-
+	
 	sinkpad = gst_element_get_static_pad (decoder, "sink");
 	gst_pad_link (pad, sinkpad);
 	gst_object_unref (sinkpad);
@@ -222,7 +291,7 @@ GStreamerInit::GStreamerInit(std::string gst_dir) {
 	boost::filesystem::path executable_path(buffer);
 	boost::filesystem::path plugin_path = executable_path.parent_path() / boost::filesystem::path("plugins\\gstreamer");
 	
-	DEBUG_COUT << "Setting plugin path to: " << plugin_path.string() << std::endl;
+	log << "Setting plugin path to: " << plugin_path.string() << std::endl;
 	
 	g_setenv("GST_PLUGIN_PATH_1_0", plugin_path.string().c_str(), false);
 #endif

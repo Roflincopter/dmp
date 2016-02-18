@@ -13,11 +13,17 @@
 std::string get_current_time()
 {
 	namespace pt = boost::posix_time;
-
-	std::ostringstream msg;
+	
+	static std::ostringstream msg;
+	static const std::locale locale(msg.getloc());
+	static auto f = std::make_unique<pt::time_facet>("%H:%M:%S%F");
+	
 	const pt::ptime now = pt::microsec_clock::local_time();
-	pt::time_facet*const f = new pt::time_facet("%H:%M:%S%F");
-	msg.imbue(std::locale(msg.getloc(),f));
+	msg.imbue(std::locale(msg.getloc(),f.get()));
 	msg << now;
-	return msg.str();
+	std::string str = msg.str();
+	msg.str("");
+	msg.clear();
+	
+	return str;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "debug_macros.hpp"
+#include "thread_safe_logger.hpp"
 
 #include <gst/gst.h>
 
@@ -21,7 +21,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#define CHECK_GSTREAMER_COMPONENT(x) if(!x) std::cout << "Failed to create: " << #x << " element variable." << std::endl
+#define CHECK_GSTREAMER_COMPONENT(x) if(!x) log << "Failed to create: " << #x << " element variable." << std::endl
 
 void on_pad_added(_GstElement* element, _GstPad* pad, void* data);
 std::string gst_state_to_string(GstState x);
@@ -67,6 +67,18 @@ struct GErrorDeleter {
 	}
 };
 
+struct GThreadDeleter {
+	void operator()(GThread* ptr) {
+		g_thread_join(ptr);
+	}
+};
+
+struct GMainLoopDeleter {
+	void operator()(GMainLoop* ptr) {
+		g_main_loop_unref(ptr);
+	}
+};
+
 struct GStreamerInit {
 	
 	GStreamerInit(std::string gst_dir);
@@ -74,15 +86,12 @@ struct GStreamerInit {
 };
 
 class GStreamerBase : GStreamerInit {
+	static gboolean bus_call(GstBus*, GstMessage* msg, gpointer data);
+	static void* bus_loop(gpointer data);
+
 protected:
 	std::unique_ptr<std::recursive_mutex> gstreamer_mutex;
-	std::unique_ptr<std::mutex> destruction_mutex;
-
-	static GstBusSyncReply bus_call(GstBus* bus, GstMessage* msg, gpointer data);
-
-	std::unique_ptr<std::condition_variable> safely_destructable;
-	bool should_stop;
-	bool stopped_loop;
+	ThreadSafeLogger log;
 
 public:
 	bool buffering;
@@ -92,13 +101,21 @@ public:
 	std::unique_ptr<GstElement, GStreamerObjectDeleter> pipeline;
 	std::unique_ptr<GstBus, GStreamerObjectDeleter> bus;
 	
+	std::unique_ptr<GMainLoop, GMainLoopDeleter> loop;
+	guint bus_watch_id;
+	std::unique_ptr<GThread, GThreadDeleter> bus_thread;
+	
+	void run();
+	
 	virtual void eos_reached();
 	virtual void error_encountered(std::string pipeline, std::string element, std::unique_ptr<GError, GErrorDeleter> err);
 	virtual void state_changed(std::string element, GstState old_, GstState new_, GstState pending);
+	virtual void buffer_low(GstElement* element);
+	virtual void buffer_high(GstElement* element);
 	
 	GStreamerBase(std::string name, std::string gst_dir);
 	GStreamerBase(GStreamerBase&& base);
-	virtual ~GStreamerBase() = default;
+	virtual ~GStreamerBase();
 	
 	std::string make_debug_graph(std::string prefix = "");
 	GstState wait_for_state_change();

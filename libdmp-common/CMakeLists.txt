@@ -5,6 +5,7 @@ set(dmp-common-sources
 	number_pool.hpp number_pool.cpp
 	radio_state.hpp radio_state.cpp
 	key_management.hpp key_management.cpp
+	thread_safe_logger.hpp thread_safe_logger.cpp
 	playlist.hpp
 )
 

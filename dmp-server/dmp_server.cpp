@@ -291,6 +291,7 @@ void DmpServer::add_radio(std::string radio_name) {
 		)
 	).first;
 	
+	radio_it->second.run();
 	radio_it->second.listen();
 }
 
@@ -399,12 +400,16 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 		}
 		case message::PlaybackAction::Pause:
 		{
+			radio.make_debug_graph("begin_pause");
 			radio.pause();
+			radio.make_debug_graph("after_pause");
 			break;
 		}
 		case message::PlaybackAction::Play:
 		{
+			radio.make_debug_graph("begin_play");
 			radio.play();
+			radio.make_debug_graph("after_play");
 			break;
 		}
 		case message::PlaybackAction::Stop:
@@ -426,7 +431,9 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 void DmpServer::handle_sender_event(message::SenderEvent se)
 {
 	auto& radio = radios.at(se.radio_name);
+	radio.make_debug_graph("begin_SenderEvent");
 	radio.event_callbacks[se.event]();
+	radio.make_debug_graph("after_SenderEvent");
 }
 
 void DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti)

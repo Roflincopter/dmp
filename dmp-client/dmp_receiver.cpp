@@ -45,9 +45,9 @@ DmpReceiver::DmpReceiver(std::string gst_dir)
 	
 	gst_bin_add_many(GST_BIN(pipeline.get()), source.get(), /*rtpdepay.get(),*/ buffer.get(), decoder.get(), converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
 	
-	gst_element_link_many(source.get(), /*rtpdepay.get(),*/ buffer.get(), decoder.get(), nullptr);
+	gst_element_link_many(source.get(), decoder.get(), nullptr);
 	g_signal_connect(decoder.get(), "pad-added", G_CALLBACK(on_pad_added), converter.get());
-	gst_element_link_many(converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
+	gst_element_link_many(converter.get(), resampler.get(), volume.get(), buffer.get(), audiosink.get(), nullptr);
 }
 
 void DmpReceiver::eos_reached()
@@ -71,11 +71,13 @@ void DmpReceiver::play()
 	{
 		throw std::runtime_error("Could not change receiver state to playing");
 	}
+	wait_for_state_change();
 }
 
 void DmpReceiver::pause()
 {
 	gst_element_set_state(pipeline.get(), GST_STATE_PAUSED);
+	wait_for_state_change();
 }
 
 void DmpReceiver::stop()

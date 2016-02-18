@@ -55,6 +55,8 @@ DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 	auto volume = config::get_volume();
 	change_volume(volume);
 	init_library();
+	
+	receiver.run();
 }
 
 message::DmpCallbacks::Callbacks_t DmpClient::initial_callbacks()
@@ -471,6 +473,7 @@ void DmpClient::handle_stream_request(message::StreamRequest sr)
 		senders.at(sr.radio_name).eos_reached();
 	}
 	
+	senders.at(sr.radio_name).run();
 	senders.at(sr.radio_name).setup(host, sr.port, library.get_filename(sr.entry));
 }
 
@@ -488,7 +491,9 @@ void DmpClient::handle_sender_action(message::SenderAction sa)
 			}
 			case message::PlaybackAction::Play:
 			{
+				sender.make_debug_graph("start_play");
 				sender.play();
+				sender.make_debug_graph("end_play");
 				break;
 			}
 			case message::PlaybackAction::Stop:
@@ -524,7 +529,9 @@ void DmpClient::handle_receiver_action(message::ReceiverAction ra)
 		}
 		case message::PlaybackAction::Play:
 		{
+			receiver.make_debug_graph("start_play");
 			receiver.play();
+			receiver.make_debug_graph("end_play");
 			call_on_delegates(&DmpClientUiDelegate::set_play_paused_state, true);
 			break;
 		}

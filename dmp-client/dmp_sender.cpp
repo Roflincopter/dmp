@@ -89,14 +89,14 @@ void DmpSender::pause()
 
 void DmpSender::play()
 {
-	{
-		GstState state;
-		GstState pending;
-		gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-		if(state != GST_STATE_READY) {
-			return;
-		}
-	}
+//	{
+//		GstState state;
+//		GstState pending;
+//		gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
+//		if(state != GST_STATE_READY) {
+//			return;
+//		}
+//	}
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING)) {
 		throw std::runtime_error("Could not play the Sender pipeline");
 	}

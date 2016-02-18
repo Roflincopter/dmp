@@ -218,7 +218,6 @@ void DmpRadio::stop()
 
 void DmpRadio:: play()
 {
-	std::cout << "Play called on radio: " << name << std::endl;
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	if (playlist.empty()) {
@@ -245,7 +244,6 @@ void DmpRadio:: play()
 
 void DmpRadio::pause()
 {
-	std::cout << "Paused called on radio: " << name << std::endl;
 	std::lock_guard<std::recursive_mutex> l(*gstreamer_mutex);
 	
 	auto sp = server.lock();
