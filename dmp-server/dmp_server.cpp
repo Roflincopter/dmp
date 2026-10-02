@@ -26,7 +26,7 @@
 #include <odb/exceptions.hxx>
 #include <odb/forward.hxx>
 
-#include <sodium/crypto_pwhash_scryptsalsa208sha256.h>
+#include <sodium/crypto_pwhash.h>
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
@@ -58,11 +58,11 @@ Authenticator::LoginResult Authenticator::login(std::string username, std::strin
 		lr = {false, "Username not found in database"};
 	} else {
 		std::string hashed_password(user->get_password());
-		bool succes = !crypto_pwhash_scryptsalsa208sha256_str_verify(
-			&hashed_password[0],
+		bool succes = crypto_pwhash_str_verify(
+			hashed_password.c_str(),
 			password.data(),
 			password.size()
-		);
+		) == 0;
 
 		if(succes) {
 			lr = {true, ""};
@@ -79,21 +79,22 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 {
 	odb::transaction t(db->begin());
 
-	std::string hashed_password(crypto_pwhash_scryptsalsa208sha256_strbytes(), '\0');
+	char hash_buffer[crypto_pwhash_STRBYTES];
 
-	bool succes = !crypto_pwhash_scryptsalsa208sha256_str(
-		&hashed_password[0],
+	bool succes = crypto_pwhash_str_alg(
+		hash_buffer,
 		password.data(),
 		password.size(),
-		crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(),
-		crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
-	);
+		crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		crypto_pwhash_ALG_ARGON2ID13
+	) == 0;
 
 	if(!succes) {
 		throw std::runtime_error("Out of memory for password hashing");
 	}
 
-	User user(username, hashed_password);
+	User user(username, std::string(hash_buffer));
 	
 	Authenticator::RegisterResult rr;
 	

@@ -1,1 +1,1 @@
-find_package(ODBc++ REQUIRED COMPONENTS sqlite)
+find_package(ODBc++ 2.5 REQUIRED COMPONENTS sqlite)

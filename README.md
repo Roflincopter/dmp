@@ -54,7 +54,7 @@ Requirements:
 * GStreamer 1.16 or newer, with the good and ugly plugin sets for mp3 encoding/parsing
 * libsodium 1.0.18 or newer
 * Qt 6 (Qt 5.15 still works) for the client
-* ODB 2.4 or newer with the SQLite backend for the server
+* ODB 2.5 or newer with the SQLite backend for the server (see below)
 
 Building on Debian / Ubuntu
 -------------------
@@ -63,14 +63,22 @@ Building on Debian / Ubuntu
 		libboost-all-dev libicu-dev libtag1-dev libsodium-dev \
 		libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
 		gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly \
-		qt6-base-dev qt6-base-dev-tools \
-		odb libodb-dev libodb-sqlite-dev libsqlite3-dev
+		qt6-base-dev qt6-base-dev-tools libsqlite3-dev
 
-	cmake -S . -B build -G Ninja
+	cmake -S . -B build -G Ninja -DCMAKE_PREFIX_PATH=/opt/odb
 	cmake --build build
 	ctest --test-dir build
 
-The `odb` package in Ubuntu 24.04 is built as a GCC 12 plugin, so `g++-12` must be installed as well.
+The server needs ODB 2.5. Distributions still ship the old 2.4 release (the
+`odb` package), which is not supported. Either install the official ODB 2.5
+binary packages from https://www.codesynthesis.com/products/odb/download.xhtml
+(the compiler, `libodb` and `libodb-sqlite`), or build it from source:
+
+	sudo apt install gcc-13-plugin-dev   # plugin headers for your g++ version
+	scripts/install-odb.sh /opt/odb
+
+Pass the install prefix to CMake with `-DCMAKE_PREFIX_PATH` (not needed if ODB
+is installed in a default location such as `/usr`).
 
 Useful options:
 

@@ -59,14 +59,8 @@ endif()
 # <name>-odb.{hpp,cpp,ipp} files are written to the current binary directory
 # and their paths are appended to <outvar>.
 function(ODB_compile outfiles)
-	# ODB 2.4 knows at most C++14; 2.5 and later can parse C++17.
-	set(_odb_std c++14)
-	if(ODBc++_VERSION VERSION_GREATER_EQUAL 2.5)
-		set(_odb_std c++17)
-	endif()
-
 	set(_odb_args
-		--std ${_odb_std}
+		--std c++17
 		-DODB_COMPILER
 		--generate-query
 		--generate-schema
@@ -78,6 +72,13 @@ function(ODB_compile outfiles)
 		--ixx-suffix .ipp
 		-I ${CMAKE_CURRENT_SOURCE_DIR}
 	)
+
+	# Make the odb compiler see the same runtime headers we link against, so a
+	# non-system ODB install is not shadowed by an older one in /usr/include.
+	get_target_property(_odb_runtime_includes ODBc++::ODBc++ INTERFACE_INCLUDE_DIRECTORIES)
+	foreach(_dir IN LISTS _odb_runtime_includes)
+		list(APPEND _odb_args -I ${_dir})
+	endforeach()
 
 	set(_generated)
 	foreach(_header IN LISTS ARGN)
