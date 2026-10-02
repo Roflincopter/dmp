@@ -54,7 +54,8 @@ class DmpRadio : public GStreamerBase
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> parser;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> tee;
 
-	std::unique_ptr<GstPadTemplate, GStreamerObjectDeleter> tee_src_pad_template;
+	// Owned by the tee element class, so not unreffed.
+	GstPadTemplate* tee_src_pad_template;
 
 	std::unique_ptr<GstPad, GStreamerRequestPadDeleter> fake_pad;
 	std::unique_ptr<GstElement, GStreamerEmptyDeleter> fake_buffer;
@@ -78,9 +79,8 @@ public:
 	DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, std::shared_ptr<NumberPool> port_pool, std::string gst_dir);
 	DmpRadio(DmpRadio&& r) = default;
 	
-	DmpRadio& operator=(DmpRadio&& r) = default;
 
-	~DmpRadio() = default;
+	~DmpRadio();
 
 	void listen();
 	void add_listener(std::string name);

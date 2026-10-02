@@ -29,7 +29,7 @@ public:
 	//DmpReceiver(std::string radio_name, std::string gst_dir);
 	
 	DmpReceiver(DmpReceiver&&) = default;
-	DmpReceiver& operator=(DmpReceiver&&) = default;
+	~DmpReceiver();
 	
 	virtual void eos_reached() override final;
 	

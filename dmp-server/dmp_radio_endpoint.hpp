@@ -23,8 +23,6 @@ public:
 	
 	DmpRadioEndpoint(DmpRadioEndpoint&&) = default;
 	
-	void play();
-	
 	GstElement* get_sink();
 	GstPad* get_sink_pad();
 	GstElement* get_bin();

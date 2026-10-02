@@ -428,7 +428,10 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 void DmpServer::handle_sender_event(message::SenderEvent se)
 {
 	auto& radio = radios.at(se.radio_name);
-	radio.event_callbacks[se.event]();
+	auto callback = radio.event_callbacks.find(se.event);
+	if(callback != radio.event_callbacks.end() && callback->second) {
+		callback->second();
+	}
 }
 
 void DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti)
@@ -508,14 +511,18 @@ void DmpServer::order_stream(std::string client, std::string radio_name, uint32_
 
 void DmpServer::update_radio_state()
 {
-	std::map<std::string, RadioState> states;
-	for(auto&& radio : radios) {
-		states.emplace(radio.first, radio.second.get_state());
-	}
-	
-	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
-	}
+	// Called from GStreamer threads when a radio pipeline changes state, so
+	// hop over to the server thread before touching radios and connections.
+	boost::asio::post(*server_io_context, [this]{
+		std::map<std::string, RadioState> states;
+		for(auto&& radio : radios) {
+			states.emplace(radio.first, radio.second.get_state());
+		}
+
+		for(auto& endpoint : connections) {
+			endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+		}
+	});
 }
 
 void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)

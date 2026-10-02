@@ -40,7 +40,7 @@ DmpReceiver::DmpReceiver(std::string gst_dir)
 		throw std::runtime_error("Could not create the pipeline components for this receiver.");
 	}
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", guint64(30 * GST_SECOND), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 	
 	gst_bin_add_many(GST_BIN(pipeline.get()), source.get(), /*rtpdepay.get(),*/ buffer.get(), decoder.get(), converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
@@ -48,6 +48,11 @@ DmpReceiver::DmpReceiver(std::string gst_dir)
 	gst_element_link_many(source.get(), /*rtpdepay.get(),*/ buffer.get(), decoder.get(), nullptr);
 	g_signal_connect(decoder.get(), "pad-added", G_CALLBACK(on_pad_added), converter.get());
 	gst_element_link_many(converter.get(), resampler.get(), volume.get(), audiosink.get(), nullptr);
+}
+
+DmpReceiver::~DmpReceiver()
+{
+	shutdown();
 }
 
 void DmpReceiver::eos_reached()

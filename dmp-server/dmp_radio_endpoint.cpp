@@ -23,19 +23,16 @@ DmpRadioEndpoint::DmpRadioEndpoint(std::string name, uint16_t port)
 	g_object_set(G_OBJECT(sink.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", guint64(30 * GST_SECOND), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 
 	gst_bin_add_many(GST_BIN(bin.get()), buffer.get(), sink.get(), nullptr);
 	
 	gst_element_link_many(buffer.get(), sink.get(), nullptr);
 	
-	gst_element_add_pad(bin.get(), gst_ghost_pad_new("tee_sink", gst_element_get_static_pad(buffer.get(), "sink")));
-}
-
-void DmpRadioEndpoint::play()
-{
-	gst_element_set_state(bin.get(), GST_STATE_PLAYING);
+	GstPad* buffer_sink = gst_element_get_static_pad(buffer.get(), "sink");
+	gst_element_add_pad(bin.get(), gst_ghost_pad_new("tee_sink", buffer_sink));
+	gst_object_unref(buffer_sink);
 }
 
 GstElement*DmpRadioEndpoint::get_sink()
@@ -43,6 +40,7 @@ GstElement*DmpRadioEndpoint::get_sink()
 	return sink.get();
 }
 
+// Returns a new reference; the caller must unref it.
 GstPad* DmpRadioEndpoint::get_sink_pad()
 {
 	return gst_element_get_static_pad(bin.get(), "tee_sink");

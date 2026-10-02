@@ -58,11 +58,6 @@ void GStreamerBase::state_changed(std::string element, GstState old_, GstState n
 GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
 : GStreamerInit(gst_dir)
 , gstreamer_mutex(new std::recursive_mutex())
-, destruction_mutex(new std::mutex())
-, safely_destructable(new std::condition_variable())
-, should_stop(false)
-, stopped_loop(true)
-, buffering(false)
 , name(name)
 , pipeline(gst_pipeline_new(name.c_str()))
 , bus(gst_pipeline_get_bus(GST_PIPELINE(pipeline.get())))
@@ -73,11 +68,6 @@ GStreamerBase::GStreamerBase(std::string name, std::string gst_dir)
 GStreamerBase::GStreamerBase(GStreamerBase&& base)
 : GStreamerInit(std::move(base))
 , gstreamer_mutex(std::move(base.gstreamer_mutex))
-, destruction_mutex(std::move(base.destruction_mutex))
-, safely_destructable(std::move(base.safely_destructable))
-, should_stop(base.should_stop)
-, stopped_loop(base.stopped_loop)
-, buffering(false)
 , name(std::move(base.name))
 , pipeline(std::move(base.pipeline))
 , bus(std::move(base.bus))
@@ -89,6 +79,21 @@ GStreamerBase::GStreamerBase(GStreamerBase&& base)
 	gst_bus_set_sync_handler(bus.get(), &bus_call, this, nullptr);
 }
 
+GStreamerBase::~GStreamerBase()
+{
+	shutdown();
+}
+
+void GStreamerBase::shutdown()
+{
+	if(bus) {
+		gst_bus_set_sync_handler(bus.get(), nullptr, nullptr, nullptr);
+	}
+	if(pipeline) {
+		gst_element_set_state(pipeline.get(), GST_STATE_NULL);
+	}
+}
+
 std::string GStreamerBase::make_debug_graph(std::string prefix)
 {
 	std::string filename = get_current_time() + "_" + prefix + (prefix.empty() ? "" : "_") + name;
@@ -96,15 +101,23 @@ std::string GStreamerBase::make_debug_graph(std::string prefix)
 	return filename;
 }
 
-GstState GStreamerBase::wait_for_state_change()
+GstState GStreamerBase::wait_for_state_change(GstClockTime timeout)
 {
 	GstState state;
 	GstState pending;
-	if(!gst_element_get_state(pipeline.get(), &state, &pending, GST_TIME_AS_SECONDS(5))) {
-		DEBUG_COUT << "State change did not complete within 5s. Making debug dot." << std::endl;
+	if(gst_element_get_state(pipeline.get(), &state, &pending, timeout) == GST_STATE_CHANGE_ASYNC) {
+		DEBUG_COUT << "State change of " << name << " to " << gst_state_to_string(pending) << " did not complete in time. Making debug dot." << std::endl;
 		make_debug_graph("StateChangeTimeout");
 	}
 	return state;
+}
+
+GstState GStreamerBase::target_state()
+{
+	GstState state;
+	GstState pending;
+	gst_element_get_state(pipeline.get(), &state, &pending, 0);
+	return pending == GST_STATE_VOID_PENDING ? state : pending;
 }
 
 GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data)
@@ -141,7 +154,7 @@ GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data
 		gst_message_parse_error (msg, &temp_error_ptr, &debug_ptr);
 		
 		std::unique_ptr<GError, GErrorDeleter> error_ptr(temp_error_ptr);
-		std::string debug(debug_ptr);
+		std::string debug(debug_ptr ? debug_ptr : "");
 		
 		g_free (debug_ptr);
 		
@@ -192,17 +205,40 @@ GstBusSyncReply GStreamerBase::bus_call (GstBus*, GstMessage* msg, gpointer data
 		break;
 	}
 
-	return GST_BUS_PASS;
+	// Every message is handled here. Passing it on would queue it on the bus,
+	// where nothing ever pops it, so it would be leaked.
+	return GST_BUS_DROP;
 }
 
-void on_pad_added (GstElement* __attribute__((unused)) element, GstPad* pad, gpointer data)
+void on_pad_added (GstElement*, GstPad* pad, gpointer data)
 {
-	GstPad *sinkpad;
-	GstElement *decoder = static_cast<GstElement*>(data);
+	GstElement* next = static_cast<GstElement*>(data);
 
-	sinkpad = gst_element_get_static_pad (decoder, "sink");
-	gst_pad_link (pad, sinkpad);
-	gst_object_unref (sinkpad);
+	// decodebin can expose non-audio pads (e.g. embedded cover art); only the
+	// first audio pad is linked.
+	GstCaps* caps = gst_pad_get_current_caps(pad);
+	if(!caps) {
+		caps = gst_pad_query_caps(pad, nullptr);
+	}
+	bool is_audio = false;
+	if(caps && gst_caps_get_size(caps) > 0) {
+		std::string media_type(gst_structure_get_name(gst_caps_get_structure(caps, 0)));
+		is_audio = media_type.rfind("audio/", 0) == 0;
+	}
+	if(caps) {
+		gst_caps_unref(caps);
+	}
+	if(!is_audio) {
+		return;
+	}
+
+	GstPad* sinkpad = gst_element_get_static_pad(next, "sink");
+	if(!gst_pad_is_linked(sinkpad)) {
+		if(gst_pad_link(pad, sinkpad) != GST_PAD_LINK_OK) {
+			std::cerr << "Failed to link decoded audio pad" << std::endl;
+		}
+	}
+	gst_object_unref(sinkpad);
 }
 
 std::string gst_state_to_string(GstState x)

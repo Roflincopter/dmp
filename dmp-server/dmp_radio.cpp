@@ -33,7 +33,7 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 , parser(gst_element_factory_make("mpegaudioparse", "parser"))
 , tee(gst_element_factory_make("tee", "tee"))
 , tee_src_pad_template(gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS(tee.get()), "src_%u"))
-, fake_pad(gst_element_request_pad(tee.get(), tee_src_pad_template.get(), nullptr, nullptr), GStreamerRequestPadDeleter(tee.get()))
+, fake_pad(gst_element_request_pad(tee.get(), tee_src_pad_template, nullptr, nullptr), GStreamerRequestPadDeleter(tee.get()))
 , fake_buffer(gst_element_factory_make("queue2", "fake_buffer"))
 , fake_sink(gst_element_factory_make("fakesink", "fakesink"))
 , radio_mutex(new std::recursive_mutex)
@@ -57,17 +57,12 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 	g_object_set(G_OBJECT(source.get()), "host", "0.0.0.0", nullptr);
 	g_object_set(G_OBJECT(source.get()), "port", gint(recv_port), nullptr);
 	
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", guint64(30 * GST_SECOND), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 
 	g_object_set(G_OBJECT(fake_sink.get()), "sync", gboolean(true), nullptr);
 
 	gst_bin_add_many (GST_BIN(pipeline.get()), source.get(), buffer.get(), parser.get(), tee.get(), fake_buffer.get(), fake_sink.get(), nullptr);
-
-	if(!gst_element_add_pad(fake_buffer.get(), gst_ghost_pad_new("tee_fake_sink", gst_element_get_static_pad(fake_buffer.get(), "sink"))))
-	{
-		throw std::runtime_error("Adding ghost pad failed");
-	}
 
 	if(!gst_element_link_many(source.get(), buffer.get(), parser.get(), tee.get(), nullptr)) {
 		throw std::runtime_error("Linking the elements failed");
@@ -77,18 +72,26 @@ DmpRadio::DmpRadio(std::string name, std::weak_ptr<DmpServerInterface> server, s
 		throw std::runtime_error("Linking the fake elements failed");
 	}
 
-	if(gst_pad_link(fake_pad.get(), gst_element_get_static_pad(fake_buffer.get(), "tee_fake_sink")) != GST_PAD_LINK_OK) {
+	GstPad* fake_buffer_sink = gst_element_get_static_pad(fake_buffer.get(), "sink");
+	GstPadLinkReturn link_result = gst_pad_link(fake_pad.get(), fake_buffer_sink);
+	gst_object_unref(fake_buffer_sink);
+	if(link_result != GST_PAD_LINK_OK) {
 		throw std::runtime_error("Linking the fakesink tee pads failed");
 	}
 }
 
+DmpRadio::~DmpRadio()
+{
+	// Stop the pipeline before the tee request pads in branches are released.
+	shutdown();
+}
+
 void DmpRadio::state_changed(std::string element, GstState, GstState, GstState)
 {
+	// Runs on a GStreamer thread; the server re-posts this to its own thread.
 	if(element == "tcp_bridge") {
 		if(auto sp = server.lock()) {
-			 sp->update_radio_state();
-		} else {
-			throw std::runtime_error("Server pointer in radio: " + name + " was invalid.");
+			sp->update_radio_state();
 		}
 	}
 }
@@ -107,21 +110,44 @@ void DmpRadio::add_listener(std::string name)
 	
 	DmpRadioEndpoint listener(name, port_pool->allocate_number());
 	
-	GstPad* tee_pad = gst_element_request_pad(tee.get(), tee_src_pad_template.get(), nullptr, nullptr);
+	GstPad* tee_pad = gst_element_request_pad(tee.get(), tee_src_pad_template, nullptr, nullptr);
 	
 	if(!tee_pad) {
 		throw std::runtime_error("failed to create a request pad from the tee");
 	}
 	
+	gchar* tee_pad_name = gst_pad_get_name(tee_pad);
+	std::string pad_name(tee_pad_name);
+	g_free(tee_pad_name);
+
 	auto branch_it = branches.emplace(
 		name, 
-		TeeBranch(gst_pad_get_name(tee_pad), std::unique_ptr<GstPad, GStreamerRequestPadDeleter>(tee_pad, {tee.get()}), std::move(listener))
+		TeeBranch(pad_name, std::unique_ptr<GstPad, GStreamerRequestPadDeleter>(tee_pad, {tee.get()}), std::move(listener))
 	).first;
 	
-	branch_it->second.endpoint.play();
-	
-	gst_bin_add(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
-	gst_pad_link(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
+	auto& endpoint = branch_it->second.endpoint;
+
+	// The standard order for adding a branch to a running tee: add the bin,
+	// link it, then bring it to the pipeline's state. Starting it before it is
+	// in the pipeline runs it briefly without the pipeline's clock.
+	gst_bin_add(GST_BIN(pipeline.get()), endpoint.get_bin());
+
+	GstPad* sink_pad = endpoint.get_sink_pad();
+	GstPadLinkReturn link_result = gst_pad_link(branch_it->second.pad.get(), sink_pad);
+	gst_object_unref(sink_pad);
+	if(link_result != GST_PAD_LINK_OK) {
+		gst_bin_remove(GST_BIN(pipeline.get()), endpoint.get_bin());
+		branches.erase(branch_it);
+		throw std::runtime_error("Failed to link listener " + name + " to radio: " + this->name);
+	}
+
+	if(target_state() == GST_STATE_PLAYING) {
+		gst_element_sync_state_with_parent(endpoint.get_bin());
+	} else {
+		// The tcpserversink only listens from PAUSED on, and the client
+		// connects right away, so don't leave it in READY/NULL.
+		gst_element_set_state(endpoint.get_bin(), GST_STATE_PAUSED);
+	}
 }
 
 void DmpRadio::remove_listener(std::string name)
@@ -133,10 +159,12 @@ void DmpRadio::remove_listener(std::string name)
 		throw std::runtime_error(name + " wasn't listening to radio: " + this->name);
 	}
 
-	gst_pad_unlink(branch_it->second.pad.get(), branch_it->second.endpoint.get_sink_pad());
-	gst_element_set_state(branch_it->second.endpoint.get_bin(), GST_STATE_NULL);
+	GstPad* sink_pad = branch_it->second.endpoint.get_sink_pad();
+	gst_pad_unlink(branch_it->second.pad.get(), sink_pad);
+	gst_object_unref(sink_pad);
 
-	wait_for_state_change();
+	// Going to NULL is synchronous, the bin is fully stopped afterwards.
+	gst_element_set_state(branch_it->second.endpoint.get_bin(), GST_STATE_NULL);
 
 	gst_bin_remove(GST_BIN(pipeline.get()), branch_it->second.endpoint.get_bin());
 
@@ -153,7 +181,7 @@ void DmpRadio::disconnect(std::string endpoint_name)
 		remove_listener(endpoint_name);
 	}
 	
-	GstState old_state = wait_for_state_change();
+	GstState old_state = target_state();
 	
 	auto it = playlist.begin();
 	while(it != playlist.end())
@@ -200,8 +228,6 @@ void DmpRadio::stop()
 	auto sp = server.lock();
 
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
-
-	wait_for_state_change();
 
 	for (auto&& branch : branches)
 	{
@@ -259,7 +285,12 @@ void DmpRadio::pause()
 	sp->forward_sender_action(entry.owner, message::SenderAction(name, message::PlaybackAction::Pause));
 
 	event_callbacks.clear();
-	event_callbacks[message::PlaybackEvent::Paused] = [this, sp]{
+	event_callbacks[message::PlaybackEvent::Paused] = [this]{
+		std::lock_guard<std::recursive_mutex> lock(*gstreamer_mutex);
+		auto sp = server.lock();
+		if(!sp) {
+			return;
+		}
 
 		for(auto&& branch : branches)
 		{
@@ -285,8 +316,6 @@ void DmpRadio::next()
 	if(!stopped) {
 		sp->forward_sender_action(playlist.front().owner, message::SenderAction(name, message::PlaybackAction::Reset));
 		gst_element_set_state(pipeline.get(), GST_STATE_READY);
-		
-		wait_for_state_change();
 	}
 	
 	playlist.erase(playlist.begin());
@@ -400,6 +429,5 @@ void DmpRadio::move_down(std::vector<PlaylistId> ids)
 
 RadioState DmpRadio::get_state()
 {
-	GstState state = wait_for_state_change();
-	return RadioState(state == GST_STATE_PLAYING);
+	return RadioState(target_state() == GST_STATE_PLAYING);
 }
