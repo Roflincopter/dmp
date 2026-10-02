@@ -12,11 +12,18 @@
 
 #include <QApplication>
 
+#include <sodium/core.h>
+
 #include <iostream>
 #include <string>
 #include <memory>
 
 int main(int argc, char* argv[]) {
+
+	if(sodium_init() < 0) {
+		std::cerr << "Failed to initialize libsodium" << std::endl;
+		return 1;
+	}
 
 #ifdef __linux
 	//signal(SIGINT, core_dump);

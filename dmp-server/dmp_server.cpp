@@ -26,9 +26,10 @@
 #include <odb/exceptions.hxx>
 #include <odb/forward.hxx>
 
-#include <sodium/crypto_pwhash_scryptsalsa208sha256.h>
+#include <sodium/crypto_pwhash.h>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 #include <boost/filesystem/path.hpp>
 
@@ -57,11 +58,11 @@ Authenticator::LoginResult Authenticator::login(std::string username, std::strin
 		lr = {false, "Username not found in database"};
 	} else {
 		std::string hashed_password(user->get_password());
-		bool succes = !crypto_pwhash_scryptsalsa208sha256_str_verify(
-			&hashed_password[0],
+		bool succes = crypto_pwhash_str_verify(
+			hashed_password.c_str(),
 			password.data(),
 			password.size()
-		);
+		) == 0;
 
 		if(succes) {
 			lr = {true, ""};
@@ -78,21 +79,22 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 {
 	odb::transaction t(db->begin());
 
-	std::string hashed_password(crypto_pwhash_scryptsalsa208sha256_strbytes(), '\0');
+	char hash_buffer[crypto_pwhash_STRBYTES];
 
-	bool succes = !crypto_pwhash_scryptsalsa208sha256_str(
-		&hashed_password[0],
+	bool succes = crypto_pwhash_str_alg(
+		hash_buffer,
 		password.data(),
 		password.size(),
-		crypto_pwhash_scryptsalsa208sha256_opslimit_interactive(),
-		crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
-	);
+		crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		crypto_pwhash_ALG_ARGON2ID13
+	) == 0;
 
 	if(!succes) {
 		throw std::runtime_error("Out of memory for password hashing");
 	}
 
-	User user(username, hashed_password);
+	User user(username, std::string(hash_buffer));
 	
 	Authenticator::RegisterResult rr;
 	
@@ -111,7 +113,7 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 }
 
 DmpServer::DmpServer()
-: server_io_service(std::make_shared<boost::asio::io_service>())
+: server_io_context(std::make_shared<boost::asio::io_context>())
 , connections()
 , radios()
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
@@ -126,7 +128,7 @@ DmpServer::DmpServer()
 		}
 	};
 
-	accept_loop(1337, server_io_service, f);
+	accept_loop(1337, server_io_context, f);
 }
 
 void DmpServer::read_database()
@@ -146,7 +148,7 @@ void DmpServer::read_database()
 void DmpServer::run()
 {
 	try {
-		server_io_service->run();
+		server_io_context->run();
 	} catch (std::runtime_error& e) {
 		DEBUG_COUT << e.what() << std::endl;
 		run();
@@ -155,14 +157,14 @@ void DmpServer::run()
 
 void DmpServer::stop()
 {
-	server_io_service->stop();
+	server_io_context->stop();
 }
 
 void DmpServer::add_pending_connection(Connection&& c)
 {
 	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
 		std::move(c),
-		server_io_service
+		server_io_context
 	);
 	
 	pending_connections.push_back(cep);
@@ -190,7 +192,7 @@ void DmpServer::add_pending_connection(Connection&& c)
 		}).
 		set(message::Type::Bye, [this, cep](message::Bye b) {
 			cep->handle_bye(b);
-			server_io_service->post([this, cep](){
+			boost::asio::post(*server_io_context, [this, cep](){
 				remove_element(pending_connections, cep);
 				cep->get_callbacks().clear();
 			});
@@ -219,7 +221,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		connections[username]->terminate_connection();
 	}
 
-	server_io_service->post([this, cep, username]{
+	boost::asio::post(*server_io_context, [this, cep, username]{
 		cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
 		std::weak_ptr<ClientEndpoint> wcep = cep;
@@ -250,7 +252,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 void DmpServer::remove_connection(std::string name)
 {
-	server_io_service->post([this, name]{
+	boost::asio::post(*server_io_context, [this, name]{
 		connections.erase(name);
 
 		for(auto&& connection : connections) {
@@ -426,7 +428,10 @@ void DmpServer::handle_radio_action(message::RadioAction ra)
 void DmpServer::handle_sender_event(message::SenderEvent se)
 {
 	auto& radio = radios.at(se.radio_name);
-	radio.event_callbacks[se.event]();
+	auto callback = radio.event_callbacks.find(se.event);
+	if(callback != radio.event_callbacks.end() && callback->second) {
+		callback->second();
+	}
 }
 
 void DmpServer::handle_tune_in(std::weak_ptr<ClientEndpoint> weak_origin, message::TuneIn ti)
@@ -506,14 +511,18 @@ void DmpServer::order_stream(std::string client, std::string radio_name, uint32_
 
 void DmpServer::update_radio_state()
 {
-	std::map<std::string, RadioState> states;
-	for(auto&& radio : radios) {
-		states.emplace(radio.first, radio.second.get_state());
-	}
-	
-	for(auto& endpoint : connections) {
-		endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
-	}
+	// Called from GStreamer threads when a radio pipeline changes state, so
+	// hop over to the server thread before touching radios and connections.
+	boost::asio::post(*server_io_context, [this]{
+		std::map<std::string, RadioState> states;
+		for(auto&& radio : radios) {
+			states.emplace(radio.first, radio.second.get_state());
+		}
+
+		for(auto& endpoint : connections) {
+			endpoint.second->forward(message::RadioStates(message::RadioStates::Action::Set, states));
+		}
+	});
 }
 
 void DmpServer::forward_receiver_action(std::string client, message::ReceiverAction ra)

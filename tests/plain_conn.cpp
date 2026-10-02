@@ -6,7 +6,7 @@
 #include "message_callbacks.hpp"
 #include "message_switch.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 
 #include <memory>
 #include <thread>
@@ -20,7 +20,7 @@ private:
 	int pong_received_count = 0;
 public:
 	
-	Client(Connection&& conn, std::shared_ptr<boost::asio::io_service> ios)
+	Client(Connection&& conn, std::shared_ptr<boost::asio::io_context> ios)
 	: connection(std::move(conn)) 
 	, callbacks(std::bind(&Client::receive, this), message::DmpCallbacks::Callbacks_t{}, ios)
 	, messageswitch(make_message_switch()) {
@@ -67,9 +67,9 @@ struct Server {
 
 int main() {
 
-	auto server_io = std::make_shared<boost::asio::io_service>();
-	auto client_io1 = std::make_shared<boost::asio::io_service>();
-	auto client_io2 = std::make_shared<boost::asio::io_service>();
+	auto server_io = std::make_shared<boost::asio::io_context>();
+	auto client_io1 = std::make_shared<boost::asio::io_context>();
+	auto client_io2 = std::make_shared<boost::asio::io_context>();
 	
 	Server server;
 	

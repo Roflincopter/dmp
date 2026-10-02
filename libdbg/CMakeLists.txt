@@ -1,33 +1,19 @@
-cmake_minimum_required(VERSION 2.8.12)
-
-set(dbg-sources
+add_library(dbg STATIC
 	debug_macros.hpp
 	time_util.hpp time_util.cpp
-#	timed_debug.hpp timed_debug.cpp
 	core_dump.hpp core_dump.cpp
 )
 
-find_package(Boost COMPONENTS thread system REQUIRED)
-
-add_library(dbg STATIC ${dbg-sources})
-
 target_include_directories(dbg
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-	PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(dbg
-	PRIVATE ${Boost_LIBRARIES}
+	PRIVATE Boost::headers
 )
 
 if(WIN32)
 	target_link_libraries(dbg
-		PUBLIC wsock32.dll
+		PUBLIC ws2_32
 	)
-endif(WIN32)
-
-if(USE_GPERF)
-	target_link_libraries(dbg
-		PRIVATE "-lprofiler"
-	)
-endif(USE_GPERF)
+endif()

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "search_result_model.hpp"
-#include "ui_dmp_client_gui.hpp"
+#include "ui_dmp_client_gui.h"
 #include "dmp_client_ui_delegate.hpp"
 
 #include <QMainWindow>

@@ -11,6 +11,7 @@
 #include <taglib/tstring.h>
 
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/directory.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
 #include <stdexcept>
@@ -70,7 +71,7 @@ boost::optional<LibraryEntry> Library::build_library_entry(boost::filesystem::pa
 	TagLib::Tag* t = file.tag();
 	if(t && audio_prop) {
 		try {
-			return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->length()));
+			return boost::optional<LibraryEntry>(LibraryEntry(t->artist().to8Bit(true), t->title().to8Bit(true), t->album().to8Bit(true), t->track(), audio_prop->lengthInSeconds()));
 		} catch (std::exception& e) {
 			std::cout << "Creating LibraryEntry failed: " << e.what() << std::endl;
 			for (auto&& id : possible_transliterator_ids()) {

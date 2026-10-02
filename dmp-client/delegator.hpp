@@ -15,7 +15,7 @@ struct Delegator : protected Delegator_impl<Delegates>...
 	template <typename Delegate>
 	void add_delegate(std::weak_ptr<Delegate> delegate)
 	{
-		Delegator_impl<Delegate>::observers.template push_back(delegate);
+		Delegator_impl<Delegate>::observers.push_back(delegate);
 	}
 
 	template <typename Delegate>

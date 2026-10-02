@@ -5,6 +5,8 @@
 #include <boost/variant/variant.hpp>
 #include <boost/version.hpp>
 #include <boost/variant/get.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/asio/strand.hpp>
 
 #include <stdexcept>
@@ -71,12 +73,14 @@ struct DmpCallbacks {
 	
 	Callbacks_t callbacks;
 	std::function<void()> refresher;
-	std::shared_ptr<boost::asio::strand> strand;
+	std::shared_ptr<boost::asio::io_context> io_context;
+	std::shared_ptr<boost::asio::strand<boost::asio::io_context::executor_type>> strand;
 
-	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks, std::shared_ptr<boost::asio::io_service> io_service)
+	DmpCallbacks(std::function<void()> refresher, Callbacks_t initial_callbacks, std::shared_ptr<boost::asio::io_context> io_context)
 	: callbacks(initial_callbacks)
 	, refresher(refresher)
-	, strand(std::make_shared<boost::asio::strand>(*io_service))
+	, io_context(io_context)
+	, strand(std::make_shared<boost::asio::strand<boost::asio::io_context::executor_type>>(io_context->get_executor()))
 	{}
 
 	template <typename T>
@@ -87,16 +91,11 @@ struct DmpCallbacks {
 		if (it != callbacks.cend()) { 
 
 			if(
-//In boost 1.58 they added compile time checks for boost::get.
-//But because i generate code that won't be called it triggers compilation errors.
-//So use relaxed_get from 1.58 onwards.
-#if ( BOOST_VERSION / 100000 == 1 ) && ( BOOST_VERSION / 100 % 1000 >= 58 ) 
+//Generated code that is never called would trip boost::get's compile time
+//checks, so use relaxed_get.
 				auto f = boost::relaxed_get<CB<T>>(it->second)
-#else
-				auto f = boost::get<CB<T>>(it->second)
-#endif
 			) {
-				strand->post([f, message](){f(message);});
+				boost::asio::post(*strand, [f, message](){f(message);});
 				continuation<T>()(refresher);
 			} else {
 				throw std::runtime_error("Empty functor as callback detected");
@@ -126,7 +125,7 @@ struct DmpCallbacks {
 	
 	void stop()
 	{
-		strand->get_io_service().stop();
+		io_context->stop();
 	}
 };
 

@@ -1,32 +1,16 @@
+# Qt 6 is the primary target; Qt 5.15 is still accepted as a fallback.
+# Set DMP_QT_VERSION to 5 or 6 to pick one explicitly.
+set(DMP_QT_VERSION "" CACHE STRING "Qt major version to build the client against (5 or 6, empty = auto)")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules")
+if(DMP_QT_VERSION)
+	find_package(QT NAMES Qt${DMP_QT_VERSION} REQUIRED COMPONENTS Core)
+else()
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+endif()
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Core REQUIRED)
+if(QT_VERSION VERSION_LESS 5.15)
+	message(FATAL_ERROR "Qt 5.15 or Qt 6 is required, found Qt ${QT_VERSION}")
+endif()
 
-#Made my "own" QT5_WRAP_UI because the official one outputs the generated file in the binary dir.
-#I'm not a big fan of in source-builds and don't want to add my binary dir to my include path...
-function(MY_QT5_WRAP_UI outfiles )
-	set(options)
-	set(oneValueArgs)
-	set(multiValueArgs OPTIONS)
-
-	cmake_parse_arguments(_WRAP_UI "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-	set(ui_files ${_WRAP_UI_UNPARSED_ARGUMENTS})
-	set(ui_options ${_WRAP_UI_OPTIONS})
-
-	foreach(it ${ui_files})
-		get_filename_component(outfile ${it} NAME_WE)
-		get_filename_component(infile ${it} ABSOLUTE)
-		set(outfile ${CMAKE_CURRENT_SOURCE_DIR}/ui_${outfile}.hpp)
-		add_custom_command(OUTPUT ${outfile}
-			COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
-			ARGS ${ui_options} -o ${outfile} ${infile}
-			MAIN_DEPENDENCY ${infile}
-			VERBATIM)
-		list(APPEND ${outfiles} ${outfile})
-	endforeach()
-	set(${outfiles} ${${outfiles}} PARENT_SCOPE)
-endfunction()
+message(STATUS "Building the Qt client against Qt ${QT_VERSION}")

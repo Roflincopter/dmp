@@ -15,7 +15,8 @@
 #include "debug_macros.hpp"
 #include "dmp_client_ui_delegate.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/serialization/serialization.hpp>
 
@@ -34,12 +35,12 @@ DmpClient::DmpClient(std::string host, uint16_t port, bool secure)
 , radio_list_model(std::make_shared<RadioListModel>())
 , search_bar_model(std::make_shared<SearchBarModel>())
 , search_result_model(std::make_shared<SearchResultModel>())
-, io_service(std::make_shared<boost::asio::io_service>())
+, io_context(std::make_shared<boost::asio::io_context>())
 , library_load_thread()
 , helper_thread()
-, library_info_timer(*io_service)
-, callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks(), io_service)
-, connection(connect(host, port, io_service))
+, library_info_timer(*io_context)
+, callbacks(std::bind(&DmpClient::listen_requests, this), initial_callbacks(), io_context)
+, connection(connect(host, port, io_context))
 , last_sent_ping()
 , library()
 , senders()
@@ -117,9 +118,9 @@ void DmpClient::run()
 {
 	listen_requests();
 	helper_thread = std::thread([this](){
-		io_service->run();
+		io_context->run();
 	});
-	io_service->run();
+	io_context->run();
 }
 
 void DmpClient::clear_model()
@@ -217,12 +218,12 @@ void DmpClient::init_library()
 	
 	try {
 		library_load_thread = std::thread([this](){
-			io_service->post([this](){
+			boost::asio::post(*io_context, [this](){
 			
 				call_on_delegates(&DmpClientUiDelegate::library_load_start);
 				
 				auto perpetuation = [this](){
-					library_info_timer.expires_from_now(boost::posix_time::millisec(100));
+					library_info_timer.expires_after(std::chrono::milliseconds(100));
 					library_info_timer.async_wait(timer_callback);
 				};
 				
@@ -247,7 +248,7 @@ void DmpClient::init_library()
 		
 			library.load_library(library_info);
 			
-			io_service->post([this](){
+			boost::asio::post(*io_context, [this](){
 				library_info_timer.cancel();
 				call_on_delegates(&DmpClientUiDelegate::library_load_end);
 			});
@@ -404,7 +405,7 @@ void DmpClient::handle_bye_ack(message::ByeAck)
 	for(auto&& sender : senders) {
 		sender.second.stop();
 	}
-	io_service->stop();
+	io_context->stop();
 }
 
 void DmpClient::handle_add_radio_response(message::AddRadioResponse response)
@@ -438,8 +439,8 @@ void DmpClient::handle_radios(message::Radios radios)
 }
 
 DmpClient::~DmpClient() {
-	while(!io_service->stopped()) {
-		io_service->poll_one();
+	while(!io_context->stopped()) {
+		io_context->poll_one();
 	}
 	if(helper_thread.joinable()) {
 		helper_thread.join();

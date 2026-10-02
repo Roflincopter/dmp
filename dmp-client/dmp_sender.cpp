@@ -62,7 +62,7 @@ void DmpSender::setup(std::string host, uint16_t port, std::string file)
 	g_object_set(G_OBJECT(sink.get()), "host", host.c_str(), nullptr);
 	g_object_set(G_OBJECT(sink.get()), "port", gint(port), nullptr);
 
-	g_object_set(G_OBJECT(buffer.get()), "max-size-time", gint(30000000000), nullptr);
+	g_object_set(G_OBJECT(buffer.get()), "max-size-time", guint64(30 * GST_SECOND), nullptr);
 	g_object_set(G_OBJECT(buffer.get()), "use-buffering", gboolean(true), nullptr);
 	
 	gst_element_set_state(pipeline.get(), GST_STATE_READY);
@@ -87,15 +87,32 @@ void DmpSender::pause()
 	cp->forward_radio_event(message::SenderEvent(radio_name, message::PlaybackEvent::Paused));
 }
 
+DmpSender::DmpSender(DmpSender&& that)
+: GStreamerBase(std::move(that))
+, client(std::move(that.client))
+, radio_name(std::move(that.radio_name))
+, source(std::move(that.source))
+, decoder(std::move(that.decoder))
+, converter(std::move(that.converter))
+, resampler(std::move(that.resampler))
+, encoder(std::move(that.encoder))
+, buffer(std::move(that.buffer))
+, sink(std::move(that.sink))
+, is_resetting(that.is_resetting.load())
+{}
+
+DmpSender::~DmpSender()
+{
+	shutdown();
+}
+
 void DmpSender::play()
 {
-	{
-		GstState state;
-		GstState pending;
-		gst_element_get_state(pipeline.get(), &state, &pending, GST_CLOCK_TIME_NONE);
-		if(state != GST_STATE_READY) {
-			return;
-		}
+	// Play is both "start" (from READY) and "resume" (from PAUSED). Don't
+	// block here: waiting for a pending state change with no timeout can
+	// hang forever if the sink can't preroll.
+	if(target_state() == GST_STATE_PLAYING) {
+		return;
 	}
 	if(!gst_element_set_state(pipeline.get(), GST_STATE_PLAYING)) {
 		throw std::runtime_error("Could not play the Sender pipeline");

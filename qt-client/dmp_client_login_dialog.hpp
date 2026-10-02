@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui_dmp_client_login_dialog.hpp"
+#include "ui_dmp_client_login_dialog.h"
 
 #include <QDialog>
 
