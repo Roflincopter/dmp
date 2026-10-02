@@ -1,5 +1,5 @@
 #include "library_dialog.hpp"
-#include "ui_library_dialog.hpp"
+#include "ui_library_dialog.h"
 
 #include <QPushButton>
 #include <QFileDialog>
@@ -128,7 +128,7 @@ void LibraryDialog::addPressed()
 
 	ui->LibraryList->addItem(QString::fromStdString(new_label));
 	library[new_label] = {new_label, "", config::get_unique_cache_name().string()};
-	auto index = ui->LibraryList->rootIndex().child(ui->LibraryList->count() - 1, 0);
+	auto index = ui->LibraryList->model()->index(ui->LibraryList->count() - 1, 0, ui->LibraryList->rootIndex());
 	ui->LibraryList->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
 	selectionChanged();
 	updateOkButton();

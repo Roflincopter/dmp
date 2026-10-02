@@ -5,7 +5,6 @@
 
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
-#include <boost/regex/v4/regex_fwd.hpp>
 #include <boost/variant.hpp>
 #include <boost/regex.hpp>
 

@@ -19,7 +19,7 @@ class ClientEndpoint;
 class Connection;
 class NumberPool;
 
-namespace boost { namespace asio { class io_service; } }
+#include <boost/asio/io_context.hpp>
 
 namespace dmp_library { struct LibraryEntry; }
 
@@ -49,7 +49,7 @@ public:
 
 class DmpServer : public DmpServerInterface, public std::enable_shared_from_this<DmpServerInterface>
 {
-	std::shared_ptr<boost::asio::io_service> server_io_service;
+	std::shared_ptr<boost::asio::io_context> server_io_context;
 	std::vector<std::shared_ptr<ClientEndpoint>> pending_connections;
 	std::map<std::string, std::shared_ptr<ClientEndpoint>> connections;
 	std::map<std::string, DmpRadio> radios;

@@ -1,33 +1,29 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.20)
 
-project(dmp)
+project(dmp LANGUAGES CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
 
-include(wubwubcmake/warning_settings.cmake)
-get_sane_warning_flags(warnings)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(wubwubcmake/sane_install.cmake)
-
-if(MINGW)
-    include(wubwubcmake/enable_gnu14.cmake)
-else()
-    include(wubwubcmake/enable_cpp14.cmake)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
 endif()
 
-include(wubwubcmake/sanitizers.cmake)
+include(GNUInstallDirs)
+include(DmpWarnings)
 
-include(wubwubcmake/join.cmake)
-join("${warnings}" " " warnings)
-
-IF(UNIX AND NOT APPLE)
-    option(USE_GPERF "Enable Google performance tools." ON)
-ENDIF(UNIX AND NOT APPLE)
-
+option(USE_GPERF "Link against Google performance tools (libprofiler)." OFF)
 option(BUILD_SERVER "Build the dmp server." ON)
 option(BUILD_QT_CLIENT "Build the Qt client." ON)
+option(BUILD_TESTING "Build the tests." ON)
 
-add_definitions(${warnings} -g3 -Wno-shadow)
+if(USE_GPERF)
+	find_library(GPERF_PROFILER_LIBRARY NAMES profiler REQUIRED)
+	link_libraries(${GPERF_PROFILER_LIBRARY})
+endif()
 
 if(BUILD_SERVER OR BUILD_QT_CLIENT)
 	include(FindCommonLibraries)
@@ -41,20 +37,22 @@ if(BUILD_SERVER OR BUILD_QT_CLIENT)
 	add_subdirectory(libdmp-net)
 
 	add_subdirectory(libdmp-config)
-	
-	enable_testing()
-	add_subdirectory(tests)
-endif(BUILD_SERVER OR BUILD_QT_CLIENT)
+
+	if(BUILD_TESTING)
+		enable_testing()
+		add_subdirectory(tests)
+	endif()
+endif()
 
 if(BUILD_SERVER)
 	include(FindServerLibraries)
-	
+
 	add_subdirectory(dmp-server)
-endif(BUILD_SERVER)
+endif()
 
 if(BUILD_QT_CLIENT)
 	include(FindClientLibraries)
-	
+
 	add_subdirectory(dmp-client)
 	add_subdirectory(qt-client)
-endif(BUILD_QT_CLIENT)
+endif()

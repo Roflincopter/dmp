@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui_dmp_client_error_dialog.hpp"
+#include "ui_dmp_client_error_dialog.h"
 
 #include <QDialog>
 #include <qobjectdefs.h>

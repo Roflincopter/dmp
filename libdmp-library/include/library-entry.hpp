@@ -85,9 +85,9 @@ namespace std {
 template<>
 struct hash<dmp_library::LibraryEntry> {
 
-	typedef std::hash<std::string>::result_type result_type;
+	typedef std::size_t result_type;
 
-	std::hash<std::string>::result_type operator()(dmp_library::LibraryEntry const& entry) const {
+	std::size_t operator()(dmp_library::LibraryEntry const& entry) const {
 		std::stringstream ss;
 		ss << entry.artist << entry.title << entry.album << entry.track << entry.length;
 		return hash<string>()(ss.str());

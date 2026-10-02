@@ -37,7 +37,7 @@ DmpClientGui::DmpClientGui(QWidget *parent)
 , shared_search_results(nullptr)
 , shared_radio_list(nullptr)
 , shared_playlists(nullptr)
-, gstreamer_debug_shortcut(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_D), this, SLOT(gstreamer_debug())))
+, gstreamer_debug_shortcut(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_D), this, SLOT(gstreamer_debug())))
 , ui()
 {
 	ui.setupUi(this);

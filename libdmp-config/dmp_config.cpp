@@ -83,7 +83,7 @@ boost::filesystem::path get_config_dir() {
 boost::filesystem::path get_or_create_config_dir() {
 	boost::filesystem::path config_dir = get_config_dir();
 	if(!boost::filesystem::exists(config_dir)) {
-		boost::filesystem::create_directory(config_dir);
+		boost::filesystem::create_directories(config_dir);
 	}
 	return config_dir;
 }
@@ -91,7 +91,7 @@ boost::filesystem::path get_or_create_config_dir() {
 boost::filesystem::path get_or_create_library_dir() {
 	boost::filesystem::path library_dir = get_or_create_config_dir() / "library";
 	if(!boost::filesystem::exists(library_dir)) {
-		boost::filesystem::create_directory(library_dir);
+		boost::filesystem::create_directories(library_dir);
 	}
 	return library_dir;
 }
@@ -99,7 +99,7 @@ boost::filesystem::path get_or_create_library_dir() {
 boost::filesystem::path get_or_create_gst_dir() {
 	boost::filesystem::path gst_dir = get_or_create_config_dir() / "gst";
 	if(!boost::filesystem::exists(gst_dir)) {
-		boost::filesystem::create_directory(gst_dir);
+		boost::filesystem::create_directories(gst_dir);
 	}
 	return gst_dir;
 }

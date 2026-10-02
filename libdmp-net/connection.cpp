@@ -7,7 +7,7 @@
 Connection::Connection(boost::asio::ip::tcp::socket&& socket)
 	: encrypt(false)
 	, socket(std::move(socket))
-	, strand(new boost::asio::strand(socket.get_io_service()))
+	, strand(std::make_unique<Strand>(this->socket.get_executor()))
 	, async_type_buffer()
 	, async_size_buffer()
 	, async_mess_buffer()

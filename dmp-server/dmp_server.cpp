@@ -28,7 +28,8 @@
 
 #include <sodium/crypto_pwhash_scryptsalsa208sha256.h>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 #include <boost/filesystem/path.hpp>
 
@@ -111,7 +112,7 @@ Authenticator::RegisterResult Authenticator::register_username(std::string usern
 }
 
 DmpServer::DmpServer()
-: server_io_service(std::make_shared<boost::asio::io_service>())
+: server_io_context(std::make_shared<boost::asio::io_context>())
 , connections()
 , radios()
 , port_pool(std::make_shared<NumberPool>(50000, 51000))
@@ -126,7 +127,7 @@ DmpServer::DmpServer()
 		}
 	};
 
-	accept_loop(1337, server_io_service, f);
+	accept_loop(1337, server_io_context, f);
 }
 
 void DmpServer::read_database()
@@ -146,7 +147,7 @@ void DmpServer::read_database()
 void DmpServer::run()
 {
 	try {
-		server_io_service->run();
+		server_io_context->run();
 	} catch (std::runtime_error& e) {
 		DEBUG_COUT << e.what() << std::endl;
 		run();
@@ -155,14 +156,14 @@ void DmpServer::run()
 
 void DmpServer::stop()
 {
-	server_io_service->stop();
+	server_io_context->stop();
 }
 
 void DmpServer::add_pending_connection(Connection&& c)
 {
 	std::shared_ptr<ClientEndpoint> cep = std::make_shared<ClientEndpoint>(
 		std::move(c),
-		server_io_service
+		server_io_context
 	);
 	
 	pending_connections.push_back(cep);
@@ -190,7 +191,7 @@ void DmpServer::add_pending_connection(Connection&& c)
 		}).
 		set(message::Type::Bye, [this, cep](message::Bye b) {
 			cep->handle_bye(b);
-			server_io_service->post([this, cep](){
+			boost::asio::post(*server_io_context, [this, cep](){
 				remove_element(pending_connections, cep);
 				cep->get_callbacks().clear();
 			});
@@ -219,7 +220,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 		connections[username]->terminate_connection();
 	}
 
-	server_io_service->post([this, cep, username]{
+	boost::asio::post(*server_io_context, [this, cep, username]{
 		cep->set_terminate_connection(std::bind(&DmpServer::remove_connection, this, username));
 
 		std::weak_ptr<ClientEndpoint> wcep = cep;
@@ -250,7 +251,7 @@ void DmpServer::add_permanent_connection(std::shared_ptr<ClientEndpoint> cep)
 
 void DmpServer::remove_connection(std::string name)
 {
-	server_io_service->post([this, name]{
+	boost::asio::post(*server_io_context, [this, name]{
 		connections.erase(name);
 
 		for(auto&& connection : connections) {

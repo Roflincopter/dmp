@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8.12)
-
 ODB_compile(odb_sources
 	user.hpp
 	radio.hpp
@@ -23,17 +21,17 @@ add_executable(dmp-server
 	${odb_sources}
 )
 
-target_include_directories(dmp-server SYSTEM
-	PRIVATE ${Boost_INCLUDE_DIRS}
-)
-
 target_include_directories(dmp-server
-	PRIVATE ${ODBc++_INCLUDE_DIRECTORIES}
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(dmp-server
-	PRIVATE ${Boost_LIBRARIES}
-	PRIVATE ${ODBc++_LIBRARIES}
+	PRIVATE Boost::headers
+	PRIVATE Boost::filesystem
+	PRIVATE Boost::serialization
+	PRIVATE ODBc++::ODBc++
+	PRIVATE PkgConfig::Sodium
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
@@ -43,10 +41,4 @@ target_link_libraries(dmp-server
 	PRIVATE serialization
 )
 
-if(USE_GPERF)
-	target_link_libraries(dmp-server
-		PRIVATE "-lprofiler"
-	)
-endif(USE_GPERF)
-
-sane_install(TARGETS dmp-server)
+install(TARGETS dmp-server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

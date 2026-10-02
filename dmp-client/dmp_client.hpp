@@ -25,7 +25,8 @@ class RadioListModel;
 class SearchBarModel;
 class SearchResultModel;
 
-namespace boost { namespace asio { class io_service; } }
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 namespace dmp_library { struct LibraryEntry; }
 
@@ -44,10 +45,10 @@ public:
 	std::shared_ptr<SearchResultModel> search_result_model;
 
 private:
-	std::shared_ptr<boost::asio::io_service> io_service;
+	std::shared_ptr<boost::asio::io_context> io_context;
 	std::thread library_load_thread;
 	std::thread helper_thread;
-	boost::asio::deadline_timer library_info_timer;
+	boost::asio::steady_timer library_info_timer;
 	message::DmpCallbacks callbacks;
 	Connection connection;
 	message::Ping last_sent_ping;

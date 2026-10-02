@@ -4,7 +4,6 @@
 #include "fusion_static_dispatch.hpp"
 
 #include <QMetaType>
-#include <QRegExp>
 #include <QVariant>
 
 #include <boost/any.hpp>

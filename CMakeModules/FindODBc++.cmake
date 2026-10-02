@@ -1,110 +1,107 @@
-# - Try to find LibDMP-library
-# Once done this wil define
-# ODBc++_FOUND
-# ODBc++_INCLUDE_DIRS
-# ODBc++_LIBRARIES
+# Find the ODB C++ ORM runtime, its database backends and the odb compiler.
+#
+# Defines the imported target ODBc++::ODBc++ (runtime plus every requested
+# backend component) and the function ODB_compile(<outvar> headers...).
+
+find_package(PkgConfig QUIET)
 
 find_path(ODBc++_INCLUDE_DIR odb/core.hxx)
-find_library(ODBc++_LIBRARY NAMES libodb odb)
+find_library(ODBc++_LIBRARY NAMES odb libodb)
 find_program(ODBc++_COMPILER NAMES odb)
 
-set(ODBc++_LIBRARIES ${ODBc++_LIBRARY})
-set(ODBc++_INCLUDE_DIRS ${ODBc++_INCLUDE_DIR})
+if(ODBc++_COMPILER)
+	execute_process(
+		COMMAND ${ODBc++_COMPILER} --version
+		OUTPUT_VARIABLE _odb_version_output
+		ERROR_QUIET
+	)
+	if(_odb_version_output MATCHES "([0-9]+\\.[0-9]+\\.[0-9]+)")
+		set(ODBc++_VERSION ${CMAKE_MATCH_1})
+	endif()
+endif()
 
-foreach(_ODBc++_component ${ODBc++_FIND_COMPONENTS})
-	find_path(ODBc++_${_ODBc++_component}_INCLUDE_DIR NAMES "odb/${_ODBc++_component}/sqlite-types.hxx")
-	
-	find_library(ODBc++_${_ODBc++_component}_LIBRARY NAMES libodb-${_ODBc++_component} odb-${_ODBc++_component})
-	
-	set(ODBc++_INCLUDE_DIRS ${ODBc++_INCLUDE_DIRS} ${ODBc++_${_ODBc++_component}_INCLUDE_DIR})
-	set(ODBc++_LIBRARIES ${ODBc++_LIBRARIES} ${ODBc++_${_ODBc++_component}_LIBRARY})
+set(_odb_component_vars)
+foreach(_component IN LISTS ODBc++_FIND_COMPONENTS)
+	find_path(ODBc++_${_component}_INCLUDE_DIR NAMES "odb/${_component}/version.hxx")
+	find_library(ODBc++_${_component}_LIBRARY NAMES odb-${_component} libodb-${_component})
+	if(ODBc++_${_component}_INCLUDE_DIR AND ODBc++_${_component}_LIBRARY)
+		set(ODBc++_${_component}_FOUND TRUE)
+	endif()
+	list(APPEND _odb_component_vars ODBc++_${_component}_LIBRARY)
+	mark_as_advanced(ODBc++_${_component}_INCLUDE_DIR ODBc++_${_component}_LIBRARY)
 endforeach()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ODBc++ REQUIRED_VARS ODBc++_LIBRARY ODBc++_INCLUDE_DIR ODBc++_COMPILER)
+find_package_handle_standard_args(ODBc++
+	REQUIRED_VARS ODBc++_LIBRARY ODBc++_INCLUDE_DIR ODBc++_COMPILER ${_odb_component_vars}
+	VERSION_VAR ODBc++_VERSION
+	HANDLE_COMPONENTS
+)
 
-set(ODBc++_FOUND ${ODBC++_FOUND})
+if(ODBc++_FOUND AND NOT TARGET ODBc++::ODBc++)
+	add_library(ODBc++::ODBc++ INTERFACE IMPORTED)
+	set(_odb_libs ${ODBc++_LIBRARY})
+	set(_odb_includes ${ODBc++_INCLUDE_DIR})
+	foreach(_component IN LISTS ODBc++_FIND_COMPONENTS)
+		list(PREPEND _odb_libs ${ODBc++_${_component}_LIBRARY})
+		list(APPEND _odb_includes ${ODBc++_${_component}_INCLUDE_DIR})
+	endforeach()
+	list(REMOVE_DUPLICATES _odb_includes)
+	set_target_properties(ODBc++::ODBc++ PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${_odb_includes}"
+		INTERFACE_LINK_LIBRARIES "${_odb_libs}"
+	)
+endif()
 
-if(NOT ODBc++_FOUND)
-	IF (ODBc++_FIND_REQUIRED)
-		message(SEND_ERROR "Unable to find all ODBc++-components or library")
-	ENDIF(ODBc++_FIND_REQUIRED)
-endif(NOT ODBc++_FOUND)
-
+# ODB_compile(<outvar> header...)
+#
+# Runs the odb compiler on the given persistent class headers. The generated
+# <name>-odb.{hpp,cpp,ipp} files are written to the current binary directory
+# and their paths are appended to <outvar>.
 function(ODB_compile outfiles)
-	set(options)
-	set(oneValueArgs)
-	set(multiValueArgs)
+	# ODB 2.4 knows at most C++14; 2.5 and later can parse C++17.
+	set(_odb_std c++14)
+	if(ODBc++_VERSION VERSION_GREATER_EQUAL 2.5)
+		set(_odb_std c++17)
+	endif()
 
-	cmake_parse_arguments(_ODB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-	set(ODB_files ${_ODB_UNPARSED_ARGUMENTS})
-
-	set(_our_args
-		"--std" "c++11"
-		"-DODB_COMPILER"
-		"--generate-query"
-		"--generate-schema"
-		"--default-pointer" "std::shared_ptr"
-		"-d" "sqlite"
-		"--output-dir" "${CMAKE_CURRENT_SOURCE_DIR}"
-		"--hxx-suffix" ".hpp"
-		"--cxx-suffix" ".cpp"
-		"--ixx-suffix" ".ipp"
+	set(_odb_args
+		--std ${_odb_std}
+		-DODB_COMPILER
+		--generate-query
+		--generate-schema
+		--default-pointer std::shared_ptr
+		-d sqlite
+		--output-dir ${CMAKE_CURRENT_BINARY_DIR}
+		--hxx-suffix .hpp
+		--cxx-suffix .cpp
+		--ixx-suffix .ipp
+		-I ${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
-	foreach(file ${ODB_files})
-		get_filename_component(_infile ${file} ABSOLUTE)
-		set(_our_args ${_our_args} "${_infile}")
-	endforeach()
+	set(_generated)
+	foreach(_header IN LISTS ARGN)
+		get_filename_component(_infile ${_header} ABSOLUTE)
+		get_filename_component(_name ${_header} NAME_WE)
 
-	foreach(it ${ODB_files})
-		get_filename_component(_infile ${it} ABSOLUTE)
-		get_filename_component(_outfile ${it} NAME_WE)
+		set(_outputs
+			${CMAKE_CURRENT_BINARY_DIR}/${_name}-odb.hpp
+			${CMAKE_CURRENT_BINARY_DIR}/${_name}-odb.cpp
+			${CMAKE_CURRENT_BINARY_DIR}/${_name}-odb.ipp
+		)
 
-		set(_outfile1 ${_outfile}-odb.hpp)
 		add_custom_command(
-			OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile1}
-			COMMAND ${ODBc++_COMPILER}
-			ARGS ${_our_args}
+			OUTPUT ${_outputs}
+			COMMAND ${ODBc++_COMPILER} ${_odb_args} ${_infile}
 			DEPENDS ${_infile}
+			COMMENT "Running odb on ${_header}"
 			VERBATIM
 		)
 
-		set(_outfile2 ${_outfile}-odb.cpp)
-		add_custom_command(
-			OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile2}
-			COMMAND ${ODBc++_COMPILER}
-			ARGS ${_our_args}
-			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile1}
-			VERBATIM
-		)
-		
-		SET_SOURCE_FILES_PROPERTIES(${_outfile2} PROPERTIES COMPILE_FLAGS -Wno-switch-default )
-
-		set(_outfile3 ${_outfile}-odb.ipp)
-		add_custom_command(
-			OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile3}
-			COMMAND ${ODBc++_COMPILER}
-			ARGS ${_our_args}
-			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile2}
-			VERBATIM
-		)
-
-		#note this file is not generated when using sqlite. So when making the database variable check this.
-		#set(_outfile4 ${_outfile}.sql)
-		#add_custom_command(
-		#	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile4}
-		#	COMMAND ${ODBc++_COMPILER}
-		#	ARGS ${_our_args}
-		#	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_outfile3}
-		#	VERBATIM
-		#)
-
-		list(APPEND ${outfiles} ${_outfile1} ${_outfile2} ${_outfile3} ${_outfile4})
+		list(APPEND _generated ${_outputs})
 	endforeach()
-	
-	set(${outfiles} ${${outfiles}} PARENT_SCOPE)
+
+	set(${outfiles} ${${outfiles}} ${_generated} PARENT_SCOPE)
 endfunction()
 
-mark_as_advanced(ODBc++_INCLUDE_DIR ODBc++_LIBRARY)
+mark_as_advanced(ODBc++_INCLUDE_DIR ODBc++_LIBRARY ODBc++_COMPILER)

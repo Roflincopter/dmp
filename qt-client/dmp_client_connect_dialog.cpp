@@ -142,7 +142,7 @@ void DmpClientConnectDialog::addPressed()
 	
 	ui.Servers->addItem(QString::fromStdString(new_label));
 	servers[new_label] = {};
-	auto index = ui.Servers->rootIndex().child(ui.Servers->count() - 1, 0);
+	auto index = ui.Servers->model()->index(ui.Servers->count() - 1, 0, ui.Servers->rootIndex());
 	ui.Servers->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Select);
 	selectionChanged();
 	updateOkButton();

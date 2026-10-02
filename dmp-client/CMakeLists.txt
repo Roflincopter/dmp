@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
-
-set(DmpClientSources
+add_library(dmp-client STATIC
 	dmp_client.hpp dmp_client.cpp
 	dmp_sender.hpp dmp_sender.cpp
 	dmp_receiver.hpp dmp_receiver.cpp
@@ -18,14 +16,13 @@ set(DmpClientSources
 	search_bar_ui_delegate.hpp
 )
 
-add_library(dmp-client STATIC ${DmpClientSources} ${DmpClientResources})
-
 target_include_directories(dmp-client
 	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-	PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(dmp-client
+	PUBLIC Boost::headers
+	PRIVATE Boost::serialization
 	PRIVATE dmp-library
 	PRIVATE dmp-common
 	PRIVATE dmp-net
@@ -34,9 +31,3 @@ target_link_libraries(dmp-client
 	PRIVATE dbg
 	PRIVATE serialization
 )
-
-if(USE_GPERF)
-	target_link_libraries(dmp-client
-		PRIVATE "-lprofiler"
-	)
-endif(USE_GPERF)

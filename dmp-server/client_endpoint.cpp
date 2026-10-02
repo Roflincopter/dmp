@@ -2,8 +2,8 @@
 
 #include "message.hpp"
 
-#include <boost/asio/basic_deadline_timer.hpp>
-#include <boost/date_time/posix_time/posix_time_duration.hpp>
+#include <boost/asio/steady_timer.hpp>
+#include <chrono>
 #include <boost/serialization/serialization.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -13,11 +13,11 @@
 #include <stdexcept>
 
 
-ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios)
+ClientEndpoint::ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_context> ios)
 : name()
 , connection(std::move(conn))
-, ping_timer(new boost::asio::deadline_timer(*ios.lock()))
-, time_out(new boost::asio::deadline_timer(*ios.lock()))
+, ping_timer(new boost::asio::steady_timer(*ios.lock()))
+, time_out(new boost::asio::steady_timer(*ios.lock()))
 , last_ping()
 , callbacks(std::bind(&ClientEndpoint::listen_requests, this), message::DmpCallbacks::Callbacks_t{}, ios.lock())
 , message_switch(make_message_switch())
@@ -93,7 +93,7 @@ void ClientEndpoint::handle_bye(message::Bye)
 
 void ClientEndpoint::keep_alive()
 {
-	ping_timer->expires_from_now(boost::posix_time::seconds(10));
+	ping_timer->expires_after(std::chrono::seconds(10));
 	auto cb = [this](boost::system::error_code const& ec)
 	{
 		if(ec) {
@@ -113,7 +113,7 @@ void ClientEndpoint::keep_alive()
 			keep_alive();
 			throw;
 		}
-		time_out->expires_from_now(boost::posix_time::seconds(10));
+		time_out->expires_after(std::chrono::seconds(10));
 		time_out->async_wait([this](boost::system::error_code const& ec) {
 			if(ec.value() == boost::system::errc::operation_canceled) {
 				return;

@@ -1,26 +1,12 @@
+find_package(PkgConfig REQUIRED)
+find_package(Threads REQUIRED)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules")
+# Boost.System is header-only since 1.69 and its stub library is gone in
+# recent releases, so it is not requested as a component.
+find_package(Boost 1.74 CONFIG REQUIRED COMPONENTS filesystem program_options regex serialization)
 
-message(STATUS ${CMAKE_MODULE_PATH})
+find_package(ICU 60 REQUIRED COMPONENTS uc i18n data)
 
-find_package(Boost COMPONENTS filesystem program_options regex serialization thread system REQUIRED)
-find_package(TagLib REQUIRED)
-find_package(ICU REQUIRED)
-
-set(BUNDLE_TYPE "static" CACHE STRING
-	"ICU resource bundle type; possible values are: common, static and common"
-)
-string (TOUPPER ${BUNDLE_TYPE} _BUNDLE_TYPE)
-
-if (NOT ${_BUNDLE_TYPE} STREQUAL "SHARED")
-	add_definitions (-DUSE_STATIC_RESOURCES)
-endif (NOT ${_BUNDLE_TYPE} STREQUAL "SHARED")
-
-if (${_BUNDLE_TYPE} STREQUAL "COMMON")
-	add_definitions (-DUSE_COMMON_RESOURCES)
-endif (${_BUNDLE_TYPE} STREQUAL "COMMON")
-
-find_package(GStreamer REQUIRED)
-find_package(GLIB2 REQUIRED)
-find_package(GObject REQUIRED)
-find_package(Sodium)
+pkg_check_modules(TagLib REQUIRED IMPORTED_TARGET taglib>=1.11)
+pkg_check_modules(GStreamer REQUIRED IMPORTED_TARGET gstreamer-1.0>=1.16)
+pkg_check_modules(Sodium REQUIRED IMPORTED_TARGET libsodium>=1.0.18)

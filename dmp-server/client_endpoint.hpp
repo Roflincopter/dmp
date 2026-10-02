@@ -5,7 +5,7 @@
 #include "message_callbacks.hpp"
 #include "message_switch.hpp"
 
-#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/system/system_error.hpp>
 
 #include <stdint.h>
@@ -14,17 +14,17 @@
 #include <string>
 #include <vector>
 
-namespace boost { namespace asio { class io_service; } }
+#include <boost/asio/io_context.hpp>
 
 class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 {
 	std::string name;
 
-	//ping_timer depends on the io_service of the connection so the pings stop when the connection dies.
+	//ping_timer depends on the io_context of the connection so the pings stop when the connection dies.
 	//Leave them in this order or make them independant.
 	Connection connection;
-	std::unique_ptr<boost::asio::deadline_timer> ping_timer;
-	std::unique_ptr<boost::asio::deadline_timer> time_out;
+	std::unique_ptr<boost::asio::steady_timer> ping_timer;
+	std::unique_ptr<boost::asio::steady_timer> time_out;
 
 	message::Ping last_ping;
 	message::DmpCallbacks callbacks;
@@ -32,7 +32,7 @@ class ClientEndpoint : public std::enable_shared_from_this<ClientEndpoint>
 
 public:
 
-	ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_service> ios);
+	ClientEndpoint(Connection&& conn, std::weak_ptr<boost::asio::io_context> ios);
 	~ClientEndpoint();
 
 	std::function<void()> terminate_connection;
